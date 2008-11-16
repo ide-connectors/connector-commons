@@ -325,49 +325,4 @@
             </releases>
         </pluginRepository>
     </pluginRepositories>
-    <profiles>
-        <profile>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>build-tools</module>
-                <module>commons</module>
-                <module>idea</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>eclipse</id>
-            <build>
-                <defaultGoal>eclipse:eclipse</defaultGoal>
-            </build>
-            <modules>
-                <module>commons</module>
-                <module>eclipse</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>idea</id>
-            <build>
-                <defaultGoal>idea:idea</defaultGoal>
-            </build>
-            <modules>
-                <module>build-tools</module>
-                <module>commons</module>
-                <module>idea</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>commons-only</id>
-            <modules>
-                <module>commons</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>idea-only</id>
-            <modules>
-                <module>idea</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>

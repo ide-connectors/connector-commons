@@ -1,16 +1,30 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.atlassian.theplugin</groupId>
-    <artifactId>atlassian-plugin-commons</artifactId>
+    <groupId>com.atlassian.connector</groupId>
+    <artifactId>atlassian-connector-commons</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <inceptionYear>2008</inceptionYear>
     <name>Library of common classes</name>
     <description>Common classes used by various Atlassian IDE Connectors.</description>
-    <parent>
-        <groupId>com.atlassian.theplugin</groupId>
-        <artifactId>atlassian-plugin-pom</artifactId>
+	<organization>
+		<name>Atlassian Pty Ltd</name>
+		<url>http://atlassian.com/</url>
+	</organization>
+	<scm>
+		<connection>scm:svn:https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.commons/</connection>
+		<developerConnection>scm:svn:https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.commons/</developerConnection>
+		<url>https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.commons/</url>
+	</scm>
+	<issueManagement>
+		<system>Jira</system>
+		<url>https://studio.atlassian.com/browse/ACC</url>
+	</issueManagement>
+
+	<parent>
+        <groupId>com.atlassian.connector</groupId>
+        <artifactId>atlassian-connector-parent-pom</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
     <build>                          	

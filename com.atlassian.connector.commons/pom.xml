@@ -37,7 +37,19 @@
                     <xmlOutput>true</xmlOutput>
                 </configuration>
             </plugin>
-        </plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.2</version>
+				<dependencies>
+					<dependency>
+						<groupId>com.atlassian.connector</groupId>
+						<artifactId>atlassian-connector-build-tools</artifactId>
+						<version>${project.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
     </build>
     <dependencies>
         <dependency>

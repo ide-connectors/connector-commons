@@ -99,10 +99,6 @@ public class GeneralConfigurationBean {
 		return anonymousFeedbackEnabled;
 	}
 
-	public void setAnonymousFeedbackEnabled(boolean isAnonymousFeedbackEnabled) {
-		this.anonymousFeedbackEnabled = isAnonymousFeedbackEnabled;
-	}
-
 	public void setAnonymousFeedbackEnabled(Boolean isAnonymousFeedbackEnabled) {
 		this.anonymousFeedbackEnabled = isAnonymousFeedbackEnabled;
 	}
@@ -123,6 +119,7 @@ public class GeneralConfigurationBean {
 		useIdeaProxySettings = use;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;

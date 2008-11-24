@@ -19,4 +19,49 @@ package com.atlassian.theplugin.commons.cfg;
 public interface ConfigurationListener {
 	void configurationUpdated(final ProjectConfiguration aProjectConfiguration);
 	void projectUnregistered();
+
+	/**
+	 * Called in case connections data (url, username, password) has changed
+	 * @param serverId id of modified server
+	 */
+	void serverConnectionDataUpdated(ServerId serverId);
+
+	/**
+	 * Called in case server name (label) has changed
+	 * @param serverId id of modified server
+	 */
+	void serverNameUpdated(ServerId serverId);
+
+	/**
+	 * Called in case new server has been added.
+	 * It notifies also about DISABLED servers.
+	 * @param newServer added server
+	 */
+	void serverAdded(ServerCfg newServer);
+
+	/**
+	 * Called in case server has been removed from configuration.
+	 * It notifies also about DISABLED servers.
+	 * @param oldServer removed server
+	 */
+	void serverRemoved(ServerCfg oldServer);
+
+	/**
+	 * Called in case server has been enabled
+	 * @param serverId id of enabled server
+	 */
+	void serverEnabled(ServerId serverId);
+
+	/**
+	 * Called in case server has been disabled
+	 * @param serverId id of disabled server
+	 */
+	void serverDisabled(ServerId serverId);
+
+	/**
+	 * Called in case server has been changed
+	 * ServerCfg.equals is used to determine the change
+	 * @param serverId id of changed server
+	 */
+	void serverDataUpdated(ServerId serverId);
 }

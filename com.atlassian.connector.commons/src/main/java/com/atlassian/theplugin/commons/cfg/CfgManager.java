@@ -59,13 +59,13 @@ public interface CfgManager extends BambooCfgManager {
 
 	Collection<ServerCfg> getAllUniqueServers();
 
-	void addConfigurationCredentialsListener(ProjectId projectId,
-			ConfigurationCredentialsListener listener);
-
-	void removeAllConfigurationCredentialListeners(final ProjectId projectId);
-
-	boolean removeConfigurationCredentialsListener(ProjectId projectId,
-			ConfigurationCredentialsListener listener);
+//	void addConfigurationCredentialsListener(ProjectId projectId,
+//			ConfigurationCredentialsListener listener);
+//
+//	void removeAllConfigurationCredentialListeners(final ProjectId projectId);
+//
+//	boolean removeConfigurationCredentialsListener(ProjectId projectId,
+//			ConfigurationCredentialsListener listener);
 
 	boolean hasProject(ProjectId projectId);
 }

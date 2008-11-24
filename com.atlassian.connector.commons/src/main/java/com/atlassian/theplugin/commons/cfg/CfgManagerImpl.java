@@ -89,88 +89,40 @@ public class CfgManagerImpl implements CfgManager {
 			throw new NullPointerException("Project configuration cannot be null");
 		}
 
-		notifyCredentialsListeners(projectId, projectConfiguration, getProjectConfiguration(projectId));
+//		notifyCredentialsListeners(projectId, projectConfiguration, getProjectConfiguration(projectId));
+
+		ProjectConfiguration oldConfiguration = null;
+		if (getProjectConfiguration(projectId) != null) {
+			oldConfiguration = new ProjectConfiguration(getProjectConfiguration(projectId));
+		}
 
 		// internalize the list to be private and put it to array
 		projectConfigurations.put(projectId, projectConfiguration);
-		notifyListeners(projectId, new UpdateConfigurationListenerAction(projectConfiguration));
+
+		notifyListeners(projectId, projectConfiguration, oldConfiguration);
+//		notifyListeners(projectId, new UpdateConfigurationListenerAction(projectConfiguration));
 
 	}
 
-	private void notifyCredentialsListeners(final ProjectId projectId,
-			final ProjectConfiguration newConfiguration, final ProjectConfiguration oldConfiguration) {
+	private void notifyListeners(ProjectId projectId,
+								 ProjectConfiguration newConfiguration,
+								 ProjectConfiguration oldConfiguration) {
 
-		if (oldConfiguration == null || newConfiguration == null) {
-			return;
-		}
+		ProjectListenerAction[] actions = {
+				new UpdateConfigurationListenerAction(newConfiguration),
+//				new ServerCredentialChangedAction(newConfiguration, oldConfiguration),
+//				new ServerDataChangedAction(newConfiguration, oldConfiguration),
+//				new ServerLabelChangedAction(newConfiguration, oldConfiguration),
+				new ServerChangedAction(newConfiguration, oldConfiguration),
+				new ServerAddedAction(newConfiguration, oldConfiguration),
+				new ServerRemovedAction(newConfiguration, oldConfiguration),
+				new ServerEnabledDisabledAction(newConfiguration, oldConfiguration)
+		};
 
-		for (ServerCfg oldServer : oldConfiguration.getServers()) {
-			if (checkServerCredentialsChange(oldServer, newConfiguration.getServerCfg(oldServer.getServerId()))) {
-				notifyCredentialsListeners(projectId, oldServer.getServerId());
-			}
-		}
-	}
-
-	private void notifyCredentialsListeners(final ProjectId projectId, final ServerId serverId) {
-//		System.out.println("change");
-		Collection<ConfigurationCredentialsListener> projectListeners = credentialListeners.get(projectId);
-
-		if (projectListeners != null) {
-			for (ConfigurationCredentialsListener listener : projectListeners) {
-				listener.configurationCredentialsUpdated(serverId);
-			}
+		for (ProjectListenerAction action : actions) {
+			notifyListeners(projectId, action);
 		}
 	}
-
-	private boolean checkServerCredentialsChange(final ServerCfg oldServer, final ServerCfg newServer) {
-		if (newServer == null) {
-			return false;
-		}
-
-		if (!oldServer.getUsername().equals(newServer.getUsername())
-			|| !oldServer.getPassword().equals(newServer.getPassword())) {
-			return true;
-		}
-
-		return false;
-	}
-
-	public void addConfigurationCredentialsListener(final ProjectId projectId, 
-			final ConfigurationCredentialsListener listener) {
-
-		if (listener == null) {
-			throw new IllegalArgumentException(ProjectId.class.getSimpleName() + " cannot be null");
-		}
-		verifyProjectId(projectId);
-
-		Collection<ConfigurationCredentialsListener> tmp = credentialListeners.get(projectId);
-		if (tmp == null) {
-			tmp = new CopyOnWriteArraySet<ConfigurationCredentialsListener>(); //MiscUtil.buildHashSet();
-			credentialListeners.put(projectId, tmp);
-		}
-		tmp.add(listener);
-	}
-
-	public void removeAllConfigurationCredentialListeners(final ProjectId projectId) {
-		verifyProjectId(projectId);
-
-		credentialListeners.remove(projectId);
-	}
-
-	public boolean removeConfigurationCredentialsListener(final ProjectId projectId,
-			final ConfigurationCredentialsListener listener) {
-		if (listener == null) {
-			throw new IllegalArgumentException(ProjectId.class.getSimpleName() + " cannot be null");
-		}
-		verifyProjectId(projectId);
-		Collection<ConfigurationCredentialsListener> tmp = credentialListeners.get(projectId);
-		if (tmp != null) {
-			return tmp.remove(listener);
-		}
-		return false;
-	}
-
-
 
 	private void notifyListeners(final ProjectId projectId, ProjectListenerAction listenerAction) {
 		Collection<ConfigurationListener> projectListeners = listeners.get(projectId);
@@ -182,6 +134,29 @@ public class CfgManagerImpl implements CfgManager {
 		}
 	}
 
+	public void addProjectConfigurationListener(final ProjectId projectId, final ConfigurationListener configurationListener) {
+		if (configurationListener == null) {
+			throw new IllegalArgumentException(ProjectId.class.getSimpleName() + " cannot be null");
+		}
+		verifyProjectId(projectId);
+
+		Collection<ConfigurationListener> tmp = listeners.get(projectId);
+		if (tmp == null) {
+			tmp = new CopyOnWriteArraySet<ConfigurationListener>(); //MiscUtil.buildHashSet();
+			listeners.put(projectId, tmp);
+		}
+		tmp.add(configurationListener);
+	}
+
+	public boolean removeProjectConfigurationListener(final ProjectId projectId,
+													  final ConfigurationListener configurationListener) {
+		if (configurationListener == null) {
+			throw new IllegalArgumentException(ProjectId.class.getSimpleName() + " cannot be null");
+		}
+		verifyProjectId(projectId);
+		Collection<ConfigurationListener> tmp = listeners.get(projectId);
+		return tmp.remove(configurationListener);
+	}
 
 	public void updateGlobalConfiguration(final GlobalConfiguration globalConfiguration) {
 		if (globalConfiguration == null) {
@@ -191,7 +166,7 @@ public class CfgManagerImpl implements CfgManager {
 		globalServers = MiscUtil.buildArrayList(globalConfiguration.getGlobalServers());
 	}
 
-    public void addProjectSpecificServer(final ProjectId projectId, final ServerCfg serverCfg) {
+	public void addProjectSpecificServer(final ProjectId projectId, final ServerCfg serverCfg) {
 		verifyProjectId(projectId);
 		if (serverCfg == null) {
 			throw new IllegalArgumentException(ServerCfg.class.getSimpleName() + " cannot be null");
@@ -209,7 +184,7 @@ public class CfgManagerImpl implements CfgManager {
 
 	}
 
-    public void addGlobalServer(final ServerCfg serverCfg) {
+	public void addGlobalServer(final ServerCfg serverCfg) {
         globalServers.add(serverCfg);
     }
 
@@ -226,12 +201,12 @@ public class CfgManagerImpl implements CfgManager {
 		return removeServer(serverId, globalServers);
     }
 
+
 	private void verifyServerId(final ServerId serverId) {
 		if (serverId == null) {
 			throw new IllegalArgumentException(ServerId.class.getSimpleName() + " cannot be null");
 		}
 	}
-
 
 	public ServerCfg removeProjectSpecificServer(final ProjectId projectId, final ServerId serverId) {
 		verifyProjectId(projectId);
@@ -289,6 +264,7 @@ public class CfgManagerImpl implements CfgManager {
 		return res;
 	}
 
+
 	public Collection<JiraServerCfg> getAllEnabledJiraServers(final ProjectId projectId) {
 		Collection<ServerCfg> tmp = getAllEnabledServers(projectId);
 		Collection<JiraServerCfg> res = MiscUtil.buildArrayList();
@@ -313,7 +289,6 @@ public class CfgManagerImpl implements CfgManager {
 		return res;
 	}
 
-
 	private ServerCfg removeServer(final ServerId serverId, final Collection<ServerCfg> servers) {
         Iterator<ServerCfg> it = servers.iterator();
         while (it.hasNext()) {
@@ -326,33 +301,9 @@ public class CfgManagerImpl implements CfgManager {
         return null;
     }
 
+
 	public void update(GlobalConfiguration globalConfiguration) {
 		bambooCfg = globalConfiguration.getBambooCfg();
-	}
-
-
-	public void addProjectConfigurationListener(final ProjectId projectId, final ConfigurationListener configurationListener) {
-		if (configurationListener == null) {
-			throw new IllegalArgumentException(ProjectId.class.getSimpleName() + " cannot be null");
-		}
-		verifyProjectId(projectId);
-
-		Collection<ConfigurationListener> tmp = listeners.get(projectId);
-		if (tmp == null) {
-			tmp = MiscUtil.buildHashSet();
-			listeners.put(projectId, tmp);
-		}
-		tmp.add(configurationListener);
-	}
-
-	public boolean removeProjectConfigurationListener(final ProjectId projectId,
-			final ConfigurationListener configurationListener) {
-		if (configurationListener == null) {
-			throw new IllegalArgumentException(ProjectId.class.getSimpleName() + " cannot be null");
-		}
-		verifyProjectId(projectId);
-		Collection<ConfigurationListener> tmp = listeners.get(projectId);
-		return tmp.remove(configurationListener);
 	}
 
 	private interface ProjectListenerAction {
@@ -381,5 +332,140 @@ public class CfgManagerImpl implements CfgManager {
 				final CfgManagerImpl cfgManager) {
 			projectListener.configurationUpdated(projectConfiguration);
 		}
+	}
+
+	private class ServerChangedAction implements ProjectListenerAction {
+		protected final ProjectConfiguration newConfiguration;
+		protected ProjectConfiguration oldConfiguration;
+
+		public ServerChangedAction(ProjectConfiguration newConfiguration, ProjectConfiguration oldConfiguration) {
+			this.newConfiguration = newConfiguration;
+			this.oldConfiguration = oldConfiguration;
+		}
+
+		public void run(ConfigurationListener projectListener, ProjectId projectId, CfgManagerImpl cfgManager) {
+			if (oldConfiguration == null || newConfiguration == null) {
+				return;
+			}
+
+			for (ServerCfg oldServer : oldConfiguration.getServers()) {
+				ServerCfg newServer = newConfiguration.getServerCfg(oldServer.getServerId());
+
+				if (newServer == null) {
+					continue;
+				}
+
+				// server general update
+				if (!oldServer.equals(newServer)) {
+					projectListener.serverDataUpdated(oldServer.getServerId());
+
+					// server url or credentials updated
+					if (checkCredentialsChanged(oldServer, newServer)
+							|| checkUrlChanged(oldServer, newConfiguration.getServerCfg(oldServer.getServerId()))) {
+						projectListener.serverConnectionDataUpdated(oldServer.getServerId());
+					}
+
+					// server name updated
+					if (!oldServer.getName().equals(newServer.getName())) {
+						projectListener.serverNameUpdated(oldServer.getServerId());
+					}
+
+				}
+			}
+		}
+
+		protected boolean checkCredentialsChanged(final ServerCfg oldServer, final ServerCfg newServer) {
+			if (newServer == null) {
+				return false;
+			}
+
+			if (!oldServer.getUsername().equals(newServer.getUsername())
+					|| !oldServer.getPassword().equals(newServer.getPassword())) {
+				return true;
+			}
+
+			return false;
+		}
+
+		private boolean checkUrlChanged(final ServerCfg oldServer, final ServerCfg newServer) {
+			if (newServer == null) {
+				return false;
+			}
+			return !oldServer.getUrl().equals(newServer.getUrl());
+		}
+	}
+
+	private class ServerAddedAction implements ProjectListenerAction {
+		private final ProjectConfiguration newConfiguration;
+		private final ProjectConfiguration oldConfiguration;
+
+		public ServerAddedAction(ProjectConfiguration newConfiguration, ProjectConfiguration oldConfiguration) {
+			this.newConfiguration = newConfiguration;
+			this.oldConfiguration = oldConfiguration;
+		}
+
+		public void run(ConfigurationListener projectListener, ProjectId projectId, CfgManagerImpl cfgManager) {
+			if (oldConfiguration == null || newConfiguration == null) {
+				return;
+			}
+
+			for (ServerCfg newServer : newConfiguration.getServers()) {
+				if (oldConfiguration.getServerCfg(newServer.getServerId()) == null) {
+					projectListener.serverAdded(newServer);
+				}
+			}
+		}
+	}
+
+	private class ServerRemovedAction implements ProjectListenerAction {
+		private final ProjectConfiguration newConfiguration;
+		private final ProjectConfiguration oldConfiguration;
+
+		public ServerRemovedAction(ProjectConfiguration newConfiguration, ProjectConfiguration oldConfiguration) {
+			this.newConfiguration = newConfiguration;
+			this.oldConfiguration = oldConfiguration;
+		}
+
+		public void run(ConfigurationListener projectListener, ProjectId projectId, CfgManagerImpl cfgManager) {
+			if (oldConfiguration == null || newConfiguration == null) {
+				return;
+			}
+
+			for (ServerCfg oldServer : oldConfiguration.getServers()) {
+				if (newConfiguration.getServerCfg(oldServer.getServerId()) == null) {
+					projectListener.serverRemoved(oldServer);
+				}
+			}
+		}
+	}
+
+	private class ServerEnabledDisabledAction implements ProjectListenerAction {
+
+		private final ProjectConfiguration newConfiguration;
+
+		private final ProjectConfiguration oldConfiguration;
+
+		public ServerEnabledDisabledAction(ProjectConfiguration newConfiguration, ProjectConfiguration oldConfiguration) {
+			this.newConfiguration = newConfiguration;
+			this.oldConfiguration = oldConfiguration;
+		}
+
+		public void run(ConfigurationListener projectListener, ProjectId projectId, CfgManagerImpl cfgManager) {
+			if (oldConfiguration == null || newConfiguration == null) {
+				return;
+			}
+
+			for (ServerCfg oldServer : oldConfiguration.getServers()) {
+				ServerCfg newServer = newConfiguration.getServerCfg(oldServer.getServerId());
+				if (newServer != null) {
+					if (!oldServer.isEnabled() && newServer.isEnabled()) {
+						projectListener.serverEnabled(oldServer.getServerId());
+					} else if (oldServer.isEnabled() && !newServer.isEnabled()) {
+						projectListener.serverDisabled(oldServer.getServerId());
+					}
+				}
+			}
+		}
+
 	}
 }

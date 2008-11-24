@@ -19,7 +19,6 @@ import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
 import junit.framework.TestCase;
-import org.easymock.EasyMock;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -382,60 +381,6 @@ public abstract class AbstractCfgManagerTest extends TestCase {
 		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(PROJECT_ID_1), bamboo3);
 		// PROJECT_ID_2 is intact
 		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(PROJECT_ID_2), bamboo3);
-	}
-
-
-	public void testNotifications() {
-		final ProjectConfiguration emptyCfg = ProjectConfiguration.emptyConfiguration();
-		ConfigurationListener project1Listener = EasyMock.createStrictMock(ConfigurationListener.class);
-		ConfigurationListener project2Listener = EasyMock.createStrictMock(ConfigurationListener.class);
-		Object[] mocks = {project1Listener, project2Listener};
-
-		project1Listener.configurationUpdated(emptyCfg);
-		EasyMock.replay(mocks);
-
-		cfgManager.addProjectConfigurationListener(PROJECT_ID_1, project1Listener);
-		cfgManager.addProjectConfigurationListener(PROJECT_ID_2, project2Listener);
-		cfgManager.updateGlobalConfiguration(new GlobalConfiguration());
-		cfgManager.updateProjectConfiguration(PROJECT_ID_1, emptyCfg);
-		EasyMock.verify(mocks);
-
-
-		EasyMock.reset(mocks);
-		project2Listener.configurationUpdated(emptyCfg);
-		EasyMock.replay(mocks);
-
-		cfgManager.updateGlobalConfiguration(new GlobalConfiguration());
-		cfgManager.updateProjectConfiguration(PROJECT_ID_2, ProjectConfiguration.emptyConfiguration());
-		EasyMock.verify(mocks);
-
-
-		EasyMock.reset(mocks);
-		cfgManager.removeProjectConfigurationListener(PROJECT_ID_1, project1Listener);
-		// now only project2Listener will be notified
-		final ProjectConfiguration nonEmptyCfg = new ProjectConfiguration(MiscUtil.<ServerCfg>buildArrayList(bamboo1));
-		project2Listener.configurationUpdated(nonEmptyCfg);
-		EasyMock.replay(mocks);
-
-		cfgManager.updateGlobalConfiguration(new GlobalConfiguration());
-		cfgManager.updateProjectConfiguration(PROJECT_ID_2, nonEmptyCfg);
-		cfgManager.updateProjectConfiguration(PROJECT_ID_1, nonEmptyCfg);
-		EasyMock.verify(mocks);
-	}
-
-
-	public void testAddListener() {
-		TestUtil.assertThrows(IllegalArgumentException.class, new IAction() {
-			public void run() throws Throwable {
-				cfgManager.addProjectConfigurationListener(PROJECT_ID_1, null);
-			}
-		});
-		TestUtil.assertThrows(IllegalArgumentException.class, new IAction() {
-			public void run() throws Throwable {
-				cfgManager.addProjectConfigurationListener(null, EasyMock.createNiceMock(ConfigurationListener.class));
-			}
-		});
-
 	}
 
 	public void testGerServer() {

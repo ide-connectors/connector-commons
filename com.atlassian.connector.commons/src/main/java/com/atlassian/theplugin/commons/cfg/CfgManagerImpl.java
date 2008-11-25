@@ -350,7 +350,7 @@ public class CfgManagerImpl implements CfgManager {
 				ServerCfg newServer = newConfiguration.getServerCfg(oldServer.getServerId());
 
 				// server general update
-				if (newServer!= null && !oldServer.equals(newServer)) {
+				if (newServer != null && !oldServer.equals(newServer)) {
 					projectListener.serverDataChanged(oldServer.getServerId());
 
 					// server url or credentials updated
@@ -466,8 +466,8 @@ public class CfgManagerImpl implements CfgManager {
 		private final ProjectConfiguration newConfiguration;
 		private final ProjectConfiguration oldConfiguration;
 
-		public ConfigurationTypeChangedAction
-				(ProjectConfiguration newConfiguration, ProjectConfiguration oldConfiguration) {
+		public ConfigurationTypeChangedAction(
+				ProjectConfiguration newConfiguration, ProjectConfiguration oldConfiguration) {
 			this.newConfiguration = newConfiguration;
 			this.oldConfiguration = oldConfiguration;
 		}

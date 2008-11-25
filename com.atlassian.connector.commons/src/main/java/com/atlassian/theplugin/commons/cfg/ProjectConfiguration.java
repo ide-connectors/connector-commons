@@ -268,7 +268,7 @@ public class ProjectConfiguration {
 		Collection<JiraServerCfg> jiraServers = MiscUtil.buildArrayList();
 
 		for (ServerCfg server : servers) {
-			if(server.getServerType() == ServerType.JIRA_SERVER && server instanceof JiraServerCfg) {
+			if (server.getServerType() == ServerType.JIRA_SERVER && server instanceof JiraServerCfg) {
 				jiraServers.add((JiraServerCfg) server);
 			}
 		}
@@ -280,7 +280,7 @@ public class ProjectConfiguration {
 		Collection<BambooServerCfg> bambooServers = MiscUtil.buildArrayList();
 
 		for (ServerCfg server : servers) {
-			if(server.getServerType() == ServerType.BAMBOO_SERVER && server instanceof BambooServerCfg) {
+			if (server.getServerType() == ServerType.BAMBOO_SERVER && server instanceof BambooServerCfg) {
 				bambooServers.add((BambooServerCfg) server);
 			}
 		}
@@ -292,7 +292,7 @@ public class ProjectConfiguration {
 		Collection<CrucibleServerCfg> crucibleServers = MiscUtil.buildArrayList();
 
 		for (ServerCfg server : servers) {
-			if(server.getServerType() == ServerType.CRUCIBLE_SERVER && server instanceof CrucibleServerCfg) {
+			if (server.getServerType() == ServerType.CRUCIBLE_SERVER && server instanceof CrucibleServerCfg) {
 				crucibleServers.add((CrucibleServerCfg) server);
 			}
 		}

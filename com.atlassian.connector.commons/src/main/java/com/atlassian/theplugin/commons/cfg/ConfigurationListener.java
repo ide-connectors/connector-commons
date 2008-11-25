@@ -24,13 +24,13 @@ public interface ConfigurationListener {
 	 * Called in case connections data (url, username, password) has changed
 	 * @param serverId id of modified server
 	 */
-	void serverConnectionDataUpdated(ServerId serverId);
+	void serverConnectionDataChanged(ServerId serverId);
 
 	/**
 	 * Called in case server name (label) has changed
 	 * @param serverId id of modified server
 	 */
-	void serverNameUpdated(ServerId serverId);
+	void serverNameChanged(ServerId serverId);
 
 	/**
 	 * Called in case new server has been added.
@@ -63,5 +63,29 @@ public interface ConfigurationListener {
 	 * ServerCfg.equals is used to determine the change
 	 * @param serverId id of changed server
 	 */
-	void serverDataUpdated(ServerId serverId);
+	void serverDataChanged(ServerId serverId);
+
+	/**
+	 * Called in case something in the JIRA servers list has been changed
+	 * @param newConfiguration fresh configuration
+	 */
+	void jiraServersChanged(ProjectConfiguration newConfiguration);
+
+	/**
+	 * Called in case something in the Bamboo servers list has been changed
+	 * @param newConfiguration fresh configuration
+	 */
+	void bambooServersChanged(ProjectConfiguration newConfiguration);
+
+	/**
+	 * Called in case something in the Crucible servers list has been changed
+	 * @param newConfiguration fresh configuration
+	 */
+	void crucibleServersChanged(ProjectConfiguration newConfiguration);
+
+	/**
+	 * Called in case something in the Fisheye servers list has been changed
+	 * @param newConfiguration fresh configuration
+	 */
+	void fisheyeServersChanged(ProjectConfiguration newConfiguration);
 }

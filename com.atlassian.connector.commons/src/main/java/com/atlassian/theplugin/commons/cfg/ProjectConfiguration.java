@@ -15,6 +15,7 @@
  */
 package com.atlassian.theplugin.commons.cfg;
 
+import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 
 import java.util.ArrayList;
@@ -263,4 +264,52 @@ public class ProjectConfiguration {
 		return crucible != null && crucible.isEnabled();
 	}
 
+	public Collection<JiraServerCfg> getAllJIRAServers() {
+		Collection<JiraServerCfg> jiraServers = MiscUtil.buildArrayList();
+
+		for (ServerCfg server : servers) {
+			if(server.getServerType() == ServerType.JIRA_SERVER && server instanceof JiraServerCfg) {
+				jiraServers.add((JiraServerCfg) server);
+			}
+		}
+
+		return jiraServers;
+	}
+
+	public Collection<BambooServerCfg> getAllBambooServers() {
+		Collection<BambooServerCfg> bambooServers = MiscUtil.buildArrayList();
+
+		for (ServerCfg server : servers) {
+			if(server.getServerType() == ServerType.BAMBOO_SERVER && server instanceof BambooServerCfg) {
+				bambooServers.add((BambooServerCfg) server);
+			}
+		}
+
+		return bambooServers;
+	}
+
+	public Collection<CrucibleServerCfg> getAllCrucibleServers() {
+		Collection<CrucibleServerCfg> crucibleServers = MiscUtil.buildArrayList();
+
+		for (ServerCfg server : servers) {
+			if(server.getServerType() == ServerType.CRUCIBLE_SERVER && server instanceof CrucibleServerCfg) {
+				crucibleServers.add((CrucibleServerCfg) server);
+			}
+		}
+
+		return crucibleServers;
+
+	}
+
+	public Collection<FishEyeServerCfg> getAllFisheyeServers() {
+		Collection<FishEyeServerCfg> fisheyeServers = MiscUtil.buildArrayList();
+
+		for (ServerCfg server : servers) {
+			if (server.getServerType() == ServerType.FISHEYE_SERVER && server instanceof FishEyeServerCfg) {
+				fisheyeServers.add((FishEyeServerCfg) server);
+			}
+		}
+
+		return fisheyeServers;
+	}
 }

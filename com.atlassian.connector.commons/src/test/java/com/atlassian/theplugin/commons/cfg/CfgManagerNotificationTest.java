@@ -74,6 +74,8 @@ public class CfgManagerNotificationTest extends TestCase {
 		project1Listener.configurationUpdated(emptyCfg);
 		project1Listener.serverRemoved(bamboo1);
 		project1Listener.serverRemoved(jira1);
+		project1Listener.bambooServersChanged(emptyCfg);
+		project1Listener.jiraServersChanged(emptyCfg);
 
 		// test
 		EasyMock.replay(mocks);
@@ -89,6 +91,7 @@ public class CfgManagerNotificationTest extends TestCase {
 		// record
 		project2Listener.configurationUpdated(emptyCfg);
 		project2Listener.serverRemoved(crucible2);
+		project2Listener.crucibleServersChanged(emptyCfg);
 
 		// test
 		EasyMock.replay(mocks);
@@ -105,6 +108,7 @@ public class CfgManagerNotificationTest extends TestCase {
 		// now only project2Listener will be notified
 		project2Listener.configurationUpdated(nonEmptyCfg);
 		project2Listener.serverAdded(bamboo1);
+		project2Listener.bambooServersChanged(nonEmptyCfg);
 
 		// test
 		EasyMock.replay(mocks);

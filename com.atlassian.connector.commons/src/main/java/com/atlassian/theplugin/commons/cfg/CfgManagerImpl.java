@@ -110,9 +110,7 @@ public class CfgManagerImpl implements CfgManager {
 
 		ProjectListenerAction[] actions = {
 				new UpdateConfigurationListenerAction(newConfiguration),
-//				new ServerCredentialChangedAction(newConfiguration, oldConfiguration),
-//				new ServerDataChangedAction(newConfiguration, oldConfiguration),
-//				new ServerLabelChangedAction(newConfiguration, oldConfiguration),
+				new ConfigurationTypeChangedAction(newConfiguration, oldConfiguration),
 				new ServerChangedAction(newConfiguration, oldConfiguration),
 				new ServerAddedAction(newConfiguration, oldConfiguration),
 				new ServerRemovedAction(newConfiguration, oldConfiguration),
@@ -351,23 +349,19 @@ public class CfgManagerImpl implements CfgManager {
 			for (ServerCfg oldServer : oldConfiguration.getServers()) {
 				ServerCfg newServer = newConfiguration.getServerCfg(oldServer.getServerId());
 
-				if (newServer == null) {
-					continue;
-				}
-
 				// server general update
-				if (!oldServer.equals(newServer)) {
-					projectListener.serverDataUpdated(oldServer.getServerId());
+				if (newServer!= null && !oldServer.equals(newServer)) {
+					projectListener.serverDataChanged(oldServer.getServerId());
 
 					// server url or credentials updated
 					if (checkCredentialsChanged(oldServer, newServer)
 							|| checkUrlChanged(oldServer, newConfiguration.getServerCfg(oldServer.getServerId()))) {
-						projectListener.serverConnectionDataUpdated(oldServer.getServerId());
+						projectListener.serverConnectionDataChanged(oldServer.getServerId());
 					}
 
 					// server name updated
 					if (!oldServer.getName().equals(newServer.getName())) {
-						projectListener.serverNameUpdated(oldServer.getServerId());
+						projectListener.serverNameChanged(oldServer.getServerId());
 					}
 
 				}
@@ -442,7 +436,6 @@ public class CfgManagerImpl implements CfgManager {
 	private class ServerEnabledDisabledAction implements ProjectListenerAction {
 
 		private final ProjectConfiguration newConfiguration;
-
 		private final ProjectConfiguration oldConfiguration;
 
 		public ServerEnabledDisabledAction(ProjectConfiguration newConfiguration, ProjectConfiguration oldConfiguration) {
@@ -467,5 +460,55 @@ public class CfgManagerImpl implements CfgManager {
 			}
 		}
 
+	}
+
+	private class ConfigurationTypeChangedAction implements ProjectListenerAction {
+		private final ProjectConfiguration newConfiguration;
+		private final ProjectConfiguration oldConfiguration;
+
+		public ConfigurationTypeChangedAction
+				(ProjectConfiguration newConfiguration, ProjectConfiguration oldConfiguration) {
+			this.newConfiguration = newConfiguration;
+			this.oldConfiguration = oldConfiguration;
+		}
+
+		public void run(ConfigurationListener projectListener, ProjectId projectId, CfgManagerImpl cfgManager) {
+			if (oldConfiguration == null || newConfiguration == null) {
+				return;
+			}
+
+			// Collections.constainsAll is used in both directions below instead of Collection.equlas
+			// as equals for Collection compares only references
+			// and we cannot be sure if used implementation overrides equals correctly
+			// and e.g. equals for List requires the same order of elements
+
+			// JIRA servers changed
+			Collection<JiraServerCfg> newJiraServers = newConfiguration.getAllJIRAServers();
+			Collection<JiraServerCfg> oldJiraServers = oldConfiguration.getAllJIRAServers();
+			if (!newJiraServers.containsAll(oldJiraServers) || !oldJiraServers.containsAll(newJiraServers)) {
+				projectListener.jiraServersChanged(newConfiguration);
+			}
+
+			// Bamboo servers changed
+			Collection<BambooServerCfg> newBambooServers = newConfiguration.getAllBambooServers();
+			Collection<BambooServerCfg> oldBambooServers = oldConfiguration.getAllBambooServers();
+			if (!newBambooServers.containsAll(oldBambooServers) || !oldBambooServers.containsAll(newBambooServers)) {
+				projectListener.bambooServersChanged(newConfiguration);
+			}
+
+			// Crucible servers changed
+			Collection<CrucibleServerCfg> newCrucibleServers = newConfiguration.getAllCrucibleServers();
+			Collection<CrucibleServerCfg> oldCrucibleServers = oldConfiguration.getAllCrucibleServers();
+			if (!newCrucibleServers.containsAll(oldCrucibleServers) || !oldCrucibleServers.containsAll(newCrucibleServers)) {
+				projectListener.crucibleServersChanged(newConfiguration);
+			}
+
+			// Fisheye servers changed
+			Collection<FishEyeServerCfg> newFisheyeServers = newConfiguration.getAllFisheyeServers();
+			Collection<FishEyeServerCfg> oldFisheyeServers = oldConfiguration.getAllFisheyeServers();
+			if (!newFisheyeServers.containsAll(oldFisheyeServers) || !oldFisheyeServers.containsAll(newFisheyeServers)) {
+				projectListener.fisheyeServersChanged(newConfiguration);
+			}
+		}
 	}
 }

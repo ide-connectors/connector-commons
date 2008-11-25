@@ -26,13 +26,13 @@ public abstract class ConfigurationListenerAdapter implements ConfigurationListe
 	public void projectUnregistered() {
 	}
 
-	public void serverDataUpdated(ServerId serverId) {
+	public void serverDataChanged(ServerId serverId) {
 	}
 
-	public void serverConnectionDataUpdated(ServerId serverId) {
+	public void serverConnectionDataChanged(ServerId serverId) {
 	}
 
-	public void serverNameUpdated(ServerId serverId) {
+	public void serverNameChanged(ServerId serverId) {
 	}
 
 	public void serverAdded(ServerCfg newServer) {
@@ -45,5 +45,17 @@ public abstract class ConfigurationListenerAdapter implements ConfigurationListe
 	}
 
 	public void serverDisabled(ServerId serverId) {
+	}
+
+	public void jiraServersChanged(ProjectConfiguration newConfiguration) {
+	}
+
+	public void bambooServersChanged(ProjectConfiguration newConfiguration) {
+	}
+
+	public void crucibleServersChanged(ProjectConfiguration newConfiguration) {
+	}
+
+	public void fisheyeServersChanged(ProjectConfiguration newConfiguration) {
 	}
 }

@@ -25,7 +25,7 @@ public class CfgManagerNotificationSecondTest extends TestCase {
 
 	private CfgManager cfgManager;
 	private ConfigurationListener listener;
-	private ProjectConfiguration baseConf;
+	private ProjectConfiguration newConf;
 	private static final String SUFFIX = "SUFFIX";
 
 	@Override
@@ -51,179 +51,231 @@ public class CfgManagerNotificationSecondTest extends TestCase {
 	private final CrucibleServerCfg crucible2 = new CrucibleServerCfg("crucible2", new ServerId());
 	private final JiraServerCfg jira1 = new JiraServerCfg("jira1", new ServerId());
 	private final JiraServerCfg jira2 = new JiraServerCfg("jira2", new ServerId());
+	private final FishEyeServerCfg fisheye1 = new FishEyeServerCfg("fisheye1", new ServerId());
+	private final FishEyeServerCfg fisheye2 = new FishEyeServerCfg("fisheye2", new ServerId());
 
 	private void populateServerCfgs() {
 
 		cfgManager.addProjectSpecificServer(PROJECT_ID, bamboo1);
 		cfgManager.addProjectSpecificServer(PROJECT_ID, jira1);
 		cfgManager.addProjectSpecificServer(PROJECT_ID, crucible1);
+		cfgManager.addProjectSpecificServer(PROJECT_ID, fisheye1);
 
-		baseConf = new ProjectConfiguration(cfgManager.getProjectConfiguration(PROJECT_ID));
+		newConf = new ProjectConfiguration(cfgManager.getProjectConfiguration(PROJECT_ID));
 	}
 
 	public void testServerAdded() {
 
-		baseConf.getServers().add(bamboo2);
-		baseConf.getServers().add(crucible2);
-		baseConf.getServers().add(jira2);
+		newConf.getServers().add(bamboo2);
+		newConf.getServers().add(crucible2);
+		newConf.getServers().add(jira2);
+		newConf.getServers().add(fisheye2);
 
 		// record
-		listener.configurationUpdated(baseConf);
+		listener.configurationUpdated(newConf);
 		listener.serverAdded(bamboo2);
 		listener.serverAdded(crucible2);
 		listener.serverAdded(jira2);
+		listener.serverAdded(fisheye2);
+		listener.jiraServersChanged(newConf);
+		listener.bambooServersChanged(newConf);
+		listener.crucibleServersChanged(newConf);
+		listener.fisheyeServersChanged(newConf);
 
 		// test
 		EasyMock.replay(listener);
-		cfgManager.updateProjectConfiguration(PROJECT_ID, baseConf);
+		cfgManager.updateProjectConfiguration(PROJECT_ID, newConf);
 		
 		EasyMock.verify(listener);
 	}
 
 	public void testServerRemoved() {
 
-		baseConf.getServers().remove(bamboo1);
-		baseConf.getServers().remove(crucible1);
-		baseConf.getServers().remove(jira1);
-
-		// record
-		listener.configurationUpdated(baseConf);
-		listener.serverRemoved(bamboo1);
-		listener.serverRemoved(crucible1);
-		listener.serverRemoved(jira1);
-
-		// test
-		EasyMock.replay(listener);
-		cfgManager.updateProjectConfiguration(PROJECT_ID, baseConf);
-
-		EasyMock.verify(listener);
-	}
-
-	public void testServerDisabledEnabled() {
-
-		baseConf.getServerCfg(bamboo1.getServerId()).setEnabled(false);
-		baseConf.getServerCfg(crucible1.getServerId()).setEnabled(false);
-		baseConf.getServerCfg(jira1.getServerId()).setEnabled(false);
-
-		// record
-		listener.configurationUpdated(baseConf);
-		listener.serverDisabled(bamboo1.getServerId());
-		listener.serverDisabled(crucible1.getServerId());
-		listener.serverDisabled(jira1.getServerId());
-		listener.serverDataUpdated(bamboo1.getServerId());
-		listener.serverDataUpdated(crucible1.getServerId());
-		listener.serverDataUpdated(jira1.getServerId());
-
-		// test disabled
-		EasyMock.replay(listener);
-		cfgManager.updateProjectConfiguration(PROJECT_ID, baseConf);
-
-		EasyMock.verify(listener);
-
-		// reset
-		EasyMock.reset(listener);
-
-		ProjectConfiguration newConf = new ProjectConfiguration(baseConf);
-
-		newConf.getServerCfg(bamboo1.getServerId()).setEnabled(true);
-		newConf.getServerCfg(crucible1.getServerId()).setEnabled(true);
-		newConf.getServerCfg(jira1.getServerId()).setEnabled(true);
+		newConf.getServers().remove(bamboo1);
+		newConf.getServers().remove(crucible1);
+		newConf.getServers().remove(jira1);
+		newConf.getServers().remove(fisheye1);
 
 		// record
 		listener.configurationUpdated(newConf);
-		listener.serverEnabled(bamboo1.getServerId());
-		listener.serverEnabled(crucible1.getServerId());
-		listener.serverEnabled(jira1.getServerId());
-		listener.serverDataUpdated(bamboo1.getServerId());
-		listener.serverDataUpdated(crucible1.getServerId());
-		listener.serverDataUpdated(jira1.getServerId());
+		listener.serverRemoved(bamboo1);
+		listener.serverRemoved(crucible1);
+		listener.serverRemoved(jira1);
+		listener.serverRemoved(fisheye1);
+		listener.jiraServersChanged(newConf);
+		listener.bambooServersChanged(newConf);
+		listener.crucibleServersChanged(newConf);
+		listener.fisheyeServersChanged(newConf);
 
-		// test enabled
+		// test
 		EasyMock.replay(listener);
 		cfgManager.updateProjectConfiguration(PROJECT_ID, newConf);
 
 		EasyMock.verify(listener);
 	}
 
-	public void testServerLabelChanged() {
+	public void testServerDisabledEnabled() {
 
-		baseConf.getServerCfg(bamboo1.getServerId()).setName(bamboo1.getName() + SUFFIX);
-		baseConf.getServerCfg(crucible1.getServerId()).setName(crucible1.getName() + SUFFIX);
-		baseConf.getServerCfg(jira1.getServerId()).setName(jira1.getName() + SUFFIX);
+		newConf.getServerCfg(bamboo1.getServerId()).setEnabled(false);
+		newConf.getServerCfg(crucible1.getServerId()).setEnabled(false);
+		newConf.getServerCfg(jira1.getServerId()).setEnabled(false);
+		newConf.getServerCfg(fisheye1.getServerId()).setEnabled(false);
 
 		// record
-		listener.configurationUpdated(baseConf);
-		listener.serverNameUpdated(bamboo1.getServerId());
-		listener.serverNameUpdated(crucible1.getServerId());
-		listener.serverNameUpdated(jira1.getServerId());
-		listener.serverDataUpdated(bamboo1.getServerId());
-		listener.serverDataUpdated(crucible1.getServerId());
-		listener.serverDataUpdated(jira1.getServerId());
+		listener.configurationUpdated(newConf);
+		listener.serverDisabled(bamboo1.getServerId());
+		listener.serverDisabled(crucible1.getServerId());
+		listener.serverDisabled(jira1.getServerId());
+		listener.serverDisabled(fisheye1.getServerId());
+		listener.serverDataChanged(bamboo1.getServerId());
+		listener.serverDataChanged(crucible1.getServerId());
+		listener.serverDataChanged(jira1.getServerId());
+		listener.serverDataChanged(fisheye1.getServerId());
+		listener.jiraServersChanged(newConf);
+		listener.bambooServersChanged(newConf);
+		listener.crucibleServersChanged(newConf);
+		listener.fisheyeServersChanged(newConf);
+
+		// test disabled
+		EasyMock.replay(listener);
+		cfgManager.updateProjectConfiguration(PROJECT_ID, newConf);
+
+		EasyMock.verify(listener);
+
+		// reset
+		EasyMock.reset(listener);
+
+		ProjectConfiguration conf = new ProjectConfiguration(newConf);
+
+		conf.getServerCfg(bamboo1.getServerId()).setEnabled(true);
+		conf.getServerCfg(crucible1.getServerId()).setEnabled(true);
+		conf.getServerCfg(jira1.getServerId()).setEnabled(true);
+		conf.getServerCfg(fisheye1.getServerId()).setEnabled(true);
+
+		// record
+		listener.configurationUpdated(conf);
+		listener.serverEnabled(bamboo1.getServerId());
+		listener.serverEnabled(crucible1.getServerId());
+		listener.serverEnabled(jira1.getServerId());
+		listener.serverEnabled(fisheye1.getServerId());
+		listener.serverDataChanged(bamboo1.getServerId());
+		listener.serverDataChanged(crucible1.getServerId());
+		listener.serverDataChanged(jira1.getServerId());
+		listener.serverDataChanged(fisheye1.getServerId());
+		listener.jiraServersChanged(conf);
+		listener.bambooServersChanged(conf);
+		listener.crucibleServersChanged(conf);
+		listener.fisheyeServersChanged(conf);
+
+		// test enabled
+		EasyMock.replay(listener);
+		cfgManager.updateProjectConfiguration(PROJECT_ID, conf);
+
+		EasyMock.verify(listener);
+	}
+
+	public void testServerLabelChanged() {
+
+		newConf.getServerCfg(bamboo1.getServerId()).setName(bamboo1.getName() + SUFFIX);
+		newConf.getServerCfg(crucible1.getServerId()).setName(crucible1.getName() + SUFFIX);
+		newConf.getServerCfg(jira1.getServerId()).setName(jira1.getName() + SUFFIX);
+		newConf.getServerCfg(fisheye1.getServerId()).setName(fisheye1.getName() + SUFFIX);
+
+		// record
+		listener.configurationUpdated(newConf);
+		listener.serverNameChanged(bamboo1.getServerId());
+		listener.serverNameChanged(crucible1.getServerId());
+		listener.serverNameChanged(jira1.getServerId());
+		listener.serverNameChanged(fisheye1.getServerId());
+		listener.serverDataChanged(bamboo1.getServerId());
+		listener.serverDataChanged(crucible1.getServerId());
+		listener.serverDataChanged(jira1.getServerId());
+		listener.serverDataChanged(fisheye1.getServerId());
+		listener.jiraServersChanged(newConf);
+		listener.bambooServersChanged(newConf);
+		listener.crucibleServersChanged(newConf);
+		listener.fisheyeServersChanged(newConf);
 
 		// test
 		EasyMock.replay(listener);
-		cfgManager.updateProjectConfiguration(PROJECT_ID, baseConf);
+		cfgManager.updateProjectConfiguration(PROJECT_ID, newConf);
 
 		EasyMock.verify(listener);
 	}
 
 	public void testServerConnectionDataChanged() {
 
-		baseConf.getServerCfg(bamboo1.getServerId()).setUrl(bamboo1.getUrl() + SUFFIX);
-		baseConf.getServerCfg(crucible1.getServerId()).setUsername(crucible1.getUsername() + SUFFIX);
-		baseConf.getServerCfg(jira1.getServerId()).setPassword(jira1.getPassword() + SUFFIX);
+		newConf.getServerCfg(bamboo1.getServerId()).setUrl(bamboo1.getUrl() + SUFFIX);
+		newConf.getServerCfg(crucible1.getServerId()).setUsername(crucible1.getUsername() + SUFFIX);
+		newConf.getServerCfg(jira1.getServerId()).setPassword(jira1.getPassword() + SUFFIX);
+		newConf.getServerCfg(fisheye1.getServerId()).setPassword(fisheye1.getPassword() + SUFFIX);
 
 		// record
-		listener.configurationUpdated(baseConf);
-		listener.serverConnectionDataUpdated(bamboo1.getServerId());
-		listener.serverConnectionDataUpdated(crucible1.getServerId());
-		listener.serverConnectionDataUpdated(jira1.getServerId());
-		listener.serverDataUpdated(bamboo1.getServerId());
-		listener.serverDataUpdated(crucible1.getServerId());
-		listener.serverDataUpdated(jira1.getServerId());
+		listener.configurationUpdated(newConf);
+		listener.serverConnectionDataChanged(bamboo1.getServerId());
+		listener.serverConnectionDataChanged(crucible1.getServerId());
+		listener.serverConnectionDataChanged(jira1.getServerId());
+		listener.serverConnectionDataChanged(fisheye1.getServerId());
+		listener.serverDataChanged(bamboo1.getServerId());
+		listener.serverDataChanged(crucible1.getServerId());
+		listener.serverDataChanged(jira1.getServerId());
+		listener.serverDataChanged(fisheye1.getServerId());
+		listener.jiraServersChanged(newConf);
+		listener.bambooServersChanged(newConf);
+		listener.crucibleServersChanged(newConf);
+		listener.fisheyeServersChanged(newConf);
 
 		// test
 		EasyMock.replay(listener);
-		cfgManager.updateProjectConfiguration(PROJECT_ID, baseConf);
+		cfgManager.updateProjectConfiguration(PROJECT_ID, newConf);
 
 		EasyMock.verify(listener);
 	}
 
 	public void testConfigurationMixedUpdate() {
 
-		baseConf.getServerCfg(bamboo1.getServerId()).setUrl(bamboo1.getUrl() + SUFFIX);
-		baseConf.getServerCfg(bamboo1.getServerId()).setName(bamboo1.getName() + SUFFIX);
-		baseConf.getServerCfg(bamboo1.getServerId()).setEnabled(false);
+		newConf.getServerCfg(bamboo1.getServerId()).setUrl(bamboo1.getUrl() + SUFFIX);
+		newConf.getServerCfg(bamboo1.getServerId()).setName(bamboo1.getName() + SUFFIX);
+		newConf.getServerCfg(bamboo1.getServerId()).setEnabled(false);
 
-		baseConf.getServers().remove(crucible1);
-		baseConf.getServers().add(bamboo2);
+		newConf.getServers().remove(crucible1);
+		newConf.getServers().remove(jira1);
+		newConf.getServers().remove(fisheye1);
+		newConf.getServers().add(bamboo2);
 
 		// record
-		listener.configurationUpdated(baseConf);
-		listener.serverConnectionDataUpdated(bamboo1.getServerId());
-		listener.serverNameUpdated(bamboo1.getServerId());
+		listener.configurationUpdated(newConf);
+		listener.serverConnectionDataChanged(bamboo1.getServerId());
+		listener.serverNameChanged(bamboo1.getServerId());
 		listener.serverDisabled(bamboo1.getServerId());
-		listener.serverDataUpdated(bamboo1.getServerId());
+		listener.serverDataChanged(bamboo1.getServerId());
 		listener.serverRemoved(crucible1);
+		listener.serverRemoved(jira1);
+		listener.serverRemoved(fisheye1);
 		listener.serverAdded(bamboo2);
+		listener.bambooServersChanged(newConf);
+		listener.crucibleServersChanged(newConf);
+		listener.jiraServersChanged(newConf);
+		listener.fisheyeServersChanged(newConf);
 
 		// test
 		EasyMock.replay(listener);
-		cfgManager.updateProjectConfiguration(PROJECT_ID, baseConf);
+		cfgManager.updateProjectConfiguration(PROJECT_ID, newConf);
 
 		EasyMock.verify(listener);
 	}
 
 	public void testServerDataChange() {
-		baseConf.getServerCfg(bamboo1.getServerId()).setPasswordStored(!bamboo1.isPasswordStored());
+		newConf.getServerCfg(bamboo1.getServerId()).setPasswordStored(!bamboo1.isPasswordStored());
 
 		// record
-		listener.configurationUpdated(baseConf);
-		listener.serverDataUpdated(bamboo1.getServerId());
+		listener.configurationUpdated(newConf);
+		listener.serverDataChanged(bamboo1.getServerId());
+		listener.bambooServersChanged(newConf);
 
 		// test
 		EasyMock.replay(listener);
-		cfgManager.updateProjectConfiguration(PROJECT_ID, baseConf);
+		cfgManager.updateProjectConfiguration(PROJECT_ID, newConf);
 
 		EasyMock.verify(listener);
 

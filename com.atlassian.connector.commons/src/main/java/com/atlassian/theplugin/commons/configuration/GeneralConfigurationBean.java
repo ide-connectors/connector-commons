@@ -40,6 +40,7 @@ public class GeneralConfigurationBean {
 	private long uid = 0;
 
 	private static final double ID_DISCRIMINATOR = 1e3d;
+	private CheckNowButtonOption checkNowButtonOption = CheckNowButtonOption.ONLY_STABLE;
 
 	public GeneralConfigurationBean() {
 
@@ -53,6 +54,7 @@ public class GeneralConfigurationBean {
 		this.uid = generalConfigurationData.getUid();
 		this.useIdeaProxySettings = generalConfigurationData.getUseIdeaProxySettings();
 		this.certs = generalConfigurationData.getCerts();
+		this.checkNowButtonOption = generalConfigurationData.getCheckNowButtonOption();
 	}
 
 	public long getUid() {
@@ -119,6 +121,15 @@ public class GeneralConfigurationBean {
 		useIdeaProxySettings = use;
 	}
 
+	public CheckNowButtonOption getCheckNowButtonOption() {
+		return this.checkNowButtonOption;
+	}
+
+	public void setCheckNowButtonOption(CheckNowButtonOption checkNowButtonOption) {
+		this.checkNowButtonOption = checkNowButtonOption;
+
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
@@ -144,6 +155,11 @@ public class GeneralConfigurationBean {
 				: that.anonymousFeedbackEnabled != null) {
 			return false;
 		}
+		if (checkNowButtonOption != null
+				? !checkNowButtonOption.equals(that.checkNowButtonOption)
+				: that.checkNowButtonOption != null) {
+			return false;
+		}
 		if (rejectedUpgrade != null ? !rejectedUpgrade.equals(that.rejectedUpgrade) : that.rejectedUpgrade != null) {
 			return false;
 		}
@@ -154,6 +170,7 @@ public class GeneralConfigurationBean {
 	}
 
 	private static final int THIRTY_ONE = 31;
+
 	private static final int THIRTY_TWO = 32;
 
 	@Override
@@ -163,6 +180,7 @@ public class GeneralConfigurationBean {
 		result = THIRTY_ONE * result + (rejectedUpgrade != null ? rejectedUpgrade.hashCode() : 0);
 		result = THIRTY_ONE * result + (checkUnstableVersionsEnabled ? 1 : 0);
 		result = THIRTY_ONE * result + (anonymousFeedbackEnabled != null ? anonymousFeedbackEnabled.hashCode() : 0);
+		result = THIRTY_ONE * result + (checkNowButtonOption != null ? checkNowButtonOption.hashCode() : 0);
 		result = THIRTY_ONE * result + (int) (uid ^ (uid >>> THIRTY_TWO));
 		result = THIRTY_ONE * result + certs.hashCode();
 		return result;

@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.List;
 
 public final class CrucibleRestXmlHelper {
+	private static final String CDATA_END = "]]>";
 
 
 	///CLOVER:OFF
@@ -258,9 +259,9 @@ public final class CrucibleRestXmlHelper {
 
 		int index;
 		int oldIndex = 0;
-		while ((index = source.indexOf("]]>", oldIndex)) > -1) {
+		while ((index = source.indexOf(CDATA_END, oldIndex)) > -1) {
 			sb.append(source.substring(oldIndex, index));
-			oldIndex = index + 3;
+			oldIndex = index + CDATA_END.length();
 			sb.append("&#x5D;&#x5D;>");
 		}
 

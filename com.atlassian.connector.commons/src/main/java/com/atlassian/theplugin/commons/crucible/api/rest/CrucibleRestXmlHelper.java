@@ -201,7 +201,7 @@ public final class CrucibleRestXmlHelper {
 				comments.add(parseVersionedComment(versionedElementData));
 			}
 		}
-		
+
 		// ***** Files ******
 		List<Element> fileNode = getChildElements(reviewNode, "reviewItems");
 		List<CrucibleFileInfo> files = null;
@@ -217,7 +217,7 @@ public final class CrucibleRestXmlHelper {
 		}
 
 		review.setFilesAndVersionedComments(files, comments);
-	//	review.setReviewItems(reviewItems);
+		//	review.setReviewItems(reviewItems);
 
 		List<Element> transitionsNode = getChildElements(reviewNode, "transitions");
 		List<Action> transitions = new ArrayList<Action>();
@@ -249,6 +249,25 @@ public final class CrucibleRestXmlHelper {
 		return newElement;
 	}
 
+	private static String escapeForCdata(String source) {
+		if (source == null) {
+			return null;
+		}
+
+		StringBuffer sb = new StringBuffer();
+
+		int index;
+		int oldIndex = 0;
+		while ((index = source.indexOf("]]>", oldIndex)) > -1) {
+			sb.append(source.substring(oldIndex, index));
+			oldIndex = index + 3;
+			sb.append("&#x5D;&#x5D;>");
+		}
+
+		sb.append(source.substring(oldIndex));
+		return sb.toString();
+	}
+
 	public static Document prepareCreateReviewNode(Review review, String patch) {
 		Element root = new Element("createReview");
 		Document doc = new Document(root);
@@ -259,7 +278,7 @@ public final class CrucibleRestXmlHelper {
 			Element patchData = new Element("patch");
 			getContent(root).add(patchData);
 
-			CDATA patchT = new CDATA(patch);
+			CDATA patchT = new CDATA(escapeForCdata(patch));
 			patchData.setContent(patchT);
 		}
 		return doc;
@@ -271,9 +290,7 @@ public final class CrucibleRestXmlHelper {
 
 		if (message != null) {
 			Element messageData = new Element("summary");
-			getContent(root).add(messageData);
-
-			CDATA patchT = new CDATA(message);
+			CDATA patchT = new CDATA(escapeForCdata(message));
 			messageData.setContent(patchT);
 		}
 		return doc;
@@ -325,8 +342,7 @@ public final class CrucibleRestXmlHelper {
 		if (patch != null) {
 			Element patchData = new Element("patch");
 			getContent(root).add(patchData);
-
-			CDATA patchT = new CDATA(patch);
+			CDATA patchT = new CDATA(escapeForCdata(patch));
 			patchData.setContent(patchT);
 		}
 		return doc;
@@ -460,13 +476,14 @@ public final class CrucibleRestXmlHelper {
 		parseVersionedComment(versionedCommentBean, reviewElementCommentNode);
 		return versionedCommentBean;
 	}
+
 	private static void parseVersionedComment(VersionedCommentBean commentBean, Element reviewCommentNode) {
 		parseComment(commentBean, reviewCommentNode);
 
 		// read following xml
 		// <reviewItemId>
-        // 	<id>CFR-126</id>
-      	// </reviewItemId>
+		// 	<id>CFR-126</id>
+		// </reviewItemId>
 		List<Element> reviewIds = getChildElements(reviewCommentNode, "reviewItemId");
 		for (Element reviewId : reviewIds) {
 			List<Element> ids = getChildElements(reviewId, "id");
@@ -595,12 +612,12 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	public static VersionedCommentBean parseVersionedCommentNodeWithHints(Element reviewCommentNode,
-			boolean fromLineInfo,
-			int fromStartLine,
-			int toStartLine,
-			boolean toLineInfo,
-			int fromEndLine,
-			int toEndLine) {
+																		  boolean fromLineInfo,
+																		  int fromStartLine,
+																		  int toStartLine,
+																		  boolean toLineInfo,
+																		  int fromEndLine,
+																		  int toEndLine) {
 		VersionedCommentBean result = parseVersionedCommentNode(reviewCommentNode);
 		if (result.isFromLineInfo() == false && fromLineInfo == true) {
 			result.setFromLineInfo(true);

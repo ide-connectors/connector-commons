@@ -150,6 +150,9 @@ public class GeneralConfigurationBean {
 		if (uid != that.uid) {
 			return false;
 		}
+		if (useIdeaProxySettings != that.useIdeaProxySettings) {
+			return false;
+		}
 		if (anonymousFeedbackEnabled != null
 				? !anonymousFeedbackEnabled.equals(that.anonymousFeedbackEnabled)
 				: that.anonymousFeedbackEnabled != null) {
@@ -179,6 +182,7 @@ public class GeneralConfigurationBean {
 		result = (autoUpdateEnabled ? 1 : 0);
 		result = THIRTY_ONE * result + (rejectedUpgrade != null ? rejectedUpgrade.hashCode() : 0);
 		result = THIRTY_ONE * result + (checkUnstableVersionsEnabled ? 1 : 0);
+		result = THIRTY_ONE * result + (useIdeaProxySettings ? 1 : 0);
 		result = THIRTY_ONE * result + (anonymousFeedbackEnabled != null ? anonymousFeedbackEnabled.hashCode() : 0);
 		result = THIRTY_ONE * result + (checkNowButtonOption != null ? checkNowButtonOption.hashCode() : 0);
 		result = THIRTY_ONE * result + (int) (uid ^ (uid >>> THIRTY_TWO));

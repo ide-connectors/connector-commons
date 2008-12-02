@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Commons
-Bundle-SymbolicName: com.atlassian.connector.commons
-Bundle-Version: 0.5.0
+Bundle-Name: Atlassian Connector Commons
+Bundle-SymbolicName: com.atlassian.connector.commons;singleton:=true
+Bundle-Version: 0.5.0.qualifier
 Require-Bundle: org.apache.commons.httpclient,
  org.apache.commons.codec,
  org.jdom,

@@ -369,105 +369,128 @@ public class ReviewAdapter {
 	 * @param newReview source of Review data
 	 */
 	public void fillReview(final Review newReview) {
-		boolean isModified = isContentEqual(newReview);
+		if (!isContentEqual(newReview)) {
 
-		try {
-			setGeneralComments(newReview.getGeneralComments());
-		} catch (ValueNotYetInitialized valueNotYetInitialized) {
-			// shame
-		}
+			try {
+				setGeneralComments(newReview.getGeneralComments());
+			} catch (ValueNotYetInitialized valueNotYetInitialized) {
+				// shame
+			}
 
-		try {
-//			setFilesAndVersionedComments(newReview.getFiles(), newReview.getVersionedComments());
-			setFiles(newReview.getFiles());
-		} catch (ValueNotYetInitialized valueNotYetInitialized) {
-			// shame
-		}
+			try {
+				setFiles(newReview.getFiles());
+			} catch (ValueNotYetInitialized valueNotYetInitialized) {
+				// shame
+			}
 
-		try {
-			review.setActions(newReview.getActions());
-		} catch (ValueNotYetInitialized valueNotYetInitialized) {
-			// shame
-		}
-		review.setAllowReviewerToJoin(newReview.isAllowReviewerToJoin());
-		review.setAuthor(newReview.getAuthor());
-		review.setCloseDate(newReview.getCloseDate());
-		review.setCreateDate(newReview.getCreateDate());
-		review.setCreator(newReview.getCreator());
-		review.setDescription(newReview.getDescription());
-		review.setMetricsVersion(newReview.getMetricsVersion());
-		review.setModerator(newReview.getModerator());
-		review.setName(newReview.getName());
-		review.setParentReview(newReview.getParentReview());
-//		review.setPermId(newReview.getPermId());
-		review.setProjectKey(newReview.getProjectKey());
-		review.setRepoName(newReview.getRepoName());
-		try {
-			review.setReviewers(newReview.getReviewers());
-		} catch (ValueNotYetInitialized valueNotYetInitialized) {
-			// shame
-		}
-		review.setState(newReview.getState());
-		review.setSummary(newReview.getSummary());
-		try {
-			review.setTransitions(newReview.getTransitions());
-		} catch (ValueNotYetInitialized valueNotYetInitialized) {
-			// shame
-		}
-		review.setVirtualFileSystem(newReview.getVirtualFileSystem());
+			try {
+				review.setActions(newReview.getActions());
+			} catch (ValueNotYetInitialized valueNotYetInitialized) {
+				// shame
+			}
+			review.setAllowReviewerToJoin(newReview.isAllowReviewerToJoin());
+			review.setAuthor(newReview.getAuthor());
+			review.setCloseDate(newReview.getCloseDate());
+			review.setCreateDate(newReview.getCreateDate());
+			review.setCreator(newReview.getCreator());
+			review.setDescription(newReview.getDescription());
+			review.setMetricsVersion(newReview.getMetricsVersion());
+			review.setModerator(newReview.getModerator());
+			review.setName(newReview.getName());
+			review.setParentReview(newReview.getParentReview());
+			review.setProjectKey(newReview.getProjectKey());
+			review.setRepoName(newReview.getRepoName());
+			try {
+				review.setReviewers(newReview.getReviewers());
+			} catch (ValueNotYetInitialized valueNotYetInitialized) {
+				// shame
+			}
+			review.setState(newReview.getState());
+			review.setSummary(newReview.getSummary());
+			try {
+				review.setTransitions(newReview.getTransitions());
+			} catch (ValueNotYetInitialized valueNotYetInitialized) {
+				// shame
+			}
+			review.setVirtualFileSystem(newReview.getVirtualFileSystem());
 
-		if (isModified) {
 			for (CrucibleReviewListener listener : listeners) {
 				listener.reviewUpdated(this);
 			}
 		}
 	}
 
-	boolean isContentEqual(Review other) {
-		try {
-			return
-				review.getGeneralComments().equals(other.getGeneralComments())
-					&&
-				review.getFiles().equals(other.getFiles())
-					&&
-				review.getActions().equals(other.getActions())
-					&&
-				review.isAllowReviewerToJoin() == other.isAllowReviewerToJoin()
-					&&
-				review.getAuthor().equals(other.getAuthor())
-					&&
-				review.getCloseDate().equals(other.getCloseDate())
-					&&
-				review.getCreateDate().equals(other.getCreateDate())
-					&&
-				review.getCreator().equals(other.getCreator())
-					&&
-				review.getDescription().equals(other.getDescription())
-					&&
-				review.getMetricsVersion() == other.getMetricsVersion()
-					&&
-				review.getModerator().equals(other.getModerator())
-					&&
-				review.getName().equals(other.getName())
-					&&
-				review.getParentReview().equals(other.getParentReview())
-					&&
-				review.getProjectKey().equals(other.getProjectKey())
-					&&
-				review.getRepoName().equals(other.getRepoName())
-					&&
-				review.getReviewers().equals(other.getReviewers())
-					&&
-				review.getState().equals(other.getState())
-					&&
-				review.getSummary().equals(other.getSummary())
-					&&
-				review.getTransitions().equals(other.getTransitions())
-					&&
-				review.getVirtualFileSystem().equals(other.getVirtualFileSystem());
-		} catch (ValueNotYetInitialized valueNotYetInitialized) {
+	private boolean isContentEqual(Review other) {
+		return areGeneralCommentsEqual(other)
+			&& areFilesEqual(other)
+			&& areActionsEqual(other)
+			&& review.isAllowReviewerToJoin() == other.isAllowReviewerToJoin()
+			&& areObjectsEqual(review.getAuthor(), other.getAuthor())
+			&& areObjectsEqual(review.getCloseDate(), other.getCloseDate())
+			&& areObjectsEqual(review.getCreateDate(), other.getCreateDate())
+			&& areObjectsEqual(review.getCreator(), other.getCreator())
+			&& areObjectsEqual(review.getDescription(), other.getDescription())
+			&& review.getMetricsVersion() == other.getMetricsVersion()
+			&& areObjectsEqual(review.getModerator(), other.getModerator())
+			&& areObjectsEqual(review.getName(), other.getName())
+			&& areObjectsEqual(review.getParentReview(), other.getParentReview())
+			&& areObjectsEqual(review.getProjectKey(), other.getProjectKey())
+			&& areObjectsEqual(review.getRepoName(), other.getRepoName())
+			&& areReviewersEqual(other)
+			&& areObjectsEqual(review.getState(), other.getState())
+			&& areObjectsEqual(review.getSummary(), other.getSummary())
+			&& areTransitionsEqual(other)
+			&& areObjectsEqual(review.getVirtualFileSystem(), other.getVirtualFileSystem());
+	}
+
+	private boolean areGeneralCommentsEqual(Review rhs) {
+		List<GeneralComment> l = null;
+		List<GeneralComment> r = null;
+		try { l = review.getGeneralComments(); } catch (ValueNotYetInitialized e) {	/* ignore */ }
+		try { r = rhs.getGeneralComments(); } catch (ValueNotYetInitialized e) { /* ignore */ }
+		return areObjectsEqual(l, r);
+	}
+
+	private boolean areFilesEqual(Review rhs) {
+		List<CrucibleFileInfo> l = null;
+		List<CrucibleFileInfo> r = null;
+		try { l = review.getFiles(); } catch (ValueNotYetInitialized e) {	/* ignore */ }
+		try { r = rhs.getFiles(); } catch (ValueNotYetInitialized e) { /* ignore */ }
+		return areObjectsEqual(l, r);
+	}
+
+	private boolean areActionsEqual(Review rhs) {
+		List<Action> l = null;
+		List<Action> r = null;
+		try { l = review.getActions(); } catch (ValueNotYetInitialized e) {	/* ignore */ }
+		try { r = rhs.getActions(); } catch (ValueNotYetInitialized e) { /* ignore */ }
+		return areObjectsEqual(l, r);
+	}
+
+	private boolean areReviewersEqual(Review rhs) {
+		List<Reviewer> l = null;
+		List<Reviewer> r = null;
+		try { l = review.getReviewers(); } catch (ValueNotYetInitialized e) {	/* ignore */ }
+		try { r = rhs.getReviewers(); } catch (ValueNotYetInitialized e) { /* ignore */ }
+		return areObjectsEqual(l, r);
+	}
+
+	private boolean areTransitionsEqual(Review rhs) {
+		List<Action> l = null;
+		List<Action> r = null;
+		try { l = review.getTransitions(); } catch (ValueNotYetInitialized e) {	/* ignore */ }
+		try { r = rhs.getTransitions(); } catch (ValueNotYetInitialized e) { /* ignore */ }
+		return areObjectsEqual(l, r);
+	}
+
+	private static boolean areObjectsEqual(Object lhs, Object rhs) {
+		if (lhs == null && rhs == null) {
 			return true;
 		}
+		if (lhs == null || rhs == null) {
+			return false;
+		}
+		return lhs.equals(rhs);
 	}
 
 	private void setFiles(final List<CrucibleFileInfo> files) {

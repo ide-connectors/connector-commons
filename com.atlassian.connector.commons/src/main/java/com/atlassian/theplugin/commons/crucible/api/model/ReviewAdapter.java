@@ -21,6 +21,7 @@ import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
 import com.atlassian.theplugin.commons.crucible.CrucibleReviewListener;
 import com.atlassian.theplugin.commons.crucible.CrucibleServerFacadeImpl;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
+import com.atlassian.theplugin.commons.crucible.CrucibleServerFacade;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 
@@ -34,6 +35,8 @@ public class ReviewAdapter {
     private CrucibleServerCfg server;
     private static final int HASHCODE_MAGIC = 31;
 
+	private CrucibleServerFacade facade;
+
 	public Collection<CrucibleReviewListener> getListeners() {
 		return listeners;
 	}
@@ -43,9 +46,15 @@ public class ReviewAdapter {
 	public ReviewAdapter(Review review, CrucibleServerCfg server) {
         this.review = review;
         this.server = server;
-    }
 
-    public User getAuthor() {
+		facade = CrucibleServerFacadeImpl.getInstance();
+	}
+
+	public void setFacade(CrucibleServerFacade newFacade) {
+		facade = newFacade;
+	}
+
+	public User getAuthor() {
         return review.getAuthor();
     }
 
@@ -186,11 +195,7 @@ public class ReviewAdapter {
 	public void addGeneralComment(final GeneralCommentBean comment)
 			throws ValueNotYetInitialized, RemoteApiException, ServerPasswordNotProvidedException {
 
-		GeneralComment newComment = CrucibleServerFacadeImpl.getInstance().
-				addGeneralComment(getServer(), review.getPermId(), comment);
-
-//		((CommentBean) newComment).setAuthor(
-//				CrucibleUserCacheImpl.getInstance().getUser(getServer(), getServer().getUsername(), false));
+		GeneralComment newComment = facade.addGeneralComment(getServer(), review.getPermId(), comment);
 
 		review.getGeneralComments().add(newComment);
 
@@ -203,7 +208,7 @@ public class ReviewAdapter {
 	public void addGeneralCommentReply(final GeneralComment parentComment, final GeneralCommentBean replyComment)
 			throws RemoteApiException, ServerPasswordNotProvidedException, ValueNotYetInitialized {
 
-		GeneralComment newReply = CrucibleServerFacadeImpl.getInstance().addGeneralCommentReply(
+		GeneralComment newReply = facade.addGeneralCommentReply(
 				getServer(), getPermId(), parentComment.getPermId(), replyComment);
 
 		for (GeneralComment comment : review.getGeneralComments()) {
@@ -232,7 +237,7 @@ public class ReviewAdapter {
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 
 		// remove comment from the server
-		CrucibleServerFacadeImpl.getInstance().removeComment(getServer(), review.getPermId(), generalComment);
+		facade.removeComment(getServer(), review.getPermId(), generalComment);
 
 		// remove comment from the model
 		this.review.removeGeneralComment(generalComment);
@@ -246,16 +251,13 @@ public class ReviewAdapter {
 	public void addVersionedComment(final CrucibleFileInfo file, final VersionedCommentBean newComment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 
-		VersionedComment newVersionedComment = CrucibleServerFacadeImpl.getInstance()
-				.addVersionedComment(getServer(), getPermId(), file.getPermId(), newComment);
-//		((CommentBean) newVersionedComment).setAuthor(
-//				CrucibleUserCacheImpl.getInstance().getUser(getServer(), getServer().getUsername(), false));
+		VersionedComment newVersionedComment = facade.addVersionedComment(getServer(), getPermId(),
+				file.getPermId(), newComment);
 		List<VersionedComment> comments;
 		comments = file.getVersionedComments();
 
 		if (comments == null) {
-			comments = CrucibleServerFacadeImpl.getInstance().getVersionedComments(getServer(), getPermId(),
-					file.getPermId());
+			comments = facade.getVersionedComments(getServer(), getPermId(), file.getPermId());
 			file.setVersionedComments(comments);
 		} else {
 			comments.add(newVersionedComment);
@@ -270,11 +272,8 @@ public class ReviewAdapter {
 	public void addVersionedCommentReply(final CrucibleFileInfo file, final VersionedComment parentComment,
 			final VersionedCommentBean nComment) throws RemoteApiException, ServerPasswordNotProvidedException {
 
-		VersionedComment newComment = CrucibleServerFacadeImpl.getInstance().addVersionedCommentReply(
+		VersionedComment newComment = facade.addVersionedCommentReply(
 				getServer(), getPermId(), parentComment.getPermId(), nComment);
-
-//		((CommentBean) newComment).setAuthor(
-//				CrucibleUserCacheImpl.getInstance().getUser(getServer(), getServer().getUsername(), false));
 
 		parentComment.getReplies().add(newComment);
 
@@ -297,7 +296,7 @@ public class ReviewAdapter {
 			throws RemoteApiException, ServerPasswordNotProvidedException, ValueNotYetInitialized {
 
 		// remove comment from the server
-		CrucibleServerFacadeImpl.getInstance().removeComment(getServer(), review.getPermId(), versionedComment);
+		facade.removeComment(getServer(), review.getPermId(), versionedComment);
 
 		// remove comment from the model
 		review.removeVersionedComment(versionedComment, file);
@@ -310,7 +309,7 @@ public class ReviewAdapter {
 
 	public void editGeneralComment(final GeneralComment comment) throws RemoteApiException, ServerPasswordNotProvidedException {
 
-		CrucibleServerFacadeImpl.getInstance().updateComment(getServer(), getPermId(), comment);
+		facade.updateComment(getServer(), getPermId(), comment);
 		// notify listeners
 		for (CrucibleReviewListener listener : listeners) {
 			listener.createdOrEditedGeneralComment(this, comment);
@@ -319,7 +318,7 @@ public class ReviewAdapter {
 
 	public void editVersionedComment(final CrucibleFileInfo file, final VersionedComment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
-		CrucibleServerFacadeImpl.getInstance().updateComment(getServer(), getPermId(), comment);
+		facade.updateComment(getServer(), getPermId(), comment);
 
 		// notify listeners
 		for (CrucibleReviewListener listener : listeners) {
@@ -329,7 +328,7 @@ public class ReviewAdapter {
 
 	public void publishGeneralComment(final GeneralComment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
-		CrucibleServerFacadeImpl.getInstance().publishComment(getServer(), getPermId(), comment.getPermId());
+		facade.publishComment(getServer(), getPermId(), comment.getPermId());
 
 		((GeneralCommentBean) comment).setDraft(false);
 
@@ -346,7 +345,7 @@ public class ReviewAdapter {
 
 	public void publisVersionedComment(final CrucibleFileInfo file, final VersionedComment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
-		CrucibleServerFacadeImpl.getInstance().publishComment(getServer(), getPermId(), comment.getPermId());
+		facade.publishComment(getServer(), getPermId(), comment.getPermId());
 		//dirty hack - probably remote api should return new comment info
 		//if (comment instanceof VersionedCommentBean) {
 		((VersionedCommentBean) comment).setDraft(false);
@@ -359,7 +358,6 @@ public class ReviewAdapter {
 
 	public void setFilesAndVersionedComments(final List<CrucibleFileInfo> files, final List<VersionedComment> comments) {
 		review.setFilesAndVersionedComments(files, comments);
-//		CrucibleFileInfoManager.getInstance().setFiles(review, files);
 	}
 
 	public void fillReview(final ReviewAdapter newReview) {
@@ -371,6 +369,8 @@ public class ReviewAdapter {
 	 * @param newReview source of Review data
 	 */
 	public void fillReview(final Review newReview) {
+		boolean isModified = isContentEqual(newReview);
+
 		try {
 			setGeneralComments(newReview.getGeneralComments());
 		} catch (ValueNotYetInitialized valueNotYetInitialized) {
@@ -416,6 +416,58 @@ public class ReviewAdapter {
 		}
 		review.setVirtualFileSystem(newReview.getVirtualFileSystem());
 
+		if (isModified) {
+			for (CrucibleReviewListener listener : listeners) {
+				listener.reviewUpdated(this);
+			}
+		}
+	}
+
+	boolean isContentEqual(Review other) {
+		try {
+			return
+				review.getGeneralComments().equals(other.getGeneralComments())
+					&&
+				review.getFiles().equals(other.getFiles())
+					&&
+				review.getActions().equals(other.getActions())
+					&&
+				review.isAllowReviewerToJoin() == other.isAllowReviewerToJoin()
+					&&
+				review.getAuthor().equals(other.getAuthor())
+					&&
+				review.getCloseDate().equals(other.getCloseDate())
+					&&
+				review.getCreateDate().equals(other.getCreateDate())
+					&&
+				review.getCreator().equals(other.getCreator())
+					&&
+				review.getDescription().equals(other.getDescription())
+					&&
+				review.getMetricsVersion() == other.getMetricsVersion()
+					&&
+				review.getModerator().equals(other.getModerator())
+					&&
+				review.getName().equals(other.getName())
+					&&
+				review.getParentReview().equals(other.getParentReview())
+					&&
+				review.getProjectKey().equals(other.getProjectKey())
+					&&
+				review.getRepoName().equals(other.getRepoName())
+					&&
+				review.getReviewers().equals(other.getReviewers())
+					&&
+				review.getState().equals(other.getState())
+					&&
+				review.getSummary().equals(other.getSummary())
+					&&
+				review.getTransitions().equals(other.getTransitions())
+					&&
+				review.getVirtualFileSystem().equals(other.getVirtualFileSystem());
+		} catch (ValueNotYetInitialized valueNotYetInitialized) {
+			return true;
+		}
 	}
 
 	private void setFiles(final List<CrucibleFileInfo> files) {
@@ -476,7 +528,6 @@ public class ReviewAdapter {
 	public int getNumberOfGeneralCommentsDrafts() throws ValueNotYetInitialized {
 		return review.getNumberOfGeneralCommentsDrafts();
 	}
-
 
 	public int getNumberOfVersionedCommentsDrafts(final String userName) throws ValueNotYetInitialized {
 		return review.getNumberOfVersionedCommentsDrafts(userName);

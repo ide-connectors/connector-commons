@@ -419,7 +419,7 @@ public class CrucibleServerFacadeTest extends TestCase {
     }
 
     private Review prepareReviewData(final String name, final State state) {
-        return new ReviewImpl() {
+        return new ReviewBean(null) {
             public User getAuthor() {
                 return VALID_LOGIN;
             }
@@ -551,7 +551,7 @@ public class CrucibleServerFacadeTest extends TestCase {
     }
 
     private Review prepareReviewData(final User user, final String name, final State state, final PermId permId) {
-        return new ReviewImpl() {
+        return new ReviewBean(null) {
             public User getAuthor() {
                 return user;
             }

@@ -5,10 +5,10 @@ Bundle-SymbolicName: com.atlassian.connector.commons;singleton:=true
 Bundle-Version: 0.5.0.qualifier
 Require-Bundle: org.apache.commons.httpclient,
  org.apache.commons.codec,
- org.jdom,
  org.apache.commons.io,
  org.joda.time,
- com.thoughtworks.xstream
+ com.thoughtworks.xstream,
+ org.jdom_jaxen
 Export-Package: com.atlassian.theplugin.commons,
  com.atlassian.theplugin.commons.bamboo,
  com.atlassian.theplugin.commons.bamboo.api,

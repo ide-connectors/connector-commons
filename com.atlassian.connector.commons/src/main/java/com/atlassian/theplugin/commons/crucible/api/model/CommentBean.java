@@ -144,4 +144,62 @@ public abstract class CommentBean implements Comment {
 		return getMessage();
 	}
 
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		CommentBean that = (CommentBean) o;
+
+		if (defectApproved != that.defectApproved) {
+			return false;
+		}
+		if (defectRaised != that.defectRaised) {
+			return false;
+		}
+		if (deleted != that.deleted) {
+			return false;
+		}
+		if (draft != that.draft) {
+			return false;
+		}
+		if (isReply != that.isReply) {
+			return false;
+		}
+		if (author != null ? !author.equals(that.author) : that.author != null) {
+			return false;
+		}
+		if (createDate != null ? !createDate.equals(that.createDate) : that.createDate != null) {
+			return false;
+		}
+		if (customFields != null ? !customFields.equals(that.customFields) : that.customFields != null) {
+			return false;
+		}
+		if (message != null ? !message.equals(that.message) : that.message != null) {
+			return false;
+		}
+		if (permId != null ? !permId.equals(that.permId) : that.permId != null) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public int hashCode() {
+		int result;
+		result = (permId != null ? permId.hashCode() : 0);
+		result = 31 * result + (message != null ? message.hashCode() : 0);
+		result = 31 * result + (draft ? 1 : 0);
+		result = 31 * result + (deleted ? 1 : 0);
+		result = 31 * result + (defectRaised ? 1 : 0);
+		result = 31 * result + (defectApproved ? 1 : 0);
+		result = 31 * result + (author != null ? author.hashCode() : 0);
+		result = 31 * result + (createDate != null ? createDate.hashCode() : 0);
+		result = 31 * result + (isReply ? 1 : 0);
+		result = 31 * result + (customFields != null ? customFields.hashCode() : 0);
+		return result;
+	}
 }

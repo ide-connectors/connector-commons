@@ -24,4 +24,25 @@ package com.atlassian.theplugin.commons;
  * To change this template use File | Settings | File Templates.
  */
 public class VirtualFileSystem {
+
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+//		VirtualFileSystem that = (VirtualFileSystem) o;
+
+		return true;
+
+	}
+
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31 * result;
+		return result;
+	}
 }

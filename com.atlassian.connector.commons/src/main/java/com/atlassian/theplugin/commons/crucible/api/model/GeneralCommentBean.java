@@ -21,6 +21,7 @@ import java.util.List;
 
 public class GeneralCommentBean extends CommentBean implements GeneralComment {
 	private List<GeneralComment> replies = new ArrayList<GeneralComment>();
+	private static final int HASH_INT = 31;
 
 	public List<GeneralComment> getReplies() {
 		return replies;
@@ -56,7 +57,7 @@ public class GeneralCommentBean extends CommentBean implements GeneralComment {
 
 	public int hashCode() {
 		int result = super.hashCode();
-		result = 31 * result + (replies != null ? replies.hashCode() : 0);
+		result = HASH_INT * result + (replies != null ? replies.hashCode() : 0);
 		return result;
 	}
 }

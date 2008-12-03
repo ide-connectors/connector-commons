@@ -24,6 +24,7 @@ package com.atlassian.theplugin.commons;
  * To change this template use File | Settings | File Templates.
  */
 public class VirtualFileSystem {
+	private static final int HASH_INT = 31;
 
 	public boolean equals(Object o) {
 		if (this == o) {
@@ -42,7 +43,7 @@ public class VirtualFileSystem {
 
 	public int hashCode() {
 		int result = super.hashCode();
-		result = 31 * result;
+		result = HASH_INT * result;
 		return result;
 	}
 }

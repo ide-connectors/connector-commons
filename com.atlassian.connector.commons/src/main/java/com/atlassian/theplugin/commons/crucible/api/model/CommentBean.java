@@ -41,6 +41,7 @@ public abstract class CommentBean implements Comment {
 	private boolean isReply = false;
 
 	private Map<String, CustomField> customFields;
+	private static final int HASH_INT = 31;
 
 	public CommentBean() {
 		super();
@@ -191,15 +192,15 @@ public abstract class CommentBean implements Comment {
 	public int hashCode() {
 		int result;
 		result = (permId != null ? permId.hashCode() : 0);
-		result = 31 * result + (message != null ? message.hashCode() : 0);
-		result = 31 * result + (draft ? 1 : 0);
-		result = 31 * result + (deleted ? 1 : 0);
-		result = 31 * result + (defectRaised ? 1 : 0);
-		result = 31 * result + (defectApproved ? 1 : 0);
-		result = 31 * result + (author != null ? author.hashCode() : 0);
-		result = 31 * result + (createDate != null ? createDate.hashCode() : 0);
-		result = 31 * result + (isReply ? 1 : 0);
-		result = 31 * result + (customFields != null ? customFields.hashCode() : 0);
+		result = HASH_INT * result + (message != null ? message.hashCode() : 0);
+		result = HASH_INT * result + (draft ? 1 : 0);
+		result = HASH_INT * result + (deleted ? 1 : 0);
+		result = HASH_INT * result + (defectRaised ? 1 : 0);
+		result = HASH_INT * result + (defectApproved ? 1 : 0);
+		result = HASH_INT * result + (author != null ? author.hashCode() : 0);
+		result = HASH_INT * result + (createDate != null ? createDate.hashCode() : 0);
+		result = HASH_INT * result + (isReply ? 1 : 0);
+		result = HASH_INT * result + (customFields != null ? customFields.hashCode() : 0);
 		return result;
 	}
 }

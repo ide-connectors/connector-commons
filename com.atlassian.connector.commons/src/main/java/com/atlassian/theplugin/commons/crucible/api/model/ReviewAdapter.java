@@ -371,16 +371,13 @@ public class ReviewAdapter {
 	 * @param newReview source of Review data
 	 */
 	public void fillReview(final Review newReview) {
-		if (!isContentEqual(newReview)) {
+
+		boolean reviewChanged = false;
+
+		if (!isShortContentEqual(newReview)) {
 
 			try {
 				setGeneralComments(newReview.getGeneralComments());
-			} catch (ValueNotYetInitialized valueNotYetInitialized) {
-				// shame
-			}
-
-			try {
-				setFiles(newReview.getFiles());
 			} catch (ValueNotYetInitialized valueNotYetInitialized) {
 				// shame
 			}
@@ -417,14 +414,42 @@ public class ReviewAdapter {
 			review.setVirtualFileSystem(newReview.getVirtualFileSystem());
 
 			for (CrucibleReviewListener listener : listeners) {
-				listener.reviewUpdated(this);
+				listener.reviewChangedWithoutFiles(this);
 			}
+			reviewChanged = true;
+		}
+
+		if (!areFilesEqual(newReview)) {
+			try {
+				setFiles(newReview.getFiles());
+			} catch (ValueNotYetInitialized valueNotYetInitialized) {
+				// shame
+			}
+
+			for (CrucibleReviewListener listener : listeners) {
+				listener.reviewFilesChanged(this);
+			}
+			reviewChanged = true;
+		}
+
+		// send general review update notification
+		if (reviewChanged) {
+			for (CrucibleReviewListener listener : listeners) {
+				listener.reviewChanged(this);
+			}
+
 		}
 	}
 
-	private boolean isContentEqual(Review other) {
+	/**
+	 * Compares two Review objects (excluding files).
+	 * Use additionally areFilesEqual to compare files set and associated comments
+	 * @param other Review to compare
+	 * @return true is reviews are equal (excluding files)
+	 */
+	private boolean isShortContentEqual(Review other) {
 		return areGeneralCommentsEqual(other)
-			&& areFilesEqual(other)
+//			&& areFilesEqual(other)
 			&& areActionsEqual(other)
 			&& review.isAllowReviewerToJoin() == other.isAllowReviewerToJoin()
 			&& areObjectsEqual(review.getAuthor(), other.getAuthor())

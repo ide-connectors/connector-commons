@@ -19,9 +19,9 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 import com.atlassian.theplugin.commons.VirtualFileSystem;
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
 import com.atlassian.theplugin.commons.crucible.CrucibleReviewListener;
+import com.atlassian.theplugin.commons.crucible.CrucibleServerFacade;
 import com.atlassian.theplugin.commons.crucible.CrucibleServerFacadeImpl;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
-import com.atlassian.theplugin.commons.crucible.CrucibleServerFacade;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 
@@ -31,9 +31,11 @@ import java.util.HashSet;
 import java.util.List;
 
 public class ReviewAdapter {
-    private Review review;
-    private CrucibleServerCfg server;
-    private static final int HASHCODE_MAGIC = 31;
+	private Review review;
+
+	private CrucibleServerCfg server;
+
+	private static final int HASHCODE_MAGIC = 31;
 
 	private CrucibleServerFacade facade;
 
@@ -58,67 +60,67 @@ public class ReviewAdapter {
         return review.getAuthor();
     }
 
-    public User getCreator() {
+	public User getCreator() {
         return review.getCreator();
     }
 
-    public String getDescription() {
+	public String getDescription() {
         return review.getDescription();
     }
 
-    public User getModerator() {
+	public User getModerator() {
         return review.getModerator();
     }
 
-    public String getName() {
+	public String getName() {
         return review.getName();
     }
 
-    public PermId getParentReview() {
+	public PermId getParentReview() {
         return review.getParentReview();
     }
 
-    public PermId getPermId() {
+	public PermId getPermId() {
         return review.getPermId();
     }
 
-    public String getProjectKey() {
+	public String getProjectKey() {
         return review.getProjectKey();
     }
 
-    public String getRepoName() {
+	public String getRepoName() {
         return review.getRepoName();
     }
 
-    public State getState() {
+	public State getState() {
         return review.getState();
     }
 
-    public boolean isAllowReviewerToJoin() {
+	public boolean isAllowReviewerToJoin() {
         return review.isAllowReviewerToJoin();
     }
 
-    public int getMetricsVersion() {
+	public int getMetricsVersion() {
         return review.getMetricsVersion();
     }
 
-    public Date getCreateDate() {
+	public Date getCreateDate() {
         return review.getCreateDate();
     }
 
-    public Date getCloseDate() {
+	public Date getCloseDate() {
         return review.getCloseDate();
     }
 
-    public String getSummary() {
+	public String getSummary() {
         return review.getSummary();
     }
 
-    public List<Reviewer> getReviewers() throws ValueNotYetInitialized {
+	public List<Reviewer> getReviewers() throws ValueNotYetInitialized {
         return review.getReviewers();
     }
 
-    public List<GeneralComment> getGeneralComments() throws ValueNotYetInitialized {
+	public List<GeneralComment> getGeneralComments() throws ValueNotYetInitialized {
         return review.getGeneralComments();
     }
 
@@ -126,11 +128,11 @@ public class ReviewAdapter {
         return review.getTransitions();
     }
 
-    public List<Action> getActions() throws ValueNotYetInitialized {
+	public List<Action> getActions() throws ValueNotYetInitialized {
         return review.getActions();
     }
 
-    public VirtualFileSystem getVirtualFileSystem() {
+	public VirtualFileSystem getVirtualFileSystem() {
         return review.getVirtualFileSystem();
     }
 
@@ -142,7 +144,7 @@ public class ReviewAdapter {
         return server;
     }
 
-    public String getReviewUrl() {
+	public String getReviewUrl() {
 		String baseUrl = server.getUrl();
 		while (baseUrl.length() > 0 && baseUrl.charAt(baseUrl.length() - 1) == '/') {
 			// quite ineffective, I know ...
@@ -172,7 +174,7 @@ public class ReviewAdapter {
         return true;
     }
 
-    @Override
+	@Override
     public int hashCode() {
         int result;
         result = (review != null ? review.hashCode() : 0);
@@ -225,7 +227,6 @@ public class ReviewAdapter {
 
 	}
 
-
 	/**
 	 * Removes general review comment from the server and model.
 	 * It SHOULD NOT be called from the EVENT DISPATCH THREAD as it calls facade method.
@@ -247,6 +248,7 @@ public class ReviewAdapter {
 			listener.removedComment(this, generalComment);
 		}
 	}
+
 
 	public void addVersionedComment(final CrucibleFileInfo file, final VersionedCommentBean newComment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
@@ -511,10 +513,10 @@ public class ReviewAdapter {
 		return review.getNumberOfVersionedComments();
 	}
 
-
 	public int getNumberOfVersionedComments(final String userName) throws ValueNotYetInitialized {
 		return review.getNumberOfVersionedComments(userName);
 	}
+
 
 	public int getNumberOfVersionedCommentsDefects() throws ValueNotYetInitialized {
 		return review.getNumberOfVersionedCommentsDefects();
@@ -554,5 +556,9 @@ public class ReviewAdapter {
 
 	public int getNumberOfVersionedCommentsDrafts(final String userName) throws ValueNotYetInitialized {
 		return review.getNumberOfVersionedCommentsDrafts(userName);
+	}
+
+	public String toString() {
+		return review.getPermId().getId() + ": " + review.getName() + " (" + server.getName() + ')';
 	}
 }

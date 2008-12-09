@@ -36,4 +36,6 @@ public interface CustomFilter {
     String getProjectKey();
 
     boolean isOrRoles();
+
+	String toHtml();
 }

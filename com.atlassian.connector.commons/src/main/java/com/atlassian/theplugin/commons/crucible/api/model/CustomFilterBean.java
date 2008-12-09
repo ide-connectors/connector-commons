@@ -49,11 +49,8 @@ public class CustomFilterBean implements CustomFilter {
 
 		CustomFilterBean that = (CustomFilterBean) o;
 
-		if (uid != that.uid) {
-            return false;
-        }
+		return uid == that.uid;
 
-		return true;
 	}
 
 	public int hashCode() {
@@ -162,7 +159,11 @@ public class CustomFilterBean implements CustomFilter {
         return orRoles;
     }
 
-    public void setOrRoles(boolean orRoles) {
+	public String toHtml() {
+		return "to Html";
+	}
+
+	public void setOrRoles(boolean orRoles) {
         this.orRoles = orRoles;
     }
 

@@ -19,6 +19,7 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 
 public class CustomFilterBean implements CustomFilter {
@@ -159,8 +160,53 @@ public class CustomFilterBean implements CustomFilter {
         return orRoles;
     }
 
+	public HashMap<String, String> getPropertiesMap() {
+		HashMap map = new HashMap();
+
+		String states = "";
+		for (String st : state) {
+			states += st + ", ";
+		}
+		states = states.substring(0, states.length() - ", ".length());
+		map.put("Server", serverUid.toString());
+		map.put("Project key", projectKey);
+		if (states.length() > 0) {
+			map.put("State", states);
+		}
+
+		if (author.length() > 0) {
+			map.put("Author", author);
+		}
+		if (moderator.length() > 0) {
+			map.put("Moderator", moderator);
+		}
+		if (creator.length() > 0) {
+			map.put("Creator", creator);
+		}
+		if (reviewer.length() > 0) {
+			map.put("Reviewer", reviewer);
+		}
+
+		if (orRoles) {
+			map.put("Role", orRoles ? "true" : "false");
+		}
+		if (complete) {
+			map.put("Complete", complete ? "true" : "false");
+		}
+		if (allReviewersComplete) {
+			map.put("All revievers completed", allReviewersComplete ? "true" : "false");
+		}
+		return map;
+	}
+
 	public String toHtml() {
-		return "to Html";
+		String table = "<html><body><table>";
+		HashMap prop = (HashMap)getPropertiesMap();
+		for (Object key: prop.keySet()) {
+			table += "<tr><td> " + key +" :</td><td>" + prop.get(key) + "</td></tr>";
+		}
+		table += "</table></body></html>";
+		return table;
 	}
 
 	public void setOrRoles(boolean orRoles) {

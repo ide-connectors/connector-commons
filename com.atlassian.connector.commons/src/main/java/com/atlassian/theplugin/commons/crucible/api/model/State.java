@@ -24,7 +24,8 @@ public enum State {
     REJECTED("Rejected"),
     REVIEW("Review"),
     SUMMARIZE("Summarize"),
-    UNKNOWN("Unknown");
+	ABANDONED("Abandoned"),
+	UNKNOWN("Unknown");
     private final String value;
 
     State(String v) {

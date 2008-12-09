@@ -21,6 +21,7 @@ import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 public interface Review {
 
@@ -70,7 +71,7 @@ public interface Review {
 	
 	List<Action> getTransitions() throws ValueNotYetInitialized;
 
-    List<Action> getActions() throws ValueNotYetInitialized;
+    Set<Action> getActions() throws ValueNotYetInitialized;
 
     VirtualFileSystem getVirtualFileSystem();
 
@@ -88,7 +89,7 @@ public interface Review {
 
 	void setTransitions(List<Action> transitions);
 
-	void setActions(List<Action> actions);
+	void setActions(Set<Action> actions);
 
 	void setVirtualFileSystem(VirtualFileSystem virtualFileSystem);
 

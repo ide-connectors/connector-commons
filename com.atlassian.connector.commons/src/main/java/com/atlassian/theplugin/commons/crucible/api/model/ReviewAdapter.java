@@ -25,10 +25,7 @@ import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class ReviewAdapter {
 	private Review review;
@@ -128,7 +125,7 @@ public class ReviewAdapter {
         return review.getTransitions();
     }
 
-	public List<Action> getActions() throws ValueNotYetInitialized {
+	public Set<Action> getActions() throws ValueNotYetInitialized {
         return review.getActions();
     }
 
@@ -487,8 +484,8 @@ public class ReviewAdapter {
 	}
 
 	private boolean areActionsEqual(Review rhs) {
-		List<Action> l = null;
-		List<Action> r = null;
+		Set<Action> l = null;
+		Set<Action> r = null;
 		try { l = review.getActions(); } catch (ValueNotYetInitialized e) {	/* ignore */ }
 		try { r = rhs.getActions(); } catch (ValueNotYetInitialized e) { /* ignore */ }
 		return areObjectsEqual(l, r);

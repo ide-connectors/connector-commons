@@ -39,10 +39,7 @@ import static org.easymock.EasyMock.replay;
 import org.mortbay.jetty.Server;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CrucibleServerFacadeTest extends TestCase {
     private static final User VALID_LOGIN = new UserBean("validLogin");
@@ -504,7 +501,7 @@ public class CrucibleServerFacadeTest extends TestCase {
                 return null;
             }
 
-            public List<Action> getActions() throws ValueNotYetInitialized {
+            public Set<Action> getActions() throws ValueNotYetInitialized {
                 return null;
             }
 
@@ -656,7 +653,7 @@ public class CrucibleServerFacadeTest extends TestCase {
                 return null;
             }
 
-            public List<Action> getActions() throws ValueNotYetInitialized {
+            public Set<Action> getActions() throws ValueNotYetInitialized {
                 return null;
             }
 

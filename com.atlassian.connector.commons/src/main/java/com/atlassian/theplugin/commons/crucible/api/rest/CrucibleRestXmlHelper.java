@@ -26,9 +26,7 @@ import org.jdom.Element;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public final class CrucibleRestXmlHelper {
 	private static final String CDATA_END = "]]>";
@@ -231,7 +229,7 @@ public final class CrucibleRestXmlHelper {
 		review.setTransitions(transitions);
 
 		List<Element> actionsNode = getChildElements(reviewNode, "actions");
-		List<Action> actions = new ArrayList<Action>();
+		Set<Action> actions = new HashSet<Action>();
 		for (Element action : actionsNode) {
 			List<Element> act = getChildElements(action, "actionData");
 			for (Element element : act) {

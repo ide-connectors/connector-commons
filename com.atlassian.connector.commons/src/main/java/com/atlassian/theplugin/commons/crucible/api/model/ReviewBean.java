@@ -21,13 +21,14 @@ import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 
 public class ReviewBean implements Review {
 	private List<Reviewer> reviewers;
 	private List<GeneralComment> generalComments;
 	private List<Action> transitions;
-	private List<Action> actions;
+	private Set<Action> actions;
     private VirtualFileSystem virtualFileSystem;
 	private User author;
 	private User creator;
@@ -91,7 +92,7 @@ public class ReviewBean implements Review {
 		this.transitions = transitions;
 	}
 
-    public void setActions(List<Action> actions) {
+    public void setActions(Set<Action> actions) {
         this.actions = actions;
     }
 
@@ -134,7 +135,7 @@ public class ReviewBean implements Review {
 		return transitions;
 	}
 
-	public List<Action> getActions() throws ValueNotYetInitialized {
+	public Set<Action> getActions() throws ValueNotYetInitialized {
 		if (actions == null) {
 			throw new ValueNotYetInitialized("Object trasferred only partially");
 		}

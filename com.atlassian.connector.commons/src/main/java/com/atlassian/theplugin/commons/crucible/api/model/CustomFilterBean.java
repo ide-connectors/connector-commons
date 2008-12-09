@@ -201,9 +201,9 @@ public class CustomFilterBean implements CustomFilter {
 
 	public String toHtml() {
 		String table = "<html><body><table>";
-		HashMap prop = (HashMap)getPropertiesMap();
-		for (Object key: prop.keySet()) {
-			table += "<tr><td> " + key +" :</td><td>" + prop.get(key) + "</td></tr>";
+		HashMap prop = getPropertiesMap();
+		for (Object key : prop.keySet()) {
+			table += "<tr><td> " + key + " :</td><td>" + prop.get(key) + "</td></tr>";
 		}
 		table += "</table></body></html>";
 		return table;

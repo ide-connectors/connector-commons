@@ -311,7 +311,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			Document doc = retrievePostResponse(url, request);
 			XPath xpath;
 			if (details) {
-				xpath = XPath.newInstance("/detailedReviews/detailReviewData");
+				xpath = XPath.newInstance("/detailedReviews/detailedReviewData");
 			} else {
 				xpath = XPath.newInstance("/reviews/reviewData");
 			}

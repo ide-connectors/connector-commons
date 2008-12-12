@@ -167,7 +167,10 @@ public class CustomFilterBean implements CustomFilter {
 		for (String st : state) {
 			states += st + ", ";
 		}
-		states = states.substring(0, states.length() - ", ".length());
+		if (states.length() > ", ".length()) {
+			states = states.substring(0, states.length() - ", ".length());
+		}
+
 		map.put("Server", serverUid.toString());
 		map.put("Project key", projectKey);
 		if (states.length() > 0) {

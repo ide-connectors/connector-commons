@@ -24,7 +24,7 @@ import java.util.Arrays;
 public class CrucibleFiltersBean {
     private Boolean[] predefinedFilters = new Boolean[PredefinedFilter.values().length];
 //    private HashMap<String, CustomFilterBean> manualFilter = new HashMap<String, CustomFilterBean>();
-	private CustomFilterBean manualFilter;
+	private CustomFilterBean manualFilter = new CustomFilterBean();
 	private Boolean readStored;
 
 	public CrucibleFiltersBean() {

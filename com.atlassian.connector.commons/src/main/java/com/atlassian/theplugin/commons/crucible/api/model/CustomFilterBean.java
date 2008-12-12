@@ -34,7 +34,7 @@ public class CustomFilterBean implements CustomFilter {
     private boolean complete;
     private boolean allReviewersComplete;
     private String projectKey = "";
-    private boolean enabled;
+    private boolean enabled = false;
     private static final double ID_DISCRIMINATOR = 1002d;
     private static final int HASHCODE_CONSTANT = 31;
     private static final int SHIFT_32 = 32;

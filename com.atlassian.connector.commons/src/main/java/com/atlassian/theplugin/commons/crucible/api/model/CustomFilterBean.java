@@ -24,16 +24,16 @@ import java.util.HashMap;
 
 public class CustomFilterBean implements CustomFilter {
 	private ServerId serverUid = new ServerId();
-    private String title;
-    private String[] state;
-    private String author;
-    private String moderator;
-    private String creator;
-    private String reviewer;
+    private String title = "";
+    private String[] state = new String[0];
+    private String author = "";
+    private String moderator = "";
+    private String creator = "";
+    private String reviewer = "";
     private boolean orRoles = false;
     private boolean complete;
     private boolean allReviewersComplete;
-    private String projectKey;
+    private String projectKey = "";
     private boolean enabled;
     private static final double ID_DISCRIMINATOR = 1002d;
     private static final int HASHCODE_CONSTANT = 31;

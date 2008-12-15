@@ -68,4 +68,6 @@ public interface CfgManager extends BambooCfgManager {
 //			ConfigurationCredentialsListener listener);
 
 	boolean hasProject(ProjectId projectId);
+
+	Collection<CrucibleServerCfg> getAllCrucibleServers(ProjectId projectId);
 }

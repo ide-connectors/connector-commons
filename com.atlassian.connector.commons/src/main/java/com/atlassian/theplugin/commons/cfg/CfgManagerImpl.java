@@ -55,7 +55,20 @@ public class CfgManagerImpl implements CfgManager {
         return tmp;
     }
 
-    public Collection<ServerCfg> getProjectSpecificServers(final ProjectId projectId) {
+	public Collection<CrucibleServerCfg> getAllCrucibleServers(ProjectId projectId) {
+
+		Collection<ServerCfg> tmp = getAllServers(projectId);
+		Collection<CrucibleServerCfg> res = MiscUtil.buildArrayList();
+		for (ServerCfg serverCfg : tmp) {
+			if (serverCfg.getServerType() == ServerType.CRUCIBLE_SERVER && serverCfg instanceof CrucibleServerCfg) {
+				res.add((CrucibleServerCfg) serverCfg);
+			}
+		}
+		return res;
+
+	}
+
+	public Collection<ServerCfg> getProjectSpecificServers(final ProjectId projectId) {
 		verifyProjectId(projectId);
 		ProjectConfiguration res = projectConfigurations.get(projectId);
         if (res == null) {
@@ -64,11 +77,11 @@ public class CfgManagerImpl implements CfgManager {
         return MiscUtil.buildArrayList(res.getServers());
     }
 
-    public Collection<ServerCfg> getGlobalServers() {
+	public Collection<ServerCfg> getGlobalServers() {
         return new ArrayList<ServerCfg>(globalServers);
     }
 
-    public Collection<ServerCfg> getAllEnabledServers(final ProjectId projectId) {
+	public Collection<ServerCfg> getAllEnabledServers(final ProjectId projectId) {
         Collection<ServerCfg> tmp = new ArrayList<ServerCfg>();
         for (ServerCfg serverCfg : getAllServers(projectId)) {
             if (serverCfg.isEnabled()) {
@@ -78,10 +91,10 @@ public class CfgManagerImpl implements CfgManager {
         return tmp;
     }
 
-    public BambooCfg getGlobalBambooCfg() {
+
+	public BambooCfg getGlobalBambooCfg() {
 		return bambooCfg;
     }
-
 
 	public void updateProjectConfiguration(final ProjectId projectId, final ProjectConfiguration projectConfiguration) {
 		verifyProjectId(projectId);
@@ -194,11 +207,11 @@ public class CfgManagerImpl implements CfgManager {
 		return res;
 	}
 
+
 	public ServerCfg removeGlobalServer(final ServerId serverId) {
 		verifyServerId(serverId);
 		return removeServer(serverId, globalServers);
     }
-
 
 	private void verifyServerId(final ServerId serverId) {
 		if (serverId == null) {

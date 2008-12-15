@@ -40,7 +40,7 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
 	
 	public void testServerConnection(ServerCfg serverCfg) throws RemoteApiException {
 		assert serverCfg instanceof FishEyeServerCfg;
-		FishEyeSession fishEyeSession = getSession((FishEyeServerCfg)serverCfg);
+		FishEyeSession fishEyeSession = getSession((FishEyeServerCfg) serverCfg);
 		fishEyeSession.login(serverCfg.getUsername(), serverCfg.getPassword().toCharArray());
 		fishEyeSession.logout();		
 	}

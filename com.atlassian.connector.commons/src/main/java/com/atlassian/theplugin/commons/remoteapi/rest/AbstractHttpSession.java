@@ -120,14 +120,14 @@ public abstract class AbstractHttpSession {
     public AbstractHttpSession(Server server, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
     	this.server = server;
     	this.callback = callback;
-    	String url = server.getUrl();
+    	String myurl = server.getUrl();
     	
-        this.baseUrl = UrlUtil.removeUrlTrailingSlashes(url);
+        this.baseUrl = UrlUtil.removeUrlTrailingSlashes(myurl);
 
         try {
-            UrlUtil.validateUrl(url);
+            UrlUtil.validateUrl(myurl);
         } catch (MalformedURLException e) {
-            throw new RemoteApiMalformedUrlException("Malformed server URL: " + url, e);
+            throw new RemoteApiMalformedUrlException("Malformed server URL: " + myurl, e);
         }
     }
 

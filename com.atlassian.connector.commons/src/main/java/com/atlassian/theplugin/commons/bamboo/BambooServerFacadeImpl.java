@@ -21,12 +21,21 @@ import com.atlassian.theplugin.commons.SubscribedPlan;
 import com.atlassian.theplugin.commons.bamboo.api.AutoRenewBambooSession;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 
 /**
@@ -41,8 +50,11 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 
     private static BambooServerFacadeImpl instance = null;
 
+    private HttpSessionCallback callback;
+    
     private BambooServerFacadeImpl(Logger loger) {
         this.loger = loger;
+        this.callback = new HttpSessionCallbackImpl();
     }                                                                                            
 
     public static synchronized BambooServerFacade getInstance(Logger loger) {
@@ -62,7 +74,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
         String key = server.getUsername() + server.getUrl() + server.getPassword();
         BambooSession session = sessions.get(key);
         if (session == null) {
-            session = new AutoRenewBambooSession(server.getUrl());
+            session = new AutoRenewBambooSession(server, callback);
             sessions.put(key, session);
         }
         if (!session.isLoggedIn()) {
@@ -82,17 +94,30 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
     }
 
     /**
+     * For testing Only
+     * @see com.atlassian.theplugin.commons.remoteapi.ProductServerFacade#testServerConnection(java.lang.String,
+	 * java.lang.String, java.lang.String)
+     */
+    public void testServerConnection(String url, String userName, String password) throws RemoteApiException {
+    	BambooServerCfg serverCfg = new BambooServerCfg(url, new ServerId());
+    	serverCfg.setUrl(url);
+    	serverCfg.setUsername(userName);
+    	serverCfg.setPassword(password);
+    	testServerConnection(serverCfg);
+    }
+    
+	/**
      * Test connection to Bamboo server.
      *
-     * @param url      Bamboo server base URL
-     * @param userName Bamboo user name
-     * @param password Bamboo password
+     * @param serverCfg The configuration for the server that we want to test the connectio for
+     * 
      * @throws RemoteApiException on failed login
      * @see RemoteApiLoginFailedException
      */
-    public void testServerConnection(String url, String userName, String password) throws RemoteApiException {
-        BambooSession apiHandler = new AutoRenewBambooSession(url);
-        apiHandler.login(userName, password.toCharArray());
+    public void testServerConnection(ServerCfg serverCfg) throws RemoteApiException {
+    	assert(serverCfg instanceof BambooServerCfg);
+    	BambooSession apiHandler = new AutoRenewBambooSession((BambooServerCfg)serverCfg, callback);
+        apiHandler.login(serverCfg.getUsername(), serverCfg.getPassword().toCharArray());
         apiHandler.logout();
     }
 
@@ -356,5 +381,8 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 
 		return buildInfo;
 	}
-
+    
+	public void setCallback(HttpSessionCallback callback) {
+		this.callback = callback;
+	}
 }

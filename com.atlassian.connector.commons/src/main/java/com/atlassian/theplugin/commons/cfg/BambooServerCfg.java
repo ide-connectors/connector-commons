@@ -35,6 +35,10 @@ public class BambooServerCfg extends ServerCfg {
 		super(true, name, serverId);
 	}
 
+	public BambooServerCfg(final String name, final String url, final ServerId serverId) {
+		super(true, name, url, serverId);
+	}
+
 	public BambooServerCfg(final boolean enabled, final String name, final ServerId serverId) {
 		super(enabled, name, serverId);
 	}

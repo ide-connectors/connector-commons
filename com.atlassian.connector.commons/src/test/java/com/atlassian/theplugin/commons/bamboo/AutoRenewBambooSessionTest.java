@@ -19,8 +19,10 @@ package com.atlassian.theplugin.commons.bamboo;
 import com.atlassian.theplugin.commons.bamboo.api.AutoRenewBambooSession;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
 
@@ -35,11 +37,13 @@ public class AutoRenewBambooSessionTest extends TestCase {
 	private static final String LOGIN = "login";
 	private static final char[] A_PASSWORD = "password".toCharArray();
 
+	@Override
 	public void setUp() throws Exception {
         super.setUp();
 
 		mockDelegate = EasyMock.createStrictMock(BambooSession.class);
-		testedSession = new AutoRenewBambooSession("http://dupa");
+		testedSession = new AutoRenewBambooSession(new BambooServerCfg("mockbamboo", "http://whatever", new ServerId()),
+				new HttpSessionCallbackImpl());
 
 		Field field = AutoRenewBambooSession.class.getDeclaredField("delegate");
 		field.setAccessible(true);
@@ -47,7 +51,8 @@ public class AutoRenewBambooSessionTest extends TestCase {
 
 	}
 
-    public void tearDown() throws Exception {
+    @Override
+	public void tearDown() throws Exception {
         super.tearDown();
 		EasyMock.verify(mockDelegate);
 	}

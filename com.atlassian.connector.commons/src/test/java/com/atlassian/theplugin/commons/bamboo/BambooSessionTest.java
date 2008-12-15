@@ -17,14 +17,28 @@
 package com.atlassian.theplugin.commons.bamboo;
 
 import com.atlassian.theplugin.api.AbstractSessionTest;
-import com.atlassian.theplugin.bamboo.api.bamboomock.*;
+import com.atlassian.theplugin.bamboo.api.bamboomock.AddCommentToBuildCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.AddLabelToBuildCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetailsResultCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.ErrorMessageCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.ExecuteBuildCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LogoutCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.ProjectListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.Util;
 import com.atlassian.theplugin.commons.bamboo.api.AutoRenewBambooSession;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSessionImpl;
+import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 
 import java.io.IOException;
@@ -653,7 +667,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/listProjectNames.action", new ProjectListCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new AutoRenewBambooSession(mockBaseUrl);
+		BambooSession apiHandler = new AutoRenewBambooSession(new BambooServerCfg("mockbamboo", mockBaseUrl, new ServerId()),
+				new HttpSessionCallbackImpl());
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		apiHandler.listProjectNames();
 		List<BambooProject> projects = apiHandler.listProjectNames();		

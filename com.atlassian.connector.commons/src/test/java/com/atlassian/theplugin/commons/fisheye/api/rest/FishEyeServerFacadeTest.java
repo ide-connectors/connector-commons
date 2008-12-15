@@ -1,8 +1,18 @@
 package com.atlassian.theplugin.commons.fisheye.api.rest;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+import junit.framework.TestCase;
+
+import org.easymock.EasyMock;
+
+import com.atlassian.theplugin.commons.cfg.FishEyeServer;
 import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
-import com.atlassian.theplugin.commons.cfg.FishEyeServer;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
@@ -11,13 +21,6 @@ import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.crucible.api.rest.CharArrayEquals;
-import junit.framework.TestCase;
-import org.easymock.EasyMock;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
-
-import java.util.Arrays;
-import java.util.Collection;
 
 /**
  * User: pmaruszak
@@ -42,6 +45,12 @@ public class FishEyeServerFacadeTest extends TestCase {
 
 			@Override
 			public FishEyeSession getSession(final String url) throws RemoteApiMalformedUrlException {
+				return fishEyeSessionMock;
+			}
+			
+			@Override
+			public FishEyeSession getSession(FishEyeServer server)
+					throws RemoteApiMalformedUrlException {
 				return fishEyeSessionMock;
 			}
 		};

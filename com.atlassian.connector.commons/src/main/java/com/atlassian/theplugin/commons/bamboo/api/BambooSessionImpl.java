@@ -19,8 +19,12 @@ package com.atlassian.theplugin.commons.bamboo.api;
 import com.atlassian.theplugin.commons.BambooFileInfo;
 import com.atlassian.theplugin.commons.BambooFileInfoImpl;
 import com.atlassian.theplugin.commons.bamboo.*;
+import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.remoteapi.*;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.apache.commons.httpclient.HttpMethod;
 import org.jdom.Document;
@@ -60,16 +64,33 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
     private String authToken;
 
     private static final String AUTHENTICATION_ERROR_MESSAGE = "User not authenticated yet, or session timed out";
-
+	
     /**
+	 * For testing purposes, shouldn't be publicb
+	 * @param url
+	 * @throws RemoteApiException
+	 */
+	public BambooSessionImpl(String url) throws RemoteApiMalformedUrlException {
+		this(createServerCfg(url), new HttpSessionCallbackImpl());
+	}
+	
+    private static BambooServerCfg createServerCfg(String url) {
+    	BambooServerCfg serverCfg = new BambooServerCfg(url, new ServerId());
+		serverCfg.setUrl(url);
+		return serverCfg;
+	}
+
+	/**
      * Public constructor for BambooSessionImpl.
      *
-     * @param baseUrl base URL for Bamboo instance
+     * @param serverCfg The server configuration for this session
+	 * @param callback The callback needed for preparing HttpClient calls
+     * 
      * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
      *
      */
-    public BambooSessionImpl(String baseUrl) throws RemoteApiMalformedUrlException {
-        super(baseUrl);
+    public BambooSessionImpl(BambooServerCfg serverCfg, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
+        super(serverCfg, callback);
     }
 
 

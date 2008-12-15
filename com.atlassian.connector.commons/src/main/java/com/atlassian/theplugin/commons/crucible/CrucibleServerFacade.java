@@ -21,6 +21,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.*;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 
 import java.util.List;
 import java.util.Set;
@@ -163,5 +164,7 @@ public interface CrucibleServerFacade extends ProductServerFacade {
 
 	List<CustomFieldDef> getMetrics(CrucibleServerCfg server, int version)
 			throws RemoteApiException, ServerPasswordNotProvidedException;
+
+	public void setCallback(HttpSessionCallback callback);
 
 }

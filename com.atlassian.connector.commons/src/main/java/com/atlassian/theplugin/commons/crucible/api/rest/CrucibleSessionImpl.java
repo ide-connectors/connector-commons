@@ -16,12 +16,18 @@
 
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
-import com.atlassian.theplugin.commons.VersionedVirtualFile;
-import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
-import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
-import com.atlassian.theplugin.commons.remoteapi.*;
-import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
@@ -30,12 +36,40 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
-import java.net.UnknownHostException;
-import java.util.*;
+import com.atlassian.theplugin.commons.VersionedVirtualFile;
+import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
+import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
+import com.atlassian.theplugin.commons.crucible.api.model.Action;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.Project;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewBean;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.State;
+import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 
 /**
  * Communication stub for Crucible REST API.
@@ -88,16 +122,32 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	private Map<String, SvnRepository> repositories = new HashMap<String, SvnRepository>();
 	private Map<String, List<CustomFieldDef>> metricsDefinitions = new HashMap<String, List<CustomFieldDef>>();
 
-
+	/**
+	 * For testing purposes, shouldn't be public
+	 * @param url
+	 * @throws RemoteApiException
+	 */
+	public CrucibleSessionImpl(String url) throws RemoteApiException {
+		this(createServerCfg(url), new HttpSessionCallbackImpl());
+	}
+	
+    private static CrucibleServerCfg createServerCfg(String url) {
+    	CrucibleServerCfg serverCfg = new CrucibleServerCfg(url, new ServerId());
+		serverCfg.setUrl(url);
+		return serverCfg;
+	}
+	
 	/**
 	 * Public constructor for CrucibleSessionImpl.
-	 *
-	 * @param url base url
+	 * 
+	 * @param serverCfg The server fisheye configuration for this session
+	 * @param callback The callback needed for preparing HttpClient calls
+	 * 
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
 	 *
 	 */
-	public CrucibleSessionImpl(String url) throws RemoteApiMalformedUrlException {
-		super(url);
+	public CrucibleSessionImpl(ServerCfg serverCfg, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
+		super(serverCfg, callback);
 	}
 
 	public void login(String username, String aPassword) throws RemoteApiLoginException {
@@ -311,7 +361,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			Document doc = retrievePostResponse(url, request);
 			XPath xpath;
 			if (details) {
-				xpath = XPath.newInstance("/detailedReviews/detailedReviewData");
+				xpath = XPath.newInstance("/detailedReviews/detailReviewData");
 			} else {
 				xpath = XPath.newInstance("/reviews/reviewData");
 			}
@@ -1373,6 +1423,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	protected void adjustHttpHeader(HttpMethod method) {
 		method.addRequestHeader(new Header("Authorization", getAuthHeaderValue()));
 	}
+	
 
 	@Override
 	protected void preprocessResult(Document doc) throws JDOMException, RemoteApiSessionExpiredException {

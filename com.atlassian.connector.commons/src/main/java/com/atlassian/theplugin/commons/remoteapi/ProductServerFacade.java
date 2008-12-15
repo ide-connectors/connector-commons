@@ -17,9 +17,18 @@
 package com.atlassian.theplugin.commons.remoteapi;
 
 import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
 
 public interface ProductServerFacade {
+
+	void testServerConnection(ServerCfg serverCfg) throws RemoteApiException;
+
+	@Deprecated
+	/**
+	 * For testing only
+	 */
 	void testServerConnection(String url, String userName, String password) throws RemoteApiException;
 
+	
 	ServerType getServerType();
 }

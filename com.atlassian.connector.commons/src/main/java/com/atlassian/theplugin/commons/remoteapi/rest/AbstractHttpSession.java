@@ -16,11 +16,14 @@
 
 package com.atlassian.theplugin.commons.remoteapi.rest;
 
-import com.atlassian.theplugin.commons.exception.HttpProxySettingsException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
-import com.atlassian.theplugin.commons.util.HttpClientFactory;
-import com.atlassian.theplugin.commons.util.UrlUtil;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
@@ -37,13 +40,11 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.atlassian.theplugin.commons.cfg.Server;
+import com.atlassian.theplugin.commons.exception.HttpProxySettingsException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.util.UrlUtil;
 
 /**
  * Communication stub for lightweight XML based APIs.
@@ -53,7 +54,9 @@ public abstract class AbstractHttpSession {
     protected String userName;
     protected String password;
     protected HttpClient client = null;
-
+	private HttpSessionCallback callback;
+	private Server server;
+	
     private final Object clientLock = new Object();
 
     private static ThreadLocal<URL> url = new ThreadLocal<URL>();
@@ -61,7 +64,7 @@ public abstract class AbstractHttpSession {
     // TODO: replace this with a proper cache to ensure automatic purging. Responses can get quite large.
     private final Map<String, CacheRecord> cache =
         new HashMap<String, CacheRecord>();
-
+        
     /**
      * This class holds an HTTP response body, together with its last
      * modification time and Etag.
@@ -109,12 +112,16 @@ public abstract class AbstractHttpSession {
 	/**
      * Public constructor for AbstractHttpSession
      *
-     * @param baseUrl base URL for server instance
      * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
      *          for malformed url
+	 * @param server
+	 * @param callback
      */
-    public AbstractHttpSession(String baseUrl) throws RemoteApiMalformedUrlException {
-
+    public AbstractHttpSession(Server server, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
+    	this.server = server;
+    	this.callback = callback;
+    	String baseUrl = server.getUrl();
+    	
         this.baseUrl = UrlUtil.removeUrlTrailingSlashes(baseUrl);
 
         try {
@@ -147,7 +154,7 @@ public abstract class AbstractHttpSession {
 		synchronized (clientLock) {
             if (client == null) {
                 try {
-                    client = HttpClientFactory.getClient();
+                    client = callback.getHttpClient(server);
                 } catch (HttpProxySettingsException e) {
                     throw (IOException) new IOException("Connection error. Please set up HTTP Proxy settings").initCause(e);
                 }
@@ -165,7 +172,7 @@ public abstract class AbstractHttpSession {
             try {
                 method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
                 method.getParams().setSoTimeout(client.getParams().getSoTimeout());
-                adjustHttpHeader(method);
+                callback.configureHttpMethod(this, method);
 
                 client.executeMethod(method);
 
@@ -227,7 +234,7 @@ public abstract class AbstractHttpSession {
         synchronized (clientLock) {
             if (client == null) {
                 try {
-                    client = HttpClientFactory.getClient();
+                	client = callback.getHttpClient(server);
                 } catch (HttpProxySettingsException e) {
                     throw (IOException) new IOException("Connection error. Please set up HTTP Proxy settings").initCause(e);
                 }
@@ -238,7 +245,7 @@ public abstract class AbstractHttpSession {
             try {
                 method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
                 method.getParams().setSoTimeout(client.getParams().getSoTimeout());
-                adjustHttpHeader(method);
+                callback.configureHttpMethod(this, method);
 
                 if (request != null && !"".equals(request)) {
                     method.setRequestEntity(
@@ -304,7 +311,7 @@ public abstract class AbstractHttpSession {
         synchronized (clientLock) {
             if (client == null) {
                 try {
-                    client = HttpClientFactory.getClient();
+                	client = callback.getHttpClient(server);
                 } catch (HttpProxySettingsException e) {
                     throw (IOException) new IOException("Connection error. Please set up HTTP Proxy settings").initCause(e);
                 }
@@ -315,7 +322,7 @@ public abstract class AbstractHttpSession {
             try {
                 method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
                 method.getParams().setSoTimeout(client.getParams().getSoTimeout());
-                adjustHttpHeader(method);
+                callback.configureHttpMethod(this, method);
 
                 client.executeMethod(method);
 

@@ -20,6 +20,7 @@ import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 
 import java.util.Collection;
 
@@ -47,4 +48,7 @@ public interface BambooServerFacade extends ProductServerFacade {
 
     byte[] getBuildLogs(BambooServerCfg server, String buildKey, String buildNumber)
             throws ServerPasswordNotProvidedException, RemoteApiException;
+    
+	public void setCallback(HttpSessionCallback callback);
+
 }

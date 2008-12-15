@@ -21,9 +21,14 @@ public abstract class ServerCfg implements Server {
 	private static final int HASHCODE_MAGIC = 31;
 
 	public ServerCfg(final boolean enabled, final String name, final ServerId serverId) {
+		this(enabled, name, "", serverId);
+	}
+
+	public ServerCfg(final boolean enabled, final String name, final String url, final ServerId serverId) {
         isEnabled = enabled;
         this.name = name;
         this.serverId = serverId;
+		this.url = url;
     }
 
 	//    private boolean isShared;

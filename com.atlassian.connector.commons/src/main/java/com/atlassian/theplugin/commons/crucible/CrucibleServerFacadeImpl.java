@@ -16,28 +16,52 @@
 
 package com.atlassian.theplugin.commons.crucible;
 
-import com.atlassian.theplugin.commons.ServerType;
-import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
-import com.atlassian.theplugin.commons.crucible.api.CrucibleLoginException;
-import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
-import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
-import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.crucible.api.CrucibleLoginException;
+import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCache;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCacheImpl;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.Project;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
+import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 
 public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	private Map<String, CrucibleSession> sessions = new HashMap<String, CrucibleSession>();
 
 	private static CrucibleServerFacadeImpl instance;
 	private CrucibleUserCache userCache;
-
+	private HttpSessionCallback callback;
+	
 	private CrucibleServerFacadeImpl(CrucibleUserCache userCache) {
 		this.userCache = userCache;
+		this.callback = new HttpSessionCallbackImpl();
 	}
 
 	public static synchronized CrucibleServerFacade getInstance() {
@@ -61,7 +85,7 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		CrucibleSession session = sessions.get(key);
 		if (session == null) {
 			try {
-				session = new CrucibleSessionImpl(server.getUrl());
+				session = new CrucibleSessionImpl(server, callback);
 				sessions.put(key, session);
 			} catch (RemoteApiException e) {
 				if (server.getPassword().length() > 0) {
@@ -88,17 +112,28 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	}
 
 	/**
-	 * @param serverUrl @see
-	 *                  com.atlassian.theplugin.commons.crucible.remoteapi.soap.CrucibleSessionImpl#constructor(String baseUrl)
-	 * @param userName
-	 * @param password
+     * For testing Only
+     * @see com.atlassian.theplugin.commons.remoteapi.ProductServerFacade#testServerConnection(java.lang.String, java.lang.String, java.lang.String)
+     */
+    public void testServerConnection(String url, String userName, String password) throws RemoteApiException {
+    	CrucibleServerCfg serverCfg = new CrucibleServerCfg(url, new ServerId());
+    	serverCfg.setUrl(url);
+    	serverCfg.setUsername(userName);
+    	serverCfg.setPassword(password);
+    	testServerConnection(serverCfg);
+    }
+	
+	/**
+	 * @param serverCfg The configuration for the server that we want to test the connectio for
+	 *      
 	 * @throws com.atlassian.theplugin.commons.crucible.api.CrucibleException
 	 *
 	 */
-	public void testServerConnection(String serverUrl, String userName, String password) throws RemoteApiException {
+	public void testServerConnection(ServerCfg serverCfg) throws RemoteApiException {
+		assert(serverCfg instanceof CrucibleServerCfg);
 		CrucibleSession session = null;
-		session = new CrucibleSessionImpl(serverUrl);
-		session.login(userName, password);
+		session = new CrucibleSessionImpl(serverCfg, callback);
+		session.login(serverCfg.getUsername(), serverCfg.getPassword());
 		try {
 			session.getServerVersion();
 		} catch (RemoteApiException e) {
@@ -462,4 +497,7 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 //		return session.getAllReviewsForFile(repoName, path, true);
 //	}
 
+	public void setCallback(HttpSessionCallback callback) {
+		this.callback = callback;
+	}
 }

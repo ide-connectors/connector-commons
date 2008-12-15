@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.fisheye;
 import com.atlassian.theplugin.commons.cfg.FishEyeServer;
 import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 
 import java.util.Collection;
 
@@ -27,5 +28,7 @@ import java.util.Collection;
 public interface FishEyeServerFacade extends ProductServerFacade {
 	
 	Collection<String> getRepositories(final FishEyeServer server) throws RemoteApiException;
+
+	public void setCallback(HttpSessionCallback callback);
 
 }

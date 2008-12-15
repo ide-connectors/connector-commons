@@ -49,6 +49,6 @@ public interface BambooServerFacade extends ProductServerFacade {
     byte[] getBuildLogs(BambooServerCfg server, String buildKey, String buildNumber)
             throws ServerPasswordNotProvidedException, RemoteApiException;
     
-	public void setCallback(HttpSessionCallback callback);
+	void setCallback(HttpSessionCallback callback);
 
 }

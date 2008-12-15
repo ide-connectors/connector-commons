@@ -27,7 +27,8 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
 		
 	/**
      * For testing Only
-     * @see com.atlassian.theplugin.commons.remoteapi.ProductServerFacade#testServerConnection(java.lang.String, java.lang.String, java.lang.String)
+     * @see com.atlassian.theplugin.commons.remoteapi.ProductServerFacade#testServerConnection(java.lang.String,
+	 * java.lang.String, java.lang.String)
      */
     public void testServerConnection(String url, String userName, String password) throws RemoteApiException {
     	FishEyeServerCfg serverCfg = new FishEyeServerCfg(url, new ServerId());
@@ -38,7 +39,7 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
     }
 	
 	public void testServerConnection(ServerCfg serverCfg) throws RemoteApiException {
-		assert(serverCfg instanceof FishEyeServerCfg);
+		assert serverCfg instanceof FishEyeServerCfg;
 		FishEyeSession fishEyeSession = getSession((FishEyeServerCfg)serverCfg);
 		fishEyeSession.login(serverCfg.getUsername(), serverCfg.getPassword().toCharArray());
 		fishEyeSession.logout();		

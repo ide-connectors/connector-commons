@@ -29,6 +29,6 @@ public interface FishEyeServerFacade extends ProductServerFacade {
 	
 	Collection<String> getRepositories(final FishEyeServer server) throws RemoteApiException;
 
-	public void setCallback(HttpSessionCallback callback);
+	void setCallback(HttpSessionCallback callback);
 
 }

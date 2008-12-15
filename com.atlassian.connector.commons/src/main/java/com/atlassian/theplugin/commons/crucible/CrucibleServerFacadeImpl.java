@@ -113,7 +113,8 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 
 	/**
      * For testing Only
-     * @see com.atlassian.theplugin.commons.remoteapi.ProductServerFacade#testServerConnection(java.lang.String, java.lang.String, java.lang.String)
+     * @see com.atlassian.theplugin.commons.remoteapi.ProductServerFacade#testServerConnection(java.lang.String,
+	 * java.lang.String, java.lang.String)
      */
     public void testServerConnection(String url, String userName, String password) throws RemoteApiException {
     	CrucibleServerCfg serverCfg = new CrucibleServerCfg(url, new ServerId());
@@ -130,7 +131,7 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	 *
 	 */
 	public void testServerConnection(ServerCfg serverCfg) throws RemoteApiException {
-		assert(serverCfg instanceof CrucibleServerCfg);
+		assert serverCfg instanceof CrucibleServerCfg;
 		CrucibleSession session = null;
 		session = new CrucibleSessionImpl(serverCfg, callback);
 		session.login(serverCfg.getUsername(), serverCfg.getPassword());

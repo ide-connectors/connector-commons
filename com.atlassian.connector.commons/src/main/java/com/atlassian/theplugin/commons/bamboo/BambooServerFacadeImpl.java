@@ -115,8 +115,8 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
      * @see RemoteApiLoginFailedException
      */
     public void testServerConnection(ServerCfg serverCfg) throws RemoteApiException {
-    	assert(serverCfg instanceof BambooServerCfg);
-    	BambooSession apiHandler = new AutoRenewBambooSession((BambooServerCfg)serverCfg, callback);
+    	assert serverCfg instanceof BambooServerCfg;
+    	BambooSession apiHandler = new AutoRenewBambooSession((BambooServerCfg) serverCfg, callback);
         apiHandler.login(serverCfg.getUsername(), serverCfg.getPassword().toCharArray());
         apiHandler.logout();
     }

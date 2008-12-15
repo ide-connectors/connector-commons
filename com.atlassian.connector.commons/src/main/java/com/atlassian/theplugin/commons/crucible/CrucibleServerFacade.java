@@ -165,6 +165,6 @@ public interface CrucibleServerFacade extends ProductServerFacade {
 	List<CustomFieldDef> getMetrics(CrucibleServerCfg server, int version)
 			throws RemoteApiException, ServerPasswordNotProvidedException;
 
-	public void setCallback(HttpSessionCallback callback);
+	void setCallback(HttpSessionCallback callback);
 
 }

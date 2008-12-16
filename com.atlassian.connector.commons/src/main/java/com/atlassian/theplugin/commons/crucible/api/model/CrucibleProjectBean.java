@@ -20,6 +20,7 @@ public class CrucibleProjectBean implements CrucibleProject {
 	private String id;
 	private String key;
 	private String name;
+	private static final int HASH_INT = 31;
 
 	public String getId() {
 		return id;
@@ -71,8 +72,8 @@ public class CrucibleProjectBean implements CrucibleProject {
 	public int hashCode() {
 		int result;
 		result = (id != null ? id.hashCode() : 0);
-		result = 31 * result + (key != null ? key.hashCode() : 0);
-		result = 31 * result + (name != null ? name.hashCode() : 0);
+		result = HASH_INT * result + (key != null ? key.hashCode() : 0);
+		result = HASH_INT * result + (name != null ? name.hashCode() : 0);
 		return result;
 	}
 }

@@ -25,7 +25,7 @@ import java.util.Set;
 
 
 public interface CrucibleSession {
-	void login(String userName, String password) throws RemoteApiLoginException;
+	void login() throws RemoteApiLoginException;
 
 	void logout();
 

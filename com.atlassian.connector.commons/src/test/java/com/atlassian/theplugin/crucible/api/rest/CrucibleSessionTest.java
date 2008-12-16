@@ -23,6 +23,9 @@ import com.atlassian.theplugin.commons.crucible.api.model.*;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
+import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.*;
 import com.atlassian.theplugin.remoteapi.ErrorResponse;
 import junit.framework.TestCase;
@@ -70,15 +73,15 @@ public class CrucibleSessionTest extends TestCase {
 
 	public void testSuccessCrucibleLogin() throws Exception {
 
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
 
 		String[] usernames = { "user", "+-=&;<>", "", "a;&username=other", "!@#$%^&*()_-+=T " };
 		String[] passwords = { "password", "+-=&;<>", "", "&password=other", ",./';[]\t\\ |}{\":><?" };
 
 		for (int i = 0; i < usernames.length; ++i) {
 			mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(usernames[i], passwords[i]));
+			final CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, usernames[i], passwords[i]);
 
-			apiHandler.login(usernames[i], passwords[i]);
+			apiHandler.login();
 			assertTrue(apiHandler.isLoggedIn());
 			apiHandler.logout();
 			assertFalse(apiHandler.isLoggedIn());
@@ -89,33 +92,35 @@ public class CrucibleSessionTest extends TestCase {
 
 	public void testLoginMalformedResponse() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new MalformedResponseCallback());
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		try {
-			apiHandler.login(USER_NAME, PASSWORD);
+			apiHandler.login();
 			fail();
 		} catch (RemoteApiException e) {
 
 		}
+		mockServer.verify();
 	}
 
 	public void testLoginInternalErrorResponse() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new ErrorResponse(500, ""));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		try {
-			apiHandler.login(USER_NAME, PASSWORD);
+			apiHandler.login();
 			fail();
 		} catch (RemoteApiException e) {
 			// expected
 		}
+		mockServer.verify();
 	}
 
 	public void testSuccessBambooLoginURLWithSlash() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl + "/");
-		apiHandler.login(USER_NAME, PASSWORD);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl + "/", USER_NAME, PASSWORD);
+		apiHandler.login();
 		assertTrue(apiHandler.isLoggedIn());
 		apiHandler.logout();
 		assertFalse(apiHandler.isLoggedIn());
@@ -125,21 +130,21 @@ public class CrucibleSessionTest extends TestCase {
 
 	public void testNullParamsLogin() throws Exception {
 		try {
-			CrucibleSession apiHandler = new CrucibleSessionImpl(null);
-			apiHandler.login(null, null);
+			CrucibleSession apiHandler = createCrucibleSession(null, null, null);
+			apiHandler.login();
 			fail();
 		} catch (RemoteApiException ex) {
-			System.out.println("Exception: " + ex.getMessage());
+			// OK
 		}
 	}
 
 	public void testNullLoginLogin() throws Exception {
 		try {
-			CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
-			apiHandler.login(null, null);
+			CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, null, null);
+			apiHandler.login();
 			fail();
 		} catch (RemoteApiLoginException ex) {
-			System.out.println("Exception: " + ex.getMessage());
+			// OK
 		}
 	}
 
@@ -149,8 +154,8 @@ public class CrucibleSessionTest extends TestCase {
 		RemoteApiLoginException exception = null;
 
 		try {
-			CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl + "/wrongurl");
-			apiHandler.login(USER_NAME, PASSWORD);
+			CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl + "/wrongurl", USER_NAME, PASSWORD);
+			apiHandler.login();
 		} catch (RemoteApiLoginException ex) {
 			exception = ex;
 		}
@@ -166,8 +171,8 @@ public class CrucibleSessionTest extends TestCase {
 		RemoteApiLoginException exception = null;
 
 		try {
-			CrucibleSession apiHandler = new CrucibleSessionImpl("http://non.existing.server.utest");
-			apiHandler.login(USER_NAME, PASSWORD);
+			CrucibleSession apiHandler = createCrucibleSession("http://non.existing.server.utest", USER_NAME, PASSWORD);
+			apiHandler.login();
 		} catch (RemoteApiLoginException ex) {
 			exception = ex;
 		}
@@ -205,8 +210,8 @@ public class CrucibleSessionTest extends TestCase {
 	private void tryMalformedUrl(final String url) {
 		RemoteApiException exception = null;
 		try {
-			CrucibleSession apiHandler = new CrucibleSessionImpl(url);
-			apiHandler.login(USER_NAME, PASSWORD);
+			CrucibleSession apiHandler = createCrucibleSession(url, USER_NAME, PASSWORD);
+			apiHandler.login();
 		} catch (RemoteApiLoginException e) {
 			exception = e;
 		} catch (RemoteApiException e) {
@@ -223,8 +228,8 @@ public class CrucibleSessionTest extends TestCase {
 		String url = "http://localhost:80808";
 		RemoteApiException exception = null;
 		try {
-			CrucibleSession apiHandler = new CrucibleSessionImpl(url);
-			apiHandler.login(USER_NAME, PASSWORD);
+			CrucibleSession apiHandler = createCrucibleSession(url, USER_NAME, PASSWORD);
+			apiHandler.login();
 		} catch (RemoteApiException e) {
 			exception = e;
 		}
@@ -239,11 +244,11 @@ public class CrucibleSessionTest extends TestCase {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD, LoginCallback.ALWAYS_FAIL));
 
 		try {
-			CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
-			apiHandler.login(USER_NAME, PASSWORD); // mock will fail this
+			CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
+			apiHandler.login(); // mock will fail this
 			fail();
 		} catch (RemoteApiLoginException ex) {
-			System.out.println("Exception: " + ex.getMessage());
+			// expected
 		}
 
 		mockServer.verify();
@@ -252,57 +257,58 @@ public class CrucibleSessionTest extends TestCase {
 
 	public void testWrongParamsCrucibleLogin() throws Exception {
 		try {
-			CrucibleSession apiHandler = new CrucibleSessionImpl("");
-			apiHandler.login("", "");
+			CrucibleSession apiHandler = createCrucibleSession("", "", "");
+			apiHandler.login();
 			fail();
 		} catch (RemoteApiException ex) {
-			System.out.println("Exception: " + ex.getMessage());
+			// expected
 		}
 	}
 
 	public void testSuccessCrucibleLogout() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		assertTrue(apiHandler.isLoggedIn());
 
 		apiHandler.logout();
 		apiHandler.logout();
 
-		CrucibleSession apiHandler2 = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler2 = createCrucibleSession(mockBaseUrl);
 		apiHandler2.logout();
 
 		mockServer.verify();
 	}
 
-	public void testFailedCrucibleLogin() {
+	public void testFailedCrucibleLogin() throws RemoteApiException {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD, LoginCallback.ALWAYS_FAIL));
-		CrucibleSession apiHandler = null;
 		try {
-			apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+			createCrucibleSession(mockBaseUrl, null, null);
 		} catch (RemoteApiException e) {
 			fail();
 		}
 
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 		try {
-
-			apiHandler.login(USER_NAME, PASSWORD);
+			apiHandler.login();
 			fail("Login succeeded while expected failure.");
 		} catch (RemoteApiLoginException e) {
 			// expected
 		}
 
+		apiHandler = createCrucibleSession(mockBaseUrl, null, PASSWORD);
 		try {
-			apiHandler.login(null, PASSWORD);
+			apiHandler.login();
 			fail("Login succeeded while expected failure.");
 		} catch (RemoteApiLoginException e) {
 			// expected
 		}
 
+		apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, null);
 		try {
-			apiHandler.login(USER_NAME, null);
+			apiHandler.login();
 			fail("Login succeeded while expected failure.");
 		} catch (RemoteApiLoginException e) {
 			// expected
@@ -313,16 +319,16 @@ public class CrucibleSessionTest extends TestCase {
 
 	public void testSuccessCrucibleDoubleLogin() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
+		apiHandler.login();
 
 		mockServer.verify();
 	}
 
 	public void testMethodCallWithoutLogin() throws Exception {
-		CrucibleSession crucibleSession = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession crucibleSession = createCrucibleSession(mockBaseUrl);
 		List<State> states = new ArrayList<State>();
 		try {
 			crucibleSession.getReviewsInStates(states, false);
@@ -362,9 +368,9 @@ public class CrucibleSessionTest extends TestCase {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = Arrays.asList(State.values());
 		mockServer.expect("/rest-service/reviews-v1", new GetReviewsCallback(states));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		List<Review> reviews = apiHandler.getAllReviews(false);
 		assertEquals(states.size(), reviews.size());
 		int i = 0;
@@ -378,9 +384,9 @@ public class CrucibleSessionTest extends TestCase {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = new ArrayList<State>();
 		mockServer.expect("/rest-service/reviews-v1", new GetReviewsCallback(states));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		List<Review> reviews = apiHandler.getAllReviews(false);
 		assertEquals(states.size(), reviews.size());
 		assertTrue(reviews.isEmpty());
@@ -391,9 +397,9 @@ public class CrucibleSessionTest extends TestCase {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = new ArrayList<State>();
 		mockServer.expect("/rest-service/reviews-v1", new GetReviewsCallback(states));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		List<Review> reviews = apiHandler.getAllReviews(false);
 		assertEquals(states.size(), reviews.size());
 		assertTrue(reviews.isEmpty());
@@ -404,9 +410,9 @@ public class CrucibleSessionTest extends TestCase {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
 		mockServer.expect("/rest-service/reviews-v1", new GetReviewsCallback(states));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		List<Review> reviews = apiHandler.getReviewsInStates(states, false);
 		assertEquals(states.size(), reviews.size());
 		assertTrue(!reviews.isEmpty());
@@ -417,9 +423,9 @@ public class CrucibleSessionTest extends TestCase {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
 		mockServer.expect("/rest-service/reviews-v1", new GetReviewsCallback(states));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		List<State> req = Arrays.asList(State.CLOSED);
 		List<Review> reviews = apiHandler.getReviewsInStates(req, false);
 		assertTrue(reviews.isEmpty());
@@ -430,9 +436,9 @@ public class CrucibleSessionTest extends TestCase {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
 		mockServer.expect("/rest-service/reviews-v1", new GetReviewsCallback(states));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		List<State> req = new ArrayList<State>();
 		List<Review> reviews = apiHandler.getReviewsInStates(req, false);
 		assertEquals(states.size(), reviews.size());
@@ -443,10 +449,9 @@ public class CrucibleSessionTest extends TestCase {
 	public void testGetAllReviewsMalformedResponse() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new MalformedResponseCallback());
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
-		PermIdBean permId = new PermIdBean("PR-1");
+		apiHandler.login();
 		try {
 			apiHandler.getAllReviews(false);
 			fail();
@@ -459,10 +464,9 @@ public class CrucibleSessionTest extends TestCase {
 	public void testGetReviewsInStatesMalformedResponse() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new MalformedResponseCallback());
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
-		PermIdBean permId = new PermIdBean("PR-1");
+		apiHandler.login();
 		try {
 			List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
 			apiHandler.getReviewsInStates(states, false);
@@ -476,9 +480,9 @@ public class CrucibleSessionTest extends TestCase {
 	public void testGetEmptyReviewers() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/PR-1/reviewers", new GetReviewersCallback(new User[]{}));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		PermIdBean permId = new PermIdBean("PR-1");
 		List<Reviewer> reviewers = apiHandler.getReviewers(permId);
 		assertEquals(0, reviewers.size());
@@ -496,9 +500,9 @@ public class CrucibleSessionTest extends TestCase {
 
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/PR-1/reviewers", new GetReviewersCallback(reviewers));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		PermIdBean permId = new PermIdBean("PR-1");
 		List<Reviewer> result = apiHandler.getReviewers(permId);
 		assertEquals(3, result.size());
@@ -511,9 +515,9 @@ public class CrucibleSessionTest extends TestCase {
 	public void testGetReviewersInvalidId() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/PR-2/reviewers", new ErrorResponse(500, ""));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		PermIdBean permId = new PermIdBean("PR-2");
 		try {
 			apiHandler.getReviewers(permId);
@@ -528,9 +532,9 @@ public class CrucibleSessionTest extends TestCase {
 	public void testGetReviewersMalformedResponse() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/PR-1/reviewers", new MalformedResponseCallback());
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		PermIdBean permId = new PermIdBean("PR-1");
 		try {
 			apiHandler.getReviewers(permId);
@@ -547,9 +551,9 @@ public class CrucibleSessionTest extends TestCase {
 
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new CreateReviewCallback());
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		Review response = apiHandler.createReview(review);
 		assertEquals(review.getAuthor(), response.getAuthor());
 		assertEquals(review.getCreator(), response.getCreator());
@@ -568,9 +572,9 @@ public class CrucibleSessionTest extends TestCase {
 
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new MalformedResponseCallback());
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		try {
 			apiHandler.createReview(review);
 			fail();
@@ -585,9 +589,9 @@ public class CrucibleSessionTest extends TestCase {
 
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new ErrorResponse(500, ""));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		try {
 			apiHandler.createReview(review);
 			fail();
@@ -602,9 +606,9 @@ public class CrucibleSessionTest extends TestCase {
 	public void testCreateReviewFromPatch() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new CreateReviewCallback());
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		ReviewBean review = createReviewRequest();
 		Review response = apiHandler.createReviewFromPatch(review, "patch text");
 		assertEquals(review.getAuthor(), response.getAuthor());
@@ -622,9 +626,9 @@ public class CrucibleSessionTest extends TestCase {
 	public void testCreateReviewFromNullPatch() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new CreateReviewCallback());
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		ReviewBean review = createReviewRequest();
 		Review response = apiHandler.createReviewFromPatch(review, null);
 		assertEquals(review.getAuthor(), response.getAuthor());
@@ -642,9 +646,9 @@ public class CrucibleSessionTest extends TestCase {
 	public void testCreateReviewFromEmptyPatch() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new CreateReviewCallback());
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		ReviewBean review = createReviewRequest();
 		Review response = apiHandler.createReviewFromPatch(review, "");
 		assertEquals(review.getAuthor(), response.getAuthor());
@@ -662,9 +666,9 @@ public class CrucibleSessionTest extends TestCase {
 	public void testCreateReviewFromPatchMalformedResponse() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new MalformedResponseCallback());
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		try {
 			ReviewBean review = createReviewRequest();
 			apiHandler.createReviewFromPatch(review, "patch text");
@@ -680,11 +684,10 @@ public class CrucibleSessionTest extends TestCase {
 		int size = 4;
 
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-		List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
 		mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(size));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		List<Project> project = apiHandler.getProjects();
 		assertEquals(size, project.size());
 		for (int i = 0; i < size; i++) {
@@ -700,11 +703,10 @@ public class CrucibleSessionTest extends TestCase {
 		int size = 0;
 
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-		List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
 		mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(size));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		List<Project> project = apiHandler.getProjects();
 		assertEquals(size, project.size());
 		for (int i = 0; i < size; i++) {
@@ -720,11 +722,10 @@ public class CrucibleSessionTest extends TestCase {
 		int size = 4;
 
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-		List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
 		mockServer.expect("/rest-service/repositories-v1", new GetRepositoriesCallback(size));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-		apiHandler.login(USER_NAME, PASSWORD);
+		apiHandler.login();
 		List<Repository> repositories = apiHandler.getRepositories();
 		assertEquals(size, repositories.size());
 		for (int i = 0; i < size; i++) {
@@ -738,11 +739,9 @@ public class CrucibleSessionTest extends TestCase {
 		int size = 0;
 
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-		List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
 		mockServer.expect("/rest-service/repositories-v1", new GetRepositoriesCallback(size));
-		CrucibleSession apiHandler = new CrucibleSessionImpl(mockBaseUrl);
-
-		apiHandler.login(USER_NAME, PASSWORD);
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
+		apiHandler.login();
 		List<Repository> repositories = apiHandler.getRepositories();
 		assertEquals(size, repositories.size());
 		for (int i = 0; i < size; i++) {
@@ -762,4 +761,20 @@ public class CrucibleSessionTest extends TestCase {
 		review.setProjectKey("PR");
 		return review;
 	}
+
+
+	private CrucibleSessionImpl createCrucibleSession(String url) throws RemoteApiException {
+		CrucibleServerCfg serverCfg = new CrucibleServerCfg(url, new ServerId());
+		serverCfg.setUrl(url);
+		return new CrucibleSessionImpl(serverCfg, new HttpSessionCallbackImpl());
+	}
+
+	private CrucibleSessionImpl createCrucibleSession(String url, String username, String password) throws RemoteApiException {
+		final CrucibleServerCfg serverCfg = new CrucibleServerCfg("mockcrucibleservercfg", new ServerId());
+		serverCfg.setUrl(url);
+		serverCfg.setUsername(username);
+		serverCfg.setPassword(password);
+		return new CrucibleSessionImpl(serverCfg, new HttpSessionCallbackImpl());
+	}
+
 }

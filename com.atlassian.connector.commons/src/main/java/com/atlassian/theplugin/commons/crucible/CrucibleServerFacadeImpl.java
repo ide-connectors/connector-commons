@@ -96,7 +96,7 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 			}
 		}
 		if (!session.isLoggedIn()) {
-			session.login(server.getUsername(), server.getPassword());
+			session.login();
 		}
 		return session;
 	}
@@ -132,13 +132,11 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	 */
 	public void testServerConnection(ServerCfg serverCfg) throws RemoteApiException {
 		assert serverCfg instanceof CrucibleServerCfg;
-		CrucibleSession session = null;
-		session = new CrucibleSessionImpl(serverCfg, callback);
-		session.login(serverCfg.getUsername(), serverCfg.getPassword());
+		final CrucibleSession session = new CrucibleSessionImpl(serverCfg, callback);
+		session.login();
 		try {
 			session.getServerVersion();
 		} catch (RemoteApiException e) {
-
 			if (e.getCause().getMessage().startsWith("HTTP 500")) {
 				throw new CrucibleLoginException(
 						"Atlassian IntelliJ Connector detected a Crucible version older\n"
@@ -146,8 +144,6 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 						+ "work with this version of Crucible");
 			}
 		}
-
-
 		session.logout();
 	}
 

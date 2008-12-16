@@ -83,5 +83,14 @@
 			<version>1.3</version>
 			<scope>compile</scope>
 		</dependency>
+		<!-- this is used only in order to improve quality of the code with @NotNull and @Nullable annotations
+		 annotations.jar is a freely redistributable library of annotations from JetBrains -->
+		<dependency>
+			<groupId>com.intellij.idea</groupId>
+			<artifactId>annotations</artifactId>
+			<version>7.0</version>
+			<classifier>7590</classifier>
+		</dependency>
+
 	</dependencies>
 </project>

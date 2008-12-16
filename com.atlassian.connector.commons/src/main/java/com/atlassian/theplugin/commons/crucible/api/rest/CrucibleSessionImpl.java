@@ -16,30 +16,8 @@
 
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpMethod;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.xpath.XPath;
-
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
-import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.model.Action;
@@ -69,7 +47,25 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
-import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpMethod;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.xpath.XPath;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Communication stub for Crucible REST API.
@@ -117,48 +113,33 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	private static final String ADD_PATCH = "/addPatch";
 //	private static final String ADD_ITEM = "/addItem";
 
-	private String authToken = null;
+	private String authToken;
 
 	private Map<String, SvnRepository> repositories = new HashMap<String, SvnRepository>();
 	private Map<String, List<CustomFieldDef>> metricsDefinitions = new HashMap<String, List<CustomFieldDef>>();
 
-	/**
-	 * For testing purposes, shouldn't be public
-	 * @param url
-	 * @throws RemoteApiException
-	 */
-	public CrucibleSessionImpl(String url) throws RemoteApiException {
-		this(createServerCfg(url), new HttpSessionCallbackImpl());
-	}
-	
-    private static CrucibleServerCfg createServerCfg(String url) {
-    	CrucibleServerCfg serverCfg = new CrucibleServerCfg(url, new ServerId());
-		serverCfg.setUrl(url);
-		return serverCfg;
-	}
-	
 	/**
 	 * Public constructor for CrucibleSessionImpl.
 	 * 
 	 * @param serverCfg The server fisheye configuration for this session
 	 * @param callback The callback needed for preparing HttpClient calls
 	 * 
-	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
+	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException when serverCfg configuration is invalid
 	 *
 	 */
 	public CrucibleSessionImpl(ServerCfg serverCfg, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
 		super(serverCfg, callback);
 	}
 
-	public void login(String username, String aPassword) throws RemoteApiLoginException {
+	public void login() throws RemoteApiLoginException {
 		if (!isLoggedIn()) {
 			String loginUrl;
 			try {
-				if (username == null || aPassword == null) {
+				if (getUsername() == null || getPassword() == null) {
 					throw new RemoteApiLoginException("Corrupted configuration. Username or Password null");
 				}
-				loginUrl = baseUrl + AUTH_SERVICE + LOGIN + "?userName=" + URLEncoder.encode(username, "UTF-8")
-						+ "&password=" + URLEncoder.encode(aPassword, "UTF-8");
+				loginUrl = baseUrl + AUTH_SERVICE + LOGIN + "?userName=" + URLEncoder.encode(getUsername(), "UTF-8")
+						+ "&password=" + URLEncoder.encode(getPassword(), "UTF-8");
 			} catch (UnsupportedEncodingException e) {
 				///CLOVER:OFF
 				throw new RuntimeException("URLEncoding problem: " + e.getMessage());
@@ -181,8 +162,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 							+ elements.size() + ")");
 				}
 				this.authToken = ((Element) elements.get(0)).getText();
-				this.userName = username;
-				this.password = aPassword;
 			} catch (MalformedURLException e) {
 				throw new RemoteApiLoginException("Malformed server URL: " + baseUrl, e);
 			} catch (UnknownHostException e) {
@@ -202,8 +181,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	public void logout() {
 		if (authToken != null) {
 			authToken = null;
-			userName = null;
-			password = null;
 		}
 	}
 
@@ -1431,7 +1408,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	private String getAuthHeaderValue() {
-		return "Basic " + encode(userName + ":" + password);
+		return "Basic " + encode(getUsername() + ":" + getPassword());
 	}
 
 	private synchronized String encode(String str2encode) {

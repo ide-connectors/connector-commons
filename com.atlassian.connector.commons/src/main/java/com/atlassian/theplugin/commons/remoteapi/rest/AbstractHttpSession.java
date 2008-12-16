@@ -39,6 +39,7 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
+import org.jetbrains.annotations.NotNull;
 
 import com.atlassian.theplugin.commons.cfg.Server;
 import com.atlassian.theplugin.commons.exception.HttpProxySettingsException;
@@ -51,11 +52,18 @@ import com.atlassian.theplugin.commons.util.UrlUtil;
  */
 public abstract class AbstractHttpSession {
     protected final String baseUrl;
-    protected String userName;
-    protected String password;
-    protected HttpClient client = null;
+    protected HttpClient client;
 	private HttpSessionCallback callback;
-	private Server server;
+	@NotNull
+	private final Server server;
+
+	protected String getUsername() {
+		return server.getUsername();
+	}
+
+	protected String getPassword() {
+		return server.getPassword();
+	}
 	
     private final Object clientLock = new Object();
 
@@ -117,7 +125,7 @@ public abstract class AbstractHttpSession {
 	 * @param server
 	 * @param callback
      */
-    public AbstractHttpSession(Server server, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
+    public AbstractHttpSession(@NotNull Server server, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
     	this.server = server;
     	this.callback = callback;
     	String myurl = server.getUrl();

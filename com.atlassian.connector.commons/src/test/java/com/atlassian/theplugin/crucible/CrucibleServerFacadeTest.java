@@ -50,7 +50,8 @@ public class CrucibleServerFacadeTest extends TestCase {
     private CrucibleSession crucibleSessionMock;
     public static final String INVALID_PROJECT_KEY = "INVALID project key";
 
-    @SuppressWarnings("unchecked")
+    @Override
+	@SuppressWarnings("unchecked")
     protected void setUp() {
         ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
 
@@ -151,7 +152,7 @@ public class CrucibleServerFacadeTest extends TestCase {
         crucibleSessionMock.isLoggedIn();
         EasyMock.expectLastCall().andReturn(false);
         try {
-            crucibleSessionMock.login(VALID_LOGIN.getUserName(), VALID_PASSWORD);
+            crucibleSessionMock.login();
         } catch (RemoteApiLoginException e) {
             fail("recording mock failed for login");
         }
@@ -170,7 +171,7 @@ public class CrucibleServerFacadeTest extends TestCase {
         crucibleSessionMock.isLoggedIn();
         EasyMock.expectLastCall().andReturn(false);
         try {
-            crucibleSessionMock.login(validLogin2.getUserName(), validPassword2);
+            crucibleSessionMock.login();
         } catch (RemoteApiLoginException e) {
             fail("recording mock failed for login");
         }
@@ -217,7 +218,7 @@ public class CrucibleServerFacadeTest extends TestCase {
         crucibleSessionMock.isLoggedIn();
         EasyMock.expectLastCall().andReturn(false);
         try {
-            crucibleSessionMock.login(VALID_LOGIN.getUserName(), VALID_PASSWORD);
+            crucibleSessionMock.login();
         } catch (RemoteApiLoginException e) {
             fail("recording mock failed for login");
         }
@@ -245,7 +246,7 @@ public class CrucibleServerFacadeTest extends TestCase {
         crucibleSessionMock.isLoggedIn();
         EasyMock.expectLastCall().andReturn(false);
         try {
-            crucibleSessionMock.login(VALID_LOGIN.getUserName(), VALID_PASSWORD);
+            crucibleSessionMock.login();
         } catch (RemoteApiLoginException e) {
             fail("recording mock failed for login");
         }
@@ -275,7 +276,7 @@ public class CrucibleServerFacadeTest extends TestCase {
         crucibleSessionMock.isLoggedIn();
         EasyMock.expectLastCall().andReturn(false);
         try {
-            crucibleSessionMock.login(VALID_LOGIN.getUserName(), VALID_PASSWORD);
+            crucibleSessionMock.login();
         } catch (RemoteApiLoginException e) {
             fail("recording mock failed for login");
         }
@@ -302,7 +303,7 @@ public class CrucibleServerFacadeTest extends TestCase {
         crucibleSessionMock.isLoggedIn();
         EasyMock.expectLastCall().andReturn(false);
         try {
-            crucibleSessionMock.login(VALID_LOGIN.getUserName(), VALID_PASSWORD);
+            crucibleSessionMock.login();
         } catch (RemoteApiLoginException e) {
             fail("recording mock failed for login");
         }
@@ -331,7 +332,7 @@ public class CrucibleServerFacadeTest extends TestCase {
         crucibleSessionMock.isLoggedIn();
         EasyMock.expectLastCall().andReturn(false);
         try {
-            crucibleSessionMock.login(VALID_LOGIN.getUserName(), VALID_PASSWORD);
+            crucibleSessionMock.login();
         } catch (RemoteApiLoginException e) {
             fail("recording mock failed for login");
         }
@@ -371,7 +372,7 @@ public class CrucibleServerFacadeTest extends TestCase {
         crucibleSessionMock.isLoggedIn();
         EasyMock.expectLastCall().andReturn(false);
         try {
-            crucibleSessionMock.login(VALID_LOGIN.getUserName(), VALID_PASSWORD);
+            crucibleSessionMock.login();
 		} catch (RemoteApiLoginException e) {
             fail("recording mock failed for login");
         }
@@ -396,7 +397,7 @@ public class CrucibleServerFacadeTest extends TestCase {
         crucibleSessionMock.isLoggedIn();
         EasyMock.expectLastCall().andReturn(false);
         try {
-            crucibleSessionMock.login(VALID_LOGIN.getUserName(), VALID_PASSWORD);
+            crucibleSessionMock.login();
         } catch (RemoteApiLoginException e) {
             fail("recording mock failed for login");
         }
@@ -417,31 +418,38 @@ public class CrucibleServerFacadeTest extends TestCase {
 
     private Review prepareReviewData(final String name, final State state) {
         return new ReviewBean(null) {
-            public User getAuthor() {
+            @Override
+			public User getAuthor() {
                 return VALID_LOGIN;
             }
 
-            public User getCreator() {
+            @Override
+			public User getCreator() {
                 return VALID_LOGIN;
             }
 
-            public String getDescription() {
+            @Override
+			public String getDescription() {
                 return "Test description";
             }
 
-            public User getModerator() {
+            @Override
+			public User getModerator() {
                 return VALID_LOGIN;
             }
 
-            public String getName() {
+            @Override
+			public String getName() {
                 return name;
             }
 
-            public PermId getParentReview() {
+            @Override
+			public PermId getParentReview() {
                 return null;
             }
 
-            public PermId getPermId() {
+            @Override
+			public PermId getPermId() {
                 return new PermId() {
                     public String getId() {
                         return "permId";
@@ -449,43 +457,53 @@ public class CrucibleServerFacadeTest extends TestCase {
                 };
             }
 
-            public String getProjectKey() {
+            @Override
+			public String getProjectKey() {
                 return "TEST";
             }
 
-            public String getRepoName() {
+            @Override
+			public String getRepoName() {
                 return null;
             }
 
-            public State getState() {
+            @Override
+			public State getState() {
                 return state;
             }
 
-            public boolean isAllowReviewerToJoin() {
+            @Override
+			public boolean isAllowReviewerToJoin() {
                 return false;
             }
 
-            public int getMetricsVersion() {
+            @Override
+			public int getMetricsVersion() {
                 return 0;
             }
 
-            public Date getCreateDate() {
+            @Override
+			public Date getCreateDate() {
                 return null;
             }
 
-            public Date getCloseDate() {
+            @Override
+			public Date getCloseDate() {
                 return null;
             }
 
-            public String getSummary() {
+            @Override
+			public String getSummary() {
                 return null;
             }
 
-            public List<Reviewer> getReviewers() throws ValueNotYetInitialized {
+            @Override
+			public List<Reviewer> getReviewers() throws ValueNotYetInitialized {
                 return null;
             }
 
-            public List<GeneralComment> getGeneralComments() throws ValueNotYetInitialized {
+            @Override
+			public List<GeneralComment> getGeneralComments() throws ValueNotYetInitialized {
                 return null;
             }
 
@@ -493,19 +511,23 @@ public class CrucibleServerFacadeTest extends TestCase {
                 return null;
             }
 
-            public List<CrucibleFileInfo> getFiles() {
+            @Override
+			public List<CrucibleFileInfo> getFiles() {
                 return null;
             }
 
-            public List<Action> getTransitions() throws ValueNotYetInitialized {
+            @Override
+			public List<Action> getTransitions() throws ValueNotYetInitialized {
                 return null;
             }
 
-            public Set<Action> getActions() throws ValueNotYetInitialized {
+            @Override
+			public Set<Action> getActions() throws ValueNotYetInitialized {
                 return null;
             }
 
-            public VirtualFileSystem getVirtualFileSystem() {
+            @Override
+			public VirtualFileSystem getVirtualFileSystem() {
                 return null;
             }
 
@@ -521,26 +543,32 @@ public class CrucibleServerFacadeTest extends TestCase {
 				return this;
 			}
 
+			@Override
 			public void setGeneralComments(final List<GeneralComment> generalComments) {
 				// not implemented
 			}
 
+			@Override
 			public void removeGeneralComment(final GeneralComment comment) {
 				// not implemented
 			}
 
+			@Override
 			public void removeVersionedComment(final VersionedComment vComment, final CrucibleFileInfo file) {
 				// not implemented
 			}
 
+			@Override
 			public void setFilesAndVersionedComments(final List<CrucibleFileInfo> files, final List<VersionedComment> commentList) {
 
 			}
 
+			@Override
 			public CrucibleFileInfo getFileByPermId(PermId id) {
 				return null;
 			}
 
+			@Override
 			public String getServerUrl() {
 				return null;
 			}
@@ -549,63 +577,78 @@ public class CrucibleServerFacadeTest extends TestCase {
 
     private Review prepareReviewData(final User user, final String name, final State state, final PermId permId) {
         return new ReviewBean(null) {
-            public User getAuthor() {
+            @Override
+			public User getAuthor() {
                 return user;
             }
 
-            public User getCreator() {
+            @Override
+			public User getCreator() {
                 return user;
             }
 
-            public String getDescription() {
+            @Override
+			public String getDescription() {
                 return "Test description";
             }
 
-            public User getModerator() {
+            @Override
+			public User getModerator() {
                 return user;
             }
 
-            public String getName() {
+            @Override
+			public String getName() {
                 return name;
             }
 
-            public PermId getParentReview() {
+            @Override
+			public PermId getParentReview() {
                 return null;
             }
 
-            public PermId getPermId() {
+            @Override
+			public PermId getPermId() {
                 return permId;
             }
 
-            public String getProjectKey() {
+            @Override
+			public String getProjectKey() {
                 return "TEST";
             }
 
-            public String getRepoName() {
+            @Override
+			public String getRepoName() {
                 return null;
             }
 
-            public State getState() {
+            @Override
+			public State getState() {
                 return state;
             }
 
-            public boolean isAllowReviewerToJoin() {
+            @Override
+			public boolean isAllowReviewerToJoin() {
                 return false;  
             }
 
-            public int getMetricsVersion() {
+            @Override
+			public int getMetricsVersion() {
                 return 0;
             }
 
-            public Date getCreateDate() {
+            @Override
+			public Date getCreateDate() {
                 return null;
             }
 
-            public Date getCloseDate() {
+            @Override
+			public Date getCloseDate() {
                 return null;
             }
 
-            public String getSummary() {
+            @Override
+			public String getSummary() {
                 return null;
             }
 
@@ -617,27 +660,33 @@ public class CrucibleServerFacadeTest extends TestCase {
 				return null;
 			}
 
+			@Override
 			public void setGeneralComments(final List<GeneralComment> generalComments) {
 				// not implemented
 			}
 
+			@Override
 			public void removeGeneralComment(final GeneralComment comment) {
 				// not implemented
 			}
 
+			@Override
 			public void removeVersionedComment(final VersionedComment vComment, final CrucibleFileInfo file) {
 				// not implemented
 			}
 
+			@Override
 			public void setFilesAndVersionedComments(final List<CrucibleFileInfo> files, final List<VersionedComment> commentList) {
 
 			}
 
+			@Override
 			public List<Reviewer> getReviewers() {
                 return null;
             }
 
-            public List<GeneralComment> getGeneralComments() {
+            @Override
+			public List<GeneralComment> getGeneralComments() {
                 return null;
             }
 
@@ -645,19 +694,23 @@ public class CrucibleServerFacadeTest extends TestCase {
                 return null;
             }
 
-            public List<CrucibleFileInfo> getFiles() {
+            @Override
+			public List<CrucibleFileInfo> getFiles() {
                 return null;
             }
 
-            public List<Action> getTransitions() {
+            @Override
+			public List<Action> getTransitions() {
                 return null;
             }
 
-            public Set<Action> getActions() throws ValueNotYetInitialized {
+            @Override
+			public Set<Action> getActions() throws ValueNotYetInitialized {
                 return null;
             }
 
-            public VirtualFileSystem getVirtualFileSystem() {
+            @Override
+			public VirtualFileSystem getVirtualFileSystem() {
                 return null;
             }
 
@@ -665,10 +718,12 @@ public class CrucibleServerFacadeTest extends TestCase {
 				return null;
 			}
 
+			@Override
 			public CrucibleFileInfo getFileByPermId(PermId id) {
 				return null;
 			}
 
+			@Override
 			public String getServerUrl() {
 				return null;
 			}

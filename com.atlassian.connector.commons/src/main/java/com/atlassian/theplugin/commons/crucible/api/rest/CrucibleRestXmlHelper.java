@@ -51,8 +51,8 @@ public final class CrucibleRestXmlHelper {
 		return node.getChildren(childName);
 	}
 
-	public static ProjectBean parseProjectNode(Element projectNode) {
-		ProjectBean project = new ProjectBean();
+	public static CrucibleProjectBean parseProjectNode(Element projectNode) {
+		CrucibleProjectBean project = new CrucibleProjectBean();
 
 		project.setId(getChildText(projectNode, "id"));
 		project.setKey(getChildText(projectNode, "key"));

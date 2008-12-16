@@ -404,7 +404,8 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	 * @throws ServerPasswordNotProvidedException
 	 *
 	 */
-	public List<CrucibleProject> getProjects(CrucibleServerCfg server) throws RemoteApiException, ServerPasswordNotProvidedException {
+	public List<CrucibleProject> getProjects(CrucibleServerCfg server) throws RemoteApiException,
+			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getProjects();
 	}

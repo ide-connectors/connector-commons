@@ -16,7 +16,7 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-public interface Project {
+public interface CrucibleProject {
 	String getId();
 
 	String getKey();

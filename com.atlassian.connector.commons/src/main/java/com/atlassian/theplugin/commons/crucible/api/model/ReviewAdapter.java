@@ -85,6 +85,10 @@ public class ReviewAdapter {
         return review.getProjectKey();
     }
 
+	public CrucibleProject getCrucibleProject() {
+		return review.getCrucibleProject();
+	}
+
 	public String getRepoName() {
         return review.getRepoName();
     }

@@ -16,7 +16,7 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-public class ProjectBean implements Project {
+public class ProjectBean implements CrucibleProject {
 	private String id;
 	private String key;
 	private String name;

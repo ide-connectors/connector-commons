@@ -153,7 +153,7 @@ public interface CrucibleServerFacade extends ProductServerFacade {
 	List<User> getUsers(CrucibleServerCfg server)
 			throws RemoteApiException, ServerPasswordNotProvidedException;
 
-	List<Project> getProjects(CrucibleServerCfg server)
+	List<CrucibleProject> getProjects(CrucibleServerCfg server)
 			throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	List<Repository> getRepositories(CrucibleServerCfg server)

@@ -16,6 +16,8 @@
 
 package com.atlassian.theplugin.crucible.api.rest;
 
+import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
@@ -24,8 +26,6 @@ import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
-import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.*;
 import com.atlassian.theplugin.remoteapi.ErrorResponse;
 import junit.framework.TestCase;
@@ -688,7 +688,7 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		List<Project> project = apiHandler.getProjects();
+		List<CrucibleProject> project = apiHandler.getProjects();
 		assertEquals(size, project.size());
 		for (int i = 0; i < size; i++) {
 			String id = Integer.toString(i);
@@ -707,7 +707,7 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		List<Project> project = apiHandler.getProjects();
+		List<CrucibleProject> project = apiHandler.getProjects();
 		assertEquals(size, project.size());
 		for (int i = 0; i < size; i++) {
 			String id = Integer.toString(i);

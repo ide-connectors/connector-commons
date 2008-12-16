@@ -151,4 +151,6 @@ public interface Review {
 	int getNumberOfGeneralComments(final String userName) throws ValueNotYetInitialized;
 
 	void setFiles(final List<CrucibleFileInfo> files);
+
+	CrucibleProject getCrucibleProject();
 }

@@ -382,7 +382,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
         CrucibleServerCfg server = prepareServerBean();
         // test call
-		List<Project> ret = facade.getProjects(server);
+		List<CrucibleProject> ret = facade.getProjects(server);
         assertEquals(2, ret.size());
         for (int i = 0; i < 2; i++) {
             String id = Integer.toString(i);
@@ -739,8 +739,8 @@ public class CrucibleServerFacadeTest extends TestCase {
         return server;
     }
 
-    private Project prepareProjectData(final int i) {
-        return new Project() {
+    private CrucibleProject prepareProjectData(final int i) {
+        return new CrucibleProject() {
             public String getId() {
                 return Integer.toString(i);
             }

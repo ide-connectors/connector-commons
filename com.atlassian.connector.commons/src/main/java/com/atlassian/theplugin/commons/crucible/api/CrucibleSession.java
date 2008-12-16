@@ -83,7 +83,7 @@ public interface CrucibleSession {
 
 	List<User> getUsers() throws RemoteApiException;
 
-	List<Project> getProjects() throws RemoteApiException;
+	List<CrucibleProject> getProjects() throws RemoteApiException;
 
 	List<Repository> getRepositories() throws RemoteApiException;
 

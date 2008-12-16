@@ -47,6 +47,7 @@ public class ReviewBean implements Review {
     private String summary;
 	private final String serverUrl;
 	private List<CrucibleFileInfo> files;
+	private CrucibleProject crucibleProject;
 
 	public void setReviewers(List<Reviewer> reviewers) {
 		this.reviewers = reviewers;
@@ -92,11 +93,11 @@ public class ReviewBean implements Review {
 		this.transitions = transitions;
 	}
 
-    public void setActions(Set<Action> actions) {
+	public void setActions(Set<Action> actions) {
         this.actions = actions;
     }
 
-    public ReviewBean(String serverUrl) {
+	public ReviewBean(String serverUrl) {
 		super();
 		this.serverUrl = serverUrl;
 //		reviewItems = new ArrayList<CrucibleReviewItemInfo>();
@@ -122,13 +123,10 @@ public class ReviewBean implements Review {
 	}
 
 //    public List<CrucibleFileInfo> getFiles() throws ValueNotYetInitialized {
-//		if (files == null) {
-//			throw new ValueNotYetInitialized("Object trasferred only partially");
-//		}
-//		return files;
-//	}
 
-	public List<Action> getTransitions() throws ValueNotYetInitialized {
+//		}
+//	}
+public List<Action> getTransitions() throws ValueNotYetInitialized {
 		if (transitions == null) {
 			throw new ValueNotYetInitialized("Object trasferred only partially");
 		}
@@ -142,7 +140,7 @@ public class ReviewBean implements Review {
 		return actions;
 	}
 
-    public VirtualFileSystem getVirtualFileSystem() {
+	public VirtualFileSystem getVirtualFileSystem() {
 		return virtualFileSystem;
 	}
 
@@ -150,7 +148,7 @@ public class ReviewBean implements Review {
 		this.virtualFileSystem = virtualFileSystem;
 	}
 
-    /**
+	/**
      * Gets the value of the author property.
 	 *
 	 * @return possible object is
@@ -350,15 +348,15 @@ public class ReviewBean implements Review {
 		this.state = value;
 	}
 
-    public boolean isAllowReviewerToJoin() {
+	public boolean isAllowReviewerToJoin() {
         return allowReviewerToJoin;
     }
 
-    public void setAllowReviewerToJoin(boolean allowReviewerToJoin) {
+	public void setAllowReviewerToJoin(boolean allowReviewerToJoin) {
         this.allowReviewerToJoin = allowReviewerToJoin;
-    }    
+    }
 
-    public int getMetricsVersion() {
+	public int getMetricsVersion() {
 		return metricsVersion;
 	}
 
@@ -398,13 +396,13 @@ public class ReviewBean implements Review {
 	}
 
 //	public List<VersionedComment> getVersionedComments() throws ValueNotYetInitialized {
-//		if (versionedComments == null) {
-//			throw new ValueNotYetInitialized("Object trasferred only partially");
-//		}
-//		return versionedComments;
-//	}
 
-    public boolean equals(Object o) {
+	//		return files;
+	//			throw new ValueNotYetInitialized("Object trasferred only partially");
+//		if (versionedComments == null) {
+//		}
+//	}
+public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -421,17 +419,17 @@ public class ReviewBean implements Review {
         return true;
     }
 
-    public int hashCode() {
+	public int hashCode() {
         int result;
         result = (permId != null ? permId.hashCode() : 0);
         return result;
     }
 
-    public String getSummary() {
+	public String getSummary() {
         return this.summary;
     }
 
-    public void setSummary(String summary) {
+	public void setSummary(String summary) {
         this.summary = summary;
     }
 
@@ -588,5 +586,13 @@ public class ReviewBean implements Review {
 					num += comment.getReplies().size();
 		}
 		return num;
+	}
+
+	public void setProject(CrucibleProject project) {
+		this.crucibleProject = project;
+	}
+
+	public CrucibleProject getCrucibleProject() {
+		return crucibleProject;
 	}
 }

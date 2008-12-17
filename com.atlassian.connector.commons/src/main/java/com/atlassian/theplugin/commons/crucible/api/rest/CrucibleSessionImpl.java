@@ -463,7 +463,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	private ReviewBean prepareDetailReview(Element element) throws RemoteApiException {
 		ReviewBean review = CrucibleRestXmlHelper.parseDetailedReviewNode(baseUrl, element);
 
-		review.setProject(projectCache.getProjectBean(review.getProjectKey()));
+		review.setProject(projectCache.getProject(review.getProjectKey()));
 
 //		for (CrucibleFileInfo fileInfo : CrucibleFileInfoManager.getInstance().getFiles(review)) {
 //			fillRepositoryData(fileInfo);
@@ -532,7 +532,26 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
+	/**
+	 * Retrieves projects from cache (reduces server calls)
+	 * @return list of Crucible Projects
+	 * @throws RemoteApiException thrown in case of connection problems
+	 */
+	public List<CrucibleProject> getProjectsFromCache() throws RemoteApiException {
+		return projectCache.getProjects();
+	}
+
+	/**
+	 * Retrieves projects directly from server ommiting cache
+	 * @deprecated {@link #getProjectsFromCache()} should be used
+	 * @return list of Crucible projects
+	 * @throws RemoteApiException thrown in case of connection problems
+	 */
 	public List<CrucibleProject> getProjects() throws RemoteApiException {
+		return getProjectsFromServer();
+	}
+
+	private List<CrucibleProject> getProjectsFromServer() throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}

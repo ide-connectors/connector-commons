@@ -376,7 +376,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		} catch (RemoteApiLoginException e) {
             fail("recording mock failed for login");
         }
-		crucibleSessionMock.getProjects();
+		crucibleSessionMock.getProjectsFromCache();
         EasyMock.expectLastCall().andReturn(Arrays.asList(prepareProjectData(0), prepareProjectData(1)));
         replay(crucibleSessionMock);
 

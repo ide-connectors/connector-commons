@@ -19,6 +19,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,21 +36,37 @@ public class ProjectCache {
 	}
 
 	/**
-	 * N@param projectKey key of the searched project
+	 * @param projectKey key of the searched project
 	 * @return CrucibleProject if found or null otherwise
 	 * @throws RemoteApiException in case of connection problems
 	 */
-	public CrucibleProject getProjectBean(String projectKey) throws RemoteApiException {
+	public CrucibleProject getProject(String projectKey) throws RemoteApiException {
 
 		// if project is not on the list then ask server (refresh cache)
 		if (!projects.containsKey(projectKey)) {
-			List<CrucibleProject> list = session.getProjects();
-			for (CrucibleProject project : list) {
-				projects.put(project.getKey(), project);
-			}
+			projects = getProjectsFromServer();
 		}
 
 		return projects.get(projectKey);
 	}
 
+	public List<CrucibleProject> getProjects() throws RemoteApiException {
+		if (projects.values().size() == 0) {
+			projects = getProjectsFromServer();
+		}
+
+		return new ArrayList<CrucibleProject>(projects.values());
+	}
+
+	private Map<String, CrucibleProject> getProjectsFromServer() throws RemoteApiException {
+		List<CrucibleProject> list = session.getProjects();
+
+		Map<String, CrucibleProject> map = new HashMap<String, CrucibleProject>(list.size() + 1, 1);
+
+		for (CrucibleProject project : list) {
+			map.put(project.getKey(), project);
+		}
+
+		return map;
+	}
 }

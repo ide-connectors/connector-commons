@@ -122,4 +122,6 @@ public interface CrucibleSession {
 	boolean isLoggedIn();
 
 //	CrucibleFileInfo addItemToReview(Review review, NewReviewItem item) throws RemoteApiException;
+
+	List<CrucibleProject> getProjectsFromCache() throws RemoteApiException;
 }

@@ -16,7 +16,7 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-public interface CustomFilter {
+public interface CustomFilter extends CrucibleFilter {
     String getTitle();    
 
     String[] getState();
@@ -38,4 +38,8 @@ public interface CustomFilter {
     boolean isOrRoles();
 
 	String toHtml();
+
+	boolean isEnabled();
+
+	String getServerUid();
 }

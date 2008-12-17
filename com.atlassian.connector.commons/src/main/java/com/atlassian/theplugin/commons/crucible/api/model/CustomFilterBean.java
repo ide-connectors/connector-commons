@@ -227,4 +227,12 @@ public class CustomFilterBean implements CustomFilter {
 	public String getId() {
 		return FILTER_ID;
 	}
+
+	public String getFilterName() {
+		return "Custom";
+	}
+
+	public String getFilterUrl() {
+		return null;
+	}
 }

@@ -16,7 +16,7 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-public enum PredefinedFilter {
+public enum PredefinedFilter implements CrucibleFilter {
     ToReview("toReview", "To Review"),
     RequireMyApproval("requireMyApproval", "Require My Approval"),
     ToSummarize("toSummarize", "To Summarize"),

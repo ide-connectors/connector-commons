@@ -26,6 +26,9 @@ import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import java.util.List;
 import java.util.Set;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public interface CrucibleServerFacade extends ProductServerFacade {
 //	CrucibleVersionInfo getServerVersion(CrucibleServerCfg server)
 //			throws RemoteApiException, ServerPasswordNotProvidedException;
@@ -166,5 +169,8 @@ public interface CrucibleServerFacade extends ProductServerFacade {
 			throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	void setCallback(HttpSessionCallback callback);
+
+	@Nullable
+	String getDisplayName(@NotNull final CrucibleServerCfg server, @NotNull String username);
 
 }

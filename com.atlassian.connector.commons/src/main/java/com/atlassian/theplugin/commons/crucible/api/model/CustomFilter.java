@@ -37,8 +37,6 @@ public interface CustomFilter extends CrucibleFilter {
 
     boolean isOrRoles();
 
-	String toHtml();
-
 	boolean isEnabled();
 
 	String getServerUid();

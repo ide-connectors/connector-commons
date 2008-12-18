@@ -34,6 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	private Map<String, CrucibleSession> sessions = new HashMap<String, CrucibleSession>();
 
@@ -91,6 +94,12 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 				comment.setAuthor(newU);
 			}
 		}
+	}
+
+	@Nullable
+	public String getDisplayName(@NotNull final CrucibleServerCfg server, @NotNull String username) {
+		final User user = userCache.getUser(server, username, true);
+		return user != null ? user.getDisplayName() : null;
 	}
 
 	/**

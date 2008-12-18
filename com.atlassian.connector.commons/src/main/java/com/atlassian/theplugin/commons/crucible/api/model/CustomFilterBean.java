@@ -66,6 +66,7 @@ public class CustomFilterBean implements CustomFilter {
 		return true;
 	}
 
+	@Override
 	public int hashCode() {
 		int result;
 		result = (title != null ? title.hashCode() : 0);
@@ -171,58 +172,6 @@ public class CustomFilterBean implements CustomFilter {
     public boolean isOrRoles() {
         return orRoles;
     }
-
-	public HashMap<String, String> getPropertiesMap() {
-		HashMap map = new HashMap();
-
-		String states = "";
-		for (String st : state) {
-			states += st + ", ";
-		}
-		if (states.length() > ", ".length()) {
-			states = states.substring(0, states.length() - ", ".length());
-		}
-
-		map.put("Server", serverUid.toString());
-		map.put("Project key", projectKey);
-		if (states.length() > 0) {
-			map.put("State", states);
-		}
-
-		if (author.length() > 0) {
-			map.put("Author", author);
-		}
-		if (moderator.length() > 0) {
-			map.put("Moderator", moderator);
-		}
-		if (creator.length() > 0) {
-			map.put("Creator", creator);
-		}
-		if (reviewer.length() > 0) {
-			map.put("Reviewer", reviewer);
-		}
-
-		if (orRoles) {
-			map.put("Role", orRoles ? "true" : "false");
-		}
-		if (complete) {
-			map.put("Complete", complete ? "true" : "false");
-		}
-		if (allReviewersComplete) {
-			map.put("All revievers completed", allReviewersComplete ? "true" : "false");
-		}
-		return map;
-	}
-
-	public String toHtml() {
-		String table = "<html><body><table>";
-		HashMap prop = getPropertiesMap();
-		for (Object key : prop.keySet()) {
-			table += "<tr><td> " + key + " :</td><td>" + prop.get(key) + "</td></tr>";
-		}
-		table += "</table></body></html>";
-		return table;
-	}
 
 	public void setOrRoles(boolean orRoles) {
         this.orRoles = orRoles;

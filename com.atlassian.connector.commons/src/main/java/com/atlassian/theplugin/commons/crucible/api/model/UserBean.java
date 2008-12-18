@@ -52,7 +52,8 @@ public class UserBean implements User {
         this.displayName = displayName;
     }
 
-    public boolean equals(Object o) {
+    @Override
+	public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -73,7 +74,8 @@ public class UserBean implements User {
         return true;
     }
 
-    public int hashCode() {
+    @Override
+	public int hashCode() {
         int result;
         result = (userName != null ? userName.hashCode() : 0);
         result = HASH_MAGIC * result + (displayName != null ? displayName.hashCode() : 0);

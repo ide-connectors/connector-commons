@@ -173,4 +173,8 @@ public interface CrucibleServerFacade extends ProductServerFacade {
 	@Nullable
 	String getDisplayName(@NotNull final CrucibleServerCfg server, @NotNull String username);
 
+	@Nullable
+	CrucibleProject getProject(@NotNull final CrucibleServerCfg server, @NotNull final String projectKey)
+			throws RemoteApiException, ServerPasswordNotProvidedException;
+
 }

@@ -102,6 +102,17 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		return user != null ? user.getDisplayName() : null;
 	}
 
+	public CrucibleProject getProject(@NotNull final CrucibleServerCfg server, @NotNull final String projectKey)
+			throws RemoteApiException, ServerPasswordNotProvidedException {
+		final List<CrucibleProject> projects = getProjects(server);
+		for (CrucibleProject project : projects) {
+			if (project.getKey().equals(projectKey)) {
+				return project;
+			}
+		}
+		return null;
+	}
+
 	/**
      * For testing Only
      * @see com.atlassian.theplugin.commons.remoteapi.ProductServerFacade#testServerConnection(java.lang.String,

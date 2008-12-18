@@ -19,7 +19,6 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 
 import java.util.Arrays;
-import java.util.HashMap;
 
 
 public class CustomFilterBean implements CustomFilter {
@@ -30,11 +29,11 @@ public class CustomFilterBean implements CustomFilter {
     private String moderator = "";
     private String creator = "";
     private String reviewer = "";
-    private boolean orRoles = false;
+    private boolean orRoles;
     private boolean complete;
     private boolean allReviewersComplete;
     private String projectKey = "";
-    private boolean enabled = false;
+    private boolean enabled;
     private static final double ID_DISCRIMINATOR = 1002d;
     private static final int HASHCODE_CONSTANT = 31;
     private static final int SHIFT_32 = 32;
@@ -59,6 +58,7 @@ public class CustomFilterBean implements CustomFilter {
 		if (!filterName.equals(that.filterName)) {
 			return false;
 		}
+		//noinspection RedundantIfStatement
 		if (!filterUrl.equals(that.filterUrl)) {
 			return false;
 		}

@@ -38,20 +38,32 @@ public class CustomFilterBean implements CustomFilter {
     private static final double ID_DISCRIMINATOR = 1002d;
     private static final int HASHCODE_CONSTANT = 31;
     private static final int SHIFT_32 = 32;
-	public static final String FILTER_ID = "MANUAL_FILTER_ID";
+	public  static final String FILTER_ID = "MANUAL_FILTER_ID";
+	private final String filterName = "Custom";
+	private final String filterUrl = "";
 
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
-            return true;
-        }
+			return true;
+		}
 		if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+			return false;
+		}
 
 		CustomFilterBean that = (CustomFilterBean) o;
 
-		return uid == that.uid;
+		if (uid != that.uid) {
+			return false;
+		}
+		if (!filterName.equals(that.filterName)) {
+			return false;
+		}
+		if (!filterUrl.equals(that.filterUrl)) {
+			return false;
+		}
 
+		return true;
 	}
 
 	public int hashCode() {
@@ -229,10 +241,10 @@ public class CustomFilterBean implements CustomFilter {
 	}
 
 	public String getFilterName() {
-		return "Custom";
+		return filterName;
 	}
 
 	public String getFilterUrl() {
-		return null;
+		return filterUrl;
 	}
 }

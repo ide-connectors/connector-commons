@@ -17,15 +17,15 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 public interface CustomFilter extends CrucibleFilter {
-	final String AUTHOR = "author";
-	final String CREATOR = "creator";
-	final String MODERATOR = "moderator";
-	final String REVIEWER = "reviewer";
-	final String PROJECT = "projectKey";
-	final String STATES = "states";
-	final String COMPLETE = "complete";
-	final String ORROLES = "orRoles";
-	final String ALLCOMPLETE = "allReviewersComplete";
+	String AUTHOR = "author";
+	String CREATOR = "creator";
+	String MODERATOR = "moderator";
+	String REVIEWER = "reviewer";
+	String PROJECT = "projectKey";
+	String STATES = "states";
+	String COMPLETE = "complete";
+	String ORROLES = "orRoles";
+	String ALLCOMPLETE = "allReviewersComplete";
 
 	String getTitle();
 

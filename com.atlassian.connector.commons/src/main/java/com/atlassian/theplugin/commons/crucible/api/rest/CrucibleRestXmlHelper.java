@@ -20,6 +20,7 @@ import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.CrucibleVersion;
 import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
 import com.atlassian.theplugin.commons.crucible.api.model.*;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.CDATA;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -741,6 +742,40 @@ public final class CrucibleRestXmlHelper {
 		return new Document(filterData);
 	}
 
+	private static void addQueryParam(String name, String value, StringBuilder builder) {
+		if (!StringUtils.isEmpty(value)) {
+			if (builder.length() > 1) {
+				builder.append("&");
+			}
+			builder.append(name + "=" + value);
+		}
+	}
+
+	public static String prepareCustomFilterUrl(CustomFilter filter) {
+		StringBuilder url = new StringBuilder("?");
+
+		addQueryParam("autor", filter.getAuthor(), url);
+		addQueryParam("creator", filter.getCreator(), url);
+		addQueryParam("moderator", filter.getModerator(), url);
+		addQueryParam("reviewer", filter.getReviewer(), url);
+		addQueryParam("projectKey", filter.getProjectKey(), url);
+		String state = getStates(filter);
+		addQueryParam("states", state, url);
+
+		if (filter.isComplete() != null) {
+			addQueryParam("complete", filter.isComplete() ? "true" : "false", url);
+		}
+		if (filter.isOrRoles() != null) {
+			addQueryParam("orRoles", filter.isOrRoles() ? "true" : "false", url);
+		}
+		if (filter.isAllReviewersComplete() != null) {
+			addQueryParam("allReviewersComplete", filter.isAllReviewersComplete() ? "true" : "false", url);
+		}
+
+		String urlString = url.toString();
+		return urlString.equals("?") ? "" : urlString;
+	}
+
 	private static Element prepareFilterNodeElement(CustomFilter filter) {
 		Element filterData = new Element("customFilterData");
 
@@ -750,6 +785,16 @@ public final class CrucibleRestXmlHelper {
 		addTag(filterData, "moderator", filter.getModerator() != null ? filter.getModerator() : "");
 		addTag(filterData, "reviewer", filter.getReviewer() != null ? filter.getReviewer() : "");
 		addTag(filterData, "projectKey", filter.getProjectKey() != null ? filter.getProjectKey() : "");
+		String state = getStates(filter);
+		addTag(filterData, "state", state);
+		addTag(filterData, "complete", filter.isComplete() ? "true" : "false");
+		addTag(filterData, "orRoles", filter.isOrRoles() ? "true" : "false");
+		addTag(filterData, "allReviewersComplete", filter.isAllReviewersComplete() ? "true" : "false");
+
+		return filterData;
+	}
+
+	private static String getStates(CustomFilter filter) {
 		String state = "";
 		if (filter.getState() != null) {
 			for (String s : filter.getState()) {
@@ -759,12 +804,7 @@ public final class CrucibleRestXmlHelper {
 				state += s;
 			}
 		}
-		addTag(filterData, "state", state);
-		addTag(filterData, "complete", filter.isComplete() ? "true" : "false");
-		addTag(filterData, "orRoles", filter.isOrRoles() ? "true" : "false");
-		addTag(filterData, "allReviewersComplete", filter.isAllReviewersComplete() ? "true" : "false");
-
-		return filterData;
+		return state;
 	}
 
 	private static final DateTimeFormatter COMMENT_TIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -780,7 +820,7 @@ public final class CrucibleRestXmlHelper {
 	public static CrucibleVersionInfo parseVersionNode(Element element) {
 		CrucibleVersionInfoBean version = new CrucibleVersionInfoBean();
 		version.setBuildDate(getChildText(element, "buildDate"));
-		version.setReleaseNumber(getChildText(element, "releaseVersion"));
+		version.setReleaseNumber(getChildText(element, "releaseNumber"));
 		return version;
 	}
 }

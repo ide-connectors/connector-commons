@@ -22,12 +22,15 @@ import com.atlassian.theplugin.commons.crucible.ProjectCache;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.exception.IncorrectVersionException;
 import com.atlassian.theplugin.commons.remoteapi.*;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
+import com.atlassian.theplugin.commons.util.ProductVersionUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -92,14 +95,15 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	private Map<String, List<CustomFieldDef>> metricsDefinitions = new HashMap<String, List<CustomFieldDef>>();
 	private ProjectCache projectCache;
 
+	private CrucibleVersionInfo crucibleVersionInfo;
+
 	/**
 	 * Public constructor for CrucibleSessionImpl.
-	 * 
-	 * @param serverCfg The server fisheye configuration for this session
-	 * @param callback The callback needed for preparing HttpClient calls
-	 * 
-	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException when serverCfg configuration is invalid
 	 *
+	 * @param serverCfg The server fisheye configuration for this session
+	 * @param callback  The callback needed for preparing HttpClient calls
+	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
+	 *          when serverCfg configuration is invalid
 	 */
 	public CrucibleSessionImpl(ServerCfg serverCfg, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
 		super(serverCfg, callback);
@@ -176,7 +180,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					return CrucibleRestXmlHelper.parseVersionNode(element);
+					this.crucibleVersionInfo = CrucibleRestXmlHelper.parseVersionNode(element);
+					return this.crucibleVersionInfo;
 				}
 			}
 
@@ -300,22 +305,42 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
+	private boolean checkCustomFiltersAsGet() {
+		if (crucibleVersionInfo == null) {
+			try {
+				getServerVersion();
+			} catch (RemoteApiException e) {
+				return false;
+			}
+		}
+		try {
+			ProductVersionUtil version = new ProductVersionUtil(crucibleVersionInfo.getReleaseNumber());
+			if (version.greater(new ProductVersionUtil("1.6.3"))) {
+				return true;
+			}
+		} catch (IncorrectVersionException e) {
+			return false;
+		}
+		return false;
+	}
+
+
 	public List<Review> getReviewsForCustomFilter(CustomFilter filter, boolean details) throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
-		Document request = CrucibleRestXmlHelper.prepareCustomFilter(filter);
 
 		try {
-			String url = baseUrl + REVIEW_SERVICE + FILTERED_REVIEWS;
-			if (details) {
-				url += DETAIL_REVIEW_INFO;
+			Document doc = null;
+			if (checkCustomFiltersAsGet()) {
+				doc = getReviewsForCustomFilterAsGet(filter, details);
+			} else {
+				doc = getReviewsForCustomFilterAsPost(filter, details);
 			}
 
-			Document doc = retrievePostResponse(url, request);
 			XPath xpath;
 			if (details) {
-				xpath = XPath.newInstance("/detailedReviews/detailReviewData");
+				xpath = XPath.newInstance("/detailedReviews/detailedReviewData");
 			} else {
 				xpath = XPath.newInstance("/reviews/reviewData");
 			}
@@ -336,6 +361,42 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 				updateMetricsMetadata(review);
 			}
 			return reviews;
+		} catch (JDOMException e) {
+			throw new RemoteApiException(baseUrl + ": Server returned malformed response", e);
+		}
+	}
+
+	private Document getReviewsForCustomFilterAsPost(CustomFilter filter, boolean details) throws RemoteApiException {
+		Document request = CrucibleRestXmlHelper.prepareCustomFilter(filter);
+
+		try {
+			String url = baseUrl + REVIEW_SERVICE + FILTERED_REVIEWS;
+			if (details) {
+				url += DETAIL_REVIEW_INFO;
+			}
+
+			Document doc = retrievePostResponse(url, request);
+			return doc;
+		} catch (IOException e) {
+			throw new RemoteApiException(baseUrl + ": " + e.getMessage(), e);
+		} catch (JDOMException e) {
+			throw new RemoteApiException(baseUrl + ": Server returned malformed response", e);
+		}
+	}
+
+	private Document getReviewsForCustomFilterAsGet(CustomFilter filter, boolean details) throws RemoteApiException {
+		try {
+			String url = baseUrl + REVIEW_SERVICE + FILTERED_REVIEWS;
+			if (details) {
+				url += DETAIL_REVIEW_INFO;
+			}
+			String urlFilter = CrucibleRestXmlHelper.prepareCustomFilterUrl(filter);
+			if (!StringUtils.isEmpty(urlFilter)) {
+				url += urlFilter;
+			}
+
+			Document doc = retrieveGetResponse(url);
+			return doc;
 		} catch (IOException e) {
 			throw new RemoteApiException(baseUrl + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
@@ -534,6 +595,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	/**
 	 * Retrieves projects from cache (reduces server calls)
+	 *
 	 * @return list of Crucible Projects
 	 * @throws RemoteApiException thrown in case of connection problems
 	 */
@@ -543,9 +605,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	/**
 	 * Retrieves projects directly from server ommiting cache
-	 * @deprecated {@link #getProjectsFromCache()} should be used
+	 *
 	 * @return list of Crucible projects
 	 * @throws RemoteApiException thrown in case of connection problems
+	 * @deprecated {@link #getProjectsFromCache()} should be used
 	 */
 	public List<CrucibleProject> getProjects() throws RemoteApiException {
 		return getProjectsFromServer();
@@ -1398,7 +1461,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	protected void adjustHttpHeader(HttpMethod method) {
 		method.addRequestHeader(new Header("Authorization", getAuthHeaderValue()));
 	}
-	
+
 
 	@Override
 	protected void preprocessResult(Document doc) throws JDOMException, RemoteApiSessionExpiredException {

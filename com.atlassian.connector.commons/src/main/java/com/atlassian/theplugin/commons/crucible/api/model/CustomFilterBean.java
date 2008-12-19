@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,21 +21,21 @@ import com.atlassian.theplugin.commons.cfg.ServerId;
 
 public class CustomFilterBean implements CustomFilter {
 	private ServerId serverUid = new ServerId();
-    private String title = "";
-    private String[] state = new String[0];
-    private String author = "";
-    private String moderator = "";
-    private String creator = "";
-    private String reviewer = "";
-    private boolean orRoles;
-    private boolean complete;
-    private boolean allReviewersComplete;
-    private String projectKey = "";
-    private boolean enabled;
-    private static final double ID_DISCRIMINATOR = 1002d;
-    private static final int HASHCODE_CONSTANT = 31;
-    private static final int SHIFT_32 = 32;
-	public  static final String FILTER_ID = "MANUAL_FILTER_ID";
+	private String title = "";
+	private String[] state = new String[0];
+	private String author = "";
+	private String moderator = "";
+	private String creator = "";
+	private String reviewer = "";
+	private Boolean orRoles;
+	private Boolean complete;
+	private Boolean allReviewersComplete;
+	private String projectKey = "";
+	private boolean enabled;
+	private static final double ID_DISCRIMINATOR = 1002d;
+	private static final int HASHCODE_CONSTANT = 31;
+	private static final int SHIFT_32 = 32;
+	public static final String FILTER_ID = "MANUAL_FILTER_ID";
 	private final String filterName = "Custom";
 	private final String filterUrl = "";
 
@@ -67,7 +67,7 @@ public class CustomFilterBean implements CustomFilter {
 	@Override
 	public int hashCode() {
 		int result;
-		result =  (filterName != null ? filterName.hashCode() : 0);
+		result = (filterName != null ? filterName.hashCode() : 0);
 		result = HASHCODE_CONSTANT * result + (int) (uid ^ (uid >>> SHIFT_32));
 		result = HASHCODE_CONSTANT * result + (filterUrl != null ? filterUrl.hashCode() : 0);
 		return result;
@@ -86,93 +86,93 @@ public class CustomFilterBean implements CustomFilter {
 	public CustomFilterBean() {
 	}
 
-    public String getTitle() {
-        return title;
-    }
+	public String getTitle() {
+		return title;
+	}
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
-    public String[] getState() {
-        return state;
-    }
+	public String[] getState() {
+		return state;
+	}
 
-    public void setState(String[] state) {
-        this.state = state;
-    }
+	public void setState(String[] state) {
+		this.state = state;
+	}
 
-    public String getAuthor() {
-        return author;
-    }
+	public String getAuthor() {
+		return author;
+	}
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
+	public void setAuthor(String author) {
+		this.author = author;
+	}
 
-    public String getModerator() {
-        return moderator;
-    }
+	public String getModerator() {
+		return moderator;
+	}
 
-    public void setModerator(String moderator) {
-        this.moderator = moderator;
-    }
+	public void setModerator(String moderator) {
+		this.moderator = moderator;
+	}
 
-    public String getCreator() {
-        return creator;
-    }
+	public String getCreator() {
+		return creator;
+	}
 
-    public void setCreator(String creator) {
-        this.creator = creator;
-    }
+	public void setCreator(String creator) {
+		this.creator = creator;
+	}
 
-    public String getReviewer() {
-        return reviewer;
-    }
+	public String getReviewer() {
+		return reviewer;
+	}
 
-    public void setReviewer(String reviewer) {
-        this.reviewer = reviewer;
-    }
+	public void setReviewer(String reviewer) {
+		this.reviewer = reviewer;
+	}
 
-    public boolean isComplete() {
-        return complete;
-    }
+	public Boolean isComplete() {
+		return complete;
+	}
 
-    public void setComplete(boolean complete) {
-        this.complete = complete;
-    }
+	public void setComplete(Boolean complete) {
+		this.complete = complete;
+	}
 
-    public boolean isAllReviewersComplete() {
-        return allReviewersComplete;
-    }
+	public Boolean isAllReviewersComplete() {
+		return allReviewersComplete;
+	}
 
-    public void setAllReviewersComplete(boolean allReviewersComplete) {
-        this.allReviewersComplete = allReviewersComplete;
-    }
+	public void setAllReviewersComplete(Boolean allReviewersComplete) {
+		this.allReviewersComplete = allReviewersComplete;
+	}
 
-    public String getProjectKey() {
-        return projectKey;
-    }
+	public String getProjectKey() {
+		return projectKey;
+	}
 
-    public void setProjectKey(String projectKey) {
-        this.projectKey = projectKey;
-    }
+	public void setProjectKey(String projectKey) {
+		this.projectKey = projectKey;
+	}
 
-    public boolean isOrRoles() {
-        return orRoles;
-    }
+	public Boolean isOrRoles() {
+		return orRoles;
+	}
 
-	public void setOrRoles(boolean orRoles) {
-        this.orRoles = orRoles;
-    }
+	public void setOrRoles(Boolean orRoles) {
+		this.orRoles = orRoles;
+	}
 
-    public boolean isEnabled() {
-        return enabled;
-    }
+	public boolean isEnabled() {
+		return enabled;
+	}
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 
 	public String getId() {
 		return FILTER_ID;

@@ -18,8 +18,6 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.theplugin.commons.cfg.ServerId;
 
-import java.util.Arrays;
-
 
 public class CustomFilterBean implements CustomFilter {
 	private ServerId serverUid = new ServerId();
@@ -69,18 +67,9 @@ public class CustomFilterBean implements CustomFilter {
 	@Override
 	public int hashCode() {
 		int result;
-		result = (title != null ? title.hashCode() : 0);
-		result = HASHCODE_CONSTANT * result + (state != null ? Arrays.hashCode(state) : 0);
-		result = HASHCODE_CONSTANT * result + (author != null ? author.hashCode() : 0);
-		result = HASHCODE_CONSTANT * result + (moderator != null ? moderator.hashCode() : 0);
-		result = HASHCODE_CONSTANT * result + (creator != null ? creator.hashCode() : 0);
-		result = HASHCODE_CONSTANT * result + (reviewer != null ? reviewer.hashCode() : 0);
-		result = HASHCODE_CONSTANT * result + (orRoles ? 1 : 0);
-		result = HASHCODE_CONSTANT * result + (complete ? 1 : 0);
-		result = HASHCODE_CONSTANT * result + (allReviewersComplete ? 1 : 0);
-		result = HASHCODE_CONSTANT * result + (projectKey != null ? projectKey.hashCode() : 0);
+		result =  (filterName != null ? filterName.hashCode() : 0);
 		result = HASHCODE_CONSTANT * result + (int) (uid ^ (uid >>> SHIFT_32));
-		result = HASHCODE_CONSTANT * result + (serverUid != null ? serverUid.hashCode() : 0);
+		result = HASHCODE_CONSTANT * result + (filterUrl != null ? filterUrl.hashCode() : 0);
 		return result;
 	}
 

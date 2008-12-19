@@ -498,7 +498,7 @@ public class CrucibleServerFacadeTest extends TestCase {
             }
 
             @Override
-			public List<Reviewer> getReviewers() throws ValueNotYetInitialized {
+			public Set<Reviewer> getReviewers() throws ValueNotYetInitialized {
                 return null;
             }
 
@@ -681,7 +681,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public List<Reviewer> getReviewers() {
+			public Set<Reviewer> getReviewers() {
                 return null;
             }
 

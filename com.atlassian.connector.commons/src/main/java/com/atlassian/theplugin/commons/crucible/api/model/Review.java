@@ -57,7 +57,7 @@ public interface Review {
 
     String getSummary();
 
-    List<Reviewer> getReviewers() throws ValueNotYetInitialized;
+    Set<Reviewer> getReviewers() throws ValueNotYetInitialized;
 
     List<GeneralComment> getGeneralComments() throws ValueNotYetInitialized;
 
@@ -83,7 +83,7 @@ public interface Review {
 
 	List<CrucibleFileInfo> getFiles() throws ValueNotYetInitialized;
 
-	void setReviewers(List<Reviewer> reviewers);
+	void setReviewers(Set<Reviewer> reviewers);
 
 	void setGeneralComments(List<GeneralComment> generalComments);
 

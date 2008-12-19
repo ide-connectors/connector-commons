@@ -167,7 +167,7 @@ public final class CrucibleRestXmlHelper {
 		parseReview(reviewNode, review);
 
 		List<Element> reviewersNode = getChildElements(reviewNode, "reviewers");
-		List<Reviewer> reviewers = new ArrayList<Reviewer>();
+		Set<Reviewer> reviewers = new HashSet<Reviewer>();
 		for (Element reviewer : reviewersNode) {
 			List<Element> reviewerNode = getChildElements(reviewer, "reviewer");
 			for (Element element : reviewerNode) {

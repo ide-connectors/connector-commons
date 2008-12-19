@@ -117,7 +117,7 @@ public class ReviewAdapter {
         return review.getSummary();
     }
 
-	public List<Reviewer> getReviewers() throws ValueNotYetInitialized {
+	public Set<Reviewer> getReviewers() throws ValueNotYetInitialized {
         return review.getReviewers();
     }
 
@@ -496,8 +496,8 @@ public class ReviewAdapter {
 	}
 
 	private boolean areReviewersEqual(Review rhs) {
-		List<Reviewer> l = null;
-		List<Reviewer> r = null;
+		Set<Reviewer> l = null;
+		Set<Reviewer> r = null;
 		try { l = review.getReviewers(); } catch (ValueNotYetInitialized e) {	/* ignore */ }
 		try { r = rhs.getReviewers(); } catch (ValueNotYetInitialized e) { /* ignore */ }
 		return areObjectsEqual(l, r);

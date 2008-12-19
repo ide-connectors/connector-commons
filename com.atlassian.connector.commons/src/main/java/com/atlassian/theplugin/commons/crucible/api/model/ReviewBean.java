@@ -25,7 +25,7 @@ import java.util.Set;
 
 
 public class ReviewBean implements Review {
-	private List<Reviewer> reviewers;
+	private Set<Reviewer> reviewers;
 	private List<GeneralComment> generalComments;
 	private List<Action> transitions;
 	private Set<Action> actions;
@@ -49,7 +49,7 @@ public class ReviewBean implements Review {
 	private List<CrucibleFileInfo> files;
 	private CrucibleProject crucibleProject;
 
-	public void setReviewers(List<Reviewer> reviewers) {
+	public void setReviewers(Set<Reviewer> reviewers) {
 		this.reviewers = reviewers;
 	}
 
@@ -108,7 +108,7 @@ public class ReviewBean implements Review {
 		return serverUrl;
 	}
 
-	public List<Reviewer> getReviewers() throws ValueNotYetInitialized {
+	public Set<Reviewer> getReviewers() throws ValueNotYetInitialized {
 		if (reviewers == null) {
 			throw new ValueNotYetInitialized("Object trasferred only partially");
 		}

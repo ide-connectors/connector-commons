@@ -190,8 +190,8 @@ public class CustomFilterBean implements CustomFilter {
 		addQueryParam(MODERATOR, getModerator(), url);
 		addQueryParam(REVIEWER, getReviewer(), url);
 		addQueryParam(PROJECT, getProjectKey(), url);
-		String state = getStates();
-		addQueryParam(STATES, state, url);
+		String stateParam = getStates();
+		addQueryParam(STATES, stateParam, url);
 
 		if (isComplete() != null) {
 			addQueryParam(COMPLETE, isComplete() ? "true" : "false", url);
@@ -217,15 +217,15 @@ public class CustomFilterBean implements CustomFilter {
 	}
 
 	public String getStates() {
-		String state = "";
+		String stateParam = "";
 		if (getState() != null) {
 			for (String s : getState()) {
-				if (state.length() > 0) {
-					state += ",";
+				if (stateParam.length() > 0) {
+					stateParam += ",";
 				}
-				state += s;
+				stateParam += s;
 			}
 		}
-		return state;
+		return stateParam;
 	}
 }

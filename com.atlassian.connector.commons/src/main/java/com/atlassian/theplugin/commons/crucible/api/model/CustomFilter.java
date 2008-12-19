@@ -17,6 +17,16 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 public interface CustomFilter extends CrucibleFilter {
+	public static final String AUTHOR = "author";
+	public static final String CREATOR = "creator";
+	public static final String MODERATOR = "moderator";
+	public static final String REVIEWER = "reviewer";
+	public static final String PROJECT = "projectKey";
+	public static final String STATES = "states";
+	public static final String COMPLETE = "complete";
+	public static final String ORROLES = "orRoles";
+	public static final String ALLCOMPLETE = "allReviewersComplete";
+
 	String getTitle();
 
 	String[] getState();
@@ -40,4 +50,6 @@ public interface CustomFilter extends CrucibleFilter {
 	boolean isEnabled();
 
 	String getServerUid();
+
+	String getStates();
 }

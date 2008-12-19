@@ -331,7 +331,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 
 		try {
-			Document doc = null;
+			Document doc;
 			if (checkCustomFiltersAsGet()) {
 				doc = getReviewsForCustomFilterAsGet(filter, details);
 			} else {
@@ -368,13 +368,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	private Document getReviewsForCustomFilterAsPost(CustomFilter filter, boolean details) throws RemoteApiException {
 		Document request = CrucibleRestXmlHelper.prepareCustomFilter(filter);
-
 		try {
 			String url = baseUrl + REVIEW_SERVICE + FILTERED_REVIEWS;
 			if (details) {
 				url += DETAIL_REVIEW_INFO;
 			}
-
 			Document doc = retrievePostResponse(url, request);
 			return doc;
 		} catch (IOException e) {
@@ -390,9 +388,9 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			if (details) {
 				url += DETAIL_REVIEW_INFO;
 			}
-			String urlFilter = CrucibleRestXmlHelper.prepareCustomFilterUrl(filter);
+			String urlFilter = filter.getFilterUrl();
 			if (!StringUtils.isEmpty(urlFilter)) {
-				url += urlFilter;
+				url += "?" + urlFilter;
 			}
 
 			Document doc = retrieveGetResponse(url);

@@ -17,6 +17,7 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.theplugin.commons.cfg.ServerId;
+import org.apache.commons.lang.StringUtils;
 
 
 public class CustomFilterBean implements CustomFilter {
@@ -56,10 +57,6 @@ public class CustomFilterBean implements CustomFilter {
 		if (!filterName.equals(that.filterName)) {
 			return false;
 		}
-		//noinspection RedundantIfStatement
-		if (!filterUrl.equals(that.filterUrl)) {
-			return false;
-		}
 
 		return true;
 	}
@@ -69,7 +66,6 @@ public class CustomFilterBean implements CustomFilter {
 		int result;
 		result = (filterName != null ? filterName.hashCode() : 0);
 		result = HASHCODE_CONSTANT * result + (int) (uid ^ (uid >>> SHIFT_32));
-		result = HASHCODE_CONSTANT * result + (filterUrl != null ? filterUrl.hashCode() : 0);
 		return result;
 	}
 
@@ -183,6 +179,53 @@ public class CustomFilterBean implements CustomFilter {
 	}
 
 	public String getFilterUrl() {
-		return filterUrl;
+		return prepareCustomFilterUrl();
+	}
+
+	private String prepareCustomFilterUrl() {
+		StringBuilder url = new StringBuilder();
+
+		addQueryParam(AUTHOR, getAuthor(), url);
+		addQueryParam(CREATOR, getCreator(), url);
+		addQueryParam(MODERATOR, getModerator(), url);
+		addQueryParam(REVIEWER, getReviewer(), url);
+		addQueryParam(PROJECT, getProjectKey(), url);
+		String state = getStates();
+		addQueryParam(STATES, state, url);
+
+		if (isComplete() != null) {
+			addQueryParam(COMPLETE, isComplete() ? "true" : "false", url);
+		}
+		if (isOrRoles() != null) {
+			addQueryParam(ORROLES, isOrRoles() ? "true" : "false", url);
+		}
+		if (isAllReviewersComplete() != null) {
+			addQueryParam(ALLCOMPLETE, isAllReviewersComplete() ? "true" : "false", url);
+		}
+
+		String urlString = url.toString();
+		return urlString.equals("?") ? "" : urlString;
+	}
+
+	private void addQueryParam(String name, String value, StringBuilder builder) {
+		if (!StringUtils.isEmpty(value)) {
+			if (builder.length() > 0) {
+				builder.append("&");
+			}
+			builder.append(name + "=" + value);
+		}
+	}
+
+	public String getStates() {
+		String state = "";
+		if (getState() != null) {
+			for (String s : getState()) {
+				if (state.length() > 0) {
+					state += ",";
+				}
+				state += s;
+			}
+		}
+		return state;
 	}
 }

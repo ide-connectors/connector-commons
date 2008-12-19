@@ -20,7 +20,6 @@ import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.CrucibleVersion;
 import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
 import com.atlassian.theplugin.commons.crucible.api.model.*;
-import org.apache.commons.lang.StringUtils;
 import org.jdom.CDATA;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -742,69 +741,27 @@ public final class CrucibleRestXmlHelper {
 		return new Document(filterData);
 	}
 
-	private static void addQueryParam(String name, String value, StringBuilder builder) {
-		if (!StringUtils.isEmpty(value)) {
-			if (builder.length() > 1) {
-				builder.append("&");
-			}
-			builder.append(name + "=" + value);
-		}
-	}
-
-	public static String prepareCustomFilterUrl(CustomFilter filter) {
-		StringBuilder url = new StringBuilder("?");
-
-		addQueryParam("autor", filter.getAuthor(), url);
-		addQueryParam("creator", filter.getCreator(), url);
-		addQueryParam("moderator", filter.getModerator(), url);
-		addQueryParam("reviewer", filter.getReviewer(), url);
-		addQueryParam("projectKey", filter.getProjectKey(), url);
-		String state = getStates(filter);
-		addQueryParam("states", state, url);
-
-		if (filter.isComplete() != null) {
-			addQueryParam("complete", filter.isComplete() ? "true" : "false", url);
-		}
-		if (filter.isOrRoles() != null) {
-			addQueryParam("orRoles", filter.isOrRoles() ? "true" : "false", url);
-		}
-		if (filter.isAllReviewersComplete() != null) {
-			addQueryParam("allReviewersComplete", filter.isAllReviewersComplete() ? "true" : "false", url);
-		}
-
-		String urlString = url.toString();
-		return urlString.equals("?") ? "" : urlString;
-	}
-
 	private static Element prepareFilterNodeElement(CustomFilter filter) {
 		Element filterData = new Element("customFilterData");
 
-		addTag(filterData, "title", /*filter.getTitle() != null ? filter.getTitle() :*/ "");
-		addTag(filterData, "author", filter.getAuthor() != null ? filter.getAuthor() : "");
-		addTag(filterData, "creator", filter.getCreator() != null ? filter.getCreator() : "");
-		addTag(filterData, "moderator", filter.getModerator() != null ? filter.getModerator() : "");
-		addTag(filterData, "reviewer", filter.getReviewer() != null ? filter.getReviewer() : "");
-		addTag(filterData, "projectKey", filter.getProjectKey() != null ? filter.getProjectKey() : "");
-		String state = getStates(filter);
-		addTag(filterData, "state", state);
-		addTag(filterData, "complete", filter.isComplete() ? "true" : "false");
-		addTag(filterData, "orRoles", filter.isOrRoles() ? "true" : "false");
-		addTag(filterData, "allReviewersComplete", filter.isAllReviewersComplete() ? "true" : "false");
+		addTag(filterData, CustomFilter.AUTHOR, filter.getAuthor() != null ? filter.getAuthor() : "");
+		addTag(filterData, CustomFilter.CREATOR, filter.getCreator() != null ? filter.getCreator() : "");
+		addTag(filterData, CustomFilter.MODERATOR, filter.getModerator() != null ? filter.getModerator() : "");
+		addTag(filterData, CustomFilter.REVIEWER, filter.getReviewer() != null ? filter.getReviewer() : "");
+		addTag(filterData, CustomFilter.PROJECT, filter.getProjectKey() != null ? filter.getProjectKey() : "");
+		String state = filter.getStates();
+		addTag(filterData, CustomFilter.STATES, state);
+		if (filter.isComplete() != null) {
+			addTag(filterData, CustomFilter.COMPLETE, filter.isComplete() ? "true" : "false");
+		}
+		if (filter.isOrRoles() != null) {
+			addTag(filterData, CustomFilter.ORROLES, filter.isOrRoles() ? "true" : "false");
+		}
+		if (filter.isAllReviewersComplete() != null) {
+			addTag(filterData, CustomFilter.ALLCOMPLETE, filter.isAllReviewersComplete() ? "true" : "false");
+		}
 
 		return filterData;
-	}
-
-	private static String getStates(CustomFilter filter) {
-		String state = "";
-		if (filter.getState() != null) {
-			for (String s : filter.getState()) {
-				if (state.length() > 0) {
-					state += ",";
-				}
-				state += s;
-			}
-		}
-		return state;
 	}
 
 	private static final DateTimeFormatter COMMENT_TIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");

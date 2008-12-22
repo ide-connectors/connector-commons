@@ -750,7 +750,8 @@ public final class CrucibleRestXmlHelper {
 		addTag(filterData, CustomFilter.REVIEWER, filter.getReviewer() != null ? filter.getReviewer() : "");
 		addTag(filterData, CustomFilter.PROJECT, filter.getProjectKey() != null ? filter.getProjectKey() : "");
 		String state = filter.getStates();
-		addTag(filterData, CustomFilter.STATES, state);
+		// BEWARE - state instead of CustomFIlter.STATE
+		addTag(filterData, "state", state);
 		if (filter.isComplete() != null) {
 			addTag(filterData, CustomFilter.COMPLETE, filter.isComplete() ? "true" : "false");
 		}

@@ -63,10 +63,10 @@ public class ProductVersionUtil implements Serializable {
 		}
 	}
 
-	private static final String PATTERN = "^(\\d+)\\.(\\d+)\\.(\\d+)$";
+	private static final String PATTERN = "^(\\d+)\\.(\\d+)(\\.(\\d+))?(-.+)?$";
 	private static final int MAJOR_TOKEN_GRP = 1;
 	private static final int MINOR_TOKEN_GRP = 2;
-	private static final int MICRO_TOKEN_GRP = 3;
+	private static final int MICRO_TOKEN_GRP = 4;
 
 	private void tokenize(final String aVersion) throws IncorrectVersionException {
 		Scanner s = new Scanner(aVersion);
@@ -76,7 +76,7 @@ public class ProductVersionUtil implements Serializable {
 			versionNumber = new VersionNumber(
 					Integer.valueOf(result.group(MAJOR_TOKEN_GRP)),
 					Integer.valueOf(result.group(MINOR_TOKEN_GRP)),
-					Integer.valueOf(result.group(MICRO_TOKEN_GRP)));
+					result.group(MICRO_TOKEN_GRP) != null ? Integer.valueOf(result.group(MICRO_TOKEN_GRP)) : Integer.valueOf(-1));
 		} catch (IllegalStateException ex) {
 			throw new IncorrectVersionException("Version (" + aVersion + ") does not match pattern (\"" + PATTERN
 					+ "\")", ex);

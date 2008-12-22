@@ -76,7 +76,7 @@ public class ProductVersionUtil implements Serializable {
 			versionNumber = new VersionNumber(
 					Integer.valueOf(result.group(MAJOR_TOKEN_GRP)),
 					Integer.valueOf(result.group(MINOR_TOKEN_GRP)),
-					result.group(MICRO_TOKEN_GRP) != null ? Integer.valueOf(result.group(MICRO_TOKEN_GRP)) : Integer.valueOf(-1));
+					result.group(MICRO_TOKEN_GRP) != null ? Integer.valueOf(result.group(MICRO_TOKEN_GRP)) : -1);
 		} catch (IllegalStateException ex) {
 			throw new IncorrectVersionException("Version (" + aVersion + ") does not match pattern (\"" + PATTERN
 					+ "\")", ex);

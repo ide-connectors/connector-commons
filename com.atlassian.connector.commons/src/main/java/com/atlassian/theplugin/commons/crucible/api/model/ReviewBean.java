@@ -151,7 +151,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 
 	public boolean isCompleted() {
 
-		for (Reviewer reviewer: reviewers) {
+		for (Reviewer reviewer : reviewers) {
 			if (!reviewer.isCompleted()) {
 				return false;
 			}

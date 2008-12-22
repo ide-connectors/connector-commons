@@ -212,7 +212,7 @@ public class CustomFilterBean implements CustomFilter {
 			if (builder.length() > 0) {
 				builder.append("&");
 			}
-			builder.append(name + "=" + value);
+			builder.append(name).append("=").append(value);
 		}
 	}
 

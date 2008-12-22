@@ -16,13 +16,11 @@
 
 package com.atlassian.theplugin.commons.configuration;
 
-/**
- * Bean storing information about Bamboo servers etc.<p>
- * The class serves both as a configuration provider for plugin logic and Bean for persistence.
- */
 public class JiraConfigurationBean {
 
-	private int pollTime = 1;
+	private static final int JIRA_DEFAULT_ISSUE_PAGE_SIZE = 25;
+
+	private int pageSize = JIRA_DEFAULT_ISSUE_PAGE_SIZE;
 
 	private static final int HASHCODE_MAGIC = 31;
 
@@ -30,15 +28,15 @@ public class JiraConfigurationBean {
 	}
 
 	public JiraConfigurationBean(JiraConfigurationBean cfg) {
-		this.pollTime = cfg.getPollTime();
+		this.pageSize = cfg.getPageSize();
 	}
 
-	public int getPollTime() {
-		return pollTime;
+	public int getPageSize() {
+		return pageSize;
 	}
 
-	public void setPollTime(int pollTime) {
-		this.pollTime = pollTime;
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
 	}
 
 	public boolean equals(final Object o) {
@@ -51,7 +49,7 @@ public class JiraConfigurationBean {
 
 		final JiraConfigurationBean that = (JiraConfigurationBean) o;
 
-		if (pollTime != that.pollTime) {
+		if (pageSize != that.pageSize) {
 			return false;
 		}
 
@@ -60,7 +58,7 @@ public class JiraConfigurationBean {
 
 	public int hashCode() {
 		int result;
-		result = pollTime;
+		result = pageSize;
 		result = HASHCODE_MAGIC * result;
 		return result;
 	}

@@ -49,6 +49,10 @@ public class ReviewAdapter {
 		facade = CrucibleServerFacadeImpl.getInstance();
 	}
 
+	public boolean isCompleted() {
+		return review.isCompleted();
+	}
+
 	public void setFacade(CrucibleServerFacade newFacade) {
 		facade = newFacade;
 	}
@@ -442,6 +446,9 @@ public class ReviewAdapter {
 		}
 	}
 
+
+
+
 	/**
 	 * Compares two Review objects (excluding files).
 	 * Use additionally areFilesEqual to compare files set and associated comments
@@ -449,6 +456,7 @@ public class ReviewAdapter {
 	 * @return true is reviews are equal (excluding files)
 	 */
 	private boolean isShortContentEqual(Review other) {
+
 		return areGeneralCommentsEqual(other)
 //			&& areFilesEqual(other)
 			&& areActionsEqual(other)
@@ -464,8 +472,8 @@ public class ReviewAdapter {
 			&& areObjectsEqual(review.getParentReview(), other.getParentReview())
 			&& areObjectsEqual(review.getProjectKey(), other.getProjectKey())
 			&& areObjectsEqual(review.getRepoName(), other.getRepoName())
-			&& areReviewersEqual(other)
-			&& areObjectsEqual(review.getState(), other.getState())
+			//&& areReviewersEqual(other)
+			//&& areObjectsEqual(review.getState(), other.getState())
 			&& areObjectsEqual(review.getSummary(), other.getSummary())
 			&& areTransitionsEqual(other)
 			&& areObjectsEqual(review.getVirtualFileSystem(), other.getVirtualFileSystem());

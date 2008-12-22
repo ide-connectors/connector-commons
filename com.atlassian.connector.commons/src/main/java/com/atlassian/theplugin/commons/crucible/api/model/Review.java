@@ -27,6 +27,8 @@ public interface Review {
 
 	// todo add server configuration (Server object)
 
+	boolean isCompleted();
+	
 	User getAuthor();
 
 	User getCreator();

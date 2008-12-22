@@ -148,6 +148,17 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 		this.virtualFileSystem = virtualFileSystem;
 	}
 
+
+	public boolean isCompleted() {
+
+		for (Reviewer reviewer: reviewers) {
+			if (!reviewer.isCompleted()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/**
      * Gets the value of the author property.
 	 *

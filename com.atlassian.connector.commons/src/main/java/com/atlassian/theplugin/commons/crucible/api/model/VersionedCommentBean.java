@@ -16,11 +16,10 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class VersionedCommentBean extends CommentBean implements VersionedComment {
-//	private PermId permId;
 	private PermId reviewItemId;
 	private int fromStartLine = 0;
 	private int fromEndLine = 0;
@@ -49,13 +48,7 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		super();
 	}
 
-//	public PermId getPermId() {
-//		return permId;
-//	}
-//
-//	public void setPermId(PermId permId) {
-//		this.permId = permId;
-//	}
+
 
 	public PermId getReviewItemId() {
 		return reviewItemId;
@@ -124,4 +117,52 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 	public void setToLineInfo(boolean toLineInfo) {
 		this.toLineInfo = toLineInfo;
 	}
+
+/*
+	public boolean isReviewChanged(Comment other) {
+		return !deepEquals(other);
+
+	}
+
+	public boolean  deepEquals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		if (!super.equals(o)) {
+			return false;
+		}
+
+		VersionedCommentBean that = (VersionedCommentBean) o;
+
+		if (fromEndLine != that.fromEndLine) {
+			return false;
+		}
+		if (fromLineInfo != that.fromLineInfo) {
+			return false;
+		}
+		if (fromStartLine != that.fromStartLine) {
+			return false;
+		}
+		if (toEndLine != that.toEndLine) {
+			return false;
+		}
+		if (toLineInfo != that.toLineInfo) {
+			return false;
+		}
+		if (toStartLine != that.toStartLine) {
+			return false;
+		}
+		if (!replies.equals(that.replies)) {
+			return false;
+		}
+		if (!reviewItemId.equals(that.reviewItemId)) {
+			return false;
+		}
+
+		return true;
+	}*/
+
 }

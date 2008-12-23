@@ -595,58 +595,59 @@ public class ReviewAdapter {
 		return review.getNumberOfVersionedCommentsDrafts(userName);
 	}
 
+	@Override
 	public String toString() {
 		return review.getPermId().getId() + ": " + review.getName() + " (" + server.getName() + ')';
 	}
 
 	private ReviewAdapter getClone() {
-		ReviewBean review = new ReviewBean("");
+		ReviewBean myReview = new ReviewBean("");
 
 		try {
-			review.setGeneralComments(this.getGeneralComments());
+			myReview.setGeneralComments(this.getGeneralComments());
 		} catch (ValueNotYetInitialized valueNotYetInitialized) {
 			// shame
 		}
 
 		try {
-			review.setActions(this.getActions());
+			myReview.setActions(this.getActions());
 		} catch (ValueNotYetInitialized valueNotYetInitialized) {
 			// shame
 		}
-		review.setAllowReviewerToJoin(this.isAllowReviewerToJoin());
-		review.setAuthor(this.getAuthor());
-		review.setCloseDate(this.getCloseDate());
-		review.setCreateDate(this.getCreateDate());
-		review.setCreator(this.getCreator());
-		review.setDescription(this.getDescription());
-		review.setMetricsVersion(this.getMetricsVersion());
-		review.setModerator(this.getModerator());
-		review.setName(this.getName());
-		review.setParentReview(this.getParentReview());
-		review.setProjectKey(this.getProjectKey());
-		review.setRepoName(this.getRepoName());
+		myReview.setAllowReviewerToJoin(this.isAllowReviewerToJoin());
+		myReview.setAuthor(this.getAuthor());
+		myReview.setCloseDate(this.getCloseDate());
+		myReview.setCreateDate(this.getCreateDate());
+		myReview.setCreator(this.getCreator());
+		myReview.setDescription(this.getDescription());
+		myReview.setMetricsVersion(this.getMetricsVersion());
+		myReview.setModerator(this.getModerator());
+		myReview.setName(this.getName());
+		myReview.setParentReview(this.getParentReview());
+		myReview.setProjectKey(this.getProjectKey());
+		myReview.setRepoName(this.getRepoName());
 		try {
-			review.setReviewers(this.getReviewers());
+			myReview.setReviewers(this.getReviewers());
 		} catch (ValueNotYetInitialized valueNotYetInitialized) {
 			// shame
 		}
-		review.setState(this.getState());
-		review.setSummary(this.getSummary());
+		myReview.setState(this.getState());
+		myReview.setSummary(this.getSummary());
 		try {
-			review.setTransitions(this.getTransitions());
+			myReview.setTransitions(this.getTransitions());
 		} catch (ValueNotYetInitialized valueNotYetInitialized) {
 			// shame
 		}
-		review.setVirtualFileSystem(this.getVirtualFileSystem());
+		myReview.setVirtualFileSystem(this.getVirtualFileSystem());
 
 
 		try {
-			review.setFiles(this.getFiles());
+			myReview.setFiles(this.getFiles());
 		} catch (ValueNotYetInitialized valueNotYetInitialized) {
 			// shame
 		}
 
-		ReviewAdapter ra = new ReviewAdapter(review , getServer());
+		ReviewAdapter ra = new ReviewAdapter(myReview , getServer());
 
 		return ra;
 	}

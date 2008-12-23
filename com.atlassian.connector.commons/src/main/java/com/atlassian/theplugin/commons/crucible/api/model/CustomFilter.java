@@ -45,7 +45,7 @@ public interface CustomFilter extends CrucibleFilter {
 
 	String getProjectKey();
 
-	Boolean isOrRoles();
+	boolean isOrRoles();
 
 	boolean isEnabled();
 

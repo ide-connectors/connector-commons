@@ -753,13 +753,11 @@ public final class CrucibleRestXmlHelper {
 		// BEWARE - state instead of CustomFIlter.STATE
 		addTag(filterData, "state", state);
 		if (filter.isComplete() != null) {
-			addTag(filterData, CustomFilter.COMPLETE, filter.isComplete() ? "true" : "false");
+			addTag(filterData, CustomFilter.COMPLETE, Boolean.toString(filter.isComplete()));
 		}
-		if (filter.isOrRoles() != null) {
-			addTag(filterData, CustomFilter.ORROLES, filter.isOrRoles() ? "true" : "false");
-		}
+		addTag(filterData, CustomFilter.ORROLES, Boolean.toString(filter.isOrRoles()));
 		if (filter.isAllReviewersComplete() != null) {
-			addTag(filterData, CustomFilter.ALLCOMPLETE, filter.isAllReviewersComplete() ? "true" : "false");
+			addTag(filterData, CustomFilter.ALLCOMPLETE, Boolean.toString(filter.isAllReviewersComplete()));
 		}
 
 		return filterData;

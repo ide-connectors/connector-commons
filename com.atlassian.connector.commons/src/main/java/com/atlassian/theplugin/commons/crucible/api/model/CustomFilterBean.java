@@ -28,7 +28,7 @@ public class CustomFilterBean implements CustomFilter {
 	private String moderator = "";
 	private String creator = "";
 	private String reviewer = "";
-	private Boolean orRoles;
+	private boolean orRoles;
 	private Boolean complete;
 	private Boolean allReviewersComplete;
 	private String projectKey = "";
@@ -154,11 +154,11 @@ public class CustomFilterBean implements CustomFilter {
 		this.projectKey = projectKey;
 	}
 
-	public Boolean isOrRoles() {
+	public boolean isOrRoles() {
 		return orRoles;
 	}
 
-	public void setOrRoles(Boolean orRoles) {
+	public void setOrRoles(boolean orRoles) {
 		this.orRoles = orRoles;
 	}
 
@@ -194,13 +194,11 @@ public class CustomFilterBean implements CustomFilter {
 		addQueryParam(STATES, stateParam, url);
 
 		if (isComplete() != null) {
-			addQueryParam(COMPLETE, isComplete() ? "true" : "false", url);
+			addQueryParam(COMPLETE, Boolean.toString(isComplete()), url);
 		}
-		if (isOrRoles() != null) {
-			addQueryParam(ORROLES, isOrRoles() ? "true" : "false", url);
-		}
+		addQueryParam(ORROLES, Boolean.toString(isOrRoles()), url);
 		if (isAllReviewersComplete() != null) {
-			addQueryParam(ALLCOMPLETE, isAllReviewersComplete() ? "true" : "false", url);
+			addQueryParam(ALLCOMPLETE, Boolean.toString(isAllReviewersComplete()), url);
 		}
 
 		String urlString = url.toString();

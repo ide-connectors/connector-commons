@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 public class CustomFilterBean implements CustomFilter {
 	private ServerId serverUid = new ServerId();
 	private String title = "";
-	private String[] state = new String[0];
+	private State[] state = new State[0];
 	private String author = "";
 	private String moderator = "";
 	private String creator = "";
@@ -90,11 +90,11 @@ public class CustomFilterBean implements CustomFilter {
 		this.title = title;
 	}
 
-	public String[] getState() {
+	public State[] getState() {
 		return state;
 	}
 
-	public void setState(String[] state) {
+	public void setState(State[] state) {
 		this.state = state;
 	}
 
@@ -217,11 +217,11 @@ public class CustomFilterBean implements CustomFilter {
 	public String getStates() {
 		String stateParam = "";
 		if (getState() != null) {
-			for (String s : getState()) {
+			for (State s : getState()) {
 				if (stateParam.length() > 0) {
 					stateParam += ",";
 				}
-				stateParam += s;
+				stateParam += s.value();
 			}
 		}
 		return stateParam;

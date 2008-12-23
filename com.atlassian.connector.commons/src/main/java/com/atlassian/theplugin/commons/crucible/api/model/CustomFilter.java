@@ -29,7 +29,7 @@ public interface CustomFilter extends CrucibleFilter {
 
 	String getTitle();
 
-	String[] getState();
+	State[] getState();
 
 	String getAuthor();
 

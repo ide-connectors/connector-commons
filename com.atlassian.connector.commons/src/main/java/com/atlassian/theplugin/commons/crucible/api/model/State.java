@@ -17,26 +17,32 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 public enum State {
-    APPROVAL("Approval"),
-    CLOSED("Closed"),
-    DEAD("Dead"),
-    DRAFT("Draft"),
-    REJECTED("Rejected"),
-    REVIEW("Review"),
-    SUMMARIZE("Summarize"),
-	ABANDONED("Abandoned"),
-	UNKNOWN("Unknown");
+    APPROVAL("Approval", "Pending Approval"),
+    CLOSED("Closed", "Closed"),
+    DEAD("Dead", "Dead"),
+    DRAFT("Draft", "Draft"),
+    REJECTED("Rejected", "Rejected"),
+    REVIEW("Review", "Under Review"),
+    SUMMARIZE("Summarize", "Summarize"),
+	ABANDONED("Abandoned", "Abandoned"),
+	UNKNOWN("Unknown", "Review needs fixing");
     private final String value;
+	private String displayName;
 
-    State(String v) {
+	State(String v, String displayName) {
         value = v;
+		this.displayName = displayName;
     }
 
     public String value() {
         return value;
     }
 
-    public static State fromValue(String v) {
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public static State fromValue(String v) {
         for (State c : State.values()) {
             if (c.value.equals(v)) {
                 return c;

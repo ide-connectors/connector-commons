@@ -44,7 +44,7 @@ public class CrucibleReviewListenerAdapter implements CrucibleReviewListener {
 	public void publishedVersionedComment(ReviewAdapter review, PermId filePermId, VersionedComment comment) {
 	}
 
-	public void reviewChangedWithoutFiles(ReviewAdapter newReview) {
+	public void reviewChangedWithoutFiles(ReviewAdapter oldReview, ReviewAdapter newReview) {
 	}
 
 	public void reviewFilesChanged(ReviewAdapter reviewAdapter) {

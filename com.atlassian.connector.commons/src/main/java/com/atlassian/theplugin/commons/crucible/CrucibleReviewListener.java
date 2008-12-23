@@ -44,7 +44,7 @@ public interface CrucibleReviewListener {
 	 * Notifies that something has been changed in the review (excluding files)
 	 * @param newReview changed review
 	 */
-	void reviewChangedWithoutFiles(final ReviewAdapter newReview);
+	void reviewChangedWithoutFiles(final ReviewAdapter oldReview, final ReviewAdapter newReview);
 
 	/**
 	 * Notifies that file set (or associated comments) has been changed

@@ -192,7 +192,9 @@ public class ReviewAdapter {
 	}
 
 	public void addReviewListener(CrucibleReviewListener listener) {
-		listeners.add(listener);
+		if (!listeners.contains(listener)) {
+			listeners.add(listener);
+		}
 	}
 
 	public boolean removeReviewListener(CrucibleReviewListener listener) {
@@ -378,6 +380,7 @@ public class ReviewAdapter {
 	public void fillReview(final Review newReview) {
 
 		boolean reviewChanged = false;
+		ReviewAdapter oldAdapter = getClone();
 
 		if (!isShortContentEqual(newReview)) {
 
@@ -419,7 +422,7 @@ public class ReviewAdapter {
 			review.setVirtualFileSystem(newReview.getVirtualFileSystem());
 
 			for (CrucibleReviewListener listener : listeners) {
-				listener.reviewChangedWithoutFiles(this);
+				listener.reviewChangedWithoutFiles(oldAdapter, this);
 			}
 			reviewChanged = true;
 		}
@@ -472,8 +475,8 @@ public class ReviewAdapter {
 			&& areObjectsEqual(review.getParentReview(), other.getParentReview())
 			&& areObjectsEqual(review.getProjectKey(), other.getProjectKey())
 			&& areObjectsEqual(review.getRepoName(), other.getRepoName())
-			//&& areReviewersEqual(other)
-			//&& areObjectsEqual(review.getState(), other.getState())
+			&& areReviewersEqual(other)
+			&& areObjectsEqual(review.getState(), other.getState())
 			&& areObjectsEqual(review.getSummary(), other.getSummary())
 			&& areTransitionsEqual(other)
 			&& areObjectsEqual(review.getVirtualFileSystem(), other.getVirtualFileSystem());
@@ -594,5 +597,57 @@ public class ReviewAdapter {
 
 	public String toString() {
 		return review.getPermId().getId() + ": " + review.getName() + " (" + server.getName() + ')';
+	}
+
+	private ReviewAdapter getClone() {
+		ReviewBean review = new ReviewBean("");
+
+		try {
+			review.setGeneralComments(this.getGeneralComments());
+		} catch (ValueNotYetInitialized valueNotYetInitialized) {
+			// shame
+		}
+
+		try {
+			review.setActions(this.getActions());
+		} catch (ValueNotYetInitialized valueNotYetInitialized) {
+			// shame
+		}
+		review.setAllowReviewerToJoin(this.isAllowReviewerToJoin());
+		review.setAuthor(this.getAuthor());
+		review.setCloseDate(this.getCloseDate());
+		review.setCreateDate(this.getCreateDate());
+		review.setCreator(this.getCreator());
+		review.setDescription(this.getDescription());
+		review.setMetricsVersion(this.getMetricsVersion());
+		review.setModerator(this.getModerator());
+		review.setName(this.getName());
+		review.setParentReview(this.getParentReview());
+		review.setProjectKey(this.getProjectKey());
+		review.setRepoName(this.getRepoName());
+		try {
+			review.setReviewers(this.getReviewers());
+		} catch (ValueNotYetInitialized valueNotYetInitialized) {
+			// shame
+		}
+		review.setState(this.getState());
+		review.setSummary(this.getSummary());
+		try {
+			review.setTransitions(this.getTransitions());
+		} catch (ValueNotYetInitialized valueNotYetInitialized) {
+			// shame
+		}
+		review.setVirtualFileSystem(this.getVirtualFileSystem());
+
+
+		try {
+			review.setFiles(this.getFiles());
+		} catch (ValueNotYetInitialized valueNotYetInitialized) {
+			// shame
+		}
+
+		ReviewAdapter ra = new ReviewAdapter(review , getServer());
+
+		return ra;
 	}
 }

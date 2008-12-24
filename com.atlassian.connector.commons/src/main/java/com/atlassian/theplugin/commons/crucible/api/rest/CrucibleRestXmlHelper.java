@@ -20,6 +20,7 @@ import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.CrucibleVersion;
 import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
 import com.atlassian.theplugin.commons.crucible.api.model.*;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.CDATA;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -751,7 +752,9 @@ public final class CrucibleRestXmlHelper {
 		addTag(filterData, CustomFilter.PROJECT, filter.getProjectKey() != null ? filter.getProjectKey() : "");
 		String state = filter.getStates();
 		// BEWARE - state instead of CustomFIlter.STATE
-		addTag(filterData, "state", state);
+		if (!StringUtils.isEmpty(state)) {
+			addTag(filterData, "state", state);
+		}
 		if (filter.isComplete() != null) {
 			addTag(filterData, CustomFilter.COMPLETE, Boolean.toString(filter.isComplete()));
 		}

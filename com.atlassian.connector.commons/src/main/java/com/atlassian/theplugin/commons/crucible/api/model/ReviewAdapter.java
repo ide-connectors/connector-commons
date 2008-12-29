@@ -282,7 +282,8 @@ public class ReviewAdapter {
 	}
 
 	public void addVersionedCommentReply(final CrucibleFileInfo file, final VersionedComment parentComment,
-										 final VersionedCommentBean nComment) throws RemoteApiException, ServerPasswordNotProvidedException {
+										 final VersionedCommentBean nComment)
+			throws RemoteApiException, ServerPasswordNotProvidedException {
 
 		VersionedComment newComment = facade.addVersionedCommentReply(
 				getServer(), getPermId(), parentComment.getPermId(), nComment);

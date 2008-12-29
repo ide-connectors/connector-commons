@@ -34,6 +34,7 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 	private PermId permId;
 
 	private List<VersionedComment> versionedComments;
+	private static final int HASH_NUMBER = 31;
 
 	public CrucibleFileInfoImpl(VersionedVirtualFile fileDescriptor, VersionedVirtualFile oldFileDescriptor,
 								PermId permId) {
@@ -288,11 +289,13 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 	}
 
 	public int hashCode() {
+		///CLOVER:OFF
 		int result;
 		result = (repositoryName != null ? repositoryName.hashCode() : 0);
-		result = 31 * result + (fileType != null ? fileType.hashCode() : 0);
-		result = 31 * result + permId.hashCode();
+		result = HASH_NUMBER * result + (fileType != null ? fileType.hashCode() : 0);
+		result = HASH_NUMBER * result + permId.hashCode();
 		return result;
+		///CLOVER:ON
 	}
 
 	public boolean deepEquals(Object o) {

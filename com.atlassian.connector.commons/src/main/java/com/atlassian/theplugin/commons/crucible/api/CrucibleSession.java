@@ -89,7 +89,7 @@ public interface CrucibleSession {
 
 	SvnRepository getRepository(String repoName) throws RemoteApiException;
 
-	List<CrucibleFileInfo> getFiles(PermId id) throws RemoteApiException;
+	Set<CrucibleFileInfo> getFiles(PermId id) throws RemoteApiException;
 
 //	List<Comment> getComments(PermId id) throws RemoteApiException;
 

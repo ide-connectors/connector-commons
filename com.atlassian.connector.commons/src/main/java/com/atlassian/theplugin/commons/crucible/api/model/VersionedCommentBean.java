@@ -49,7 +49,6 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 	}
 
 
-
 	public PermId getReviewItemId() {
 		return reviewItemId;
 	}
@@ -118,17 +117,12 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		this.toLineInfo = toLineInfo;
 	}
 
-/*
-	public boolean isReviewChanged(Comment other) {
-		return !deepEquals(other);
 
-	}
-
-	public boolean  deepEquals(Object o) {
+	public boolean deepEquals(Object o) {
 		if (this == o) {
 			return true;
 		}
-		if (o == null || getClass() != o.getClass()) {
+		if (!(o instanceof VersionedCommentBean)) {
 			return false;
 		}
 		if (!super.equals(o)) {
@@ -155,14 +149,31 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		if (toStartLine != that.toStartLine) {
 			return false;
 		}
-		if (!replies.equals(that.replies)) {
+		if (replies != null ? !replies.equals(that.replies) : that.replies != null) {
 			return false;
 		}
 		if (!reviewItemId.equals(that.reviewItemId)) {
 			return false;
 		}
 
-		return true;
-	}*/
+		if (replies.size() != that.getReplies().size()) {
+			return false;
+		}
 
+		for (VersionedComment vc : replies) {
+			boolean found = false;
+			for (VersionedComment tvc : that.getReplies()) {
+				if (vc.getPermId() == tvc.getPermId()
+						&& ((VersionedCommentBean) vc).deepEquals(vc)) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 }

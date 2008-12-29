@@ -697,7 +697,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		return null;
 	}
 
-	public List<CrucibleFileInfo> getFiles(PermId id) throws RemoteApiException {
+	public Set<CrucibleFileInfo> getFiles(PermId id) throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
@@ -709,7 +709,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			XPath xpath = XPath.newInstance("reviewItems/reviewItem");
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
-			List<CrucibleFileInfo> reviewItems = new ArrayList<CrucibleFileInfo>();
+			Set<CrucibleFileInfo> reviewItems = new HashSet<CrucibleFileInfo>();
 
 			Review changeSet = new ReviewBean(baseUrl);
 			if (elements != null && !elements.isEmpty()) {

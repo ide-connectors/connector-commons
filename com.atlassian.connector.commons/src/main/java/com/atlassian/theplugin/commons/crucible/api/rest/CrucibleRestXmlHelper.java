@@ -204,9 +204,9 @@ public final class CrucibleRestXmlHelper {
 
 		// ***** Files ******
 		List<Element> fileNode = getChildElements(reviewNode, "reviewItems");
-		List<CrucibleFileInfo> files = null;
+		Set<CrucibleFileInfo> files = null;
 		if (fileNode.size() > 0) {
-			files = new ArrayList<CrucibleFileInfo>();
+			files = new HashSet<CrucibleFileInfo>();
 			for (Element element : fileNode) {
 				List<Element> fileElements = getChildElements(element, "reviewItem");
 				for (Element file : fileElements) {

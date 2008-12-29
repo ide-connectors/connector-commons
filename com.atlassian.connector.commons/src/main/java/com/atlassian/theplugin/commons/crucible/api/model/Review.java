@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,7 +28,7 @@ public interface Review {
 	// todo add server configuration (Server object)
 
 	boolean isCompleted();
-	
+
 	User getAuthor();
 
 	User getCreator();
@@ -49,19 +49,19 @@ public interface Review {
 
 	State getState();
 
-    boolean isAllowReviewerToJoin();
+	boolean isAllowReviewerToJoin();
 
-    int getMetricsVersion();
+	int getMetricsVersion();
 
-    Date getCreateDate();
+	Date getCreateDate();
 
-    Date getCloseDate();
+	Date getCloseDate();
 
-    String getSummary();
+	String getSummary();
 
-    Set<Reviewer> getReviewers() throws ValueNotYetInitialized;
+	Set<Reviewer> getReviewers() throws ValueNotYetInitialized;
 
-    List<GeneralComment> getGeneralComments() throws ValueNotYetInitialized;
+	List<GeneralComment> getGeneralComments() throws ValueNotYetInitialized;
 
 //    List<VersionedComment> getVersionedComments() throws ValueNotYetInitialized;
 
@@ -70,20 +70,20 @@ public interface Review {
 //	List<CrucibleReviewItemInfo> getReviewItems();
 
 	CrucibleFileInfo getFileByPermId(PermId id) throws ValueNotYetInitialized;
-	
+
 	List<Action> getTransitions() throws ValueNotYetInitialized;
 
-    Set<Action> getActions() throws ValueNotYetInitialized;
+	Set<Action> getActions() throws ValueNotYetInitialized;
 
-    VirtualFileSystem getVirtualFileSystem();
+	VirtualFileSystem getVirtualFileSystem();
 
 	void removeGeneralComment(final GeneralComment comment);
 
 	void removeVersionedComment(final VersionedComment vComment, final CrucibleFileInfo file) throws ValueNotYetInitialized;
 
-	void setFilesAndVersionedComments(List<CrucibleFileInfo> files, List<VersionedComment> commentList);
+	void setFilesAndVersionedComments(Set<CrucibleFileInfo> files, List<VersionedComment> commentList);
 
-	List<CrucibleFileInfo> getFiles() throws ValueNotYetInitialized;
+	Set<CrucibleFileInfo> getFiles() throws ValueNotYetInitialized;
 
 	void setReviewers(Set<Reviewer> reviewers);
 
@@ -152,7 +152,7 @@ public interface Review {
 
 	int getNumberOfGeneralComments(final String userName) throws ValueNotYetInitialized;
 
-	void setFiles(final List<CrucibleFileInfo> files);
+	void setFiles(final Set<CrucibleFileInfo> files);
 
 	CrucibleProject getCrucibleProject();
 }

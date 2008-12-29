@@ -42,52 +42,52 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 public class CrucibleServerFacadeTest extends TestCase {
-    private static final User VALID_LOGIN = new UserBean("validLogin");
-    private static final String VALID_PASSWORD = "validPassword";
-    private static final String VALID_URL = "http://localhost:9001";
+	private static final User VALID_LOGIN = new UserBean("validLogin");
+	private static final String VALID_PASSWORD = "validPassword";
+	private static final String VALID_URL = "http://localhost:9001";
 
-    private CrucibleServerFacade facade;
-    private CrucibleSession crucibleSessionMock;
-    public static final String INVALID_PROJECT_KEY = "INVALID project key";
+	private CrucibleServerFacade facade;
+	private CrucibleSession crucibleSessionMock;
+	public static final String INVALID_PROJECT_KEY = "INVALID project key";
 
-    @Override
+	@Override
 	@SuppressWarnings("unchecked")
-    protected void setUp() {
-        ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
+	protected void setUp() {
+		ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
 
-        crucibleSessionMock = createMock(CrucibleSession.class);
+		crucibleSessionMock = createMock(CrucibleSession.class);
 
-        facade = CrucibleServerFacadeImpl.getInstance();
+		facade = CrucibleServerFacadeImpl.getInstance();
 
-        try {
-            Field f = CrucibleServerFacadeImpl.class.getDeclaredField("sessions");
-            f.setAccessible(true);
+		try {
+			Field f = CrucibleServerFacadeImpl.class.getDeclaredField("sessions");
+			f.setAccessible(true);
 
-            ((Map<String, CrucibleSession>) f.get(facade)).put(VALID_URL + VALID_LOGIN.getUserName() + VALID_PASSWORD, crucibleSessionMock);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+			((Map<String, CrucibleSession>) f.get(facade)).put(VALID_URL + VALID_LOGIN.getUserName() + VALID_PASSWORD, crucibleSessionMock);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    public void testConnectionTestFailedBadPassword() throws Exception {
+	public void testConnectionTestFailedBadPassword() throws Exception {
 
-        Server server = new Server(0);
-        server.start();
+		Server server = new Server(0);
+		server.start();
 
-        String mockBaseUrl = "http://localhost:" + server.getConnectors()[0].getLocalPort();
-        JettyMockServer mockServer = new JettyMockServer(server);
-        mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD, LoginCallback.ALWAYS_FAIL));
+		String mockBaseUrl = "http://localhost:" + server.getConnectors()[0].getLocalPort();
+		JettyMockServer mockServer = new JettyMockServer(server);
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD, LoginCallback.ALWAYS_FAIL));
 
-        try {
-            facade.testServerConnection(mockBaseUrl, VALID_LOGIN.getUserName(), VALID_PASSWORD);
-            fail("testServerConnection failed");
-        } catch (RemoteApiException e) {
-            //
-        }
+		try {
+			facade.testServerConnection(mockBaseUrl, VALID_LOGIN.getUserName(), VALID_PASSWORD);
+			fail("testServerConnection failed");
+		} catch (RemoteApiException e) {
+			//
+		}
 
-        mockServer.verify();
-        server.stop();
-    }
+		mockServer.verify();
+		server.stop();
+	}
 
 	public void testConnectionTestFailedCru15() throws Exception {
 		Server server = new Server(0);
@@ -110,426 +110,426 @@ public class CrucibleServerFacadeTest extends TestCase {
 	}
 
 	public void testConnectionTestSucceed() throws Exception {
-        Server server = new Server(0);
-        server.start();
+		Server server = new Server(0);
+		server.start();
 
-        String mockBaseUrl = "http://localhost:" + server.getConnectors()[0].getLocalPort();
-        JettyMockServer mockServer = new JettyMockServer(server);
+		String mockBaseUrl = "http://localhost:" + server.getConnectors()[0].getLocalPort();
+		JettyMockServer mockServer = new JettyMockServer(server);
 
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD, false));
 		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 
-        try {
-            facade.testServerConnection(mockBaseUrl, VALID_LOGIN.getUserName(), VALID_PASSWORD);
-        } catch (RemoteApiException e) {
-            fail("testServerConnection failed");
-        }
+		try {
+			facade.testServerConnection(mockBaseUrl, VALID_LOGIN.getUserName(), VALID_PASSWORD);
+		} catch (RemoteApiException e) {
+			fail("testServerConnection failed");
+		}
 
-        mockServer.verify();
-        server.stop();
-    }
-
-
-    @SuppressWarnings("unchecked")
-    Map<String, CrucibleSession> getSessionsFromFacade() {
-        Field f;
-        try {
-            f = CrucibleServerFacadeImpl.class.getDeclaredField("sessions");
-            f.setAccessible(true);
-            return (Map)f.get(facade);
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void testChangedCredentials() throws Exception {
-        User validLogin2 = new UserBean(VALID_LOGIN.getUserName() + 2);
-        String validPassword2 = VALID_PASSWORD + 2;
-        getSessionsFromFacade().put(VALID_URL + validLogin2.getUserName() + validPassword2, crucibleSessionMock);
-
-        crucibleSessionMock.isLoggedIn();
-        EasyMock.expectLastCall().andReturn(false);
-        try {
-            crucibleSessionMock.login();
-        } catch (RemoteApiLoginException e) {
-            fail("recording mock failed for login");
-        }
-
-        PermId permId = new PermId() {
-            public String getId() {
-                return "permId";
-            }
-        };
-
-        Review review = prepareReviewData(VALID_LOGIN, "name", State.DRAFT, permId);
-
-        crucibleSessionMock.getAllReviews(true);
-        EasyMock.expectLastCall().andReturn(Arrays.asList(review, review));
-
-        crucibleSessionMock.isLoggedIn();
-        EasyMock.expectLastCall().andReturn(false);
-        try {
-            crucibleSessionMock.login();
-        } catch (RemoteApiLoginException e) {
-            fail("recording mock failed for login");
-        }
-
-        Review review2 = prepareReviewData(validLogin2, "name", State.DRAFT, permId);
-        crucibleSessionMock.getAllReviews(true);
-        EasyMock.expectLastCall().andReturn(Arrays.asList(review2));
-
-        replay(crucibleSessionMock);
-
-        CrucibleServerCfg server = prepareServerBean();
-        List<Review> ret = facade.getAllReviews(server);
-        assertEquals(2, ret.size());
-        assertEquals(permId.getId(), ret.get(0).getPermId().getId());
-        assertEquals("name", ret.get(0).getName());
-        assertEquals(VALID_LOGIN, ret.get(0).getAuthor());
-        assertEquals(VALID_LOGIN, ret.get(0).getCreator());
-        assertEquals("Test description", ret.get(0).getDescription());
-        assertEquals(VALID_LOGIN, ret.get(0).getModerator());
-        assertEquals("TEST", ret.get(0).getProjectKey());
-        assertEquals(null, ret.get(0).getRepoName());
-        assertSame(State.DRAFT, ret.get(0).getState());
-        assertNull(ret.get(0).getParentReview());
-
-        server.setUsername(validLogin2.getUserName());
-        server.setPassword(validPassword2);
-        ret = facade.getAllReviews(server);
-        assertEquals(1, ret.size());
-        assertEquals(permId.getId(), ret.get(0).getPermId().getId());
-        assertEquals("name", ret.get(0).getName());
-        assertEquals(validLogin2, ret.get(0).getAuthor());
-        assertEquals(validLogin2, ret.get(0).getCreator());
-        assertEquals("Test description", ret.get(0).getDescription());
-        assertEquals(validLogin2, ret.get(0).getModerator());
-        assertEquals("TEST", ret.get(0).getProjectKey());
-        assertEquals(null, ret.get(0).getRepoName());
-        assertSame(State.DRAFT, ret.get(0).getState());
-        assertNull(ret.get(0).getParentReview());
-
-        EasyMock.verify(crucibleSessionMock);
-    }
-
-    public void testCreateReview() throws Exception {
-        crucibleSessionMock.isLoggedIn();
-        EasyMock.expectLastCall().andReturn(false);
-        try {
-            crucibleSessionMock.login();
-        } catch (RemoteApiLoginException e) {
-            fail("recording mock failed for login");
-        }
-
-        crucibleSessionMock.createReview(EasyMock.isA(Review.class));
-		CrucibleServerCfg server = prepareServerBean();
-        Review response = new ReviewBean(server.getUrl());
-
-        EasyMock.expectLastCall().andReturn(response);
-
-        replay(crucibleSessionMock);
-
-        Review review = prepareReviewData("name", State.DRAFT);
-
-        // test call
-        Review ret = facade.createReview(server, review);
-        assertSame(response, ret);
-
-        EasyMock.verify(crucibleSessionMock);
+		mockServer.verify();
+		server.stop();
+	}
 
 
-    }
+	@SuppressWarnings("unchecked")
+	Map<String, CrucibleSession> getSessionsFromFacade() {
+		Field f;
+		try {
+			f = CrucibleServerFacadeImpl.class.getDeclaredField("sessions");
+			f.setAccessible(true);
+			return (Map) f.get(facade);
+		} catch (NoSuchFieldException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    public void testCreateReviewWithInvalidProjectKey() throws Exception {
-        crucibleSessionMock.isLoggedIn();
-        EasyMock.expectLastCall().andReturn(false);
-        try {
-            crucibleSessionMock.login();
-        } catch (RemoteApiLoginException e) {
-            fail("recording mock failed for login");
-        }
+	public void testChangedCredentials() throws Exception {
+		User validLogin2 = new UserBean(VALID_LOGIN.getUserName() + 2);
+		String validPassword2 = VALID_PASSWORD + 2;
+		getSessionsFromFacade().put(VALID_URL + validLogin2.getUserName() + validPassword2, crucibleSessionMock);
 
-        crucibleSessionMock.createReview(EasyMock.isA(Review.class));
-
-        EasyMock.expectLastCall().andThrow(new RemoteApiException("test"));
-
-        replay(crucibleSessionMock);
-
-        CrucibleServerCfg server = prepareServerBean();
-        Review review = prepareReviewData("name", State.DRAFT);
-
-        try {
-            // test call
-            facade.createReview(server, review);
-            fail("creating review with invalid key should throw an CrucibleException()");
-        } catch (RemoteApiException e) {
-
-        } finally {
-            EasyMock.verify(crucibleSessionMock);
-        }
-
-    }
-
-    public void testCreateReviewFromPatch() throws ServerPasswordNotProvidedException, RemoteApiException {
-        crucibleSessionMock.isLoggedIn();
-        EasyMock.expectLastCall().andReturn(false);
-        try {
-            crucibleSessionMock.login();
-        } catch (RemoteApiLoginException e) {
-            fail("recording mock failed for login");
-        }
-
-        crucibleSessionMock.createReviewFromPatch(EasyMock.isA(Review.class), EasyMock.eq("some patch"));
-		CrucibleServerCfg server = prepareServerBean();
-        Review response = new ReviewBean(server.getUrl());
-        EasyMock.expectLastCall().andReturn(response);
-
-        replay(crucibleSessionMock);
-
-        Review review = prepareReviewData("name", State.DRAFT);
-
-        String patch = "some patch";
-
-        // test call
-        Review ret = facade.createReviewFromPatch(server, review, patch);
-        assertSame(response, ret);
-
-        EasyMock.verify(crucibleSessionMock);
-    }
-
-    public void testCreateReviewFromPatchWithInvalidProjectKey() throws Exception {
-        crucibleSessionMock.isLoggedIn();
-        EasyMock.expectLastCall().andReturn(false);
-        try {
-            crucibleSessionMock.login();
-        } catch (RemoteApiLoginException e) {
-            fail("recording mock failed for login");
-        }
-
-        crucibleSessionMock.createReviewFromPatch(EasyMock.isA(Review.class), EasyMock.eq("some patch"));
-        EasyMock.expectLastCall().andThrow(new RemoteApiException("test"));
-
-        replay(crucibleSessionMock);
-
-        CrucibleServerCfg server = prepareServerBean();
-        Review review = prepareReviewData("name", State.DRAFT);
-
-        String patch = "some patch";
-
-        try {
-            facade.createReviewFromPatch(server, review, patch);
-            fail("creating review with patch with invalid key should throw an RemoteApiException()");
-        } catch (RemoteApiException e) {
-            // ignored by design
-        } finally {
-            EasyMock.verify(crucibleSessionMock);
-        }
-    }
-
-    public void testGetAllReviews() throws ServerPasswordNotProvidedException, RemoteApiException {
-        crucibleSessionMock.isLoggedIn();
-        EasyMock.expectLastCall().andReturn(false);
-        try {
-            crucibleSessionMock.login();
-        } catch (RemoteApiLoginException e) {
-            fail("recording mock failed for login");
-        }
-
-        PermId permId = new PermId() {
-            public String getId() {
-                return "permId";
-            }
-        };
-
-        Review review = prepareReviewData(VALID_LOGIN, "name", State.DRAFT, permId);
-
-        crucibleSessionMock.getAllReviews(true);
-        EasyMock.expectLastCall().andReturn(Arrays.asList(review, review));
-
-        replay(crucibleSessionMock);
-
-        CrucibleServerCfg server = prepareServerBean();
-        // test call
-        List<Review> ret = facade.getAllReviews(server);
-        assertEquals(2, ret.size());
-        assertEquals(permId.getId(), ret.get(0).getPermId().getId());
-        assertEquals("name", ret.get(0).getName());
-        assertEquals(VALID_LOGIN, ret.get(0).getAuthor());
-        assertEquals(VALID_LOGIN, ret.get(0).getCreator());
-        assertEquals("Test description", ret.get(0).getDescription());
-        assertEquals(VALID_LOGIN, ret.get(0).getModerator());
-        assertEquals("TEST", ret.get(0).getProjectKey());
-        assertEquals(null, ret.get(0).getRepoName());
-        assertSame(State.DRAFT, ret.get(0).getState());
-        assertNull(ret.get(0).getParentReview());
-
-        EasyMock.verify(crucibleSessionMock);
-    }
-
-    public void testGetProjects() throws ServerPasswordNotProvidedException, RemoteApiException {
-        crucibleSessionMock.isLoggedIn();
-        EasyMock.expectLastCall().andReturn(false);
-        try {
-            crucibleSessionMock.login();
+		crucibleSessionMock.isLoggedIn();
+		EasyMock.expectLastCall().andReturn(false);
+		try {
+			crucibleSessionMock.login();
 		} catch (RemoteApiLoginException e) {
-            fail("recording mock failed for login");
-        }
+			fail("recording mock failed for login");
+		}
+
+		PermId permId = new PermId() {
+			public String getId() {
+				return "permId";
+			}
+		};
+
+		Review review = prepareReviewData(VALID_LOGIN, "name", State.DRAFT, permId);
+
+		crucibleSessionMock.getAllReviews(true);
+		EasyMock.expectLastCall().andReturn(Arrays.asList(review, review));
+
+		crucibleSessionMock.isLoggedIn();
+		EasyMock.expectLastCall().andReturn(false);
+		try {
+			crucibleSessionMock.login();
+		} catch (RemoteApiLoginException e) {
+			fail("recording mock failed for login");
+		}
+
+		Review review2 = prepareReviewData(validLogin2, "name", State.DRAFT, permId);
+		crucibleSessionMock.getAllReviews(true);
+		EasyMock.expectLastCall().andReturn(Arrays.asList(review2));
+
+		replay(crucibleSessionMock);
+
+		CrucibleServerCfg server = prepareServerBean();
+		List<Review> ret = facade.getAllReviews(server);
+		assertEquals(2, ret.size());
+		assertEquals(permId.getId(), ret.get(0).getPermId().getId());
+		assertEquals("name", ret.get(0).getName());
+		assertEquals(VALID_LOGIN, ret.get(0).getAuthor());
+		assertEquals(VALID_LOGIN, ret.get(0).getCreator());
+		assertEquals("Test description", ret.get(0).getDescription());
+		assertEquals(VALID_LOGIN, ret.get(0).getModerator());
+		assertEquals("TEST", ret.get(0).getProjectKey());
+		assertEquals(null, ret.get(0).getRepoName());
+		assertSame(State.DRAFT, ret.get(0).getState());
+		assertNull(ret.get(0).getParentReview());
+
+		server.setUsername(validLogin2.getUserName());
+		server.setPassword(validPassword2);
+		ret = facade.getAllReviews(server);
+		assertEquals(1, ret.size());
+		assertEquals(permId.getId(), ret.get(0).getPermId().getId());
+		assertEquals("name", ret.get(0).getName());
+		assertEquals(validLogin2, ret.get(0).getAuthor());
+		assertEquals(validLogin2, ret.get(0).getCreator());
+		assertEquals("Test description", ret.get(0).getDescription());
+		assertEquals(validLogin2, ret.get(0).getModerator());
+		assertEquals("TEST", ret.get(0).getProjectKey());
+		assertEquals(null, ret.get(0).getRepoName());
+		assertSame(State.DRAFT, ret.get(0).getState());
+		assertNull(ret.get(0).getParentReview());
+
+		EasyMock.verify(crucibleSessionMock);
+	}
+
+	public void testCreateReview() throws Exception {
+		crucibleSessionMock.isLoggedIn();
+		EasyMock.expectLastCall().andReturn(false);
+		try {
+			crucibleSessionMock.login();
+		} catch (RemoteApiLoginException e) {
+			fail("recording mock failed for login");
+		}
+
+		crucibleSessionMock.createReview(EasyMock.isA(Review.class));
+		CrucibleServerCfg server = prepareServerBean();
+		Review response = new ReviewBean(server.getUrl());
+
+		EasyMock.expectLastCall().andReturn(response);
+
+		replay(crucibleSessionMock);
+
+		Review review = prepareReviewData("name", State.DRAFT);
+
+		// test call
+		Review ret = facade.createReview(server, review);
+		assertSame(response, ret);
+
+		EasyMock.verify(crucibleSessionMock);
+
+
+	}
+
+	public void testCreateReviewWithInvalidProjectKey() throws Exception {
+		crucibleSessionMock.isLoggedIn();
+		EasyMock.expectLastCall().andReturn(false);
+		try {
+			crucibleSessionMock.login();
+		} catch (RemoteApiLoginException e) {
+			fail("recording mock failed for login");
+		}
+
+		crucibleSessionMock.createReview(EasyMock.isA(Review.class));
+
+		EasyMock.expectLastCall().andThrow(new RemoteApiException("test"));
+
+		replay(crucibleSessionMock);
+
+		CrucibleServerCfg server = prepareServerBean();
+		Review review = prepareReviewData("name", State.DRAFT);
+
+		try {
+			// test call
+			facade.createReview(server, review);
+			fail("creating review with invalid key should throw an CrucibleException()");
+		} catch (RemoteApiException e) {
+
+		} finally {
+			EasyMock.verify(crucibleSessionMock);
+		}
+
+	}
+
+	public void testCreateReviewFromPatch() throws ServerPasswordNotProvidedException, RemoteApiException {
+		crucibleSessionMock.isLoggedIn();
+		EasyMock.expectLastCall().andReturn(false);
+		try {
+			crucibleSessionMock.login();
+		} catch (RemoteApiLoginException e) {
+			fail("recording mock failed for login");
+		}
+
+		crucibleSessionMock.createReviewFromPatch(EasyMock.isA(Review.class), EasyMock.eq("some patch"));
+		CrucibleServerCfg server = prepareServerBean();
+		Review response = new ReviewBean(server.getUrl());
+		EasyMock.expectLastCall().andReturn(response);
+
+		replay(crucibleSessionMock);
+
+		Review review = prepareReviewData("name", State.DRAFT);
+
+		String patch = "some patch";
+
+		// test call
+		Review ret = facade.createReviewFromPatch(server, review, patch);
+		assertSame(response, ret);
+
+		EasyMock.verify(crucibleSessionMock);
+	}
+
+	public void testCreateReviewFromPatchWithInvalidProjectKey() throws Exception {
+		crucibleSessionMock.isLoggedIn();
+		EasyMock.expectLastCall().andReturn(false);
+		try {
+			crucibleSessionMock.login();
+		} catch (RemoteApiLoginException e) {
+			fail("recording mock failed for login");
+		}
+
+		crucibleSessionMock.createReviewFromPatch(EasyMock.isA(Review.class), EasyMock.eq("some patch"));
+		EasyMock.expectLastCall().andThrow(new RemoteApiException("test"));
+
+		replay(crucibleSessionMock);
+
+		CrucibleServerCfg server = prepareServerBean();
+		Review review = prepareReviewData("name", State.DRAFT);
+
+		String patch = "some patch";
+
+		try {
+			facade.createReviewFromPatch(server, review, patch);
+			fail("creating review with patch with invalid key should throw an RemoteApiException()");
+		} catch (RemoteApiException e) {
+			// ignored by design
+		} finally {
+			EasyMock.verify(crucibleSessionMock);
+		}
+	}
+
+	public void testGetAllReviews() throws ServerPasswordNotProvidedException, RemoteApiException {
+		crucibleSessionMock.isLoggedIn();
+		EasyMock.expectLastCall().andReturn(false);
+		try {
+			crucibleSessionMock.login();
+		} catch (RemoteApiLoginException e) {
+			fail("recording mock failed for login");
+		}
+
+		PermId permId = new PermId() {
+			public String getId() {
+				return "permId";
+			}
+		};
+
+		Review review = prepareReviewData(VALID_LOGIN, "name", State.DRAFT, permId);
+
+		crucibleSessionMock.getAllReviews(true);
+		EasyMock.expectLastCall().andReturn(Arrays.asList(review, review));
+
+		replay(crucibleSessionMock);
+
+		CrucibleServerCfg server = prepareServerBean();
+		// test call
+		List<Review> ret = facade.getAllReviews(server);
+		assertEquals(2, ret.size());
+		assertEquals(permId.getId(), ret.get(0).getPermId().getId());
+		assertEquals("name", ret.get(0).getName());
+		assertEquals(VALID_LOGIN, ret.get(0).getAuthor());
+		assertEquals(VALID_LOGIN, ret.get(0).getCreator());
+		assertEquals("Test description", ret.get(0).getDescription());
+		assertEquals(VALID_LOGIN, ret.get(0).getModerator());
+		assertEquals("TEST", ret.get(0).getProjectKey());
+		assertEquals(null, ret.get(0).getRepoName());
+		assertSame(State.DRAFT, ret.get(0).getState());
+		assertNull(ret.get(0).getParentReview());
+
+		EasyMock.verify(crucibleSessionMock);
+	}
+
+	public void testGetProjects() throws ServerPasswordNotProvidedException, RemoteApiException {
+		crucibleSessionMock.isLoggedIn();
+		EasyMock.expectLastCall().andReturn(false);
+		try {
+			crucibleSessionMock.login();
+		} catch (RemoteApiLoginException e) {
+			fail("recording mock failed for login");
+		}
 		crucibleSessionMock.getProjectsFromCache();
-        EasyMock.expectLastCall().andReturn(Arrays.asList(prepareProjectData(0), prepareProjectData(1)));
-        replay(crucibleSessionMock);
+		EasyMock.expectLastCall().andReturn(Arrays.asList(prepareProjectData(0), prepareProjectData(1)));
+		replay(crucibleSessionMock);
 
-        CrucibleServerCfg server = prepareServerBean();
-        // test call
+		CrucibleServerCfg server = prepareServerBean();
+		// test call
 		List<CrucibleProject> ret = facade.getProjects(server);
-        assertEquals(2, ret.size());
-        for (int i = 0; i < 2; i++) {
-            String id = Integer.toString(i);
-            assertEquals(id, ret.get(i).getId());
-            assertEquals("CR" + id, ret.get(i).getKey());
-            assertEquals("Name" + id, ret.get(i).getName());
-        }
-        EasyMock.verify(crucibleSessionMock);
-    }
+		assertEquals(2, ret.size());
+		for (int i = 0; i < 2; i++) {
+			String id = Integer.toString(i);
+			assertEquals(id, ret.get(i).getId());
+			assertEquals("CR" + id, ret.get(i).getKey());
+			assertEquals("Name" + id, ret.get(i).getName());
+		}
+		EasyMock.verify(crucibleSessionMock);
+	}
 
-    public void testGetRepositories() throws ServerPasswordNotProvidedException, RemoteApiException {
-        crucibleSessionMock.isLoggedIn();
-        EasyMock.expectLastCall().andReturn(false);
-        try {
-            crucibleSessionMock.login();
-        } catch (RemoteApiLoginException e) {
-            fail("recording mock failed for login");
-        }
-        crucibleSessionMock.getRepositories();
-        EasyMock.expectLastCall().andReturn(Arrays.asList(prepareRepositoryData(0), prepareRepositoryData(1)));
-        replay(crucibleSessionMock);
+	public void testGetRepositories() throws ServerPasswordNotProvidedException, RemoteApiException {
+		crucibleSessionMock.isLoggedIn();
+		EasyMock.expectLastCall().andReturn(false);
+		try {
+			crucibleSessionMock.login();
+		} catch (RemoteApiLoginException e) {
+			fail("recording mock failed for login");
+		}
+		crucibleSessionMock.getRepositories();
+		EasyMock.expectLastCall().andReturn(Arrays.asList(prepareRepositoryData(0), prepareRepositoryData(1)));
+		replay(crucibleSessionMock);
 
-        CrucibleServerCfg server = prepareServerBean();
-        // test call
-        List<Repository> ret = facade.getRepositories(server);
-        assertEquals(2, ret.size());
-        for (int i = 0; i < 2; i++) {
-            String id = Integer.toString(i);
-            assertEquals("RepoName" + id, ret.get(i).getName());
-        }
-        EasyMock.verify(crucibleSessionMock);
-    }
+		CrucibleServerCfg server = prepareServerBean();
+		// test call
+		List<Repository> ret = facade.getRepositories(server);
+		assertEquals(2, ret.size());
+		for (int i = 0; i < 2; i++) {
+			String id = Integer.toString(i);
+			assertEquals("RepoName" + id, ret.get(i).getName());
+		}
+		EasyMock.verify(crucibleSessionMock);
+	}
 
-    private Review prepareReviewData(final String name, final State state) {
-        return new ReviewBean(null) {
-            @Override
+	private Review prepareReviewData(final String name, final State state) {
+		return new ReviewBean(null) {
+			@Override
 			public User getAuthor() {
-                return VALID_LOGIN;
-            }
+				return VALID_LOGIN;
+			}
 
-            @Override
+			@Override
 			public User getCreator() {
-                return VALID_LOGIN;
-            }
+				return VALID_LOGIN;
+			}
 
-            @Override
+			@Override
 			public String getDescription() {
-                return "Test description";
-            }
+				return "Test description";
+			}
 
-            @Override
+			@Override
 			public User getModerator() {
-                return VALID_LOGIN;
-            }
+				return VALID_LOGIN;
+			}
 
-            @Override
+			@Override
 			public String getName() {
-                return name;
-            }
+				return name;
+			}
 
-            @Override
+			@Override
 			public PermId getParentReview() {
-                return null;
-            }
+				return null;
+			}
 
-            @Override
+			@Override
 			public PermId getPermId() {
-                return new PermId() {
-                    public String getId() {
-                        return "permId";
-                    }
-                };
-            }
+				return new PermId() {
+					public String getId() {
+						return "permId";
+					}
+				};
+			}
 
-            @Override
+			@Override
 			public String getProjectKey() {
-                return "TEST";
-            }
+				return "TEST";
+			}
 
-            @Override
+			@Override
 			public String getRepoName() {
-                return null;
-            }
+				return null;
+			}
 
-            @Override
+			@Override
 			public State getState() {
-                return state;
-            }
+				return state;
+			}
 
-            @Override
+			@Override
 			public boolean isAllowReviewerToJoin() {
-                return false;
-            }
+				return false;
+			}
 
-            @Override
+			@Override
 			public int getMetricsVersion() {
-                return 0;
-            }
+				return 0;
+			}
 
-            @Override
+			@Override
 			public Date getCreateDate() {
-                return null;
-            }
+				return null;
+			}
 
-            @Override
+			@Override
 			public Date getCloseDate() {
-                return null;
-            }
+				return null;
+			}
 
-            @Override
+			@Override
 			public String getSummary() {
-                return null;
-            }
+				return null;
+			}
 
-            @Override
+			@Override
 			public Set<Reviewer> getReviewers() throws ValueNotYetInitialized {
-                return null;
-            }
+				return null;
+			}
 
-            @Override
+			@Override
 			public List<GeneralComment> getGeneralComments() throws ValueNotYetInitialized {
-                return null;
-            }
+				return null;
+			}
 
-            public List<VersionedComment> getVersionedComments() throws ValueNotYetInitialized {
-                return null;
-            }
+			public List<VersionedComment> getVersionedComments() throws ValueNotYetInitialized {
+				return null;
+			}
 
-            @Override
-			public List<CrucibleFileInfo> getFiles() {
-                return null;
-            }
+			@Override
+			public Set<CrucibleFileInfo> getFiles() {
+				return null;
+			}
 
-            @Override
+			@Override
 			public List<Action> getTransitions() throws ValueNotYetInitialized {
-                return null;
-            }
+				return null;
+			}
 
-            @Override
+			@Override
 			public Set<Action> getActions() throws ValueNotYetInitialized {
-                return null;
-            }
+				return null;
+			}
 
-            @Override
+			@Override
 			public VirtualFileSystem getVirtualFileSystem() {
-                return null;
-            }
+				return null;
+			}
 
 			public CrucibleServerCfg getServer() {
 				return null;
@@ -559,7 +559,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public void setFilesAndVersionedComments(final List<CrucibleFileInfo> files, final List<VersionedComment> commentList) {
+			public void setFilesAndVersionedComments(final Set<CrucibleFileInfo> files, final List<VersionedComment> commentList) {
 
 			}
 
@@ -573,88 +573,88 @@ public class CrucibleServerFacadeTest extends TestCase {
 				return null;
 			}
 		};
-    }
+	}
 
-    private Review prepareReviewData(final User user, final String name, final State state, final PermId permId) {
-        return new ReviewBean(null) {
-            @Override
+	private Review prepareReviewData(final User user, final String name, final State state, final PermId permId) {
+		return new ReviewBean(null) {
+			@Override
 			public User getAuthor() {
-                return user;
-            }
+				return user;
+			}
 
-            @Override
+			@Override
 			public User getCreator() {
-                return user;
-            }
+				return user;
+			}
 
-            @Override
+			@Override
 			public String getDescription() {
-                return "Test description";
-            }
+				return "Test description";
+			}
 
-            @Override
+			@Override
 			public User getModerator() {
-                return user;
-            }
+				return user;
+			}
 
-            @Override
+			@Override
 			public String getName() {
-                return name;
-            }
+				return name;
+			}
 
-            @Override
+			@Override
 			public PermId getParentReview() {
-                return null;
-            }
+				return null;
+			}
 
-            @Override
+			@Override
 			public PermId getPermId() {
-                return permId;
-            }
+				return permId;
+			}
 
-            @Override
+			@Override
 			public String getProjectKey() {
-                return "TEST";
-            }
+				return "TEST";
+			}
 
-            @Override
+			@Override
 			public String getRepoName() {
-                return null;
-            }
+				return null;
+			}
 
-            @Override
+			@Override
 			public State getState() {
-                return state;
-            }
+				return state;
+			}
 
-            @Override
+			@Override
 			public boolean isAllowReviewerToJoin() {
-                return false;  
-            }
+				return false;
+			}
 
-            @Override
+			@Override
 			public int getMetricsVersion() {
-                return 0;
-            }
+				return 0;
+			}
 
-            @Override
+			@Override
 			public Date getCreateDate() {
-                return null;
-            }
+				return null;
+			}
 
-            @Override
+			@Override
 			public Date getCloseDate() {
-                return null;
-            }
+				return null;
+			}
 
-            @Override
+			@Override
 			public String getSummary() {
-                return null;
-            }
+				return null;
+			}
 
-            public String getReviewUrl() {
-                return null;
-            }
+			public String getReviewUrl() {
+				return null;
+			}
 
 			public Review getInnerReviewObject() {
 				return null;
@@ -676,43 +676,43 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public void setFilesAndVersionedComments(final List<CrucibleFileInfo> files, final List<VersionedComment> commentList) {
+			public void setFilesAndVersionedComments(final Set<CrucibleFileInfo> files, final List<VersionedComment> commentList) {
 
 			}
 
 			@Override
 			public Set<Reviewer> getReviewers() {
-                return null;
-            }
+				return null;
+			}
 
-            @Override
+			@Override
 			public List<GeneralComment> getGeneralComments() {
-                return null;
-            }
+				return null;
+			}
 
-            public List<VersionedComment> getVersionedComments() throws ValueNotYetInitialized {
-                return null;
-            }
+			public List<VersionedComment> getVersionedComments() throws ValueNotYetInitialized {
+				return null;
+			}
 
-            @Override
-			public List<CrucibleFileInfo> getFiles() {
-                return null;
-            }
+			@Override
+			public Set<CrucibleFileInfo> getFiles() {
+				return null;
+			}
 
-            @Override
+			@Override
 			public List<Action> getTransitions() {
-                return null;
-            }
+				return null;
+			}
 
-            @Override
+			@Override
 			public Set<Action> getActions() throws ValueNotYetInitialized {
-                return null;
-            }
+				return null;
+			}
 
-            @Override
+			@Override
 			public VirtualFileSystem getVirtualFileSystem() {
-                return null;
-            }
+				return null;
+			}
 
 			public CrucibleServerCfg getServer() {
 				return null;
@@ -728,69 +728,69 @@ public class CrucibleServerFacadeTest extends TestCase {
 				return null;
 			}
 		};
-    }
+	}
 
-    private CrucibleServerCfg prepareServerBean() {
-        CrucibleServerCfg server = new CrucibleServerCfg("myname", new ServerId());
-        server.setUrl(VALID_URL);
-        server.setUsername(VALID_LOGIN.getUserName());
-        server.setPassword(VALID_PASSWORD);
+	private CrucibleServerCfg prepareServerBean() {
+		CrucibleServerCfg server = new CrucibleServerCfg("myname", new ServerId());
+		server.setUrl(VALID_URL);
+		server.setUsername(VALID_LOGIN.getUserName());
+		server.setPassword(VALID_PASSWORD);
 		server.setPasswordStored(false);
-        return server;
-    }
+		return server;
+	}
 
-    private CrucibleProject prepareProjectData(final int i) {
-        return new CrucibleProject() {
-            public String getId() {
-                return Integer.toString(i);
-            }
+	private CrucibleProject prepareProjectData(final int i) {
+		return new CrucibleProject() {
+			public String getId() {
+				return Integer.toString(i);
+			}
 
-            public String getKey() {
-                return "CR" + Integer.toString(i);
-            }
+			public String getKey() {
+				return "CR" + Integer.toString(i);
+			}
 
-            public String getName() {
-                return "Name" + Integer.toString(i);
-            }
-        };
-    }
+			public String getName() {
+				return "Name" + Integer.toString(i);
+			}
+		};
+	}
 
-    private Repository prepareRepositoryData(final int i) {
-        return new Repository() {
-            public String getName() {
-                return "RepoName" + Integer.toString(i);
-            }
+	private Repository prepareRepositoryData(final int i) {
+		return new Repository() {
+			public String getName() {
+				return "RepoName" + Integer.toString(i);
+			}
 
-            public String getType() {
-                return "svn";
-            }
+			public String getType() {
+				return "svn";
+			}
 
-            public boolean isEnabled() {
-                return false;
-            }
-        };
-    }
+			public boolean isEnabled() {
+				return false;
+			}
+		};
+	}
 
-    public void _testCreateReviewHardcoded() throws ServerPasswordNotProvidedException {
+	public void _testCreateReviewHardcoded() throws ServerPasswordNotProvidedException {
 
-        //facade.setCrucibleSession(null);
+		//facade.setCrucibleSession(null);
 
 		CrucibleServerCfg server = prepareCrucibleServerCfg();
 
 		Review review = prepareReviewData("test", State.DRAFT);
 
-        Review ret;
+		Review ret;
 
-        try {
-            ret = facade.createReview(server, review);
-            assertNotNull(ret);
-            assertNotNull(ret.getPermId());
-            assertNotNull(ret.getPermId().getId());
-            assertTrue(ret.getPermId().getId().length() > 0);
-        } catch (RemoteApiException e) {
-            fail(e.getMessage());
-        }
-    }
+		try {
+			ret = facade.createReview(server, review);
+			assertNotNull(ret);
+			assertNotNull(ret.getPermId());
+			assertNotNull(ret.getPermId().getId());
+			assertTrue(ret.getPermId().getId().length() > 0);
+		} catch (RemoteApiException e) {
+			fail(e.getMessage());
+		}
+	}
 
 	private CrucibleServerCfg prepareCrucibleServerCfg() {
 		CrucibleServerCfg server = new CrucibleServerCfg("mycrucible", new ServerId());
@@ -802,15 +802,15 @@ public class CrucibleServerFacadeTest extends TestCase {
 	}
 
 	public void _testGetAllReviewsHardcoded() throws ServerPasswordNotProvidedException {
-        //facade.setCrucibleSession(null);
+		//facade.setCrucibleSession(null);
 		final CrucibleServerCfg server = prepareCrucibleServerCfg();
 
-        try {
-            List<Review> list = facade.getAllReviews(server);
-            assertNotNull(list);
-            assertTrue(list.size() > 0);
-        } catch (RemoteApiException e) {
-            fail(e.getMessage());
-        }
-    }
+		try {
+			List<Review> list = facade.getAllReviews(server);
+			assertNotNull(list);
+			assertTrue(list.size() > 0);
+		} catch (RemoteApiException e) {
+			fail(e.getMessage());
+		}
+	}
 }

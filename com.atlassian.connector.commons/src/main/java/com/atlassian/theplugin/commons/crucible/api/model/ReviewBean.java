@@ -29,7 +29,7 @@ public class ReviewBean implements Review {
 	private List<GeneralComment> generalComments;
 	private List<Action> transitions;
 	private Set<Action> actions;
-    private VirtualFileSystem virtualFileSystem;
+	private VirtualFileSystem virtualFileSystem;
 	private User author;
 	private User creator;
 	private String description;
@@ -40,13 +40,13 @@ public class ReviewBean implements Review {
 	private String projectKey;
 	private String repoName;
 	private State state;
-    private boolean allowReviewerToJoin;
-    private int metricsVersion;
+	private boolean allowReviewerToJoin;
+	private int metricsVersion;
 	private Date createDate;
 	private Date closeDate;
-    private String summary;
+	private String summary;
 	private final String serverUrl;
-	private List<CrucibleFileInfo> files;
+	private Set<CrucibleFileInfo> files;
 	private CrucibleProject crucibleProject;
 
 	public void setReviewers(Set<Reviewer> reviewers) {
@@ -59,6 +59,7 @@ public class ReviewBean implements Review {
 
 	/**
 	 * Removes comment from the model
+	 *
 	 * @param generalComment comment to be removed
 	 */
 	public void removeGeneralComment(final GeneralComment generalComment) {
@@ -94,8 +95,8 @@ public class ReviewBean implements Review {
 	}
 
 	public void setActions(Set<Action> actions) {
-        this.actions = actions;
-    }
+		this.actions = actions;
+	}
 
 	public ReviewBean(String serverUrl) {
 		super();
@@ -125,8 +126,9 @@ public class ReviewBean implements Review {
 //    public List<CrucibleFileInfo> getFiles() throws ValueNotYetInitialized {
 
 //		}
-//	}
-public List<Action> getTransitions() throws ValueNotYetInitialized {
+
+	//	}
+	public List<Action> getTransitions() throws ValueNotYetInitialized {
 		if (transitions == null) {
 			throw new ValueNotYetInitialized("Object trasferred only partially");
 		}
@@ -160,7 +162,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Gets the value of the author property.
+	 * Gets the value of the author property.
 	 *
 	 * @return possible object is
 	 *         {@link com.atlassian.theplugin.commons.crucible.api.model.User }
@@ -170,7 +172,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Sets the value of the author property.
+	 * Sets the value of the author property.
 	 *
 	 * @param value allowed object is
 	 *              {@link com.atlassian.theplugin.commons.crucible.api.model.User }
@@ -180,7 +182,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Gets the value of the creator property.
+	 * Gets the value of the creator property.
 	 *
 	 * @return possible object is
 	 *         {@link com.atlassian.theplugin.commons.crucible.api.model.User }
@@ -190,7 +192,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Sets the value of the creator property.
+	 * Sets the value of the creator property.
 	 *
 	 * @param value allowed object is
 	 *              {@link com.atlassian.theplugin.commons.crucible.api.model.User }
@@ -200,7 +202,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Gets the value of the description property.
+	 * Gets the value of the description property.
 	 *
 	 * @return possible object is
 	 *         {@link String }
@@ -210,7 +212,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Sets the value of the description property.
+	 * Sets the value of the description property.
 	 *
 	 * @param value allowed object is
 	 *              {@link String }
@@ -220,7 +222,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Gets the value of the moderator property.
+	 * Gets the value of the moderator property.
 	 *
 	 * @return possible object is
 	 *         {@link com.atlassian.theplugin.commons.crucible.api.model.User }
@@ -230,7 +232,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Sets the value of the moderator property.
+	 * Sets the value of the moderator property.
 	 *
 	 * @param value allowed object is
 	 *              {@link com.atlassian.theplugin.commons.crucible.api.model.User }
@@ -240,7 +242,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Gets the value of the name property.
+	 * Gets the value of the name property.
 	 *
 	 * @return possible object is
 	 *         {@link String }
@@ -250,7 +252,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Sets the value of the name property.
+	 * Sets the value of the name property.
 	 *
 	 * @param value allowed object is
 	 *              {@link String }
@@ -260,7 +262,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Gets the value of the parentReview property.
+	 * Gets the value of the parentReview property.
 	 *
 	 * @return possible object is
 	 *         {@link com.atlassian.theplugin.commons.crucible.api.model.PermId }
@@ -270,7 +272,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Sets the value of the parentReview property.
+	 * Sets the value of the parentReview property.
 	 *
 	 * @param value allowed object is
 	 *              {@link com.atlassian.theplugin.commons.crucible.api.model.PermId }
@@ -280,7 +282,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Gets the value of the permId property.
+	 * Gets the value of the permId property.
 	 *
 	 * @return possible object is
 	 *         {@link com.atlassian.theplugin.commons.crucible.api.model.PermId }
@@ -290,7 +292,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Sets the value of the permId property.
+	 * Sets the value of the permId property.
 	 *
 	 * @param value allowed object is
 	 *              {@link com.atlassian.theplugin.commons.crucible.api.model.PermId }
@@ -300,7 +302,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Gets the value of the projectKey property.
+	 * Gets the value of the projectKey property.
 	 *
 	 * @return possible object is
 	 *         {@link String }
@@ -310,7 +312,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Sets the value of the projectKey property.
+	 * Sets the value of the projectKey property.
 	 *
 	 * @param value allowed object is
 	 *              {@link String }
@@ -320,7 +322,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Gets the value of the repoName property.
+	 * Gets the value of the repoName property.
 	 *
 	 * @return possible object is
 	 *         {@link String }
@@ -330,7 +332,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Sets the value of the repoName property.
+	 * Sets the value of the repoName property.
 	 *
 	 * @param value allowed object is
 	 *              {@link String }
@@ -340,7 +342,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Gets the value of the state property.
+	 * Gets the value of the state property.
 	 *
 	 * @return possible object is
 	 *         {@link com.atlassian.theplugin.commons.crucible.api.model.State }
@@ -350,7 +352,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	/**
-     * Sets the value of the state property.
+	 * Sets the value of the state property.
 	 *
 	 * @param value allowed object is
 	 *              {@link com.atlassian.theplugin.commons.crucible.api.model.State }
@@ -360,12 +362,12 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	}
 
 	public boolean isAllowReviewerToJoin() {
-        return allowReviewerToJoin;
-    }
+		return allowReviewerToJoin;
+	}
 
 	public void setAllowReviewerToJoin(boolean allowReviewerToJoin) {
-        this.allowReviewerToJoin = allowReviewerToJoin;
-    }
+		this.allowReviewerToJoin = allowReviewerToJoin;
+	}
 
 	public int getMetricsVersion() {
 		return metricsVersion;
@@ -391,7 +393,7 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 		this.closeDate = closeDate;
 	}
 
-	public void setFilesAndVersionedComments(final List<CrucibleFileInfo> aFiles, List<VersionedComment> commentList) {
+	public void setFilesAndVersionedComments(final Set<CrucibleFileInfo> aFiles, List<VersionedComment> commentList) {
 		this.files = aFiles;
 //		this.versionedComments = commentList;
 
@@ -412,37 +414,38 @@ public List<Action> getTransitions() throws ValueNotYetInitialized {
 	//			throw new ValueNotYetInitialized("Object trasferred only partially");
 //		if (versionedComments == null) {
 //		}
-//	}
-public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
 
-        ReviewBean that = (ReviewBean) o;
+	//	}
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
-        if (permId != null ? !permId.equals(that.permId) : that.permId != null) {
-            return false;
-        }
+		ReviewBean that = (ReviewBean) o;
 
-        return true;
-    }
+		if (permId != null ? !permId.equals(that.permId) : that.permId != null) {
+			return false;
+		}
+
+		return true;
+	}
 
 	public int hashCode() {
-        int result;
-        result = (permId != null ? permId.hashCode() : 0);
-        return result;
-    }
+		int result;
+		result = (permId != null ? permId.hashCode() : 0);
+		return result;
+	}
 
 	public String getSummary() {
-        return this.summary;
-    }
+		return this.summary;
+	}
 
 	public void setSummary(String summary) {
-        this.summary = summary;
-    }
+		this.summary = summary;
+	}
 
 	public CrucibleFileInfo getFileByPermId(PermId id) throws ValueNotYetInitialized {
 //		List<CrucibleFileInfo> lFiles = CrucibleFileInfoManager.getInstance().getFiles(this);
@@ -454,7 +457,7 @@ public boolean equals(Object o) {
 		return null;
 	}
 
-	public List<CrucibleFileInfo> getFiles() throws ValueNotYetInitialized {
+	public Set<CrucibleFileInfo> getFiles() throws ValueNotYetInitialized {
 		if (files == null) {
 			throw new ValueNotYetInitialized("Files haven't been downloaded yet");
 		}
@@ -495,7 +498,7 @@ public boolean equals(Object o) {
 		return num;
 	}
 
-	public void setFiles(final List<CrucibleFileInfo> files) {
+	public void setFiles(final Set<CrucibleFileInfo> files) {
 		this.files = files;
 	}
 
@@ -594,7 +597,7 @@ public boolean equals(Object o) {
 	public int getNumberOfGeneralComments() throws ValueNotYetInitialized {
 		int num = getGeneralComments().size();
 		for (GeneralComment comment : getGeneralComments()) {
-					num += comment.getReplies().size();
+			num += comment.getReplies().size();
 		}
 		return num;
 	}

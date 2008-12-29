@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,8 +43,8 @@ public class ReviewAdapter {
 	private Collection<CrucibleReviewListener> listeners = new HashSet<CrucibleReviewListener>();
 
 	public ReviewAdapter(Review review, CrucibleServerCfg server) {
-        this.review = review;
-        this.server = server;
+		this.review = review;
+		this.server = server;
 
 		facade = CrucibleServerFacadeImpl.getInstance();
 	}
@@ -58,96 +58,96 @@ public class ReviewAdapter {
 	}
 
 	public User getAuthor() {
-        return review.getAuthor();
-    }
+		return review.getAuthor();
+	}
 
 	public User getCreator() {
-        return review.getCreator();
-    }
+		return review.getCreator();
+	}
 
 	public String getDescription() {
-        return review.getDescription();
-    }
+		return review.getDescription();
+	}
 
 	public User getModerator() {
-        return review.getModerator();
-    }
+		return review.getModerator();
+	}
 
 	public String getName() {
-        return review.getName();
-    }
+		return review.getName();
+	}
 
 	public PermId getParentReview() {
-        return review.getParentReview();
-    }
+		return review.getParentReview();
+	}
 
 	public PermId getPermId() {
-        return review.getPermId();
-    }
+		return review.getPermId();
+	}
 
 	public String getProjectKey() {
-        return review.getProjectKey();
-    }
+		return review.getProjectKey();
+	}
 
 	public CrucibleProject getCrucibleProject() {
 		return review.getCrucibleProject();
 	}
 
 	public String getRepoName() {
-        return review.getRepoName();
-    }
+		return review.getRepoName();
+	}
 
 	public State getState() {
-        return review.getState();
-    }
+		return review.getState();
+	}
 
 	public boolean isAllowReviewerToJoin() {
-        return review.isAllowReviewerToJoin();
-    }
+		return review.isAllowReviewerToJoin();
+	}
 
 	public int getMetricsVersion() {
-        return review.getMetricsVersion();
-    }
+		return review.getMetricsVersion();
+	}
 
 	public Date getCreateDate() {
-        return review.getCreateDate();
-    }
+		return review.getCreateDate();
+	}
 
 	public Date getCloseDate() {
-        return review.getCloseDate();
-    }
+		return review.getCloseDate();
+	}
 
 	public String getSummary() {
-        return review.getSummary();
-    }
+		return review.getSummary();
+	}
 
 	public Set<Reviewer> getReviewers() throws ValueNotYetInitialized {
-        return review.getReviewers();
-    }
+		return review.getReviewers();
+	}
 
 	public List<GeneralComment> getGeneralComments() throws ValueNotYetInitialized {
-        return review.getGeneralComments();
-    }
+		return review.getGeneralComments();
+	}
 
 	public List<Action> getTransitions() throws ValueNotYetInitialized {
-        return review.getTransitions();
-    }
+		return review.getTransitions();
+	}
 
 	public Set<Action> getActions() throws ValueNotYetInitialized {
-        return review.getActions();
-    }
+		return review.getActions();
+	}
 
 	public VirtualFileSystem getVirtualFileSystem() {
-        return review.getVirtualFileSystem();
-    }
+		return review.getVirtualFileSystem();
+	}
 
 	public CrucibleFileInfo getFileByPermId(PermId id) throws ValueNotYetInitialized {
 		return review.getFileByPermId(id);
 	}
 
 	public CrucibleServerCfg getServer() {
-        return server;
-    }
+		return server;
+	}
 
 	public String getReviewUrl() {
 		String baseUrl = server.getUrl();
@@ -159,33 +159,33 @@ public class ReviewAdapter {
 	}
 
 	@Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
-        ReviewAdapter that = (ReviewAdapter) o;
+		ReviewAdapter that = (ReviewAdapter) o;
 
-        if (review != null ? !review.equals(that.review) : that.review != null) {
-            return false;
-        }
-        if (server != null ? !server.equals(that.server) : that.server != null) {
-            return false;
-        }
+		if (review != null ? !review.equals(that.review) : that.review != null) {
+			return false;
+		}
+		if (server != null ? !server.equals(that.server) : that.server != null) {
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 
 	@Override
-    public int hashCode() {
-        int result;
-        result = (review != null ? review.hashCode() : 0);
-        result = HASHCODE_MAGIC * result + (server != null ? server.hashCode() : 0);
-        return result;
-    }
+	public int hashCode() {
+		int result;
+		result = (review != null ? review.hashCode() : 0);
+		result = HASHCODE_MAGIC * result + (server != null ? server.hashCode() : 0);
+		return result;
+	}
 
 	public void setGeneralComments(final List<GeneralComment> generalComments) {
 		review.setGeneralComments(generalComments);
@@ -237,9 +237,12 @@ public class ReviewAdapter {
 	/**
 	 * Removes general review comment from the server and model.
 	 * It SHOULD NOT be called from the EVENT DISPATCH THREAD as it calls facade method.
+	 *
 	 * @param generalComment Comment to be removed
-	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException in case password is missing
-	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiException in case of communication problem
+	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException
+	 *          in case password is missing
+	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiException
+	 *          in case of communication problem
 	 */
 	public synchronized void removeGeneralComment(final GeneralComment generalComment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
@@ -279,7 +282,7 @@ public class ReviewAdapter {
 	}
 
 	public void addVersionedCommentReply(final CrucibleFileInfo file, final VersionedComment parentComment,
-			final VersionedCommentBean nComment) throws RemoteApiException, ServerPasswordNotProvidedException {
+										 final VersionedCommentBean nComment) throws RemoteApiException, ServerPasswordNotProvidedException {
 
 		VersionedComment newComment = facade.addVersionedCommentReply(
 				getServer(), getPermId(), parentComment.getPermId(), nComment);
@@ -295,11 +298,15 @@ public class ReviewAdapter {
 	/**
 	 * Removes file comment from the server and model.
 	 * It SHOULD NOT be called from the EVENT DISPATCH THREAD as it calls facade method.
+	 *
 	 * @param versionedComment Comment to be removed
-	 * @param file file containing the comment
-	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException in case password is missing
-	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiException in case of communication problem
+	 * @param file			 file containing the comment
+	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException
+	 *          in case password is missing
+	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiException
+	 *          in case of communication problem
 	 * @throws com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized
+	 *
 	 */
 	public void removeVersionedComment(final VersionedComment versionedComment, final CrucibleFileInfo file)
 			throws RemoteApiException, ServerPasswordNotProvidedException, ValueNotYetInitialized {
@@ -365,7 +372,7 @@ public class ReviewAdapter {
 		}
 	}
 
-	public void setFilesAndVersionedComments(final List<CrucibleFileInfo> files, final List<VersionedComment> comments) {
+	public void setFilesAndVersionedComments(final Set<CrucibleFileInfo> files, final List<VersionedComment> comments) {
 		review.setFilesAndVersionedComments(files, comments);
 	}
 
@@ -375,6 +382,7 @@ public class ReviewAdapter {
 
 	/**
 	 * Copies all data from the parameter into itself
+	 *
 	 * @param newReview source of Review data
 	 */
 	public void fillReview(final Review newReview) {
@@ -427,6 +435,7 @@ public class ReviewAdapter {
 			reviewChanged = true;
 		}
 
+
 		if (!areFilesEqual(newReview)) {
 			try {
 				setFiles(newReview.getFiles());
@@ -450,11 +459,10 @@ public class ReviewAdapter {
 	}
 
 
-
-
 	/**
 	 * Compares two Review objects (excluding files).
 	 * Use additionally areFilesEqual to compare files set and associated comments
+	 *
 	 * @param other Review to compare
 	 * @return true is reviews are equal (excluding files)
 	 */
@@ -462,63 +470,105 @@ public class ReviewAdapter {
 
 		return areGeneralCommentsEqual(other)
 //			&& areFilesEqual(other)
-			&& areActionsEqual(other)
-			&& review.isAllowReviewerToJoin() == other.isAllowReviewerToJoin()
-			&& areObjectsEqual(review.getAuthor(), other.getAuthor())
-			&& areObjectsEqual(review.getCloseDate(), other.getCloseDate())
-			&& areObjectsEqual(review.getCreateDate(), other.getCreateDate())
-			&& areObjectsEqual(review.getCreator(), other.getCreator())
-			&& areObjectsEqual(review.getDescription(), other.getDescription())
-			&& review.getMetricsVersion() == other.getMetricsVersion()
-			&& areObjectsEqual(review.getModerator(), other.getModerator())
-			&& areObjectsEqual(review.getName(), other.getName())
-			&& areObjectsEqual(review.getParentReview(), other.getParentReview())
-			&& areObjectsEqual(review.getProjectKey(), other.getProjectKey())
-			&& areObjectsEqual(review.getRepoName(), other.getRepoName())
-			&& areReviewersEqual(other)
-			&& areObjectsEqual(review.getState(), other.getState())
-			&& areObjectsEqual(review.getSummary(), other.getSummary())
-			&& areTransitionsEqual(other)
-			&& areObjectsEqual(review.getVirtualFileSystem(), other.getVirtualFileSystem());
+				&& areActionsEqual(other)
+				&& review.isAllowReviewerToJoin() == other.isAllowReviewerToJoin()
+				&& areObjectsEqual(review.getAuthor(), other.getAuthor())
+				&& areObjectsEqual(review.getCloseDate(), other.getCloseDate())
+				&& areObjectsEqual(review.getCreateDate(), other.getCreateDate())
+				&& areObjectsEqual(review.getCreator(), other.getCreator())
+				&& areObjectsEqual(review.getDescription(), other.getDescription())
+				&& review.getMetricsVersion() == other.getMetricsVersion()
+				&& areObjectsEqual(review.getModerator(), other.getModerator())
+				&& areObjectsEqual(review.getName(), other.getName())
+				&& areObjectsEqual(review.getParentReview(), other.getParentReview())
+				&& areObjectsEqual(review.getProjectKey(), other.getProjectKey())
+				&& areObjectsEqual(review.getRepoName(), other.getRepoName())
+				&& areReviewersEqual(other)
+				&& areObjectsEqual(review.getState(), other.getState())
+				&& areObjectsEqual(review.getSummary(), other.getSummary())
+				&& areTransitionsEqual(other)
+				&& areObjectsEqual(review.getVirtualFileSystem(), other.getVirtualFileSystem());
 	}
 
 	private boolean areGeneralCommentsEqual(Review rhs) {
 		List<GeneralComment> l = null;
 		List<GeneralComment> r = null;
-		try { l = review.getGeneralComments(); } catch (ValueNotYetInitialized e) {	/* ignore */ }
-		try { r = rhs.getGeneralComments(); } catch (ValueNotYetInitialized e) { /* ignore */ }
+		try {
+			l = review.getGeneralComments();
+		} catch (ValueNotYetInitialized e) {	/* ignore */ }
+		try {
+			r = rhs.getGeneralComments();
+		} catch (ValueNotYetInitialized e) { /* ignore */ }
 		return areObjectsEqual(l, r);
 	}
 
 	private boolean areFilesEqual(Review rhs) {
-		List<CrucibleFileInfo> l = null;
-		List<CrucibleFileInfo> r = null;
-		try { l = review.getFiles(); } catch (ValueNotYetInitialized e) {	/* ignore */ }
-		try { r = rhs.getFiles(); } catch (ValueNotYetInitialized e) { /* ignore */ }
-		return areObjectsEqual(l, r);
+		Set<CrucibleFileInfo> l = null;
+		Set<CrucibleFileInfo> r = null;
+		try {
+			l = review.getFiles();
+		} catch (ValueNotYetInitialized e) {	/* ignore */ }
+		try {
+			r = rhs.getFiles();
+		} catch (ValueNotYetInitialized e) { /* ignore */ }
+
+		if (l == null && r == null) {
+			return true;
+		}
+		if (l == null || r == null) {
+			return false;
+		}
+
+		for (CrucibleFileInfo cfi : l) {
+			if (r.contains(cfi)) {
+				for (CrucibleFileInfo file : r) {
+					if (file.equals(cfi)) {
+						if (!((CrucibleFileInfoImpl) file).deepEquals(cfi)) {
+							return false;
+						}
+					}
+				}
+			} else {
+				return false;
+			}
+
+		}
+		return true;
 	}
 
 	private boolean areActionsEqual(Review rhs) {
 		Set<Action> l = null;
 		Set<Action> r = null;
-		try { l = review.getActions(); } catch (ValueNotYetInitialized e) {	/* ignore */ }
-		try { r = rhs.getActions(); } catch (ValueNotYetInitialized e) { /* ignore */ }
+		try {
+			l = review.getActions();
+		} catch (ValueNotYetInitialized e) {	/* ignore */ }
+		try {
+			r = rhs.getActions();
+		} catch (ValueNotYetInitialized e) { /* ignore */ }
 		return areObjectsEqual(l, r);
 	}
 
 	private boolean areReviewersEqual(Review rhs) {
 		Set<Reviewer> l = null;
 		Set<Reviewer> r = null;
-		try { l = review.getReviewers(); } catch (ValueNotYetInitialized e) {	/* ignore */ }
-		try { r = rhs.getReviewers(); } catch (ValueNotYetInitialized e) { /* ignore */ }
+		try {
+			l = review.getReviewers();
+		} catch (ValueNotYetInitialized e) {	/* ignore */ }
+		try {
+			r = rhs.getReviewers();
+		} catch (ValueNotYetInitialized e) { /* ignore */ }
 		return areObjectsEqual(l, r);
 	}
 
 	private boolean areTransitionsEqual(Review rhs) {
 		List<Action> l = null;
 		List<Action> r = null;
-		try { l = review.getTransitions(); } catch (ValueNotYetInitialized e) {	/* ignore */ }
-		try { r = rhs.getTransitions(); } catch (ValueNotYetInitialized e) { /* ignore */ }
+		try {
+			l = review.getTransitions();
+		} catch (ValueNotYetInitialized e) {	/* ignore */ }
+		try {
+			r = rhs.getTransitions();
+		} catch (ValueNotYetInitialized e) { /* ignore */ }
 		return areObjectsEqual(l, r);
 	}
 
@@ -532,11 +582,11 @@ public class ReviewAdapter {
 		return lhs.equals(rhs);
 	}
 
-	private void setFiles(final List<CrucibleFileInfo> files) {
+	private void setFiles(final Set<CrucibleFileInfo> files) {
 		review.setFiles(files);
 	}
 
-	public List<CrucibleFileInfo> getFiles() throws ValueNotYetInitialized {
+	public Set<CrucibleFileInfo> getFiles() throws ValueNotYetInitialized {
 		if (review.getFiles() == null) {
 			throw new ValueNotYetInitialized("Files collection is empty");
 		}
@@ -647,7 +697,7 @@ public class ReviewAdapter {
 			// shame
 		}
 
-		ReviewAdapter ra = new ReviewAdapter(myReview , getServer());
+		ReviewAdapter ra = new ReviewAdapter(myReview, getServer());
 
 		return ra;
 	}

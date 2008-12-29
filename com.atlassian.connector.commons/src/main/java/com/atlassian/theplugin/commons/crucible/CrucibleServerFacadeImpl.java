@@ -28,14 +28,13 @@ import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedExcept
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	private Map<String, CrucibleSession> sessions = new HashMap<String, CrucibleSession>();
@@ -74,10 +73,10 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 				sessions.put(key, session);
 			} catch (RemoteApiException e) {
 				if (server.getPassword().length() > 0) {
-                	throw e;
-            	} else {
-                	throw new ServerPasswordNotProvidedException();
-            	}
+					throw e;
+				} else {
+					throw new ServerPasswordNotProvidedException();
+				}
 			}
 		}
 		if (!session.isLoggedIn()) {
@@ -114,21 +113,21 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	}
 
 	/**
-     * For testing Only
-     * @see com.atlassian.theplugin.commons.remoteapi.ProductServerFacade#testServerConnection(java.lang.String,
-	 * java.lang.String, java.lang.String)
-     */
-    public void testServerConnection(String url, String userName, String password) throws RemoteApiException {
-    	CrucibleServerCfg serverCfg = new CrucibleServerCfg(url, new ServerId());
-    	serverCfg.setUrl(url);
-    	serverCfg.setUsername(userName);
-    	serverCfg.setPassword(password);
-    	testServerConnection(serverCfg);
-    }
-	
+	 * For testing Only
+	 *
+	 * @see com.atlassian.theplugin.commons.remoteapi.ProductServerFacade#testServerConnection(java.lang.String,
+	 *	  java.lang.String, java.lang.String)
+	 */
+	public void testServerConnection(String url, String userName, String password) throws RemoteApiException {
+		CrucibleServerCfg serverCfg = new CrucibleServerCfg(url, new ServerId());
+		serverCfg.setUrl(url);
+		serverCfg.setUsername(userName);
+		serverCfg.setPassword(password);
+		testServerConnection(serverCfg);
+	}
+
 	/**
 	 * @param serverCfg The configuration for the server that we want to test the connectio for
-	 *      
 	 * @throws com.atlassian.theplugin.commons.crucible.api.CrucibleException
 	 *
 	 */
@@ -142,8 +141,8 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 			if (e.getCause().getMessage().startsWith("HTTP 500")) {
 				throw new CrucibleLoginException(
 						"Atlassian IntelliJ Connector detected a Crucible version older\n"
-						+ "than 1.6. Unfortunately, the plugin will not\n"
-						+ "work with this version of Crucible");
+								+ "than 1.6. Unfortunately, the plugin will not\n"
+								+ "work with this version of Crucible");
 			}
 		}
 		session.logout();
@@ -312,7 +311,7 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		return session.createReviewFromPatch(review, patch);
 	}
 
-	public List<CrucibleFileInfo> getFiles(CrucibleServerCfg server, PermId permId)
+	public Set<CrucibleFileInfo> getFiles(CrucibleServerCfg server, PermId permId)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getFiles(permId);

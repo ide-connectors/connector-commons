@@ -22,12 +22,11 @@ import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedExcept
 import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public interface CrucibleServerFacade extends ProductServerFacade {
 //	CrucibleVersionInfo getServerVersion(CrucibleServerCfg server)
@@ -108,7 +107,7 @@ public interface CrucibleServerFacade extends ProductServerFacade {
 	Review createReviewFromPatch(CrucibleServerCfg server, Review review, String patch)
 			throws RemoteApiException, ServerPasswordNotProvidedException;
 
-	List<CrucibleFileInfo> getFiles(CrucibleServerCfg server, PermId permId)
+	Set<CrucibleFileInfo> getFiles(CrucibleServerCfg server, PermId permId)
 			throws RemoteApiException, ServerPasswordNotProvidedException;
 
 //	List<Comment> getComments(CrucibleServerCfg server, PermId permId)

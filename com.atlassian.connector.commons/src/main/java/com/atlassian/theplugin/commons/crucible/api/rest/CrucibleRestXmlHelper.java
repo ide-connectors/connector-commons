@@ -198,7 +198,7 @@ public final class CrucibleRestXmlHelper {
 			List<Element> versionedCommentsData = getChildElements(element, "versionedLineCommentData");
 			for (Element versionedElementData : versionedCommentsData) {
 				//ONLY COMMENTS NO FILES
-				comments.add(parseVersionedComment(versionedElementData));
+				comments.add(parseVersionedCommentNode(versionedElementData));
 			}
 		}
 
@@ -469,12 +469,6 @@ public final class CrucibleRestXmlHelper {
 			}
 			commentBean.setReplies(rep);
 		}
-	}
-
-	private static VersionedComment parseVersionedComment(Element reviewElementCommentNode) {
-		VersionedCommentBean versionedCommentBean = new VersionedCommentBean();
-		parseVersionedComment(versionedCommentBean, reviewElementCommentNode);
-		return versionedCommentBean;
 	}
 
 	private static void parseVersionedComment(VersionedCommentBean commentBean, Element reviewCommentNode) {

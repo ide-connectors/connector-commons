@@ -65,9 +65,9 @@ public class BambooBuildAdapter {
 		return build.getProjectName() == null ? "" : build.getProjectName();
 	}
 
-	public String getProjectKey() {
-		return build.getProjectKey() == null ? "" : build.getProjectKey();
-	}
+//	public String getProjectKey() {
+//		return build.getProjectKey() == null ? "" : build.getProjectKey();
+//	}
 
 	public String getProjectUrl() {
 		return build.getProjectUrl() == null ? "" : build.getProjectUrl();

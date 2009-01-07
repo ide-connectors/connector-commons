@@ -20,6 +20,7 @@ import com.atlassian.theplugin.commons.RequestData;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 
 import java.util.Date;
+import java.util.Set;
 
 /**
  * Build information retrieved from Bamboo server.
@@ -62,4 +63,6 @@ public interface BambooBuild extends RequestData {
 	String getBuildRelativeBuildDate();
 
 	boolean isMyBuild();
+
+	Set<String> getCommiters();
 }

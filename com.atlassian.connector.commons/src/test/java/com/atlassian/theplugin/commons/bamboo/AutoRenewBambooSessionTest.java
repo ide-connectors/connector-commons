@@ -30,6 +30,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 public class AutoRenewBambooSessionTest extends TestCase {
 	private BambooSession testedSession;
@@ -266,6 +267,10 @@ public class AutoRenewBambooSessionTest extends TestCase {
 
 			public boolean isMyBuild() {
 				return false;
+			}
+
+			public Set<String> getCommiters() {
+				return null;
 			}
 		});
 

@@ -20,6 +20,7 @@ import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.util.DateUtil;
 
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -59,6 +60,10 @@ public class BambooBuildAdapter {
 
 	public String getServerUrl() {
 		return build.getServerUrl() == null ? "" : build.getServerUrl();
+	}
+
+	public Collection<String> getCommiters() {
+		return build.getCommiters();
 	}
 
 	public String getProjectName() {

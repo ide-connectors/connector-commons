@@ -40,7 +40,7 @@ public class ReviewAdapter {
 	private Collection<CrucibleReviewListener> listeners = new HashSet<CrucibleReviewListener>();
 
 	private Collection<CrucibleReviewListener> getListeners() {
-		return listeners;//Collections.unmodifiableCollection(listeners);
+		return listeners;
 	}
 
 	public ReviewAdapter(Review review, CrucibleServerCfg server) {

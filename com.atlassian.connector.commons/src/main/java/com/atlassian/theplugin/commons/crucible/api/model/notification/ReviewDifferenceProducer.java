@@ -254,11 +254,12 @@ public class ReviewDifferenceProducer {
 		}
 	}
 
-	private void checkComments(final ReviewAdapter oldReview, final ReviewAdapter newReview, final boolean checkFiles)
+	private void checkComments(final ReviewAdapter oldReviewAdapter, final ReviewAdapter newReviewAdapter,
+			final boolean checkFiles)
 			throws ValueNotYetInitialized {
-		for (GeneralComment comment : newReview.getGeneralComments()) {
+		for (GeneralComment comment : newReviewAdapter.getGeneralComments()) {
 			GeneralComment existing = null;
-			for (GeneralComment oldComment : oldReview.getGeneralComments()) {
+			for (GeneralComment oldComment : oldReviewAdapter.getGeneralComments()) {
 				if (comment.getPermId().getId().equals(oldComment.getPermId().getId())) {
 					existing = oldComment;
 					break;
@@ -269,25 +270,25 @@ public class ReviewDifferenceProducer {
 					|| !existing.getMessage().equals(comment.getMessage())
 					|| existing.isDefectRaised() != comment.isDefectRaised()) {
 				if (existing == null) {
-					notifications.add(new NewGeneralCommentNotification(newReview, comment));
+					notifications.add(new NewGeneralCommentNotification(newReviewAdapter, comment));
 				} else {
-					notifications.add(new UpdatedGeneralCommentNotification(newReview, comment));
+					notifications.add(new UpdatedGeneralCommentNotification(newReviewAdapter, comment));
 				}
 			}
-			checkGeneralReplies(newReview, existing, comment);
+			checkGeneralReplies(newReviewAdapter, existing, comment);
 		}
 
 		List<GeneralComment> deletedGen = getDeletedComments(
-				oldReview.getGeneralComments(), newReview.getGeneralComments());
+				oldReviewAdapter.getGeneralComments(), newReviewAdapter.getGeneralComments());
 		for (GeneralComment gc : deletedGen) {
-			notifications.add(new RemovedGeneralCommentNotification(newReview, gc));
+			notifications.add(new RemovedGeneralCommentNotification(newReviewAdapter, gc));
 		}
 
 		if (checkFiles) {
-			for (CrucibleFileInfo fileInfo : newReview.getFiles()) {
+			for (CrucibleFileInfo fileInfo : newReviewAdapter.getFiles()) {
 				for (VersionedComment comment : fileInfo.getVersionedComments()) {
 					VersionedComment existing = null;
-					for (CrucibleFileInfo oldFile : oldReview.getFiles()) {
+					for (CrucibleFileInfo oldFile : oldReviewAdapter.getFiles()) {
 						for (VersionedComment oldComment : oldFile.getVersionedComments()) {
 							if (comment.getPermId().getId().equals(oldComment.getPermId().getId())) {
 								existing = oldComment;
@@ -299,28 +300,28 @@ public class ReviewDifferenceProducer {
 							|| !existing.getMessage().equals(comment.getMessage())
 							|| existing.isDefectRaised() != comment.isDefectRaised()) {
 						if (existing == null) {
-							notifications.add(new NewVersionedCommentNotification(newReview, comment));
+							notifications.add(new NewVersionedCommentNotification(newReviewAdapter, comment));
 						} else {
-							notifications.add(new UpdatedVersionedCommentNotification(newReview, comment));
+							notifications.add(new UpdatedVersionedCommentNotification(newReviewAdapter, comment));
 						}
 					}
-					checkVersionedReplies(newReview, fileInfo.getPermId(), existing, comment);
+					checkVersionedReplies(newReviewAdapter, fileInfo.getPermId(), existing, comment);
 				}
 			}
 
 			// todo does not check replies
 			List<VersionedComment> oldVersionedComments = new ArrayList<VersionedComment>();
 			List<VersionedComment> newVersionedComments = new ArrayList<VersionedComment>();
-			for (CrucibleFileInfo oldFile : oldReview.getFiles()) {
+			for (CrucibleFileInfo oldFile : oldReviewAdapter.getFiles()) {
 				oldVersionedComments.addAll(oldFile.getVersionedComments());
 			}
-			for (CrucibleFileInfo newFile : newReview.getFiles()) {
+			for (CrucibleFileInfo newFile : newReviewAdapter.getFiles()) {
 				newVersionedComments.addAll(newFile.getVersionedComments());
 			}
 			List<VersionedComment> deletedVcs = getDeletedComments(
 					oldVersionedComments, newVersionedComments);
 			for (VersionedComment vc : deletedVcs) {
-				notifications.add(new RemovedVersionedCommentNotification(newReview, vc));
+				notifications.add(new RemovedVersionedCommentNotification(newReviewAdapter, vc));
 			}
 		}
 	}

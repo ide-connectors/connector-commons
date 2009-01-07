@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,14 +26,12 @@ import java.io.IOException;
 public class VersionedVirtualFile {
 	private String revision;
 	private String url;
-    private String repoUrl;
-    private VirtualFileSystem fileSystem;
+	private String repoUrl;
 
-	public VersionedVirtualFile(String path, String revision, VirtualFileSystem fileSystem) {
+	public VersionedVirtualFile(String path, String revision) {
 		this.revision = revision;
 		this.url = path;
-        //this.repoUrl = repoUrl;
-        this.fileSystem = fileSystem;
+		//this.repoUrl = repoUrl;
 	}
 
 
@@ -50,7 +48,7 @@ public class VersionedVirtualFile {
 	}
 
 	public String getName() {
-        return FilenameUtils.getName(getUrl());
+		return FilenameUtils.getName(getUrl());
 	}
 
 	public String getUrl() {
@@ -61,23 +59,15 @@ public class VersionedVirtualFile {
 		this.url = url;
 	}
 
-    public String getRepoUrl() {
-        return repoUrl;
-    }
-
-    public void setRepoUrl(String repoUrl) {
-        this.repoUrl = repoUrl;
-    }    
-
-    public void setFileSystem(VirtualFileSystem fileSystem) {
-		this.fileSystem = fileSystem;
+	public String getRepoUrl() {
+		return repoUrl;
 	}
 
-	public VirtualFileSystem getFileSystem() {
-		return fileSystem;
+	public void setRepoUrl(String repoUrl) {
+		this.repoUrl = repoUrl;
 	}
 
-    public String getAbsoluteUrl() {
-        return (repoUrl != null ? repoUrl : "") + url;
-    }
+	public String getAbsoluteUrl() {
+		return (repoUrl != null ? repoUrl : "") + url;
+	}
 }

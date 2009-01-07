@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,9 @@
 package com.atlassian.theplugin.commons.crucible;
 
 import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.model.notification.CrucibleNotification;
+
+import java.util.List;
 
 public interface CrucibleReviewListener {
 
@@ -42,19 +45,25 @@ public interface CrucibleReviewListener {
 
 	/**
 	 * Notifies that something has been changed in the review (excluding files)
+	 *
 	 * @param newReview changed review
 	 */
-	void reviewChangedWithoutFiles(final ReviewAdapter oldReview, final ReviewAdapter newReview);
+	void reviewChangedWithoutFiles(final ReviewAdapter oldReview, final ReviewAdapter newReview,
+			final List<CrucibleNotification> notifications);
 
 	/**
 	 * Notifies that file set (or associated comments) has been changed
+	 *
 	 * @param reviewAdapter changed review
 	 */
-	void reviewFilesChanged(ReviewAdapter reviewAdapter);
+	void reviewFilesChanged(final ReviewAdapter oldReview, final ReviewAdapter reviewAdapter,
+			final List<CrucibleNotification> notifications);
 
 	/**
 	 * Notifies that something has been changed in the review
+	 *
 	 * @param reviewAdapter changed review
 	 */
-	void reviewChanged(ReviewAdapter reviewAdapter);
+	void reviewChanged(final ReviewAdapter oldReview, final ReviewAdapter reviewAdapter,
+			final List<CrucibleNotification> notifications);
 }

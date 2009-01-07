@@ -16,7 +16,6 @@
 
 package com.atlassian.theplugin.crucible;
 
-import com.atlassian.theplugin.commons.VirtualFileSystem;
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
@@ -63,7 +62,8 @@ public class CrucibleServerFacadeTest extends TestCase {
 			Field f = CrucibleServerFacadeImpl.class.getDeclaredField("sessions");
 			f.setAccessible(true);
 
-			((Map<String, CrucibleSession>) f.get(facade)).put(VALID_URL + VALID_LOGIN.getUserName() + VALID_PASSWORD, crucibleSessionMock);
+			((Map<String, CrucibleSession>) f.get(facade))
+					.put(VALID_URL + VALID_LOGIN.getUserName() + VALID_PASSWORD, crucibleSessionMock);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -76,7 +76,8 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		String mockBaseUrl = "http://localhost:" + server.getConnectors()[0].getLocalPort();
 		JettyMockServer mockServer = new JettyMockServer(server);
-		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD, LoginCallback.ALWAYS_FAIL));
+		mockServer.expect("/rest-service/auth-v1/login",
+				new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD, LoginCallback.ALWAYS_FAIL));
 
 		try {
 			facade.testServerConnection(mockBaseUrl, VALID_LOGIN.getUserName(), VALID_PASSWORD);
@@ -526,11 +527,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 				return null;
 			}
 
-			@Override
-			public VirtualFileSystem getVirtualFileSystem() {
-				return null;
-			}
-
 			public CrucibleServerCfg getServer() {
 				return null;
 			}
@@ -559,7 +555,8 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public void setFilesAndVersionedComments(final Set<CrucibleFileInfo> files, final List<VersionedComment> commentList) {
+			public void setFilesAndVersionedComments(final Set<CrucibleFileInfo> files,
+					final List<VersionedComment> commentList) {
 
 			}
 
@@ -676,7 +673,8 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public void setFilesAndVersionedComments(final Set<CrucibleFileInfo> files, final List<VersionedComment> commentList) {
+			public void setFilesAndVersionedComments(final Set<CrucibleFileInfo> files,
+					final List<VersionedComment> commentList) {
 
 			}
 
@@ -706,11 +704,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 			@Override
 			public Set<Action> getActions() throws ValueNotYetInitialized {
-				return null;
-			}
-
-			@Override
-			public VirtualFileSystem getVirtualFileSystem() {
 				return null;
 			}
 

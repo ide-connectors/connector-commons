@@ -403,13 +403,11 @@ public final class CrucibleRestXmlHelper {
 		CrucibleFileInfoImpl reviewItem = new CrucibleFileInfoImpl(
 				new VersionedVirtualFile(
 						getChildText(reviewItemNode, "toPath"),
-						getChildText(reviewItemNode, "toRevision"),
-						review.getVirtualFileSystem()
+						getChildText(reviewItemNode, "toRevision")
 				),
 				new VersionedVirtualFile(
 						getChildText(reviewItemNode, "fromPath"),
-						getChildText(reviewItemNode, "fromRevision"),
-						review.getVirtualFileSystem()
+						getChildText(reviewItemNode, "fromRevision")
 				),
 				null
 		);
@@ -606,12 +604,12 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	public static VersionedCommentBean parseVersionedCommentNodeWithHints(Element reviewCommentNode,
-																		  boolean fromLineInfo,
-																		  int fromStartLine,
-																		  int toStartLine,
-																		  boolean toLineInfo,
-																		  int fromEndLine,
-																		  int toEndLine) {
+			boolean fromLineInfo,
+			int fromStartLine,
+			int toStartLine,
+			boolean toLineInfo,
+			int fromEndLine,
+			int toEndLine) {
 		VersionedCommentBean result = parseVersionedCommentNode(reviewCommentNode);
 		if (result.isFromLineInfo() == false && fromLineInfo == true) {
 			result.setFromLineInfo(true);

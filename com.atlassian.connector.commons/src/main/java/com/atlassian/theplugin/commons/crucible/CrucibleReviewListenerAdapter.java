@@ -16,17 +16,20 @@
 package com.atlassian.theplugin.commons.crucible;
 
 import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.model.notification.CrucibleNotification;
+
+import java.util.List;
 
 /**
  * @author Jacek Jaroczynski
  */
 public class CrucibleReviewListenerAdapter implements CrucibleReviewListener {
 	public void createdOrEditedVersionedCommentReply(ReviewAdapter review, PermId file,
-													 VersionedComment parentComment, VersionedComment comment) {
+			VersionedComment parentComment, VersionedComment comment) {
 	}
 
 	public void createdOrEditedGeneralCommentReply(ReviewAdapter review,
-												   GeneralComment parentComment, GeneralComment comment) {
+			GeneralComment parentComment, GeneralComment comment) {
 	}
 
 	public void createdOrEditedGeneralComment(ReviewAdapter review, GeneralComment comment) {
@@ -44,12 +47,15 @@ public class CrucibleReviewListenerAdapter implements CrucibleReviewListener {
 	public void publishedVersionedComment(ReviewAdapter review, PermId filePermId, VersionedComment comment) {
 	}
 
-	public void reviewChangedWithoutFiles(ReviewAdapter oldReview, ReviewAdapter newReview) {
+	public void reviewChangedWithoutFiles(final ReviewAdapter oldReview, final ReviewAdapter newReview,
+			final List<CrucibleNotification> notifications) {
 	}
 
-	public void reviewFilesChanged(ReviewAdapter reviewAdapter) {
+	public void reviewFilesChanged(final ReviewAdapter oldReview, final ReviewAdapter reviewAdapter,
+			final List<CrucibleNotification> notifications) {
 	}
 
-	public void reviewChanged(ReviewAdapter reviewAdapter) {
+	public void reviewChanged(final ReviewAdapter oldReview, final ReviewAdapter reviewAdapter,
+			final List<CrucibleNotification> notifications) {
 	}
 }

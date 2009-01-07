@@ -16,7 +16,6 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import com.atlassian.theplugin.commons.VirtualFileSystem;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 
 import java.util.Date;
@@ -75,8 +74,6 @@ public interface Review {
 
 	Set<Action> getActions() throws ValueNotYetInitialized;
 
-	VirtualFileSystem getVirtualFileSystem();
-
 	void removeGeneralComment(final GeneralComment comment);
 
 	void removeVersionedComment(final VersionedComment vComment, final CrucibleFileInfo file) throws ValueNotYetInitialized;
@@ -92,8 +89,6 @@ public interface Review {
 	void setTransitions(List<Action> transitions);
 
 	void setActions(Set<Action> actions);
-
-	void setVirtualFileSystem(VirtualFileSystem virtualFileSystem);
 
 	void setAuthor(User value);
 

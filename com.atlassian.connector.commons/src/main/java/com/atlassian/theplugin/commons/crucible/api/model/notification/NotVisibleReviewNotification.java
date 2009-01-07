@@ -14,7 +14,21 @@
  * limitations under the License.
  */
 
-package com.atlassian.theplugin.commons.crucible.api.model;
+package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
-public interface OpenInIdeFilter extends CrucibleFilter {
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
+
+public class NotVisibleReviewNotification extends AbstractReviewNotification {
+
+	public NotVisibleReviewNotification(ReviewAdapter review) {
+		super(review);
+	}
+
+	public CrucibleNotificationType getType() {
+		return CrucibleNotificationType.NOT_VISIBLE_REVIEW;
+	}
+
+	public String getPresentationMessage() {
+		return review.getName();
+	}
 }

@@ -16,7 +16,6 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import com.atlassian.theplugin.commons.VirtualFileSystem;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 
 import java.util.Date;
@@ -29,7 +28,6 @@ public class ReviewBean implements Review {
 	private List<GeneralComment> generalComments;
 	private List<Action> transitions;
 	private Set<Action> actions;
-	private VirtualFileSystem virtualFileSystem;
 	private User author;
 	private User creator;
 	private String description;
@@ -102,7 +100,6 @@ public class ReviewBean implements Review {
 		super();
 		this.serverUrl = serverUrl;
 //		reviewItems = new ArrayList<CrucibleReviewItemInfo>();
-		this.virtualFileSystem = new VirtualFileSystem();
 	}
 
 	public String getServerUrl() {
@@ -128,6 +125,7 @@ public class ReviewBean implements Review {
 //		}
 
 	//	}
+
 	public List<Action> getTransitions() throws ValueNotYetInitialized {
 		if (transitions == null) {
 			throw new ValueNotYetInitialized("Object trasferred only partially");
@@ -141,15 +139,6 @@ public class ReviewBean implements Review {
 		}
 		return actions;
 	}
-
-	public VirtualFileSystem getVirtualFileSystem() {
-		return virtualFileSystem;
-	}
-
-	public void setVirtualFileSystem(VirtualFileSystem virtualFileSystem) {
-		this.virtualFileSystem = virtualFileSystem;
-	}
-
 
 	public boolean isCompleted() {
 
@@ -416,6 +405,7 @@ public class ReviewBean implements Review {
 //		}
 
 	//	}
+
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;

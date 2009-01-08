@@ -17,8 +17,19 @@
 package com.atlassian.theplugin.commons.bamboo;
 
 public enum BuildStatus {
-    BUILD_SUCCEED,
-    BUILD_FAILED,  // build error
-    UNKNOWN,   // ststus retrieval error
-	BUILD_DISABLED
+    BUILD_SUCCEED("Succeeded"),
+    BUILD_FAILED("Failed"),  // build error
+    UNKNOWN("Unknown"),   // ststus retrieval error
+	BUILD_DISABLED("Disabled");
+
+	private String name;
+
+	BuildStatus(String name) {
+		this.name = name;
+	}
+
+	public String toString() {
+		return name;
+	}
+
 } 

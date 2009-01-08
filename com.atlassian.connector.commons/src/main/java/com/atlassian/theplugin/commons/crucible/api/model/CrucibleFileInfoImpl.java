@@ -37,7 +37,7 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 	private static final int HASH_NUMBER = 31;
 
 	public CrucibleFileInfoImpl(VersionedVirtualFile fileDescriptor, VersionedVirtualFile oldFileDescriptor,
-								PermId permId) {
+			PermId permId) {
 		this.fileDescriptor = fileDescriptor;
 		this.oldFileDescriptor = oldFileDescriptor;
 		this.permId = permId;
@@ -297,62 +297,4 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 		return result;
 		///CLOVER:ON
 	}
-
-	public boolean deepEquals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (!(o instanceof CrucibleFileInfoImpl)) {
-			return false;
-		}
-
-		CrucibleFileInfoImpl that = (CrucibleFileInfoImpl) o;
-
-		if (authorName != null ? !authorName.equals(that.authorName) : that.authorName != null) {
-			return false;
-		}
-		if (commitDate != null ? !commitDate.equals(that.commitDate) : that.commitDate != null) {
-			return false;
-		}
-		if (commitType != that.commitType) {
-			return false;
-		}
-		if (fileDescriptor != null ? !fileDescriptor.equals(that.fileDescriptor) : that.fileDescriptor != null) {
-			return false;
-		}
-		if (fileType != that.fileType) {
-			return false;
-		}
-		if (oldFileDescriptor != null ? !oldFileDescriptor.equals(that.oldFileDescriptor) : that.oldFileDescriptor != null) {
-			return false;
-		}
-		if (permId != null ? !permId.equals(that.permId) : that.permId != null) {
-			return false;
-		}
-		if (repositoryName != null ? !repositoryName.equals(that.repositoryName) : that.repositoryName != null) {
-			return false;
-		}
-
-		if (versionedComments.size() != that.getVersionedComments().size()) {
-			return false;
-		}
-
-		for (VersionedComment vc : versionedComments) {
-			boolean found = false;
-			for (VersionedComment tvc : that.getVersionedComments()) {
-				if (vc.getPermId() == tvc.getPermId()
-						&& ((VersionedCommentBean) vc).deepEquals(vc)) {
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
-				return false;
-			}
-		}
-
-
-		return true;
-	}
-
 }

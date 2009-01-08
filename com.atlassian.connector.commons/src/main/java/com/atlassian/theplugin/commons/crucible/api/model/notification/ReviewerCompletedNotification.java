@@ -28,7 +28,7 @@ public class ReviewerCompletedNotification extends AbstractReviewNotification {
 	}
 
 	public CrucibleNotificationType getType() {
-		return CrucibleNotificationType.REVIEW_COMPLETED;
+		return CrucibleNotificationType.REVIEWER_COMPLETED;
 	}
 
 	public String getPresentationMessage() {

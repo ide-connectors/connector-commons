@@ -42,11 +42,8 @@ public class ReviewDifferenceProducer {
 	}
 
 	private boolean isShortContentEqual() {
-		final boolean reviewersChanged = reviewersStatusChanged();
-		final boolean stateChanged = stateChanged();
-
-		return reviewersChanged
-				&& stateChanged
+		return !stateChanged()
+				&& !reviewersStatusChanged()
 				&& areGeneralCommentsEqual()
 				&& areActionsEqual()
 				&& oldReview.isAllowReviewerToJoin() == newReview.isAllowReviewerToJoin()
@@ -74,29 +71,7 @@ public class ReviewDifferenceProducer {
 		try {
 			r = newReview.getFiles();
 		} catch (ValueNotYetInitialized e) { /* ignore */ }
-
-		if (l == null && r == null) {
-			return true;
-		}
-		if (l == null || r == null) {
-			return false;
-		}
-
-		for (CrucibleFileInfo cfi : l) {
-			if (r.contains(cfi)) {
-				for (CrucibleFileInfo file : r) {
-					if (file.equals(cfi)) {
-						if (!((CrucibleFileInfoImpl) file).deepEquals(cfi)) {
-							return false;
-						}
-					}
-				}
-			} else {
-				return false;
-			}
-
-		}
-		return true;
+		return areObjectsEqual(l, r);
 	}
 
 	private boolean areGeneralCommentsEqual() {
@@ -171,6 +146,9 @@ public class ReviewDifferenceProducer {
 			return false;
 		}
 		if (oldReviewers == null || newReviewers == null) {
+			return true;
+		}
+		if (oldReviewers.size() != newReviewers.size()) {
 			return true;
 		}
 
@@ -289,10 +267,12 @@ public class ReviewDifferenceProducer {
 				for (VersionedComment comment : fileInfo.getVersionedComments()) {
 					VersionedComment existing = null;
 					for (CrucibleFileInfo oldFile : oldReviewAdapter.getFiles()) {
-						for (VersionedComment oldComment : oldFile.getVersionedComments()) {
-							if (comment.getPermId().getId().equals(oldComment.getPermId().getId())) {
-								existing = oldComment;
-								break;
+						if (oldFile.getPermId().equals(fileInfo.getPermId())) {
+							for (VersionedComment oldComment : oldFile.getVersionedComments()) {
+								if (comment.getPermId().getId().equals(oldComment.getPermId().getId())) {
+									existing = oldComment;
+									break;
+								}
 							}
 						}
 					}
@@ -309,19 +289,20 @@ public class ReviewDifferenceProducer {
 				}
 			}
 
-			// todo does not check replies
-			List<VersionedComment> oldVersionedComments = new ArrayList<VersionedComment>();
-			List<VersionedComment> newVersionedComments = new ArrayList<VersionedComment>();
 			for (CrucibleFileInfo oldFile : oldReviewAdapter.getFiles()) {
-				oldVersionedComments.addAll(oldFile.getVersionedComments());
-			}
-			for (CrucibleFileInfo newFile : newReviewAdapter.getFiles()) {
-				newVersionedComments.addAll(newFile.getVersionedComments());
-			}
-			List<VersionedComment> deletedVcs = getDeletedComments(
-					oldVersionedComments, newVersionedComments);
-			for (VersionedComment vc : deletedVcs) {
-				notifications.add(new RemovedVersionedCommentNotification(newReviewAdapter, vc));
+				for (CrucibleFileInfo newFile : newReviewAdapter.getFiles()) {
+					if (oldFile.getPermId().equals(newFile.getPermId())) {
+						List<VersionedComment> oldVersionedComments = new ArrayList<VersionedComment>();
+						List<VersionedComment> newVersionedComments = new ArrayList<VersionedComment>();
+						oldVersionedComments.addAll(oldFile.getVersionedComments());
+						newVersionedComments.addAll(newFile.getVersionedComments());
+						List<VersionedComment> deletedVcs = getDeletedComments(
+								oldVersionedComments, newVersionedComments);
+						for (VersionedComment vc : deletedVcs) {
+							notifications.add(new RemovedVersionedCommentNotification(newReviewAdapter, vc));
+						}
+					}
+				}
 			}
 		}
 	}

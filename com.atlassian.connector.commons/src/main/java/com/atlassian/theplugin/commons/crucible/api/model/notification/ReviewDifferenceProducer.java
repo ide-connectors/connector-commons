@@ -71,7 +71,27 @@ public class ReviewDifferenceProducer {
 		try {
 			r = newReview.getFiles();
 		} catch (ValueNotYetInitialized e) { /* ignore */ }
-		return areObjectsEqual(l, r);
+
+		if (l == null && r == null) {
+			return true;
+		}
+		if (l == null || r == null) {
+			return false;
+		}
+		boolean areFilesEqual = l.equals(r);
+		if (!areFilesEqual) {
+			for (CrucibleFileInfo crucibleFileInfo : r) {
+				if (!l.contains(crucibleFileInfo)) {
+					notifications.add(new NewReviewItemNotification(newReview));
+				}
+			}
+			for (CrucibleFileInfo crucibleFileInfo : l) {
+				if (!r.contains(crucibleFileInfo)) {
+					notifications.add(new RemovedReviewItemNotification(oldReview));
+				}
+			}
+		}
+		return areFilesEqual;
 	}
 
 	private boolean areGeneralCommentsEqual() {

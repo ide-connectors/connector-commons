@@ -25,7 +25,7 @@ public class NewReviewItemNotification extends AbstractReviewNotification {
 	}
 
 	public CrucibleNotificationType getType() {
-		return CrucibleNotificationType.NEW_REVIEW;
+		return CrucibleNotificationType.NEW_REVIEW_ITEM;
 	}
 
 	public String getPresentationMessage() {

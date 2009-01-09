@@ -12,7 +12,7 @@ public class RemovedVersionedCommentNotification extends AbstractReviewNotificat
 	}
 
 	public CrucibleNotificationType getType() {
-		return CrucibleNotificationType.DELETED_VERSIONED_COMMENT;
+		return CrucibleNotificationType.REMOVED_VERSIONED_COMMENT;
 	}
 
 	public String getPresentationMessage() {

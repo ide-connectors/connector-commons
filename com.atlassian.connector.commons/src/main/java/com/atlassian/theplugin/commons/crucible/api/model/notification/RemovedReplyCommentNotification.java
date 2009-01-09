@@ -12,7 +12,7 @@ public class RemovedReplyCommentNotification extends AbstractReviewNotification 
 	}
 
 	public CrucibleNotificationType getType() {
-		return CrucibleNotificationType.DELETED_REPLY;
+		return CrucibleNotificationType.REMOVED_REPLY;
 	}
 
 	public String getPresentationMessage() {

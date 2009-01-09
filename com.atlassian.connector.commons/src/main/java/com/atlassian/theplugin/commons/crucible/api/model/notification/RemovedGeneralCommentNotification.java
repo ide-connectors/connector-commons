@@ -12,7 +12,7 @@ public class RemovedGeneralCommentNotification extends AbstractReviewNotificatio
 	}
 
 	public CrucibleNotificationType getType() {
-		return CrucibleNotificationType.DELETED_GENERAL_COMMENT;
+		return CrucibleNotificationType.REMOVED_GENERAL_COMMENT;
 	}
 
 	public String getPresentationMessage() {

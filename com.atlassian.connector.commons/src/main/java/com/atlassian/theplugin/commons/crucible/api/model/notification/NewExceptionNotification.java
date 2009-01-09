@@ -16,15 +16,18 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
+import com.atlassian.theplugin.commons.cfg.Server;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 
 
 public class NewExceptionNotification implements CrucibleNotification {
 	private Exception exception;
+	private Server server;
 
 
-	public NewExceptionNotification(final Exception exception) {
+	public NewExceptionNotification(final Exception exception, final Server server) {
 		this.exception = exception;
+		this.server = server;
 	}
 
 	public CrucibleNotificationType getType() {
@@ -43,6 +46,29 @@ public class NewExceptionNotification implements CrucibleNotification {
 		return "Crucible communication exception: " + exception.getMessage();
 	}
 
+	public Exception getException() {
+		return exception;
+	}
+
+	public void setException(final Exception exception) {
+		this.exception = exception;
+	}
+
+	public Server getServer() {
+		return server;
+	}
+
+	public void setServer(final Server server) {
+		this.server = server;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = exception != null ? exception.hashCode() : 0;
+		result = 31 * result + (server != null ? server.hashCode() : 0);
+		return result;
+	}
+
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) {
@@ -50,9 +76,11 @@ public class NewExceptionNotification implements CrucibleNotification {
 		}
 		if (o == null || getClass() != o.getClass()) {
 			return false;
+
 		}
 
 		final NewExceptionNotification that = (NewExceptionNotification) o;
+
 		if (exception.getMessage() == null) {
 			return that.exception.getMessage() == null;
 		}
@@ -61,12 +89,13 @@ public class NewExceptionNotification implements CrucibleNotification {
 			return false;
 		}
 
+		if (server != null ? !server.equals(that.server) : that.server != null) {
+			return false;
+		}
+
 		return true;
 	}
 
-	@Override
-	public int hashCode() {
-		return exception.hashCode();
-	}
+
 }
 

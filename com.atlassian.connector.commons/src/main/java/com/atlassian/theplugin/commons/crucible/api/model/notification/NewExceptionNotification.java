@@ -21,9 +21,10 @@ import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 
 
 public class NewExceptionNotification implements CrucibleNotification {
+	private static final int HASHCODE_MAGIC = 31;
+
 	private Exception exception;
 	private Server server;
-
 
 	public NewExceptionNotification(final Exception exception, final Server server) {
 		this.exception = exception;
@@ -65,7 +66,7 @@ public class NewExceptionNotification implements CrucibleNotification {
 	@Override
 	public int hashCode() {
 		int result = exception != null ? exception.hashCode() : 0;
-		result = 31 * result + (server != null ? server.hashCode() : 0);
+		result = HASHCODE_MAGIC * result + (server != null ? server.hashCode() : 0);
 		return result;
 	}
 

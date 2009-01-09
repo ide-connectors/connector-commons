@@ -44,26 +44,11 @@ public interface CrucibleReviewListener {
 			VersionedComment comment);
 
 	/**
-	 * Notifies that something has been changed in the review (excluding files)
-	 *
-	 * @param newReview changed review
-	 */
-	void reviewChangedWithoutFiles(final ReviewAdapter oldReview, final ReviewAdapter newReview,
-			final List<CrucibleNotification> notifications);
-
-	/**
-	 * Notifies that file set (or associated comments) has been changed
-	 *
-	 * @param reviewAdapter changed review
-	 */
-	void reviewFilesChanged(final ReviewAdapter oldReview, final ReviewAdapter reviewAdapter,
-			final List<CrucibleNotification> notifications);
-
-	/**
 	 * Notifies that something has been changed in the review
 	 *
 	 * @param reviewAdapter changed review
+	 * @param notifications list of changes in review
 	 */
-	void reviewChanged(final ReviewAdapter oldReview, final ReviewAdapter reviewAdapter,
+	void reviewChanged(final ReviewAdapter reviewAdapter,
 			final List<CrucibleNotification> notifications);
 }

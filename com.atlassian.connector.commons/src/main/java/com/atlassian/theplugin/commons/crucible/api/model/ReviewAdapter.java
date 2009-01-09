@@ -386,7 +386,6 @@ public class ReviewAdapter {
 	 */
 	public synchronized List<CrucibleNotification> fillReview(final ReviewAdapter newReview) {
 		boolean reviewChanged = false;
-		ReviewAdapter oldAdapter = getClone();
 
 		ReviewDifferenceProducer reviewDifferenceProducer = new ReviewDifferenceProducer(this, newReview);
 		List<CrucibleNotification> differences = reviewDifferenceProducer.getDiff();
@@ -427,10 +426,6 @@ public class ReviewAdapter {
 			} catch (ValueNotYetInitialized valueNotYetInitialized) {
 				// shame
 			}
-
-//			for (CrucibleReviewListener listener : getListeners()) {
-//				listener.reviewChangedWithoutFiles(oldAdapter, this, differences);
-//			}
 			reviewChanged = true;
 		}
 
@@ -441,16 +436,12 @@ public class ReviewAdapter {
 			} catch (ValueNotYetInitialized valueNotYetInitialized) {
 				// shame
 			}
-
-//			for (CrucibleReviewListener listener : getListeners()) {
-//				listener.reviewFilesChanged(oldAdapter, this, differences);
-//			}
 			reviewChanged = true;
 		}
 
 		if (reviewChanged) {
 			for (CrucibleReviewListener listener : getListeners()) {
-				listener.reviewChanged(oldAdapter, this, differences);
+				listener.reviewChanged(this, differences);
 			}
 
 		}
@@ -520,59 +511,9 @@ public class ReviewAdapter {
 		return review.getNumberOfVersionedCommentsDrafts(userName);
 	}
 
-	/*
-	 @Override
-	 public String toString() {
-		 return review.getPermId().getId() + ": " + review.getName() + " (" + server.getName() + ')';
-	 }
- */
-	private ReviewAdapter getClone() {
-		ReviewBean myReview = new ReviewBean("");
-
-		try {
-			myReview.setGeneralComments(this.getGeneralComments());
-		} catch (ValueNotYetInitialized valueNotYetInitialized) {
-			// shame
-		}
-
-		try {
-			myReview.setActions(this.getActions());
-		} catch (ValueNotYetInitialized valueNotYetInitialized) {
-			// shame
-		}
-		myReview.setAllowReviewerToJoin(this.isAllowReviewerToJoin());
-		myReview.setAuthor(this.getAuthor());
-		myReview.setCloseDate(this.getCloseDate());
-		myReview.setCreateDate(this.getCreateDate());
-		myReview.setCreator(this.getCreator());
-		myReview.setDescription(this.getDescription());
-		myReview.setMetricsVersion(this.getMetricsVersion());
-		myReview.setModerator(this.getModerator());
-		myReview.setName(this.getName());
-		myReview.setParentReview(this.getParentReview());
-		myReview.setProjectKey(this.getProjectKey());
-		myReview.setRepoName(this.getRepoName());
-		try {
-			myReview.setReviewers(this.getReviewers());
-		} catch (ValueNotYetInitialized valueNotYetInitialized) {
-			// shame
-		}
-		myReview.setState(this.getState());
-		myReview.setSummary(this.getSummary());
-		try {
-			myReview.setTransitions(this.getTransitions());
-		} catch (ValueNotYetInitialized valueNotYetInitialized) {
-			// shame
-		}
-
-		try {
-			myReview.setFiles(this.getFiles());
-		} catch (ValueNotYetInitialized valueNotYetInitialized) {
-			// shame
-		}
-
-		ReviewAdapter ra = new ReviewAdapter(myReview, getServer());
-
-		return ra;
+	@Override
+	public String toString() {
+		return review.getPermId().getId() + ": " + review.getName() + " (" + server.getName() + ')';
 	}
+
 }

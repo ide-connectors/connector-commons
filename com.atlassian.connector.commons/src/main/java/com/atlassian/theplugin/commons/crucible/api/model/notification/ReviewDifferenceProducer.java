@@ -255,6 +255,8 @@ public class ReviewDifferenceProducer {
 	private void checkComments(final ReviewAdapter oldReviewAdapter, final ReviewAdapter newReviewAdapter,
 			final boolean checkFiles)
 			throws ValueNotYetInitialized {
+		int notificationsSize = notifications.size();
+
 		for (GeneralComment comment : newReviewAdapter.getGeneralComments()) {
 			GeneralComment existing = null;
 			for (GeneralComment oldComment : oldReviewAdapter.getGeneralComments()) {
@@ -324,6 +326,9 @@ public class ReviewDifferenceProducer {
 					}
 				}
 			}
+		}
+		if (notifications.size() > notificationsSize) {
+			filesEqual = false;
 		}
 	}
 

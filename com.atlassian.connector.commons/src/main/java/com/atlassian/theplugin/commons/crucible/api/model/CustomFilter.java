@@ -21,7 +21,7 @@ public interface CustomFilter extends CrucibleFilter {
 	String CREATOR = "creator";
 	String MODERATOR = "moderator";
 	String REVIEWER = "reviewer";
-	String PROJECT = "projectKey";
+	String PROJECT = "project";
 	String STATES = "states";
 	String COMPLETE = "complete";
 	String ORROLES = "orRoles";

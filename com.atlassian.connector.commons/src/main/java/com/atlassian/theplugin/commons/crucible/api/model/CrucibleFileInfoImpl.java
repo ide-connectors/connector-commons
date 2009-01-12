@@ -128,6 +128,21 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 		return counter;
 	}
 
+	public int getNumberOfLineComments() {
+		if (versionedComments == null) {
+			return 0;
+		}
+
+		int counter = 0;
+		for (VersionedComment comment : versionedComments) {
+			if (comment.isFromLineInfo() || comment.isToLineInfo()) {
+				++counter;
+			}
+		}
+
+		return counter;
+	}
+
 	public int getNumberOfComments(final String userName) {
 		if (versionedComments == null) {
 			return 0;

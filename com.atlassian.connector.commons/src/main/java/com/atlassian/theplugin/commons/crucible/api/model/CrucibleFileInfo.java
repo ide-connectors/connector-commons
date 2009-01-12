@@ -60,4 +60,6 @@ public interface CrucibleFileInfo extends VersionedFileInfo {
 	int getNumberOfCommentsDrafts();
 
 	int getNumberOfCommentsDrafts(final String userName);
+
+	int getNumberOfLineComments();
 }

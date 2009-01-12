@@ -436,7 +436,9 @@ public class ReviewAdapter {
 			} catch (ValueNotYetInitialized valueNotYetInitialized) {
 				// shame
 			}
-			reviewChanged = true;
+			if (differences.size() > 0) {
+				reviewChanged = true;
+			}
 		}
 
 		if (reviewChanged) {

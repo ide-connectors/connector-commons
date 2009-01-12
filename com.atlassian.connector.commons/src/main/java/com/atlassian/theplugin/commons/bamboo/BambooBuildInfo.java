@@ -20,8 +20,8 @@ import com.atlassian.theplugin.commons.RequestDataInfo;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 
 import java.util.Date;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
 public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	private BambooServerCfg server;
@@ -72,7 +72,12 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	}
 
 	public String getBuildResultUrl() {
-		return this.serverUrl + "/browse/" + this.buildKey + "-" + this.buildNumber;
+		String url = this.serverUrl + "/browse/" + this.buildKey;
+		if (this.getStatus() != BuildStatus.UNKNOWN || this.buildKey != null) {
+			url += "-" + this.buildNumber;
+		}
+
+		return url;
 	}
 
 	public String getProjectName() {

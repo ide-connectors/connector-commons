@@ -290,6 +290,8 @@ public final class CrucibleRestXmlHelper {
 
 		if (message != null) {
 			Element messageData = new Element("summary");
+			getContent(root).add(messageData);
+
 			CDATA patchT = new CDATA(escapeForCdata(message));
 			messageData.setContent(patchT);
 		}

@@ -351,7 +351,9 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		GeneralCommentBean newComment = (GeneralCommentBean) session.addGeneralComment(permId, comment);
-		fixUserName(server, newComment);
+		if (newComment != null) {
+			fixUserName(server, newComment);
+		}
 		return newComment;
 	}
 
@@ -359,7 +361,9 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		VersionedCommentBean newComment = (VersionedCommentBean) session.addVersionedComment(permId, riId, comment);
-		fixUserName(server, newComment);
+		if (newComment != null) {
+			fixUserName(server, newComment);
+		}
 		return newComment;
 	}
 
@@ -385,7 +389,9 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		GeneralCommentBean newReply = (GeneralCommentBean) session.addGeneralCommentReply(id, cId, comment);
-		fixUserName(server, newReply);
+		if (newReply != null) {
+			fixUserName(server, newReply);
+		}
 		return newReply;
 	}
 
@@ -393,7 +399,9 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		VersionedCommentBean newReply = (VersionedCommentBean) session.addVersionedCommentReply(id, cId, comment);
-		fixUserName(server, newReply);
+		if (newReply != null) {
+			fixUserName(server, newReply);
+		}
 		return newReply;
 	}
 

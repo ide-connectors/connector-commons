@@ -520,7 +520,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	private ReviewBean prepareDetailReview(Element element) throws RemoteApiException {
-		ReviewBean review = CrucibleRestXmlHelper.parseDetailedReviewNode(baseUrl, element);
+		ReviewBean review = CrucibleRestXmlHelper.parseDetailedReviewNode(getUsername(), baseUrl, element);
+
 
 		review.setProject(projectCache.getProject(review.getProjectKey()));
 
@@ -775,7 +776,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					comments.add(CrucibleRestXmlHelper.parseGeneralCommentNode(element));
+					GeneralComment c = CrucibleRestXmlHelper.parseGeneralCommentNode(getUsername(), element);
+					if (c != null) {
+						comments.add(c);
+					}
 				}
 			}
 			return comments;
@@ -802,7 +806,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					comments.add(CrucibleRestXmlHelper.parseVersionedCommentNode(element));
+					VersionedComment c = CrucibleRestXmlHelper.parseVersionedCommentNode(getUsername(), element);
+					if (c != null) {
+						comments.add(c);
+					}
 				}
 			}
 			return comments;
@@ -829,7 +836,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					comments.add(CrucibleRestXmlHelper.parseVersionedCommentNode(element));
+					VersionedComment c = CrucibleRestXmlHelper.parseVersionedCommentNode(getUsername(), element);
+					if (c != null) {
+						comments.add(c);
+					}
 				}
 			}
 			return comments;
@@ -856,7 +866,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					comments.add(CrucibleRestXmlHelper.parseGeneralCommentNode(element));
+					GeneralComment c = CrucibleRestXmlHelper.parseGeneralCommentNode(getUsername(), element);
+					if (c != null) {
+						comments.add(c);
+					}
 				}
 			}
 			return comments;
@@ -944,7 +957,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					return CrucibleRestXmlHelper.parseGeneralCommentNode(element);
+					return CrucibleRestXmlHelper.parseGeneralCommentNode(getUsername(), element);
 				}
 			}
 			return null;
@@ -1023,7 +1036,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					return CrucibleRestXmlHelper.parseVersionedCommentNode(element);
+					return CrucibleRestXmlHelper.parseVersionedCommentNode(getUsername(), element);
 				}
 			}
 			return null;
@@ -1052,8 +1065,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					GeneralCommentBean reply = CrucibleRestXmlHelper.parseGeneralCommentNode(element);
-					reply.setReply(true);
+					GeneralCommentBean reply = CrucibleRestXmlHelper.parseGeneralCommentNode(getUsername(), element);
+					if (reply != null) {
+						reply.setReply(true);
+					}
 					return reply;
 				}
 			}
@@ -1084,8 +1099,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					VersionedCommentBean reply = CrucibleRestXmlHelper.parseVersionedCommentNode(element);
-					reply.setReply(true);
+					VersionedCommentBean reply = CrucibleRestXmlHelper.parseVersionedCommentNode(getUsername(), element);
+					if (reply != null) {
+						reply.setReply(true);
+					}
 					return reply;
 				}
 			}

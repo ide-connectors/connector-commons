@@ -203,11 +203,13 @@ public class ReviewAdapter {
 
 		GeneralComment newComment = facade.addGeneralComment(getServer(), review.getPermId(), comment);
 
-		review.getGeneralComments().add(newComment);
+		if (newComment != null) {
+			review.getGeneralComments().add(newComment);
 
-		// notify listeners
-		for (CrucibleReviewListener listener : getListeners()) {
-			listener.createdOrEditedGeneralComment(this, newComment);
+			// notify listeners
+			for (CrucibleReviewListener listener : getListeners()) {
+				listener.createdOrEditedGeneralComment(this, newComment);
+			}
 		}
 	}
 
@@ -217,18 +219,19 @@ public class ReviewAdapter {
 		GeneralComment newReply = facade.addGeneralCommentReply(
 				getServer(), getPermId(), parentComment.getPermId(), replyComment);
 
-		for (GeneralComment comment : review.getGeneralComments()) {
-			if (comment.equals(parentComment)) {
-				comment.getReplies().add(newReply);
-				break;
+		if (newReply != null) {
+			for (GeneralComment comment : review.getGeneralComments()) {
+				if (comment.equals(parentComment)) {
+					comment.getReplies().add(newReply);
+					break;
+				}
+			}
+
+			// notify listeners
+			for (CrucibleReviewListener listener : getListeners()) {
+				listener.createdOrEditedGeneralCommentReply(this, parentComment, newReply);
 			}
 		}
-
-		// notify listeners
-		for (CrucibleReviewListener listener : getListeners()) {
-			listener.createdOrEditedGeneralCommentReply(this, parentComment, newReply);
-		}
-
 	}
 
 	/**
@@ -262,19 +265,21 @@ public class ReviewAdapter {
 
 		VersionedComment newVersionedComment = facade.addVersionedComment(getServer(), getPermId(),
 				file.getPermId(), newComment);
-		List<VersionedComment> comments;
-		comments = file.getVersionedComments();
+		if (newVersionedComment != null) {
+			List<VersionedComment> comments;
+			comments = file.getVersionedComments();
 
-		if (comments == null) {
-			comments = facade.getVersionedComments(getServer(), getPermId(), file.getPermId());
-			file.setVersionedComments(comments);
-		} else {
-			comments.add(newVersionedComment);
-		}
+			if (comments == null) {
+				comments = facade.getVersionedComments(getServer(), getPermId(), file.getPermId());
+				file.setVersionedComments(comments);
+			} else {
+				comments.add(newVersionedComment);
+			}
 
-		// notify listeners
-		for (CrucibleReviewListener listener : getListeners()) {
-			listener.createdOrEditedVersionedComment(this, file.getPermId(), newVersionedComment);
+			// notify listeners
+			for (CrucibleReviewListener listener : getListeners()) {
+				listener.createdOrEditedVersionedComment(this, file.getPermId(), newVersionedComment);
+			}
 		}
 	}
 
@@ -285,11 +290,13 @@ public class ReviewAdapter {
 		VersionedComment newComment = facade.addVersionedCommentReply(
 				getServer(), getPermId(), parentComment.getPermId(), nComment);
 
-		parentComment.getReplies().add(newComment);
+		if (newComment != null) {
+			parentComment.getReplies().add(newComment);
 
-		// notify listeners
-		for (CrucibleReviewListener listener : getListeners()) {
-			listener.createdOrEditedVersionedCommentReply(this, file.getPermId(), parentComment, newComment);
+			// notify listeners
+			for (CrucibleReviewListener listener : getListeners()) {
+				listener.createdOrEditedVersionedCommentReply(this, file.getPermId(), parentComment, newComment);
+			}
 		}
 	}
 

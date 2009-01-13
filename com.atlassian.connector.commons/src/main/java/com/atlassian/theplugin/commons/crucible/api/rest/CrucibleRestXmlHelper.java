@@ -163,7 +163,7 @@ public final class CrucibleRestXmlHelper {
 		return review;
 	}
 
-	public static ReviewBean parseDetailedReviewNode(String serverUrl, Element reviewNode) {
+	public static ReviewBean parseDetailedReviewNode(String serverUrl, String myUserName, Element reviewNode) {
 		ReviewBean review = new ReviewBean(serverUrl);
 		parseReview(reviewNode, review);
 
@@ -186,7 +186,10 @@ public final class CrucibleRestXmlHelper {
 			List<GeneralComment> generalComments = new ArrayList<GeneralComment>();
 
 			for (Element generalCommentData : generalCommentsDataNode) {
-				generalComments.add(parseGeneralCommentNode(generalCommentData));
+				GeneralComment c = parseGeneralCommentNode(myUserName, generalCommentData);
+				if (c != null) {
+					generalComments.add(c);
+				}
 			}
 			review.setGeneralComments(generalComments);
 		}
@@ -198,7 +201,10 @@ public final class CrucibleRestXmlHelper {
 			List<Element> versionedCommentsData = getChildElements(element, "versionedLineCommentData");
 			for (Element versionedElementData : versionedCommentsData) {
 				//ONLY COMMENTS NO FILES
-				comments.add(parseVersionedCommentNode(versionedElementData));
+				VersionedComment c = parseVersionedCommentNode(myUserName, versionedElementData);
+				if (c != null) {
+					comments.add(c);
+				}
 			}
 		}
 
@@ -454,25 +460,37 @@ public final class CrucibleRestXmlHelper {
 		return reviewItem;
 	}
 
-	private static void parseGeneralComment(GeneralCommentBean commentBean, Element reviewCommentNode) {
-		parseComment(commentBean, reviewCommentNode);
+	private static boolean parseGeneralComment(String myUserName, GeneralCommentBean commentBean,
+											Element reviewCommentNode) {
+
+		if (!parseComment(myUserName, commentBean, reviewCommentNode)) {
+			return false;
+		}
 		List<Element> replies = getChildElements(reviewCommentNode, "replies");
 		if (replies != null) {
 			List<GeneralComment> rep = new ArrayList<GeneralComment>();
 			for (Element repliesNode : replies) {
 				List<Element> entries = getChildElements(repliesNode, "generalCommentData");
 				for (Element replyNode : entries) {
-					GeneralCommentBean reply = parseGeneralCommentNode(replyNode);
-					reply.setReply(true);
-					rep.add(reply);
+					GeneralCommentBean reply = parseGeneralCommentNode(myUserName, replyNode);
+					if (reply != null) {
+						reply.setReply(true);
+						rep.add(reply);
+					}
 				}
 			}
 			commentBean.setReplies(rep);
 		}
+
+		return true;
 	}
 
-	private static void parseVersionedComment(VersionedCommentBean commentBean, Element reviewCommentNode) {
-		parseComment(commentBean, reviewCommentNode);
+	private static boolean parseVersionedComment(String myUserName, VersionedCommentBean commentBean,
+											  Element reviewCommentNode) {
+
+		if (!parseComment(myUserName, commentBean, reviewCommentNode)) {
+			return false;
+		}
 
 		// read following xml
 		// <reviewItemId>
@@ -494,7 +512,7 @@ public final class CrucibleRestXmlHelper {
 			for (Element repliesNode : replies) {
 				List<Element> entries = getChildElements(repliesNode, "generalCommentData");
 				for (Element replyNode : entries) {
-					VersionedCommentBean reply = parseVersionedCommentNodeWithHints(replyNode,
+					VersionedCommentBean reply = parseVersionedCommentNodeWithHints(myUserName, replyNode,
 							commentBean.isFromLineInfo(),
 							commentBean.getFromStartLine(),
 							commentBean.getToStartLine(),
@@ -502,24 +520,35 @@ public final class CrucibleRestXmlHelper {
 							commentBean.getFromEndLine(),
 							commentBean.getToEndLine()
 					);
-					reply.setReply(true);
-					rep.add(reply);
+					if (reply != null) {
+						reply.setReply(true);
+						rep.add(reply);
+					}
 				}
 			}
 			commentBean.setReplies(rep);
 		}
 
+		return true;
 	}
 
-	private static void parseComment(CommentBean commentBean, Element reviewCommentNode) {
+	private static boolean parseComment(String myUserName, CommentBean commentBean, Element reviewCommentNode) {
 
+		boolean isDraft = Boolean.parseBoolean(getChildText(reviewCommentNode, "draft"));
 		for (Element element : getChildElements(reviewCommentNode, "user")) {
-			commentBean.setAuthor(parseUserNode(element));
+			UserBean commentAuthor = parseUserNode(element);
+
+			// drop comments in draft state where I am the author - bug PL-772 and PL-900
+			if (isDraft && !commentAuthor.getUserName().equals(myUserName)) {
+				return false;
+			}
+			commentBean.setAuthor(commentAuthor);
 		}
+		commentBean.setDraft(isDraft);
+		
 		commentBean.setMessage(getChildText(reviewCommentNode, "message"));
 		commentBean.setDefectRaised(Boolean.parseBoolean(getChildText(reviewCommentNode, "defectRaised")));
 		commentBean.setDefectApproved(Boolean.parseBoolean(getChildText(reviewCommentNode, "defectApproved")));
-		commentBean.setDraft(Boolean.parseBoolean(getChildText(reviewCommentNode, "draft")));
 		commentBean.setDeleted(Boolean.parseBoolean(getChildText(reviewCommentNode, "deleted")));
 		commentBean.setCreateDate(parseDateTime(getChildText(reviewCommentNode, "createDate")));
 		PermIdBean permId = new PermIdBean(getChildText(reviewCommentNode, "permaIdAsString"));
@@ -543,6 +572,7 @@ public final class CrucibleRestXmlHelper {
 				}
 			}
 		}
+		return true;
 	}
 
 	private static void prepareComment(Comment comment, Element commentNode) {
@@ -573,9 +603,11 @@ public final class CrucibleRestXmlHelper {
 		getContent(commentNode).add(replies);
 	}
 
-	public static GeneralCommentBean parseGeneralCommentNode(Element reviewCommentNode) {
+	public static GeneralCommentBean parseGeneralCommentNode(String myUserName, Element reviewCommentNode) {
 		GeneralCommentBean reviewCommentBean = new GeneralCommentBean();
-		parseGeneralComment(reviewCommentBean, reviewCommentNode);
+		if (!parseGeneralComment(myUserName, reviewCommentBean, reviewCommentNode)) {
+			return null;
+		}
 		return reviewCommentBean;
 	}
 
@@ -605,20 +637,23 @@ public final class CrucibleRestXmlHelper {
 		return doc;
 	}
 
-	public static VersionedCommentBean parseVersionedCommentNodeWithHints(Element reviewCommentNode,
+	public static VersionedCommentBean parseVersionedCommentNodeWithHints(String myUserName, Element reviewCommentNode,
 			boolean fromLineInfo,
 			int fromStartLine,
 			int toStartLine,
 			boolean toLineInfo,
 			int fromEndLine,
 			int toEndLine) {
-		VersionedCommentBean result = parseVersionedCommentNode(reviewCommentNode);
-		if (result.isFromLineInfo() == false && fromLineInfo == true) {
+		VersionedCommentBean result = parseVersionedCommentNode(myUserName, reviewCommentNode);
+		if (result == null) {
+			return null;
+		}
+		if (!result.isFromLineInfo() && fromLineInfo) {
 			result.setFromLineInfo(true);
 			result.setFromStartLine(fromStartLine);
 			result.setFromEndLine(fromEndLine);
 		}
-		if (result.isToLineInfo() == false && toLineInfo == true) {
+		if (!result.isToLineInfo() && toLineInfo) {
 			result.setToLineInfo(true);
 			result.setToStartLine(toStartLine);
 			result.setToEndLine(toEndLine);
@@ -626,9 +661,11 @@ public final class CrucibleRestXmlHelper {
 		return result;
 	}
 
-	public static VersionedCommentBean parseVersionedCommentNode(Element reviewCommentNode) {
+	public static VersionedCommentBean parseVersionedCommentNode(String myUserName, Element reviewCommentNode) {
 		VersionedCommentBean comment = new VersionedCommentBean();
-		parseVersionedComment(comment, reviewCommentNode);
+		if (!parseVersionedComment(myUserName, comment, reviewCommentNode)) {
+			return null;
+		}
 
 		if (reviewCommentNode.getChild("reviewItemId") != null) {
 			PermIdBean reviewItemId = new PermIdBean(reviewCommentNode.getChild("reviewItemId").getChild("id").getText());

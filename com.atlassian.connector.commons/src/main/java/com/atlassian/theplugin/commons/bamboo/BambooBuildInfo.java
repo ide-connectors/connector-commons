@@ -73,7 +73,7 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 
 	public String getBuildResultUrl() {
 		String url = this.serverUrl + "/browse/" + this.buildKey;
-		if (this.getStatus() != BuildStatus.UNKNOWN || this.buildKey != null) {
+		if (this.getStatus() != BuildStatus.UNKNOWN || this.buildNumber != null) {
 			url += "-" + this.buildNumber;
 		}
 

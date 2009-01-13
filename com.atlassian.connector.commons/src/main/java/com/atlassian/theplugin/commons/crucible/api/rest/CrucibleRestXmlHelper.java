@@ -423,6 +423,12 @@ public final class CrucibleRestXmlHelper {
 		String c = getChildText(reviewItemNode, "commitType");
 		if (!"".equals(c)) {
 			reviewItem.setCommitType(CommitType.valueOf(c));
+			if (reviewItem.getCommitType() == CommitType.Added) {
+				if (!"".equals(reviewItem.getOldFileDescriptor().getRevision())
+						&& !"".equals(reviewItem.getFileDescriptor().getRevision())) {
+					reviewItem.setCommitType(CommitType.Moved);
+				}
+			}
 		} else {
 			if (!"".equals(reviewItem.getOldFileDescriptor().getRevision())
 					&& !"".equals(reviewItem.getFileDescriptor().getRevision())) {
@@ -461,7 +467,7 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	private static boolean parseGeneralComment(String myUserName, GeneralCommentBean commentBean,
-											Element reviewCommentNode) {
+			Element reviewCommentNode) {
 
 		if (!parseComment(myUserName, commentBean, reviewCommentNode)) {
 			return false;
@@ -486,7 +492,7 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	private static boolean parseVersionedComment(String myUserName, VersionedCommentBean commentBean,
-											  Element reviewCommentNode) {
+			Element reviewCommentNode) {
 
 		if (!parseComment(myUserName, commentBean, reviewCommentNode)) {
 			return false;
@@ -545,7 +551,7 @@ public final class CrucibleRestXmlHelper {
 			commentBean.setAuthor(commentAuthor);
 		}
 		commentBean.setDraft(isDraft);
-		
+
 		commentBean.setMessage(getChildText(reviewCommentNode, "message"));
 		commentBean.setDefectRaised(Boolean.parseBoolean(getChildText(reviewCommentNode, "defectRaised")));
 		commentBean.setDefectApproved(Boolean.parseBoolean(getChildText(reviewCommentNode, "defectApproved")));

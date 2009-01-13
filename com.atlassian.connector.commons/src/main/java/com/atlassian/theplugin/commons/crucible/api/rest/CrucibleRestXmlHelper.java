@@ -643,6 +643,7 @@ public final class CrucibleRestXmlHelper {
 		return doc;
 	}
 
+	///CHECKSTYLE:OFF
 	public static VersionedCommentBean parseVersionedCommentNodeWithHints(String myUserName, Element reviewCommentNode,
 			boolean fromLineInfo,
 			int fromStartLine,
@@ -666,6 +667,7 @@ public final class CrucibleRestXmlHelper {
 		}
 		return result;
 	}
+	///CHECKSTYLE:ON
 
 	public static VersionedCommentBean parseVersionedCommentNode(String myUserName, Element reviewCommentNode) {
 		VersionedCommentBean comment = new VersionedCommentBean();

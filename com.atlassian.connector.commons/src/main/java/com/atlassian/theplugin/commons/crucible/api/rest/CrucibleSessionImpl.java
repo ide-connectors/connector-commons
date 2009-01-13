@@ -520,7 +520,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	private ReviewBean prepareDetailReview(Element element) throws RemoteApiException {
-		ReviewBean review = CrucibleRestXmlHelper.parseDetailedReviewNode(getUsername(), baseUrl, element);
+		ReviewBean review = CrucibleRestXmlHelper.parseDetailedReviewNode(baseUrl, getUsername(), element);
 
 
 		review.setProject(projectCache.getProject(review.getProjectKey()));

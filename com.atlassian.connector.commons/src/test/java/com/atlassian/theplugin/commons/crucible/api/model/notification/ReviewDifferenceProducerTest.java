@@ -195,7 +195,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		assertEquals(2, notifications.size());
 		assertFalse(p.isShortEqual());
-		assertTrue(p.isFilesEqual());
+		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.NEW_GENERAL_COMMENT, notifications.get(0).getType());
 	}
 
@@ -250,7 +250,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		assertEquals(1, notifications.size());
 		assertFalse(p.isShortEqual());
-		assertTrue(p.isFilesEqual());
+		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.NEW_REPLY, notifications.get(0).getType());
 	}
 
@@ -283,7 +283,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		assertEquals(1, notifications.size());
 		assertFalse(p.isShortEqual());
-		assertTrue(p.isFilesEqual());
+		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.UPDATED_REPLY, notifications.get(0).getType());
 	}
 
@@ -300,7 +300,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		assertEquals(1, notifications.size());
 		assertFalse(p.isShortEqual());
-		assertTrue(p.isFilesEqual());
+		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.REMOVED_REPLY, notifications.get(0).getType());
 	}
 
@@ -317,7 +317,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		assertEquals(1, notifications.size());
 		assertFalse(p.isShortEqual());
-		assertTrue(p.isFilesEqual());
+		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.UPDATED_GENERAL_COMMENT, notifications.get(0).getType());
 	}
 
@@ -334,7 +334,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		assertEquals(2, notifications.size());
 		assertFalse(p.isShortEqual());
-		assertTrue(p.isFilesEqual());
+		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.REMOVED_GENERAL_COMMENT, notifications.get(0).getType());
 	}
 
@@ -352,7 +352,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		assertEquals(2, notifications.size());
 		assertTrue(p.isShortEqual());
-		assertTrue(p.isFilesEqual());
+		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.NEW_VERSIONED_COMMENT, notifications.get(0).getType());
 		assertEquals(CrucibleNotificationType.NEW_VERSIONED_COMMENT, notifications.get(1).getType());
 
@@ -362,7 +362,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		assertEquals(4, notifications.size());
 		assertTrue(p.isShortEqual());
-		assertTrue(p.isFilesEqual());
+		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.NEW_VERSIONED_COMMENT, notifications.get(0).getType());
 		assertEquals(CrucibleNotificationType.NEW_VERSIONED_COMMENT, notifications.get(1).getType());
 		assertEquals(CrucibleNotificationType.NEW_VERSIONED_COMMENT, notifications.get(2).getType());
@@ -383,7 +383,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		assertEquals(1, notifications.size());
 		assertTrue(p.isShortEqual());
-		assertTrue(p.isFilesEqual());
+		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.UPDATED_VERSIONED_COMMENT, notifications.get(0).getType());
 
 		((VersionedCommentBean) iter.next().getVersionedComments().get(0)).setMessage("new message");
@@ -392,7 +392,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		assertEquals(2, notifications.size());
 		assertTrue(p.isShortEqual());
-		assertTrue(p.isFilesEqual());
+		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.UPDATED_VERSIONED_COMMENT, notifications.get(0).getType());
 		assertEquals(CrucibleNotificationType.UPDATED_VERSIONED_COMMENT, notifications.get(1).getType());
 	}
@@ -411,7 +411,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		assertEquals(2, notifications.size());
 		assertTrue(p.isShortEqual());
-		assertTrue(p.isFilesEqual());
+		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.REMOVED_VERSIONED_COMMENT, notifications.get(0).getType());
 		assertEquals(CrucibleNotificationType.REMOVED_VERSIONED_COMMENT, notifications.get(1).getType());
 
@@ -421,7 +421,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		assertEquals(4, notifications.size());
 		assertTrue(p.isShortEqual());
-		assertTrue(p.isFilesEqual());
+		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.REMOVED_VERSIONED_COMMENT, notifications.get(0).getType());
 		assertEquals(CrucibleNotificationType.REMOVED_VERSIONED_COMMENT, notifications.get(1).getType());
 		assertEquals(CrucibleNotificationType.REMOVED_VERSIONED_COMMENT, notifications.get(2).getType());
@@ -443,7 +443,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		assertEquals(1, notifications.size());
 		assertTrue(p.isShortEqual());
-		assertTrue(p.isFilesEqual());
+		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.NEW_REPLY, notifications.get(0).getType());
 	}
 
@@ -465,7 +465,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		assertEquals(1, notifications.size());
 		assertTrue(p.isShortEqual());
-		assertTrue(p.isFilesEqual());
+		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.UPDATED_REPLY, notifications.get(0).getType());
 	}
 
@@ -483,7 +483,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		assertEquals(1, notifications.size());
 		assertTrue(p.isShortEqual());
-		assertTrue(p.isFilesEqual());
+		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.REMOVED_REPLY, notifications.get(0).getType());
 	}
 

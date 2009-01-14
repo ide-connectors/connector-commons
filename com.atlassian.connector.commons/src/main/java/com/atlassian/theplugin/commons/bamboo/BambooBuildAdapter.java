@@ -95,7 +95,7 @@ public class BambooBuildAdapter {
 	}
 
 	public String getBuildNumber() {
-		return build.getBuildNumber() == null ? "0" : build.getBuildNumber();
+		return build.getBuildNumber() == null ? "" : build.getBuildNumber();
 	}
 
 	public String getBuildResultUrl() {

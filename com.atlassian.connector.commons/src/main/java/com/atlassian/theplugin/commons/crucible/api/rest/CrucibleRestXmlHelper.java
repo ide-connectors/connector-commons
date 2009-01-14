@@ -750,7 +750,11 @@ public final class CrucibleRestXmlHelper {
 		newValue.setName(getChildText(element, "name"));
 		switch (type) {
 			case INTEGER:
-				newValue.setValue(Integer.valueOf(getChildText(element, "value")));
+				try {
+					newValue.setValue(Integer.valueOf(getChildText(element, "value")));
+				} catch (NumberFormatException e) {
+					newValue.setValue(0);
+				}
 				break;
 			case STRING:
 				newValue.setValue(getChildText(element, "value"));

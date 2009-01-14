@@ -14,6 +14,7 @@ public class ReviewDifferenceProducer {
 	private final List<CrucibleNotification> notifications = new ArrayList<CrucibleNotification>();
 	private boolean shortEqual;
 	private boolean filesEqual;
+	private int changes = 0;
 
 	public ReviewDifferenceProducer(@NotNull final ReviewAdapter oldReview, @NotNull final ReviewAdapter newReview) {
 		this.oldReview = oldReview;
@@ -28,12 +29,16 @@ public class ReviewDifferenceProducer {
 		return filesEqual;
 	}
 
+	public int getChangesCount() {
+		return changes;
+	}
+
 	public List<CrucibleNotification> getDiff() {
 		shortEqual = isShortContentEqual();
 		filesEqual = areFilesEqual();
 		// check comments status
 		try {
-			checkComments(oldReview, newReview, true);
+			changes = checkComments(oldReview, newReview, true);
 		} catch (ValueNotYetInitialized valueNotYetInitialized) {
 			//all is it correct
 		}
@@ -193,7 +198,8 @@ public class ReviewDifferenceProducer {
 		return change;
 	}
 
-	private void checkGeneralReplies(ReviewAdapter review, GeneralComment oldComment, GeneralComment newComment) {
+	private int checkGeneralReplies(ReviewAdapter review, GeneralComment oldComment, GeneralComment newComment) {
+		int changes = 0;
 		for (GeneralComment reply : newComment.getReplies()) {
 			GeneralComment existingReply = null;
 			if (oldComment != null) {
@@ -203,11 +209,17 @@ public class ReviewDifferenceProducer {
 						break;
 					}
 				}
-				if ((existingReply == null) || !existingReply.getMessage().equals(reply.getMessage())) {
+				if ((existingReply == null)
+						|| !existingReply.getMessage().equals(reply.getMessage())
+						|| existingReply.isDraft() != reply.isDraft()) {
 					if (existingReply == null) {
-						notifications.add(new NewReplyCommentNotification(review, newComment, reply));
+						changes++;
+						notifications.add(new NewReplyCommentNotification(review, newComment, reply, reply.getAuthor(),
+								reply.isDraft()));
 					} else {
-						notifications.add(new UpdatedReplyCommentNotification(review, newComment, reply));
+						changes++;
+						notifications.add(new UpdatedReplyCommentNotification(review, reply, reply.getAuthor(),
+								reply.isDraft(), existingReply.isDraft()));
 					}
 				}
 			}
@@ -217,13 +229,16 @@ public class ReviewDifferenceProducer {
 			List<GeneralComment> deletedGen = getDeletedComments(
 					oldComment.getReplies(), newComment.getReplies());
 			for (GeneralComment gc : deletedGen) {
-				notifications.add(new RemovedReplyCommentNotification(review, gc));
+				changes++;
+				notifications.add(new RemovedReplyCommentNotification(review, gc, gc.getAuthor(), gc.isDraft()));
 			}
 		}
+		return changes;
 	}
 
-	private void checkVersionedReplies(ReviewAdapter review, final PermId filePermId, VersionedComment oldComment,
+	private int checkVersionedReplies(ReviewAdapter review, final PermId filePermId, VersionedComment oldComment,
 			VersionedComment newComment) {
+		int changes = 0;
 		for (VersionedComment reply : newComment.getReplies()) {
 			VersionedComment existingReply = null;
 			if (oldComment != null) {
@@ -233,11 +248,18 @@ public class ReviewDifferenceProducer {
 						break;
 					}
 				}
-				if ((existingReply == null) || !existingReply.getMessage().equals(reply.getMessage())) {
+				if ((existingReply == null)
+						|| !existingReply.getMessage().equals(reply.getMessage())
+						|| existingReply.isDraft() != reply.isDraft()) {
 					if (existingReply == null) {
-						notifications.add(new NewReplyCommentNotification(review, newComment, reply));
+						changes++;
+						notifications.add(new NewReplyCommentNotification(review, newComment, reply, reply.getAuthor(),
+								reply.isDraft()));
 					} else {
-						notifications.add(new UpdatedReplyCommentNotification(review, newComment, reply));
+						changes++;
+						notifications.add(new UpdatedReplyCommentNotification(review, reply, reply.getAuthor(),
+								reply.isDraft(), existingReply.isDraft()));
+
 					}
 				}
 			}
@@ -247,15 +269,17 @@ public class ReviewDifferenceProducer {
 			List<VersionedComment> deletedVcs = getDeletedComments(
 					oldComment.getReplies(), newComment.getReplies());
 			for (VersionedComment vc : deletedVcs) {
-				notifications.add(new RemovedReplyCommentNotification(review, vc));
+				changes++;
+				notifications.add(new RemovedReplyCommentNotification(review, vc, vc.getAuthor(), vc.isDraft()));
 			}
 		}
+		return changes;
 	}
 
-	private void checkComments(final ReviewAdapter oldReviewAdapter, final ReviewAdapter newReviewAdapter,
+	private int checkComments(final ReviewAdapter oldReviewAdapter, final ReviewAdapter newReviewAdapter,
 			final boolean checkFiles)
 			throws ValueNotYetInitialized {
-		int notificationsSize = notifications.size();
+		int changes = 0;
 
 		for (GeneralComment comment : newReviewAdapter.getGeneralComments()) {
 			GeneralComment existing = null;
@@ -268,20 +292,26 @@ public class ReviewDifferenceProducer {
 
 			if ((existing == null)
 					|| !existing.getMessage().equals(comment.getMessage())
-					|| existing.isDefectRaised() != comment.isDefectRaised()) {
+					|| existing.isDefectRaised() != comment.isDefectRaised()
+					|| existing.isDraft() != comment.isDraft()) {
 				if (existing == null) {
-					notifications.add(new NewGeneralCommentNotification(newReviewAdapter, comment));
+					changes++;
+					notifications.add(new NewGeneralCommentNotification(newReviewAdapter, comment, comment.getAuthor(),
+							comment.isDraft()));
 				} else {
-					notifications.add(new UpdatedGeneralCommentNotification(newReviewAdapter, comment));
+					changes++;
+					notifications.add(new UpdatedGeneralCommentNotification(newReviewAdapter, comment.getAuthor(),
+							comment.isDraft(), existing.isDraft()));
 				}
 			}
-			checkGeneralReplies(newReviewAdapter, existing, comment);
+			changes += checkGeneralReplies(newReviewAdapter, existing, comment);
 		}
 
 		List<GeneralComment> deletedGen = getDeletedComments(
 				oldReviewAdapter.getGeneralComments(), newReviewAdapter.getGeneralComments());
 		for (GeneralComment gc : deletedGen) {
-			notifications.add(new RemovedGeneralCommentNotification(newReviewAdapter, gc));
+			changes++;
+			notifications.add(new RemovedGeneralCommentNotification(newReviewAdapter, gc, gc.getAuthor(), gc.isDraft()));
 		}
 
 		if (checkFiles) {
@@ -300,14 +330,21 @@ public class ReviewDifferenceProducer {
 					}
 					if ((existing == null)
 							|| !existing.getMessage().equals(comment.getMessage())
-							|| existing.isDefectRaised() != comment.isDefectRaised()) {
+							|| existing.isDefectRaised() != comment.isDefectRaised()
+							|| existing.isDraft() != comment.isDraft()) {
 						if (existing == null) {
-							notifications.add(new NewVersionedCommentNotification(newReviewAdapter, comment));
+							changes++;
+							notifications
+									.add(new NewVersionedCommentNotification(newReviewAdapter, comment, comment.getAuthor(),
+											comment.isDraft()));
 						} else {
-							notifications.add(new UpdatedVersionedCommentNotification(newReviewAdapter, comment));
+							changes++;
+							notifications
+									.add(new UpdatedVersionedCommentNotification(newReviewAdapter, comment.getAuthor(),
+											comment.isDraft(), existing.isDraft()));
 						}
 					}
-					checkVersionedReplies(newReviewAdapter, fileInfo.getPermId(), existing, comment);
+					changes += checkVersionedReplies(newReviewAdapter, fileInfo.getPermId(), existing, comment);
 				}
 			}
 
@@ -321,15 +358,18 @@ public class ReviewDifferenceProducer {
 						List<VersionedComment> deletedVcs = getDeletedComments(
 								oldVersionedComments, newVersionedComments);
 						for (VersionedComment vc : deletedVcs) {
-							notifications.add(new RemovedVersionedCommentNotification(newReviewAdapter, vc));
+							changes++;
+							notifications.add(new RemovedVersionedCommentNotification(newReviewAdapter, vc, vc.getAuthor(),
+									vc.isDraft()));
 						}
 					}
 				}
 			}
 		}
-		if (notifications.size() > notificationsSize) {
+		if (changes > 0) {
 			filesEqual = false;
 		}
+		return changes;
 	}
 
 	private <T extends Comment> List<T> getDeletedComments(List<T> org, List<T> modified) {

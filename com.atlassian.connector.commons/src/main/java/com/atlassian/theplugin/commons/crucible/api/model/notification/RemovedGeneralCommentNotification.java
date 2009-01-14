@@ -2,12 +2,14 @@ package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
 
-public class RemovedGeneralCommentNotification extends AbstractReviewNotification {
+public class RemovedGeneralCommentNotification extends AbstractCommentNotification {
 	private final GeneralComment comment;
 
-	public RemovedGeneralCommentNotification(ReviewAdapter review, GeneralComment comment) {
-		super(review);
+	public RemovedGeneralCommentNotification(final ReviewAdapter review, final GeneralComment comment, final User user,
+			final boolean isDraft) {
+		super(review, user, isDraft);
 		this.comment = comment;
 	}
 

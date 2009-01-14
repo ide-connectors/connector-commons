@@ -18,14 +18,14 @@ package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
 
-public class NewReplyCommentNotification extends AbstractReviewNotification {
-	private Comment comment;
+public class NewReplyCommentNotification extends AbstractCommentNotification {
 	private Comment reply;
 
-	public NewReplyCommentNotification(ReviewAdapter review, Comment comment, Comment reply) {
-		super(review);
-		this.comment = comment;
+	public NewReplyCommentNotification(final ReviewAdapter review, final Comment comment, final Comment reply, final User user,
+			final boolean isDraft) {
+		super(review, user, isDraft);
 		this.reply = reply;
 	}
 

@@ -443,7 +443,7 @@ public class ReviewAdapter {
 			} catch (ValueNotYetInitialized valueNotYetInitialized) {
 				// shame
 			}
-			if (differences.size() > 0) {
+			if (reviewDifferenceProducer.getChangesCount() > 0) {
 				reviewChanged = true;
 			}
 		}

@@ -1,14 +1,12 @@
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
 
-public class UpdatedGeneralCommentNotification extends AbstractReviewNotification {
-	private final GeneralComment comment;
-
-	public UpdatedGeneralCommentNotification(ReviewAdapter review, GeneralComment comment) {
-		super(review);
-		this.comment = comment;
+public class UpdatedGeneralCommentNotification extends AbstractUpdatedCommentNotification {
+	public UpdatedGeneralCommentNotification(final ReviewAdapter review, final User user,
+			final boolean isDraft, final boolean wasDraft) {
+		super(review, user, isDraft, wasDraft);
 	}
 
 	public CrucibleNotificationType getType() {
@@ -16,6 +14,6 @@ public class UpdatedGeneralCommentNotification extends AbstractReviewNotificatio
 	}
 
 	public String getPresentationMessage() {
-		return "General comment updated by " + comment.getAuthor().getDisplayName();
+		return "General comment updated by " + getAuthor().getDisplayName();
 	}
 }

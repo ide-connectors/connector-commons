@@ -207,9 +207,9 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 				&& newFile != null && newFile.getUrl().length() > 0) {
 			return oldFile.getUrl() + " (mod)";
 		} else if (oldFile != null && oldFile.getUrl().length() > 0) {
-			return newFile.getUrl() + " (del)";
+			return oldFile.getUrl() + " (del)";
 		} else if (newFile != null && newFile.getUrl().length() > 0) {
-			return oldFile.getUrl() + " (new)";
+			return newFile.getUrl() + " (new)";
 		} else {
 			return "(unknown state)";
 		}

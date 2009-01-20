@@ -430,15 +430,6 @@ public final class CrucibleRestXmlHelper {
 					reviewItem.setCommitType(CommitType.Moved);
 				}
 			}
-			// adjust to case when instead of added status CRU returns modified file (added and modified commits in one review)
-			if (reviewItem.getCommitType() == CommitType.Modified) {
-				if ("".equals(reviewItem.getOldFileDescriptor().getUrl())
-						&& "".equals(reviewItem.getOldFileDescriptor().getRevision())
-						&& !"".equals(reviewItem.getFileDescriptor().getUrl())
-						&& !"".equals(reviewItem.getFileDescriptor().getRevision())) {
-					reviewItem.setCommitType(CommitType.Added);
-				}
-			}
 		} else {
 			if (!"".equals(reviewItem.getOldFileDescriptor().getRevision())
 					&& !"".equals(reviewItem.getFileDescriptor().getRevision())) {

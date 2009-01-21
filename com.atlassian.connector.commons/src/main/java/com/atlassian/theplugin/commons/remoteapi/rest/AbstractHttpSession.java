@@ -222,7 +222,7 @@ public abstract class AbstractHttpSession {
 	 * @return constructed exception
 	 */
 	private IOException createIOException(String message, Throwable cause) {
-		final IOException ioException = new IOException(message, cause);
+		final IOException ioException = new IOException(message);
 		ioException.initCause(cause);
 		return ioException;
 	}

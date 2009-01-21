@@ -19,8 +19,8 @@ import java.awt.*;
 
 public abstract class UiTaskAdapter implements UiTask {
 
-	final String actionMame;
-	final Component component;
+	private final String actionMame;
+	private final Component component;
 
 	public UiTaskAdapter(final String actionMame, final Component component) {
 		this.actionMame = actionMame;

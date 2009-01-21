@@ -17,13 +17,13 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 public enum State {
+	REVIEW("Review", "Under Review"),
+	SUMMARIZE("Summarize", "Summarize"),
+	DRAFT("Draft", "Draft"),
     APPROVAL("Approval", "Pending Approval"),
     CLOSED("Closed", "Closed"),
     DEAD("Dead", "Dead"),
-    DRAFT("Draft", "Draft"),
     REJECTED("Rejected", "Rejected"),
-    REVIEW("Review", "Under Review"),
-    SUMMARIZE("Summarize", "Summarize"),
 	ABANDONED("Abandoned", "Abandoned"),
 	UNKNOWN("Unknown", "Review needs fixing");
     private final String value;

@@ -16,14 +16,11 @@
 
 package com.atlassian.theplugin.commons.remoteapi.rest;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.atlassian.theplugin.commons.cfg.Server;
+import com.atlassian.theplugin.commons.exception.HttpProxySettingsException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
@@ -41,11 +38,13 @@ import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
 
-import com.atlassian.theplugin.commons.cfg.Server;
-import com.atlassian.theplugin.commons.exception.HttpProxySettingsException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
-import com.atlassian.theplugin.commons.util.UrlUtil;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Communication stub for lightweight XML based APIs.
@@ -120,11 +119,11 @@ public abstract class AbstractHttpSession {
 	/**
      * Public constructor for AbstractHttpSession
      *
-     * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
-     *          for malformed url
-	 * @param server
-	 * @param callback
-     */
+	 * @param server server params used by this session 
+	 * @param callback provider of HttpSession
+	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
+	 *          for malformed url
+	 */
     public AbstractHttpSession(@NotNull Server server, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
     	this.server = server;
     	this.callback = callback;
@@ -164,7 +163,7 @@ public abstract class AbstractHttpSession {
                 try {
                     client = callback.getHttpClient(server);
                 } catch (HttpProxySettingsException e) {
-                    throw (IOException) new IOException("Connection error. Please set up HTTP Proxy settings").initCause(e);
+					throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
                 }
             }
 
@@ -208,13 +207,24 @@ public abstract class AbstractHttpSession {
                     return result.clone();
                 }
             } catch (NullPointerException e) {
-                throw (IOException) new IOException("Connection error").initCause(e);
+				throw createIOException("Connection error", e);
             } finally {
                 method.releaseConnection();
             }
         }
+	}
 
 
+	/**
+	 * Helper method needed because IOException in Java 1.5 does not have constructor taking "cause"
+	 * @param message message
+	 * @param cause chained reason for this exception
+	 * @return constructed exception
+	 */
+	private IOException createIOException(String message, Throwable cause) {
+		final IOException ioException = new IOException(message, cause);
+		ioException.initCause(cause);
+		return ioException;
 	}
 
     protected byte[] retrieveGetResponseAsBytes(String urlString)
@@ -244,7 +254,7 @@ public abstract class AbstractHttpSession {
                 try {
                 	client = callback.getHttpClient(server);
                 } catch (HttpProxySettingsException e) {
-                    throw (IOException) new IOException("Connection error. Please set up HTTP Proxy settings").initCause(e);
+                    throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
                 }
             }
 
@@ -281,7 +291,7 @@ public abstract class AbstractHttpSession {
                     preprocessResult(doc);
                 }
             } catch (NullPointerException e) {
-                throw (IOException) new IOException("Connection error").initCause(e);
+                throw createIOException("Connection error", e);
             } finally {
                 method.releaseConnection();
             }
@@ -321,7 +331,7 @@ public abstract class AbstractHttpSession {
                 try {
                 	client = callback.getHttpClient(server);
                 } catch (HttpProxySettingsException e) {
-                    throw (IOException) new IOException("Connection error. Please set up HTTP Proxy settings").initCause(e);
+                    throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
                 }
             }
 
@@ -347,7 +357,7 @@ public abstract class AbstractHttpSession {
                     preprocessResult(doc);
                 }
             } catch (NullPointerException e) {
-                throw (IOException) new IOException("Connection error").initCause(e);
+                throw createIOException("Connection error", e);
             } finally {
                 method.releaseConnection();
             }

@@ -134,7 +134,7 @@ public class BambooServerFacadeTest extends TestCase {
 
 		Iterator<BambooBuild> iterator = plans.iterator();
 		Util.verifyBuildCompletedDate(iterator.next(), completedDate);
-		Util.verifyBuildCompletedDate(iterator.next(), null);
+		Util.verifyBuildCompletedDate(iterator.next(), completedDate);
 
 		mockServer.verify();
 

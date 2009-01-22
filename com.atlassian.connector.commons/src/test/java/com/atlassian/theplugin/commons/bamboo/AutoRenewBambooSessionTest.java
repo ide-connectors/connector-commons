@@ -272,6 +272,10 @@ public class AutoRenewBambooSessionTest extends TestCase {
 			public Set<String> getCommiters() {
 				return null;
 			}
+
+			public Date getBuildCompletedDate() {
+				return null;  //To change body of implemented methods use File | Settings | File Templates.
+			}
 		});
 
 		EasyMock.replay(mockDelegate);

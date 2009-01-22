@@ -26,6 +26,7 @@ import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.UrlUtil;
+import com.atlassian.theplugin.commons.util.LoggerImpl;
 import org.apache.commons.httpclient.HttpMethod;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -68,8 +69,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	/**
 	 * For testing purposes, shouldn't be publicb
 	 *
-	 * @param url
-	 * @throws RemoteApiException
+	 * @param url bamboo server url
+	 * @throws RemoteApiMalformedUrlException malformed url
 	 */
 	public BambooSessionImpl(String url) throws RemoteApiMalformedUrlException {
 		this(createServerCfg(url), new HttpSessionCallbackImpl());
@@ -86,7 +87,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	 *
 	 * @param serverCfg The server configuration for this session
 	 * @param callback  The callback needed for preparing HttpClient calls
-	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
+	 * @throws RemoteApiMalformedUrlException malformed url
 	 *
 	 */
 	public BambooSessionImpl(BambooServerCfg serverCfg, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
@@ -547,7 +548,12 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		} catch (NumberFormatException ex) {
 			throw new RemoteApiException("Invalid number", ex);
 		}
-		buildInfo.setBuildTime(parseBuildTime(getChildText(buildItemNode, "buildTime")));
+
+		
+		buildInfo.setBuildTime(parseBuildDate(getChildText(buildItemNode, "buildTime"), "Cannot parse buildTime.", buildInfo));
+		buildInfo.setBuildCompletedDate(
+			parseBuildDate(getChildText(buildItemNode, "buildCompletedDate"), "Cannot parse buildCompletedDate", buildInfo));
+
 		buildInfo.setPollingTime(lastPollingTime);
 
 		return buildInfo;
@@ -556,8 +562,13 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	private static DateTimeFormatter buildDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 	private static DateTimeFormatter commitDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
 
-	private Date parseBuildTime(String date) {
-		return buildDateFormat.parseDateTime(date).toDate();
+	private Date parseBuildDate(String date, String errorMessage, BambooBuildInfo build) {
+		try {
+			return buildDateFormat.parseDateTime(date).toDate();
+		} catch (IllegalArgumentException e) {
+			LoggerImpl.getInstance().debug(errorMessage + " resultUrl:" + build.getBuildResultUrl());
+			return null;
+		}
 	}
 
 	private Date parseCommitTime(String date) {

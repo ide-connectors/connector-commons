@@ -60,6 +60,8 @@ public interface BambooBuild extends RequestData {
 
 	Date getBuildTime();
 
+	Date getBuildCompletedDate();
+
 	String getBuildRelativeBuildDate();
 
 	boolean isMyBuild();

@@ -43,6 +43,7 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	private String message;
 
 	private Date buildTime;
+	private Date buildCompletedDate;
 	public static final String BUILD_SUCCESSFUL = "Successful";
 	public static final String BUILD_FAILED = "Failed";
 	private Set<String> commiters = new HashSet<String>();
@@ -53,6 +54,14 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 
 	public BambooServerCfg getServer() {
 		return server;
+	}
+
+	public Date getBuildCompletedDate() {
+		return buildCompletedDate;
+	}
+
+	public void setBuildCompletedDate(final Date buildCompletedDate) {
+		this.buildCompletedDate = buildCompletedDate;
 	}
 
 	public void setServer(BambooServerCfg server) {

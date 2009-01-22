@@ -114,6 +114,26 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.verify();
 	}
 
+	public void testBuildCompletedDate() throws Exception {
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
+		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
+		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("bc"));
+		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("bt"));
+		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("bt_bc"));
+
+		Collection<BambooBuild> plans = testedBambooServerFacade.getSubscribedPlansResults(bambooServerCfg);
+		assertNotNull(plans);
+		assertEquals(3, plans.size());
+		Iterator<BambooBuild> iterator = plans.iterator();
+		//Util.verifyBuildCompletedDate(iterator.next(), mockBaseUrl);
+		//Util.verifyBuildCompletedDate(iterator.next(), mockBaseUrl);
+		//Util.verifyBuildCompletedDate(iterator.next());
+
+		mockServer.verify();
+
+	}
 	public void testFailedLoginSubscribedBuildStatus() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD, LoginCallback.ALWAYS_FAIL));
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD, LoginCallback.ALWAYS_FAIL));

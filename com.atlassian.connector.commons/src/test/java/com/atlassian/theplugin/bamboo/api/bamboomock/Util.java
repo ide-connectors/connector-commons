@@ -28,6 +28,7 @@ import static junit.framework.Assert.assertEquals;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Date;
 
 public abstract class Util {
 
@@ -159,5 +160,10 @@ public abstract class Util {
 				Assert.assertTrue(plan.isFavourite());
 			}
 		}
+	}
+
+	public static void verifyBuildCompletedDate(final BambooBuild build, Date expectedDate) {
+		Assert.assertNotNull(build);
+		Assert.assertEquals(build.getBuildTime(), expectedDate);
 	}
 }

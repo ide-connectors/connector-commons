@@ -30,16 +30,21 @@ import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.remoteapi.ErrorResponse;
 import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormat;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Date;
 
 /**
  * {@link com.atlassian.theplugin.commons.bamboo.BambooServerFacadeImpl} test.
  */
 public class BambooServerFacadeTest extends TestCase {
 
+	private static DateTimeFormatter buildDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+	private static DateTimeFormatter commitDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
 	private static final String USER_NAME = "someUser";
 	private static final String PASSWORD = "somePassword";
 	private static final String PLAN_ID = "TP-DEF"; // always the same - mock does the logic
@@ -120,16 +125,16 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("bc"));
-		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("bt"));
-		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("bt_bc"));
+		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("bt"));		
 
 		Collection<BambooBuild> plans = testedBambooServerFacade.getSubscribedPlansResults(bambooServerCfg);
 		assertNotNull(plans);
 		assertEquals(3, plans.size());
+		Date completedDate = parseBuildDate("2008-12-12 03:08:10");
+
 		Iterator<BambooBuild> iterator = plans.iterator();
-		//Util.verifyBuildCompletedDate(iterator.next(), mockBaseUrl);
-		//Util.verifyBuildCompletedDate(iterator.next(), mockBaseUrl);
-		//Util.verifyBuildCompletedDate(iterator.next());
+		Util.verifyBuildCompletedDate(iterator.next(), completedDate);
+		Util.verifyBuildCompletedDate(iterator.next(), null);
 
 		mockServer.verify();
 
@@ -419,5 +424,11 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.verify();
 	}
 
-
+	private Date parseBuildDate(String date) {
+		try {
+			return buildDateFormat.parseDateTime(date).toDate();
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
 }

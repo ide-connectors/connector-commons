@@ -17,7 +17,6 @@
 package com.atlassian.theplugin.commons.bamboo;
 
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.util.DateUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Collection;

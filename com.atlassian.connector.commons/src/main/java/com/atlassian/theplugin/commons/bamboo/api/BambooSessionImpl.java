@@ -554,6 +554,11 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		buildInfo.setBuildCompletedDate(
 			parseBuildDate(getChildText(buildItemNode, "buildCompletedDate"), "Cannot parse buildCompletedDate", buildInfo));
 
+		//older Bamboo versions do not generate buildCompletedDate so we set it as buildTime
+		if (buildInfo.getBuildCompletedDate() == null) {
+			buildInfo.setBuildCompletedDate(buildInfo.getBuildTime());
+		}
+
 		buildInfo.setPollingTime(lastPollingTime);
 
 		return buildInfo;

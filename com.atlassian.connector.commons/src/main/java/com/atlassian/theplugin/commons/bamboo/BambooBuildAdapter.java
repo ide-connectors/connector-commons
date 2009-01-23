@@ -137,10 +137,6 @@ public class BambooBuildAdapter {
 		return build.getBuildCompletedDate();
 	}
 
-	public String getBuildRelativeBuildDate() {
-		return build.getBuildRelativeBuildDate() == null ? "" : build.getBuildRelativeBuildDate();
-	}
-
 	public Date getPollingTime() {
 		return build.getPollingTime();
 	}

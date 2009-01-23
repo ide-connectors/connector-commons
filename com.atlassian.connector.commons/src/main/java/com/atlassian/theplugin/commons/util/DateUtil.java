@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.util;
 
 import org.joda.time.Period;
 
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -36,7 +37,18 @@ public abstract class DateUtil /* extends TableColumnInfo */ {
     private DateUtil() {        
     }
 
-    public static String getRelativePastDate(Date comparedTo, Date someDate) {
+	public static  String getRelativeBuildTime(Date someDate, int timezoneOffset) {
+
+		if (someDate != null) {
+			Calendar c = Calendar.getInstance();
+			c.setTime(someDate);
+			c.add(Calendar.HOUR_OF_DAY, timezoneOffset);
+			return DateUtil.getRelativePastDate(new Date(), c.getTime());
+		}
+		return "Unknown";
+	}
+	
+	public static String getRelativePastDate(Date comparedTo, Date someDate) {
 		if (someDate != null) {
 			Period period = new Period(someDate.getTime(), comparedTo.getTime());
 			StringBuffer buffer = new StringBuffer();

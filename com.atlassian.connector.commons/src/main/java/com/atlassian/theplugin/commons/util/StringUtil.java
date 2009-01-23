@@ -29,6 +29,11 @@ public final class StringUtil {
 	}
 
 	public static synchronized String decode(String str2decode) {
+		// for empty strings we have to handle them separately as empty string and invalid sequence of valid characters
+		// have the same effect: Base64.decode returns empty array.
+		if (str2decode.length() == 0) {
+			return "";
+		}
 		try {
 			Base64 base64 = new Base64();
 			byte[] passwordBytes = base64.decode(str2decode.getBytes("UTF-8"));
@@ -43,6 +48,9 @@ public final class StringUtil {
 			// cannot happen
 			throw new RuntimeException("UTF-8 is not supported", e);
 			///CLOVER:ON
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new IllegalArgumentException(
+					"Cannot decode string due to not supported characters " + "or becuase it is not encoded", e);
 		}
 	}
 

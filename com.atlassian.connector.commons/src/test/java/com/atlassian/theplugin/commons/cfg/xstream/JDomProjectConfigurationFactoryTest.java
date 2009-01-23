@@ -218,6 +218,38 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 				createPrivateProjectConfiguration(fisheye1));
 	}
 
+	public void testPrivateSerializationEmptyUsernamePassword() throws ServerCfgFactoryException, IOException, JDOMException {
+		bamboo1.setUsername("");
+		bamboo1.setPassword("");
+		bamboo1.setPasswordStored(true);
+		bamboo2.setUsername("");
+		bamboo2.setPassword("");
+		bamboo2.setPasswordStored(false);
+		crucible1.setUsername("xyz");
+		crucible1.setPassword("passwordxyz");
+		crucible1.setPasswordStored(true);
+		crucible1.setEnabled(false);
+		projectCfg.getServers().add(bamboo2);
+		projectCfg.getServers().add(crucible1);
+
+		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement);
+		factory.save(projectCfg);
+
+		StringWriter writer = new StringWriter();
+		writeXml(privateElement, writer);
+
+		final StringReader reader = new StringReader(writer.toString());
+
+		// and also vice-versa
+		Document doc = new SAXBuilder(false).build(reader);
+		final JDomProjectConfigurationFactory loadFactory = new JDomProjectConfigurationFactory(element, doc.getRootElement());
+		final PrivateProjectConfiguration readCfg = loadFactory.load(doc.getRootElement(), PrivateProjectConfiguration.class);
+		TestUtil.assertHasOnlyElements(readCfg.getPrivateServerCfgInfos(), createPrivateProjectConfiguration(bamboo1),
+				createPrivateProjectConfiguration(bamboo2), createPrivateProjectConfiguration(crucible1),
+				createPrivateProjectConfiguration(fisheye1));
+	}
+
+
 	public void testCreatePrivateProjectConfiguration() {
 		bamboo1.setUsername("mytestuser");
 		bamboo1.setPassword("mypassword1");
@@ -236,6 +268,16 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 		assertEquals(null, privateCfg2.getPassword());
 		assertEquals(bamboo2.getServerId(), privateCfg2.getServerId());
 		assertEquals(bamboo2.isEnabled(), privateCfg2.isEnabled());
+
+		bamboo2.setPassword("");
+		bamboo2.setPasswordStored(true);
+		bamboo2.setUsername("");
+		final PrivateServerCfgInfo privateCfg3 = createPrivateProjectConfiguration(bamboo2);
+		assertEquals(bamboo2.getUsername(), privateCfg3.getUsername());
+		assertEquals("", privateCfg3.getPassword());
+		assertEquals(bamboo2.getServerId(), privateCfg3.getServerId());
+		assertEquals(bamboo2.isEnabled(), privateCfg3.isEnabled());
+
 	}
 
 

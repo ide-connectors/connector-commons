@@ -52,6 +52,31 @@ public class StringUtilTest extends TestCase {
 		});
 	}
 
+	public void testEmptyString() {
+		final String encoded = StringUtil.encode(""); 
+		assertEquals("", StringUtil.decode(encoded));
+	}
+
+
+	public void testDecodeInvalidEncodedString() {
+		try {
+			StringUtil.decode("ąć");
+			fail("Exception expected");
+		} catch (IllegalArgumentException e) {
+			assertEquals(ArrayIndexOutOfBoundsException.class, e.getCause().getClass());
+		}
+	}
+
+	public void testDecodeInvalidEncodedString2() {
+		try {
+			StringUtil.decode("@@");
+			fail("Exception expected");
+		} catch (IllegalArgumentException e) {
+			assertNull(e.getCause());
+		}
+	}
+
+
 	public void testDecodeUndecoded() {
 		TestUtil.assertThrows(IllegalArgumentException.class, new IAction() {
 			public void run() throws Throwable {

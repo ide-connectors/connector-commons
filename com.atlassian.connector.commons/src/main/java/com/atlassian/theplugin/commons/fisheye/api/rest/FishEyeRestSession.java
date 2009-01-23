@@ -15,33 +15,29 @@
  */
 package com.atlassian.theplugin.commons.fisheye.api.rest;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.httpclient.HttpMethod;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.xpath.XPath;
-
 import com.atlassian.theplugin.commons.cfg.FishEyeServer;
 import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;
 import com.atlassian.theplugin.commons.cfg.Server;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.remoteapi.*;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.UrlUtil;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.lang.StringUtils;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.xpath.XPath;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSession {
 	static final String REST_BASE_URL = "/api/rest/";
@@ -49,33 +45,34 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 	static final String LOGOUT_ACTION = REST_BASE_URL + "logout";
 	static final String LIST_REPOSITORIES_ACTION = REST_BASE_URL + "repositories";
 	private String authToken;
+	private boolean loggedIn;
 
 	/**
 	 * For testing purposes
+	 *
 	 * @param url
 	 * @throws RemoteApiException
 	 */
 	FishEyeRestSession(String url) throws RemoteApiMalformedUrlException {
 		this(createServerCfg(url), new HttpSessionCallbackImpl());
 	}
-	
-    private static FishEyeServer createServerCfg(String url) {
-    	FishEyeServerCfg serverCfg = new FishEyeServerCfg(url, new ServerId());
+
+	private static FishEyeServer createServerCfg(String url) {
+		FishEyeServerCfg serverCfg = new FishEyeServerCfg(url, new ServerId());
 		serverCfg.setUrl(url);
 		return serverCfg;
 	}
-	
+
 	/**
 	 * Public constructor for AbstractHttpSession
 	 *
-	 * @param serverCfg The server configuration for this session
+	 * @param server   The server configuration for this session
 	 * @param callback The callback needed for preparing HttpClient calls
-	 * 
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
 	 *          for malformed url
 	 */
 	public FishEyeRestSession(Server server, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
-		super(server, callback);		
+		super(server, callback);
 	}
 
 	@Override
@@ -86,8 +83,21 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 	protected void preprocessResult(final Document doc) throws JDOMException, RemoteApiSessionExpiredException {
 	}
 
-	
+	/**
+	 * Login method - use empty both username and password for anonymous access (see PL-931)
+	 * @param name
+	 * @param aPassword
+	 * @throws RemoteApiLoginException
+	 */
 	public void login(final String name, char[] aPassword) throws RemoteApiLoginException {
+
+		// anonymous access - see PL-931
+		if (StringUtils.isBlank(name) && (aPassword == null || aPassword.length == 0)) {
+			loggedIn = true;
+			authToken = null;
+			return;
+		}
+
 		String loginUrl;
 
 		if (name == null || aPassword == null) {
@@ -114,6 +124,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 						+ elements.size() + ")");
 			}
 			this.authToken = elements.get(0).getText();
+			loggedIn = true;
 		} catch (MalformedURLException e) {
 			throw new RemoteApiLoginException("Malformed server URL: " + baseUrl, e);
 		} catch (UnknownHostException e) {
@@ -129,38 +140,40 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 		}
 	}
 
-	 private static String getExceptionMessages(Document doc) throws JDOMException {
-		 if (doc.getRootElement() != null && doc.getRootElement().getName().equals("error")) {
-			 return doc.getRootElement().getText();
-		 }
+	private static String getExceptionMessages(Document doc) throws JDOMException {
+		if (doc.getRootElement() != null && doc.getRootElement().getName().equals("error")) {
+			return doc.getRootElement().getText();
+		}
 
-		 return null;
-	 }
+		return null;
+	}
+
 	public void logout() {
-		        if (!isLoggedIn()) {
-            return;
-        }
+		if (!isLoggedIn() || authToken == null) {
+			return;
+		}
 
-        try {
-            String logoutUrl = baseUrl + LOGOUT_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
-            retrieveGetResponse(logoutUrl);
-        } catch (IOException e) {
-            LoggerImpl.getInstance().error("Exception encountered while logout:" + e.getMessage(), e);
-        } catch (JDOMException e) {
-            LoggerImpl.getInstance().error("Exception encountered while logout:" + e.getMessage(), e);
-        } catch (RemoteApiSessionExpiredException e) {
-            LoggerImpl.getInstance().debug("Exception encountered while logout:" + e.getMessage(), e);
-        }
+		try {
+			String logoutUrl = baseUrl + LOGOUT_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
+			retrieveGetResponse(logoutUrl);
+		} catch (IOException e) {
+			LoggerImpl.getInstance().error("Exception encountered while logout:" + e.getMessage(), e);
+		} catch (JDOMException e) {
+			LoggerImpl.getInstance().error("Exception encountered while logout:" + e.getMessage(), e);
+		} catch (RemoteApiSessionExpiredException e) {
+			LoggerImpl.getInstance().debug("Exception encountered while logout:" + e.getMessage(), e);
+		}
 
-        authToken = null;
-        client = null;				
+		authToken = null;
+		loggedIn = false;
+		client = null;
 	}
 
 	public boolean isLoggedIn() {
-		return authToken != null;  //To change body of implemented methods use File | Settings | File Templates.
+		return loggedIn;
 	}
 
-	public List<String> getRepositories()  throws RemoteApiException {		
+	public List<String> getRepositories() throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
@@ -186,5 +199,5 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 			throw new RemoteApiException(baseUrl + ": Server returned malformed response", e);
 		}
 	}
-	
+
 }

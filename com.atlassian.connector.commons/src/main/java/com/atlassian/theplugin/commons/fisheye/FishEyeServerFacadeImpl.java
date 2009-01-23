@@ -1,7 +1,5 @@
 package com.atlassian.theplugin.commons.fisheye;
 
-import java.util.Collection;
-
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.cfg.FishEyeServer;
 import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;
@@ -13,6 +11,8 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
+
+import java.util.Collection;
 
 /**
  * User: pmaruszak
@@ -42,7 +42,11 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
 		assert serverCfg instanceof FishEyeServerCfg;
 		FishEyeSession fishEyeSession = getSession((FishEyeServerCfg) serverCfg);
 		fishEyeSession.login(serverCfg.getUsername(), serverCfg.getPassword().toCharArray());
-		fishEyeSession.logout();		
+
+		// well, we need to call _something_ to see if it worked, in case of anonymous access
+		fishEyeSession.getRepositories();
+		
+		fishEyeSession.logout();
 	}
 
 	public ServerType getServerType() {
@@ -60,7 +64,7 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
 	/**
 	 * For testing Only
 	 * 
-	 * @param server
+	 * @param url
 	 * @return
 	 * @throws RemoteApiMalformedUrlException
 	 */

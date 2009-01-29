@@ -16,12 +16,11 @@
 package com.atlassian.theplugin.commons.util;
 
 import org.apache.commons.codec.binary.Base64;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-
-import com.sun.istack.internal.Nullable;
 
 public final class StringUtil {
 	private static final int BUFFER_SIZE = 4096;

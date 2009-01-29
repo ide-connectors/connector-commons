@@ -17,6 +17,7 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 import java.util.List;
@@ -78,11 +79,15 @@ public class ReviewBean implements Review {
 		CrucibleFileInfo f = getFileByPermId(file.getPermId());
 
 		if (!comment.isReply()) {
-			f.getVersionedComments().remove(comment);
+			if (f != null) {
+				f.getVersionedComments().remove(comment);
+			}
 		} else {
-			for (VersionedComment versionedComment : f.getVersionedComments()) {
-				if (versionedComment.getReplies().remove(comment)) {
-					return;
+			if (f != null) {
+				for (VersionedComment versionedComment : f.getVersionedComments()) {
+					if (versionedComment.getReplies().remove(comment)) {
+						return;
+					}
 				}
 			}
 		}
@@ -156,6 +161,7 @@ public class ReviewBean implements Review {
 	 * @return possible object is
 	 *         {@link com.atlassian.theplugin.commons.crucible.api.model.User }
 	 */
+	@Nullable
 	public User getAuthor() {
 		return author;
 	}
@@ -216,6 +222,7 @@ public class ReviewBean implements Review {
 	 * @return possible object is
 	 *         {@link com.atlassian.theplugin.commons.crucible.api.model.User }
 	 */
+	@Nullable
 	public User getModerator() {
 		return moderator;
 	}
@@ -256,6 +263,7 @@ public class ReviewBean implements Review {
 	 * @return possible object is
 	 *         {@link com.atlassian.theplugin.commons.crucible.api.model.PermId }
 	 */
+	@Nullable
 	public PermId getParentReview() {
 		return parentReview;
 	}
@@ -276,6 +284,7 @@ public class ReviewBean implements Review {
 	 * @return possible object is
 	 *         {@link com.atlassian.theplugin.commons.crucible.api.model.PermId }
 	 */
+	@Nullable
 	public PermId getPermId() {
 		return permId;
 	}
@@ -316,6 +325,7 @@ public class ReviewBean implements Review {
 	 * @return possible object is
 	 *         {@link String }
 	 */
+	@Nullable
 	public String getRepoName() {
 		return repoName;
 	}
@@ -336,6 +346,7 @@ public class ReviewBean implements Review {
 	 * @return possible object is
 	 *         {@link com.atlassian.theplugin.commons.crucible.api.model.State }
 	 */
+	@Nullable
 	public State getState() {
 		return state;
 	}
@@ -416,11 +427,7 @@ public class ReviewBean implements Review {
 
 		ReviewBean that = (ReviewBean) o;
 
-		if (permId != null ? !permId.equals(that.permId) : that.permId != null) {
-			return false;
-		}
-
-		return true;
+		return !(permId != null ? !permId.equals(that.permId) : that.permId != null);
 	}
 
 	public int hashCode() {
@@ -437,6 +444,7 @@ public class ReviewBean implements Review {
 		this.summary = summary;
 	}
 
+	@Nullable
 	public CrucibleFileInfo getFileByPermId(PermId id) throws ValueNotYetInitialized {
 //		List<CrucibleFileInfo> lFiles = CrucibleFileInfoManager.getInstance().getFiles(this);
 		for (CrucibleFileInfo f : getFiles()) {

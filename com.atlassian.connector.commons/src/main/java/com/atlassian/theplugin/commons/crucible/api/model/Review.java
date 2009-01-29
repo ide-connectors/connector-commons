@@ -17,6 +17,7 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 import java.util.List;
@@ -68,6 +69,7 @@ public interface Review {
 
 //	List<CrucibleReviewItemInfo> getReviewItems();
 
+	@Nullable
 	CrucibleFileInfo getFileByPermId(PermId id) throws ValueNotYetInitialized;
 
 	List<Action> getTransitions() throws ValueNotYetInitialized;

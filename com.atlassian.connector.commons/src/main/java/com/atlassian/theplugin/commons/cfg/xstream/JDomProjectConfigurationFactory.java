@@ -42,19 +42,34 @@ public class JDomProjectConfigurationFactory implements ProjectConfigurationFact
 
 	public ProjectConfiguration load() throws ServerCfgFactoryException {
 		PrivateProjectConfiguration ppc = new PrivateProjectConfiguration();
+		PrivateProjectConfiguration oldPpc = new PrivateProjectConfiguration();
 		ProjectConfiguration res = load(publicElement, ProjectConfiguration.class);
 
 		try {
-			for (ServerCfg serverCfg : res.getServers()) {
+			oldPpc = (privateElement != null)
+					? load(privateElement, PrivateProjectConfiguration.class)
+					: new PrivateProjectConfiguration();
+		} catch (ServerCfgFactoryException e) {
+			//ignore we want to migrate to new location
+		}
+
+		for (ServerCfg serverCfg : res.getServers()) {
+			try {
 				PrivateServerCfgInfo privateServerCfgInfo = privateConfigurationFactory.load(serverCfg.getServerId());
 				ppc.add(privateServerCfgInfo);
+			} catch (ThePluginException e) {
+				//no new configuration use load from old location
+				ppc = oldPpc;
+
+			} catch (ServerCfgFactoryException e) {
+				//server is not dfined in new cfg location try to read from old one
+				PrivateServerCfgInfo privateCfg = oldPpc.getPrivateServerCfgInfo(serverCfg.getServerId());
+				if (privateCfg != null) {
+					ppc.add(privateCfg);
+				}
+			}
 		}
-		} catch (ThePluginException e) {
-			//load old configuration
-			ppc = (privateElement != null)
-				? load(privateElement, PrivateProjectConfiguration.class)
-				: new PrivateProjectConfiguration();
-	}
+
 		return merge(res, ppc);
 	}
 

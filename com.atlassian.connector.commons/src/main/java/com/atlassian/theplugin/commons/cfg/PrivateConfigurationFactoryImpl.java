@@ -90,17 +90,6 @@ public class PrivateConfigurationFactoryImpl implements  PrivateConfigurationFac
 
 	}
 
-	public void save(final Element element, String fileName) throws ThePluginException {
-		Document document = new Document(new Element(ROOT_ELEMENT_NAME));
-		document.addContent(element);
-		try {
-			writeXmlFile(document.getRootElement(),
-					getPrivateCfgDirectorySavePath() + File.separator + fileName);
-		} catch (IOException e) {
-			throw new ThePluginException(e.getMessage());
-		}
-
-	}
 
 	/*Target filr in  $HOME/.atlassian/ide-connector/atlassina-ide-connector*/
 	private String getPrivateCfgDirectorySavePath() {
@@ -139,8 +128,8 @@ public class PrivateConfigurationFactoryImpl implements  PrivateConfigurationFac
 	}
 
 	public String getPrivateCfgDirectoryLoadPath() {
-		return System.getProperty("user.home") + File.separator + ATLASSIAN_DIR_NAME + File.separator +
-						File.separator + ATLASSIAN_IDE_CONNECTOR_DIR_NAME;
+		return System.getProperty("user.home") + File.separator + ATLASSIAN_DIR_NAME + File.separator
+						+ File.separator + ATLASSIAN_IDE_CONNECTOR_DIR_NAME;
 	}
 
 

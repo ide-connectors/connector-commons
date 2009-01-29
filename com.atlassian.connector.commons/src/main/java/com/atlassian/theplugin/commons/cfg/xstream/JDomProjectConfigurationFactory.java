@@ -29,7 +29,8 @@ public class JDomProjectConfigurationFactory implements ProjectConfigurationFact
 	private final Element privateElement;
 
 
-	public JDomProjectConfigurationFactory(final Element element, final Element privateElement, PrivateConfigurationFactory privateConfigurationFactory) {
+	public JDomProjectConfigurationFactory(final Element element, final Element privateElement,
+			PrivateConfigurationFactory privateConfigurationFactory) {
 		this.privateElement = privateElement;
 		if (element == null) {
 			throw new NullPointerException(Element.class.getSimpleName() + " cannot be null");

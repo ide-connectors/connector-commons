@@ -98,9 +98,7 @@
 		<module name="EqualsHashCode"/>
 		<module name="IllegalInstantiation"/>
 		<module name="InnerAssignment"/>
-		<module name="MagicNumber">
-			<property name="severity" value="ignore"/>
-		</module>
+		<!--<module name="MagicNumber"/>-->
 		<module name="MissingSwitchDefault"/>
 		<module name="RedundantThrows">
 			<property name="allowUnchecked" value="true"/>

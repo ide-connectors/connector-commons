@@ -35,30 +35,26 @@ import java.io.IOException;
  * User: pmaruszak
  */
 
-public class PrivateConfigurationFactoryImpl implements  PrivateConfigurationFactory {
+public class PrivateConfigurationFactoryImpl implements PrivateConfigurationFactory {
 	private static final String ATLASSIAN_DIR_NAME = ".atlassian";
 	private static final String ATLASSIAN_IDE_CONNECTOR_DIR_NAME = "ide-connector";
 	private static final String ROOT_ELEMENT_NAME = "single-server-private-cfg";
 
 
-	public void load(Element rootElement) {
-		Element privateRoot = new Element("atlassian-ide-plugin-private");
-
-	}
 	public PrivateServerCfgInfo load(final ServerId id) throws ThePluginException, ServerCfgFactoryException {
 		final File atlassianDir = new File(getPrivateCfgDirectoryLoadPath());
 
 		if (atlassianDir.isDirectory() && atlassianDir.canRead()) {
 			final File serverCfgFile = new File(atlassianDir.getAbsolutePath() + File.separator + id.getUuid());
 			if (serverCfgFile.isFile() && serverCfgFile.canRead()) {
-				Document doc = null;
+				Document doc;
 
 				final SAXBuilder builder = new SAXBuilder(false);
 				try {
 
 					doc = builder.build(serverCfgFile.getAbsolutePath());
 				} catch (JDOMException e) {
-					throw new ServerCfgFactoryException("Cannot parse server cfg file " +  e.getMessage());
+					throw new ServerCfgFactoryException("Cannot parse server cfg file " + e.getMessage());
 				} catch (IOException e) {
 					throw new ServerCfgFactoryException("Cannot read sever cfg file " + e.getMessage());
 				}
@@ -71,14 +67,14 @@ public class PrivateConfigurationFactoryImpl implements  PrivateConfigurationFac
 			}
 
 		}
-		
+
 		throw new ThePluginException("Cannot read configuration stored in home directory. Loading from old location.");
 	}
 
 	public void save(final PrivateServerCfgInfo info) throws ThePluginException {
 		Document document = new Document(new Element(ROOT_ELEMENT_NAME));
 		saveJDom(info, document.getRootElement());
-		
+
 
 		try {
 			//document.setRootElement(new Element("private-server-cfg"));
@@ -129,7 +125,7 @@ public class PrivateConfigurationFactoryImpl implements  PrivateConfigurationFac
 
 	public String getPrivateCfgDirectoryLoadPath() {
 		return System.getProperty("user.home") + File.separator + ATLASSIAN_DIR_NAME + File.separator
-						+ File.separator + ATLASSIAN_IDE_CONNECTOR_DIR_NAME;
+				+ File.separator + ATLASSIAN_IDE_CONNECTOR_DIR_NAME;
 	}
 
 
@@ -150,5 +146,5 @@ public class PrivateConfigurationFactoryImpl implements  PrivateConfigurationFac
 			throw new ServerCfgFactoryException("Cannot load " + clazz.getSimpleName() + ": "
 					+ e.getMessage(), e);
 		}
-	}	
+	}
 }

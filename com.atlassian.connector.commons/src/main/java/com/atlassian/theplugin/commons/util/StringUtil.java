@@ -21,11 +21,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
+import com.sun.istack.internal.Nullable;
+
 public final class StringUtil {
 	private static final int BUFFER_SIZE = 4096;
 
 	private StringUtil() {
 		// this is utility class
+	}
+
+	public static String getFirstLine(@Nullable String s) {
+		if (s == null) {
+			return null;
+		}
+		int index = s.indexOf("\n");
+		if (index == -1) {
+			return s;
+		} else {
+			return s.substring(0, index);
+		}
 	}
 
 	public static synchronized String decode(String str2decode) {

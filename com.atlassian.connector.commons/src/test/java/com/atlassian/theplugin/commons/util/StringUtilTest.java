@@ -98,4 +98,14 @@ public class StringUtilTest extends TestCase {
 	}
 
 
+	public void testGetFirstLine() {
+		assertEquals(null, StringUtil.getFirstLine(null));
+		assertEquals("", StringUtil.getFirstLine(""));
+		assertEquals("", StringUtil.getFirstLine("\n"));
+		assertEquals("", StringUtil.getFirstLine("\nfsfd"));
+		assertEquals("abc", StringUtil.getFirstLine("abc\nfdsdf"));
+		assertEquals("abc", StringUtil.getFirstLine("abc\nfdsdf\n\n"));
+		assertEquals("xyz", StringUtil.getFirstLine("xyz"));
+		assertEquals("xyz", StringUtil.getFirstLine("xyz\n"));
+	}
 }

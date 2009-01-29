@@ -16,17 +16,7 @@
 package com.atlassian.theplugin.commons.cfg.xstream;
 
 import com.atlassian.theplugin.commons.SubscribedPlan;
-import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
-import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;
-import com.atlassian.theplugin.commons.cfg.PrivateProjectConfiguration;
-import com.atlassian.theplugin.commons.cfg.PrivateServerCfgInfo;
-import com.atlassian.theplugin.commons.cfg.ProjectConfiguration;
-import com.atlassian.theplugin.commons.cfg.ProjectConfigurationFactory;
-import com.atlassian.theplugin.commons.cfg.ProjectConfigurationFactoryTest;
-import com.atlassian.theplugin.commons.cfg.ServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerCfgFactoryException;
-import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.*;
 import static com.atlassian.theplugin.commons.cfg.xstream.JDomProjectConfigurationFactory.createPrivateProjectConfiguration;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.StringUtil;
@@ -55,14 +45,16 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 	private final CrucibleServerCfg crucible1 = new CrucibleServerCfg("mycrucible1", new ServerId("341d662c-e744-4690-a5f8-6e127c0bc84f"));
 	private final CrucibleServerCfg crucible2 = new CrucibleServerCfg("mycrucible2", new ServerId("341d662c-e744-4690-a5f8-6e127c0bc84e"));
 	private final FishEyeServerCfg fisheye1 = new FishEyeServerCfg("myfisheye1", new ServerId("341d662c-e744-4690-a5f8-6e127c0bc84d"));
+	private PrivateConfigurationFactory PRIVATE_CFG_FACTORY = new PrivateConfigurationFactoryImpl();
+
+
 	private ProjectConfiguration projectCfg;
 
 	private static final String FAKE_CLASS_NAME = "whateverfakeclasshere";
 
 	private Element element = new Element("test");
 	private Element privateElement = new Element("private-root");
-	private JDomProjectConfigurationFactory jdomFactory = new JDomProjectConfigurationFactory(
-			element, privateElement);
+	private JDomProjectConfigurationFactory jdomFactory = new JDomProjectConfigurationFactory(element, privateElement, PRIVATE_CFG_FACTORY);
 	private static final String EXPECTED_OUTPUT_XML = "expected-output.xml";
 
 	@Override
@@ -83,19 +75,26 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 	}
 
 	public void testJDomSaveLoadGlobalConfiguration() throws IOException, ServerCfgFactoryException {
-		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement);
+		
+		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement, PRIVATE_CFG_FACTORY);
 		factory.save(projectCfg);
 
 		assertEquals(1, element.getChildren().size());
 
-		final JDomProjectConfigurationFactory loadFactory = new JDomProjectConfigurationFactory(element, privateElement);
+
+		final JDomProjectConfigurationFactory loadFactory = new JDomProjectConfigurationFactory(element, privateElement, PRIVATE_CFG_FACTORY);		
 		ProjectConfiguration readCfg = loadFactory.load();
 		assertEquals(projectCfg, readCfg);
 	}
 
 
+	public void testLoadOldSaveNew() {		
+		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement, PRIVATE_CFG_FACTORY);
+		factory.save(projectCfg);
+	}
+
 	public void testHashedPassword() throws ServerCfgFactoryException, IOException {
-		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement);
+		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement, PRIVATE_CFG_FACTORY);
 		factory.save(projectCfg);
 
 		final StringWriter writer = new StringWriter();
@@ -126,7 +125,7 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 		projectCfg.setFishEyeProjectPath("FishEye/Path/To");
 		projectCfg.setDefaultFishEyeRepo("FishRepo");
 
-		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement);
+		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement, PRIVATE_CFG_FACTORY);
 		factory.save(projectCfg);
 
 		StringWriter writer = new StringWriter();
@@ -138,8 +137,7 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 
 		// and also vice-versa
 		Document doc = new SAXBuilder(false).build(getClass().getResourceAsStream(EXPECTED_OUTPUT_XML));
-		final JDomProjectConfigurationFactory loadFactory = new JDomProjectConfigurationFactory(
-				doc.getRootElement(), privateElement);
+		final JDomProjectConfigurationFactory loadFactory = new JDomProjectConfigurationFactory(doc.getRootElement(), privateElement, PRIVATE_CFG_FACTORY);
 		final ProjectConfiguration readCfg = loadFactory.load();
 		assertEquals(projectCfg, readCfg);
 	}
@@ -151,7 +149,7 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 		bamboo1.setUrl("http://mygreaturl");
 		bamboo1.setUsername("mytestuser");
 
-		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement);
+		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement, PRIVATE_CFG_FACTORY);
 		factory.save(projectCfg);
 
 		StringWriter writer = new StringWriter();
@@ -160,7 +158,7 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 		final Document doc = new SAXBuilder(false).build(new StringReader(writer.toString()));
 
 		// load public info only
-		final JDomProjectConfigurationFactory loadFactory = new JDomProjectConfigurationFactory(doc.getRootElement(), null);
+		final JDomProjectConfigurationFactory loadFactory = new JDomProjectConfigurationFactory(doc.getRootElement(), null, PRIVATE_CFG_FACTORY);
 		final ProjectConfiguration readCfg = loadFactory.load();
 		assertEquals(2, readCfg.getServers().size());
 		final ServerCfg readServer = readCfg.getServerCfg(bamboo1.getServerId());
@@ -197,7 +195,7 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 		projectCfg.getServers().add(bamboo2);
 		projectCfg.getServers().add(crucible1);
 
-		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement);
+		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement, PRIVATE_CFG_FACTORY);
 		factory.save(projectCfg);
 
 		StringWriter writer = new StringWriter();
@@ -211,7 +209,7 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 
 		// and also vice-versa
 		Document doc = new SAXBuilder(false).build(reader);
-		final JDomProjectConfigurationFactory loadFactory = new JDomProjectConfigurationFactory(element, doc.getRootElement());
+		final JDomProjectConfigurationFactory loadFactory = new JDomProjectConfigurationFactory(element, doc.getRootElement(), PRIVATE_CFG_FACTORY);
 		final PrivateProjectConfiguration readCfg = loadFactory.load(doc.getRootElement(), PrivateProjectConfiguration.class);
 		TestUtil.assertHasOnlyElements(readCfg.getPrivateServerCfgInfos(), createPrivateProjectConfiguration(bamboo1),
 				createPrivateProjectConfiguration(bamboo2), createPrivateProjectConfiguration(crucible1),
@@ -232,7 +230,7 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 		projectCfg.getServers().add(bamboo2);
 		projectCfg.getServers().add(crucible1);
 
-		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement);
+		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement, PRIVATE_CFG_FACTORY);
 		factory.save(projectCfg);
 
 		StringWriter writer = new StringWriter();
@@ -242,7 +240,7 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 
 		// and also vice-versa
 		Document doc = new SAXBuilder(false).build(reader);
-		final JDomProjectConfigurationFactory loadFactory = new JDomProjectConfigurationFactory(element, doc.getRootElement());
+		final JDomProjectConfigurationFactory loadFactory = new JDomProjectConfigurationFactory(element, doc.getRootElement(), PRIVATE_CFG_FACTORY);
 		final PrivateProjectConfiguration readCfg = loadFactory.load(doc.getRootElement(), PrivateProjectConfiguration.class);
 		TestUtil.assertHasOnlyElements(readCfg.getPrivateServerCfgInfos(), createPrivateProjectConfiguration(bamboo1),
 				createPrivateProjectConfiguration(bamboo2), createPrivateProjectConfiguration(crucible1),
@@ -297,7 +295,7 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 		projectCfg.setDefaultFishEyeServerId(null);
 		projectCfg.setDefaultCrucibleRepo("Repo2");
 
-		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement);
+		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement, PRIVATE_CFG_FACTORY);
 		factory.save(projectCfg);
 		final ProjectConfiguration res = factory.load();
 		assertEquals(projectCfg, res);
@@ -306,7 +304,7 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 		element.getChildren().clear();
 		privateElement.getChildren().clear(); // = new Element("private-element");
 		
-//		final JDomProjectConfigurationFactory factory2 = new JDomProjectConfigurationFactory(element, privateElement);
+//		final JDomProjectConfigurationFactory factory2 = new JDomProjectConfigurationFactory(element, privateElement, PRIVATE_CFG_FACTORY);
 		// now after reloading bamboo2 password will be lost
 		bamboo2.setPasswordStored(false);
 		factory.save(projectCfg);
@@ -320,7 +318,7 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 
 
 	public void testInvalidJDomElement() {
-		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(new Element("element"), privateElement);
+		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(new Element("element"), privateElement, PRIVATE_CFG_FACTORY);
 		TestUtil.assertThrows(ServerCfgFactoryException.class, new IAction() {
 
 			public void run() throws Throwable {
@@ -329,7 +327,7 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 		});
 
 		add(element, new Element(FAKE_CLASS_NAME));
-		final JDomProjectConfigurationFactory factory2 = new JDomProjectConfigurationFactory(element, privateElement);
+		final JDomProjectConfigurationFactory factory2 = new JDomProjectConfigurationFactory(element, privateElement, PRIVATE_CFG_FACTORY);
 		TestUtil.assertThrows(ServerCfgFactoryException.class, new IAction() {
 
 			public void run() throws Throwable {
@@ -349,7 +347,7 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 		final Element serverId = new Element(ServerId.class.getName());
 		serverId.setText(new ServerId().getUuid().toString());
 		add(element, serverId);
-		final JDomProjectConfigurationFactory factory2 = new JDomProjectConfigurationFactory(element, privateElement);
+		final JDomProjectConfigurationFactory factory2 = new JDomProjectConfigurationFactory(element, privateElement, PRIVATE_CFG_FACTORY);
 		TestUtil.assertThrowsAndMsgContainsRe(ServerCfgFactoryException.class, 
 				"Cannot load ProjectConfiguration.*ClassCastException",
 				new IAction() {
@@ -364,12 +362,12 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 	public void testNullDomElement() {
 		TestUtil.assertThrows(NullPointerException.class, new IAction() {
 			public void run() throws Throwable {
-				new JDomProjectConfigurationFactory(null, privateElement);
+				new JDomProjectConfigurationFactory(null, privateElement, PRIVATE_CFG_FACTORY);
 			}
 		});
 		TestUtil.assertThrows(NullPointerException.class, new IAction() {
 			public void run() throws Throwable {
-				new JDomProjectConfigurationFactory(null, null);
+				new JDomProjectConfigurationFactory(null, null, null);
 			}
 		});
 	}
@@ -384,7 +382,7 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 
 
 	public void testMissingPrivateCfg() throws ServerCfgFactoryException {
-		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, null);
+		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, null, PRIVATE_CFG_FACTORY);
 		factory.save(projectCfg);
 		final ProjectConfiguration cfg = factory.load();
 		final ServerCfg serverRead = cfg.getServerCfg(bamboo1.getServerId());

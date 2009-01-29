@@ -16,6 +16,7 @@
 package com.atlassian.theplugin.commons.cfg.xstream;
 
 import com.atlassian.theplugin.commons.cfg.*;
+import com.atlassian.theplugin.commons.exception.ThePluginException;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.JDomReader;
 import com.thoughtworks.xstream.io.xml.JDomWriter;
@@ -24,21 +25,35 @@ import org.jdom.Element;
 public class JDomProjectConfigurationFactory implements ProjectConfigurationFactory {
 
 	private final Element publicElement;
+	private final PrivateConfigurationFactory privateConfigurationFactory;
 	private final Element privateElement;
 
-	public JDomProjectConfigurationFactory(final Element element, final Element privateElement) {
+
+	public JDomProjectConfigurationFactory(final Element element, final Element privateElement, PrivateConfigurationFactory privateConfigurationFactory) {
+		this.privateElement = privateElement;
 		if (element == null) {
 			throw new NullPointerException(Element.class.getSimpleName() + " cannot be null");
 		}
 		this.publicElement = element;
-		this.privateElement = privateElement;
+		this.privateConfigurationFactory = privateConfigurationFactory;
+
 	}
 
 	public ProjectConfiguration load() throws ServerCfgFactoryException {
+		PrivateProjectConfiguration ppc = new PrivateProjectConfiguration();
 		ProjectConfiguration res = load(publicElement, ProjectConfiguration.class);
-		final PrivateProjectConfiguration ppc = (privateElement != null) 
+
+		try {
+			for (ServerCfg serverCfg : res.getServers()) {
+				PrivateServerCfgInfo privateServerCfgInfo = privateConfigurationFactory.load(serverCfg.getServerId());
+				ppc.add(privateServerCfgInfo);
+		}
+		} catch (ThePluginException e) {
+			//load old configuration
+			ppc = (privateElement != null)
 				? load(privateElement, PrivateProjectConfiguration.class)
 				: new PrivateProjectConfiguration();
+	}
 		return merge(res, ppc);
 	}
 
@@ -98,5 +113,5 @@ public class JDomProjectConfigurationFactory implements ProjectConfigurationFact
 
 	static PrivateServerCfgInfo createPrivateProjectConfiguration(final ServerCfg serverCfg) {
 		return serverCfg.createPrivateProjectConfiguration();
-	}
+}
 }

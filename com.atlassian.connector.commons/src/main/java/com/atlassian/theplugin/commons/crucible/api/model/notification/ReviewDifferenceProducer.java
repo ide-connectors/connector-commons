@@ -1,7 +1,14 @@
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.model.Action;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -64,6 +71,7 @@ public class ReviewDifferenceProducer {
 				&& areObjectsEqual(oldReview.getProjectKey(), newReview.getProjectKey())
 				&& areObjectsEqual(oldReview.getRepoName(), newReview.getRepoName())
 				&& areObjectsEqual(oldReview.getSummary(), newReview.getSummary())
+				&& areObjectsEqual(oldReview.getDescription(), newReview.getDescription())
 				&& areTransitionsEqual();
 	}
 

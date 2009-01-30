@@ -26,7 +26,11 @@ import com.atlassian.theplugin.commons.crucible.api.model.notification.ReviewDif
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ReviewAdapter {
 	private Review review;
@@ -166,14 +170,8 @@ public class ReviewAdapter {
 
 		ReviewAdapter that = (ReviewAdapter) o;
 
-		if (review != null ? !review.equals(that.review) : that.review != null) {
-			return false;
-		}
-		if (server != null ? !server.equals(that.server) : that.server != null) {
-			return false;
-		}
-
-		return true;
+		return !(review != null ? !review.equals(that.review) : that.review != null) &&
+				!(server != null ? !server.equals(that.server) : that.server != null);
 	}
 
 	@Override
@@ -390,13 +388,13 @@ public class ReviewAdapter {
 	 * Copies all data from the parameter into itself
 	 *
 	 * @param newReview source of Review data
+	 * @return
 	 */
 	public synchronized List<CrucibleNotification> fillReview(final ReviewAdapter newReview) {
 		boolean reviewChanged = false;
 
 		ReviewDifferenceProducer reviewDifferenceProducer = new ReviewDifferenceProducer(this, newReview);
 		List<CrucibleNotification> differences = reviewDifferenceProducer.getDiff();
-
 		if (!reviewDifferenceProducer.isShortEqual()) {
 			try {
 				setGeneralComments(newReview.getGeneralComments());
@@ -471,6 +469,8 @@ public class ReviewAdapter {
 
 	/**
 	 * @return total number of versioned comments including replies (for all files)
+	 * @throws com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized
+	 *
 	 */
 	public int getNumberOfVersionedComments() throws ValueNotYetInitialized {
 		return review.getNumberOfVersionedComments();

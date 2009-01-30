@@ -124,6 +124,7 @@ public class JDomProjectConfigurationFactoryTest extends ProjectConfigurationFac
 		projectCfg.setDefaultCrucibleRepo("Repo1");
 		projectCfg.setFishEyeProjectPath("FishEye/Path/To");
 		projectCfg.setDefaultFishEyeRepo("FishRepo");
+		projectCfg.setPrivateConfigurationMigrated(true);
 
 		final JDomProjectConfigurationFactory factory = new JDomProjectConfigurationFactory(element, privateElement, PRIVATE_CFG_FACTORY);
 		factory.save(projectCfg);

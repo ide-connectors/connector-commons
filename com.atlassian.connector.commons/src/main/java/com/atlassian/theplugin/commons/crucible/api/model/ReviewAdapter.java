@@ -170,8 +170,8 @@ public class ReviewAdapter {
 
 		ReviewAdapter that = (ReviewAdapter) o;
 
-		return !(review != null ? !review.equals(that.review) : that.review != null) &&
-				!(server != null ? !server.equals(that.server) : that.server != null);
+		return !(review != null ? !review.equals(that.review) : that.review != null)
+				&& !(server != null ? !server.equals(that.server) : that.server != null);
 	}
 
 	@Override

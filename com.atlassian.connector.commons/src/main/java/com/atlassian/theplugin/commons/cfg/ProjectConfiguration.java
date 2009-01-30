@@ -31,6 +31,7 @@ public class ProjectConfiguration {
 	private String defaultFishEyeRepo;
 	private String fishEyeProjectPath;
 	private static final int HASHCODE_MAGIC = 31;
+	private boolean isPrivateConfigurationMigrated = false;
 
 
 	public ProjectConfiguration(final ProjectConfiguration other) {
@@ -41,6 +42,8 @@ public class ProjectConfiguration {
 		defaultCrucibleRepo = other.defaultCrucibleRepo;
 		defaultFishEyeRepo = other.defaultFishEyeRepo;
 		fishEyeProjectPath = other.fishEyeProjectPath;
+		isPrivateConfigurationMigrated = other.isPrivateConfigurationMigrated;
+
 	}
 
 	public static Collection<ServerCfg> cloneArrayList(final Collection<ServerCfg> collection) {
@@ -104,6 +107,10 @@ public class ProjectConfiguration {
 				: that.fishEyeProjectPath != null) {
 			return false;
 		}
+
+		if (isPrivateConfigurationMigrated != that.isPrivateConfigurationMigrated) {
+			return false;
+		}
 		//noinspection RedundantIfStatement
 		if (!servers.equals(that.servers)) {
 			return false;
@@ -121,6 +128,7 @@ public class ProjectConfiguration {
 		result = HASHCODE_MAGIC * result + (defaultCrucibleProject != null ? defaultCrucibleProject.hashCode() : 0);
 		result = HASHCODE_MAGIC * result + (defaultCrucibleRepo != null ? defaultCrucibleRepo.hashCode() : 0);
 		result = HASHCODE_MAGIC * result + (fishEyeProjectPath != null ? fishEyeProjectPath.hashCode() : 0);
+		result = HASHCODE_MAGIC * result + (isPrivateConfigurationMigrated ? 1 : 0);
 		return result;
 	}
 
@@ -235,7 +243,7 @@ public class ProjectConfiguration {
 	public void setDefaultFishEyeRepo(final String defaultFishEyeRepo) {
 		this.defaultFishEyeRepo = defaultFishEyeRepo;
 	}
-
+	
 	public boolean isDefaultFishEyeServerValid() {
 		if (defaultFishEyeServerId == null) {
 			return true;
@@ -249,6 +257,8 @@ public class ProjectConfiguration {
 		FishEyeServer fishEye = serverCfg.asFishEyeServer();
 		return fishEye != null && fishEye.isEnabled();
 	}
+
+
 
 	public boolean isDefaultCrucibleServerValid() {
 		if (defaultCrucibleServerId == null) {
@@ -310,5 +320,13 @@ public class ProjectConfiguration {
 		}
 
 		return fisheyeServers;
+	}
+
+	public boolean isPrivateConfigurationMigrated() {
+		return isPrivateConfigurationMigrated;
+	}
+
+	public void setPrivateConfigurationMigrated(final boolean privateConfigurationMigrated) {
+		isPrivateConfigurationMigrated = privateConfigurationMigrated;
 	}
 }

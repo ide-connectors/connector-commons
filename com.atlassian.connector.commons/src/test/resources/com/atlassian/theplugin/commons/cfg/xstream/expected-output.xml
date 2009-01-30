@@ -24,6 +24,6 @@
     <default-fisheye-server>341d662c-e744-4690-a5f8-6e127c0bc84f</default-fisheye-server>
     <default-fisheye-repo>FishRepo</default-fisheye-repo>
     <fisheye-project-path>FishEye/Path/To</fisheye-project-path>
-    !<isPrivateConfigurationMigrated>true</isPrivateConfigurationMigrated>
+    
   </project-configuration>
 </test>

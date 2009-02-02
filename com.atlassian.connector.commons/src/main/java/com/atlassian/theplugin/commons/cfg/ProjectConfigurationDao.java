@@ -16,7 +16,7 @@
 
 package com.atlassian.theplugin.commons.cfg;
 
-public interface ProjectConfigurationFactory {
+public interface ProjectConfigurationDao {
 
 	ProjectConfiguration load() throws ServerCfgFactoryException;
 

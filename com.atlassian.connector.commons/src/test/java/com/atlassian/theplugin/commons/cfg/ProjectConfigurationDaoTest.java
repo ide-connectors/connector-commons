@@ -21,8 +21,8 @@ import java.util.Collection;
 
 import com.atlassian.theplugin.commons.util.MiscUtil;
 
-public abstract class ProjectConfigurationFactoryTest extends TestCase {
-	private ProjectConfigurationFactory factory;
+public abstract class ProjectConfigurationDaoTest extends TestCase {
+	private ProjectConfigurationDao dao;
 
 	public static final BambooServerCfg BAMBOO_1 = new BambooServerCfg("mybamboo1", new ServerId());
 	public static final BambooServerCfg BAMBOO_2 = new BambooServerCfg("mybamboo2", new ServerId());
@@ -36,18 +36,18 @@ public abstract class ProjectConfigurationFactoryTest extends TestCase {
 		JIRA_1.setUrl("url3");
 	}
 
-	protected abstract ProjectConfigurationFactory getProjectConfigurationFactory();
+	protected abstract ProjectConfigurationDao getProjectConfigurationFactory();
 
 	@Override
 	protected void setUp() throws Exception {
-		factory = getProjectConfigurationFactory();
+		dao = getProjectConfigurationFactory();
 	}
 
 	public void testSaveLoad() throws ServerCfgFactoryException {
 		final Collection<ServerCfg> serversToSave = MiscUtil.buildArrayList(BAMBOO_1, CRUCIBLE_1, BAMBOO_2);
 		final ProjectConfiguration projectCfg = new ProjectConfiguration(serversToSave);
-		factory.save(projectCfg);
-		final ProjectConfiguration newCfg = factory.load();
+		dao.save(projectCfg);
+		final ProjectConfiguration newCfg = dao.load();
 		assertEquals(projectCfg, newCfg);
 	}
 

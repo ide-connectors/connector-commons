@@ -15,7 +15,7 @@
  */
 package com.atlassian.theplugin.commons.cfg.xstream;
 
-import com.atlassian.theplugin.commons.cfg.PrivateConfigurationFactory;
+import com.atlassian.theplugin.commons.cfg.PrivateConfigurationDao;
 import com.atlassian.theplugin.commons.cfg.PrivateServerCfgInfo;
 import com.atlassian.theplugin.commons.cfg.ServerCfgFactoryException;
 import com.atlassian.theplugin.commons.cfg.ServerId;
@@ -38,7 +38,7 @@ import java.io.IOException;
  * User: pmaruszak
  */
 
-public class PrivateConfigurationFactoryImpl implements PrivateConfigurationFactory {
+public class HomeDirPrivateConfigurationDao implements PrivateConfigurationDao {
 	private static final String ATLASSIAN_DIR_NAME = ".atlassian";
 	private static final String ATLASSIAN_IDE_CONNECTOR_DIR_NAME = "ide-connector";
 	private static final String ROOT_ELEMENT_NAME = "single-server-private-cfg";

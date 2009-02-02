@@ -15,11 +15,11 @@
  */
 package com.atlassian.theplugin.commons.cfg.xstream;
 
-import com.atlassian.theplugin.commons.cfg.PrivateConfigurationFactory;
+import com.atlassian.theplugin.commons.cfg.PrivateConfigurationDao;
 import com.atlassian.theplugin.commons.cfg.PrivateProjectConfiguration;
 import com.atlassian.theplugin.commons.cfg.PrivateServerCfgInfo;
 import com.atlassian.theplugin.commons.cfg.ProjectConfiguration;
-import com.atlassian.theplugin.commons.cfg.ProjectConfigurationFactory;
+import com.atlassian.theplugin.commons.cfg.ProjectConfigurationDao;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerCfgFactoryException;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
@@ -30,24 +30,24 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class JDomProjectConfigurationFactory implements ProjectConfigurationFactory {
+public class JDomProjectConfigurationDao implements ProjectConfigurationDao {
 
 	private final Element publicElement;
-	private final PrivateConfigurationFactory privateConfigurationFactory;
+	private final PrivateConfigurationDao privateConfigurationDao;
 
 
-	public JDomProjectConfigurationFactory(final Element element,
-			@NotNull PrivateConfigurationFactory privateConfigurationFactory) {
+	public JDomProjectConfigurationDao(final Element element,
+			@NotNull PrivateConfigurationDao privateConfigurationDao) {
 		if (element == null) {
 			throw new IllegalArgumentException(Element.class.getSimpleName() + " cannot be null");
 		}
 		// we compile using Maven2. @NotNull has no meaning in product
 		//noinspection ConstantConditions
-		if (privateConfigurationFactory == null) {
-			throw new IllegalArgumentException(PrivateConfigurationFactory.class.getSimpleName() + " cannot be null");
+		if (privateConfigurationDao == null) {
+			throw new IllegalArgumentException(PrivateConfigurationDao.class.getSimpleName() + " cannot be null");
 		}
 		this.publicElement = element;
-		this.privateConfigurationFactory = privateConfigurationFactory;
+		this.privateConfigurationDao = privateConfigurationDao;
 
 	}
 
@@ -58,7 +58,7 @@ public class JDomProjectConfigurationFactory implements ProjectConfigurationFact
 		for (ServerCfg serverCfg : res.getServers()) {
 			try {
 				@Nullable final PrivateServerCfgInfo privateServerCfgInfo
-						= privateConfigurationFactory.load(serverCfg.getServerId());
+						= privateConfigurationDao.load(serverCfg.getServerId());
 				if (privateServerCfgInfo != null) {
 					ppc.add(privateServerCfgInfo);
 				}
@@ -109,7 +109,7 @@ public class JDomProjectConfigurationFactory implements ProjectConfigurationFact
 		save(projectConfiguration, publicElement);
 		for (ServerCfg serverCfg : projectConfiguration.getServers()) {
 			try {
-				privateConfigurationFactory.save(serverCfg.createPrivateProjectConfiguration());
+				privateConfigurationDao.save(serverCfg.createPrivateProjectConfiguration());
 			} catch (ServerCfgFactoryException e) {
 				LoggerImpl.getInstance().error("Cannot write private cfg file for server Uuid = "
 						+ serverCfg.getServerId().getUuid());

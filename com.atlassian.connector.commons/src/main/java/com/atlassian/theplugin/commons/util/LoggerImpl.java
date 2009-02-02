@@ -22,7 +22,7 @@ public abstract class LoggerImpl implements Logger {
      * For backward compatibility, support the overriding the factory
      * with a singleton instance of the logger.
      */
-    private static Logger singleton = null;
+    private static Logger singleton;
 	public static final String LOGGER_CATEGORY = "com.atlassian.theplugin";
 
 
@@ -39,9 +39,9 @@ public abstract class LoggerImpl implements Logger {
 		}
     }
 	
-	private static boolean debug = false;
+	private static boolean debug;
 
-    private static boolean verbose = false;
+    private static boolean verbose;
 
     /**
      * If set, this instance will be returned by all requests made to getInstance,

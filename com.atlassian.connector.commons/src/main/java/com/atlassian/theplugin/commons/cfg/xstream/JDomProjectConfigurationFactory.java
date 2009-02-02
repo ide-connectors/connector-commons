@@ -15,25 +15,36 @@
  */
 package com.atlassian.theplugin.commons.cfg.xstream;
 
-import com.atlassian.theplugin.commons.cfg.*;
-import com.atlassian.theplugin.commons.exception.ThePluginException;
+import com.atlassian.theplugin.commons.cfg.PrivateConfigurationFactory;
+import com.atlassian.theplugin.commons.cfg.PrivateProjectConfiguration;
+import com.atlassian.theplugin.commons.cfg.PrivateServerCfgInfo;
+import com.atlassian.theplugin.commons.cfg.ProjectConfiguration;
+import com.atlassian.theplugin.commons.cfg.ProjectConfigurationFactory;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerCfgFactoryException;
+import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.JDomReader;
 import com.thoughtworks.xstream.io.xml.JDomWriter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class JDomProjectConfigurationFactory implements ProjectConfigurationFactory {
 
 	private final Element publicElement;
 	private final PrivateConfigurationFactory privateConfigurationFactory;
-	private final Element privateElement;
 
 
-	public JDomProjectConfigurationFactory(final Element element, final Element privateElement,
-			PrivateConfigurationFactory privateConfigurationFactory) {
-		this.privateElement = privateElement;
+	public JDomProjectConfigurationFactory(final Element element,
+			@NotNull PrivateConfigurationFactory privateConfigurationFactory) {
 		if (element == null) {
-			throw new NullPointerException(Element.class.getSimpleName() + " cannot be null");
+			throw new IllegalArgumentException(Element.class.getSimpleName() + " cannot be null");
+		}
+		// we compile using Maven2. @NotNull has no meaning in product
+		//noinspection ConstantConditions
+		if (privateConfigurationFactory == null) {
+			throw new IllegalArgumentException(PrivateConfigurationFactory.class.getSimpleName() + " cannot be null");
 		}
 		this.publicElement = element;
 		this.privateConfigurationFactory = privateConfigurationFactory;
@@ -42,39 +53,30 @@ public class JDomProjectConfigurationFactory implements ProjectConfigurationFact
 
 	public ProjectConfiguration load() throws ServerCfgFactoryException {
 		PrivateProjectConfiguration ppc = new PrivateProjectConfiguration();
-		PrivateProjectConfiguration oldPpc = new PrivateProjectConfiguration();
 		ProjectConfiguration res = load(publicElement, ProjectConfiguration.class);
-
-		try {
-			oldPpc = (privateElement != null)
-					? load(privateElement, PrivateProjectConfiguration.class)
-					: new PrivateProjectConfiguration();
-		} catch (ServerCfgFactoryException e) {
-			//ignore we want to migrate to new location
-		}
 
 		for (ServerCfg serverCfg : res.getServers()) {
 			try {
-				PrivateServerCfgInfo privateServerCfgInfo = privateConfigurationFactory.load(serverCfg.getServerId());
-				ppc.add(privateServerCfgInfo);
-			} catch (ThePluginException e) {
-				//no new configuration use load from old location
-				ppc = oldPpc;
-
-			} catch (ServerCfgFactoryException e) {
-				//server is not dfined in new cfg location try to read from old one
-				PrivateServerCfgInfo privateCfg = oldPpc.getPrivateServerCfgInfo(serverCfg.getServerId());
-				if (privateCfg != null) {
-					ppc.add(privateCfg);
+				@Nullable final PrivateServerCfgInfo privateServerCfgInfo
+						= privateConfigurationFactory.load(serverCfg.getServerId());
+				if (privateServerCfgInfo != null) {
+					ppc.add(privateServerCfgInfo);
 				}
+			} catch (ServerCfgFactoryException e) {
+				// let us ignore problem for the moment - there will be no private settings for such servers
 			}
 		}
 
 		return merge(res, ppc);
 	}
 
+	public PrivateProjectConfiguration loadOldPrivateConfiguration(@NotNull Element privateElement)
+			throws ServerCfgFactoryException {
+		return load(privateElement, PrivateProjectConfiguration.class);
+	}
 
-	<T> T load(final Element rootElement, Class<T> clazz) throws ServerCfgFactoryException {
+
+	private <T> T load(final Element rootElement, Class<T> clazz) throws ServerCfgFactoryException {
 		final int childCount = rootElement.getChildren().size();
 		if (childCount != 1) {
 			throw new ServerCfgFactoryException("Cannot travers JDom tree. Exactly one child node expected, but found ["
@@ -105,8 +107,14 @@ public class JDomProjectConfigurationFactory implements ProjectConfigurationFact
 
 	public void save(final ProjectConfiguration projectConfiguration) {
 		save(projectConfiguration, publicElement);
-		final PrivateProjectConfiguration privateCfg = getPrivateProjectConfiguration(projectConfiguration);
-		save(privateCfg, privateElement);
+		for (ServerCfg serverCfg : projectConfiguration.getServers()) {
+			try {
+				privateConfigurationFactory.save(serverCfg.createPrivateProjectConfiguration());
+			} catch (ServerCfgFactoryException e) {
+				LoggerImpl.getInstance().error("Cannot write private cfg file for server Uuid = "
+						+ serverCfg.getServerId().getUuid());
+			}
+		}
 	}
 
 	void save(final Object object, final Element rootElement) {
@@ -117,14 +125,6 @@ public class JDomProjectConfigurationFactory implements ProjectConfigurationFact
 		final XStream xStream = JDomXStreamUtil.getProjectJDomXStream();
 		xStream.marshal(object, writer);
 
-	}
-
-	PrivateProjectConfiguration getPrivateProjectConfiguration(final ProjectConfiguration projectConfiguration) {
-		final PrivateProjectConfiguration res = new PrivateProjectConfiguration();
-		for (ServerCfg serverCfg : projectConfiguration.getServers()) {
-			res.add(createPrivateProjectConfiguration(serverCfg));
-		}
-		return res;
 	}
 
 	static PrivateServerCfgInfo createPrivateProjectConfiguration(final ServerCfg serverCfg) {

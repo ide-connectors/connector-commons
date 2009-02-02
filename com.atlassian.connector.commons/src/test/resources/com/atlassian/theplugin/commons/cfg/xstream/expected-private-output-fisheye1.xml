@@ -1,0 +1,8 @@
+<single-server-private-cfg>
+  <private-server-cfg>
+    <server-id>341d662c-e744-4690-a5f8-6e127c0bc84d</server-id>
+    <enabled>true</enabled>
+    <username>user1</username>
+    <password>cGFzc3dvcmQyMw==</password>
+  </private-server-cfg>
+</single-server-private-cfg>

@@ -1,0 +1,8 @@
+<single-server-private-cfg>
+  <private-bamboo-server-cfg>
+    <server-id>241d662c-e744-4690-a5f8-6e127c0bc84f</server-id>
+    <enabled>true</enabled>
+    <username>mytestuser2</username>
+    <timezone-offset>1</timezone-offset>
+  </private-bamboo-server-cfg>
+</single-server-private-cfg>

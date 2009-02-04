@@ -50,8 +50,8 @@ import java.util.Map;
  * Communication stub for lightweight XML based APIs.
  */
 public abstract class AbstractHttpSession {
-    protected final String baseUrl;
-    protected HttpClient client;
+	protected final String baseUrl;
+	protected HttpClient client;
 	private HttpSessionCallback callback;
 	@NotNull
 	private final Server server;
@@ -63,50 +63,50 @@ public abstract class AbstractHttpSession {
 	protected String getPassword() {
 		return server.getPassword();
 	}
-	
-    private final Object clientLock = new Object();
 
-    private static ThreadLocal<URL> url = new ThreadLocal<URL>();
+	private final Object clientLock = new Object();
 
-    // TODO: replace this with a proper cache to ensure automatic purging. Responses can get quite large.
-    private final Map<String, CacheRecord> cache =
-        new HashMap<String, CacheRecord>();
-        
-    /**
-     * This class holds an HTTP response body, together with its last
-     * modification time and Etag.
-     */
-    private final class CacheRecord {
-        private final byte[] document;
-        private final String lastModified;
-        private final String etag;
+	private static ThreadLocal<URL> url = new ThreadLocal<URL>();
 
-        private CacheRecord(byte[] document, String lastModified, String etag) {
-            if (document == null || lastModified == null || etag == null) {
-                throw new IllegalArgumentException("null");
-            } else {
-                this.document = document;
-                this.lastModified = lastModified;
-                this.etag = etag;
-            }
-        }
+	// TODO: replace this with a proper cache to ensure automatic purging. Responses can get quite large.
+	private final Map<String, CacheRecord> cache =
+			new HashMap<String, CacheRecord>();
 
-        public byte[] getDocument() {
-            return document;
-        }
+	/**
+	 * This class holds an HTTP response body, together with its last
+	 * modification time and Etag.
+	 */
+	private final class CacheRecord {
+		private final byte[] document;
+		private final String lastModified;
+		private final String etag;
 
-        public String getLastModified() {
-            return lastModified;
-        }
+		private CacheRecord(byte[] document, String lastModified, String etag) {
+			if (document == null || lastModified == null || etag == null) {
+				throw new IllegalArgumentException("null");
+			} else {
+				this.document = document;
+				this.lastModified = lastModified;
+				this.etag = etag;
+			}
+		}
 
-        public String getEtag() {
-            return etag;
-        }
-    }
+		public byte[] getDocument() {
+			return document;
+		}
 
-    public static URL getUrl() {
-        return url.get();
-    }
+		public String getLastModified() {
+			return lastModified;
+		}
+
+		public String getEtag() {
+			return etag;
+		}
+	}
+
+	public static URL getUrl() {
+		return url.get();
+	}
 
 	public static void setUrl(final URL urlString) {
 		url.set(urlString);
@@ -117,32 +117,32 @@ public abstract class AbstractHttpSession {
 	}
 
 	/**
-     * Public constructor for AbstractHttpSession
-     *
-	 * @param server server params used by this session 
+	 * Public constructor for AbstractHttpSession
+	 *
+	 * @param server   server params used by this session
 	 * @param callback provider of HttpSession
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
 	 *          for malformed url
 	 */
-    public AbstractHttpSession(@NotNull Server server, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
-    	this.server = server;
-    	this.callback = callback;
-    	String myurl = server.getUrl();
-    	
-        this.baseUrl = UrlUtil.removeUrlTrailingSlashes(myurl);
+	public AbstractHttpSession(@NotNull Server server, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
+		this.server = server;
+		this.callback = callback;
+		String myurl = server.getUrl();
 
-        try {
-            UrlUtil.validateUrl(myurl);
-        } catch (MalformedURLException e) {
-            throw new RemoteApiMalformedUrlException("Malformed server URL: " + myurl, e);
-        }
-    }
+		this.baseUrl = UrlUtil.removeUrlTrailingSlashes(myurl);
 
-    protected Document retrieveGetResponse(String urlString)
-            throws IOException, JDOMException, RemoteApiSessionExpiredException {
+		try {
+			UrlUtil.validateUrl(myurl);
+		} catch (MalformedURLException e) {
+			throw new RemoteApiMalformedUrlException("Malformed server URL: " + myurl, e);
+		}
+	}
 
-        byte[] result = doConditionalGet(urlString);
-        Document doc;
+	protected Document retrieveGetResponse(String urlString)
+			throws IOException, JDOMException, RemoteApiSessionExpiredException {
+
+		byte[] result = doConditionalGet(urlString);
+		Document doc;
 
 		SAXBuilder builder = new SAXBuilder();
 		doc = builder.build(new ByteArrayInputStream(result));
@@ -152,73 +152,74 @@ public abstract class AbstractHttpSession {
 		preprocessResult(doc);
 
 		return doc;
-    }
+	}
 
-    protected byte[] doConditionalGet(String urlString) throws IOException, JDOMException, RemoteApiSessionExpiredException {
+	protected byte[] doConditionalGet(String urlString) throws IOException, JDOMException, RemoteApiSessionExpiredException {
 
-        UrlUtil.validateUrl(urlString);
+		UrlUtil.validateUrl(urlString);
 		setUrl(urlString);
 		synchronized (clientLock) {
-            if (client == null) {
-                try {
-                    client = callback.getHttpClient(server);
-                } catch (HttpProxySettingsException e) {
+			if (client == null) {
+				try {
+					client = callback.getHttpClient(server);
+				} catch (HttpProxySettingsException e) {
 					throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
-                }
-            }
+				}
+			}
 
-            GetMethod method = new GetMethod(urlString);
+			GetMethod method = new GetMethod(urlString);
 
-            CacheRecord cacheRecord = cache.get(urlString);
-            if (cacheRecord != null) {
+			CacheRecord cacheRecord = cache.get(urlString);
+			if (cacheRecord != null) {
 //                System.out.println(String.format("%s in cache, adding If-Modified-Since: %s and If-None-Match: %s headers.",
 //                    urlString, cacheRecord.getLastModified(), cacheRecord.getEtag()));
-                method.addRequestHeader("If-Modified-Since", cacheRecord.getLastModified());
-                method.addRequestHeader("If-None-Match", cacheRecord.getEtag());
-            }
-            try {
-                method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
-                method.getParams().setSoTimeout(client.getParams().getSoTimeout());
-                callback.configureHttpMethod(this, method);
+				method.addRequestHeader("If-Modified-Since", cacheRecord.getLastModified());
+				method.addRequestHeader("If-None-Match", cacheRecord.getEtag());
+			}
+			try {
+				method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
+				method.getParams().setSoTimeout(client.getParams().getSoTimeout());
+				callback.configureHttpMethod(this, method);
 
-                client.executeMethod(method);
+				client.executeMethod(method);
 
-                if (method.getStatusCode() == HttpStatus.SC_NOT_MODIFIED && cacheRecord != null) {
+				if (method.getStatusCode() == HttpStatus.SC_NOT_MODIFIED && cacheRecord != null) {
 //					System.out.println("Cache record valid, using cached value: " + new String(cacheRecord.getDocument()));
-                    return cacheRecord.getDocument().clone();
-                } else if (method.getStatusCode() != HttpStatus.SC_OK) {
+					return cacheRecord.getDocument().clone();
+				} else if (method.getStatusCode() != HttpStatus.SC_OK) {
 
 					throw new IOException(
-                            "HTTP " + method.getStatusCode() + " (" + HttpStatus.getStatusText(method.getStatusCode())
-                                    + ")\n" + method.getStatusText());
-                } else {
+							"HTTP " + method.getStatusCode() + " (" + HttpStatus.getStatusText(method.getStatusCode())
+									+ ")\n" + method.getStatusText());
+				} else {
 //					System.out.println("Received GET response document.");
-                    final byte[] result = method.getResponseBody();
-                    final String lastModified = method.getResponseHeader("Last-Modified") == null ? null
+					final byte[] result = method.getResponseBody();
+					final String lastModified = method.getResponseHeader("Last-Modified") == null ? null
 							: method.getResponseHeader("Last-Modified").getValue();
-                    final String eTag = method.getResponseHeader("Etag") == null ? null 
+					final String eTag = method.getResponseHeader("Etag") == null ? null
 							: method.getResponseHeader("Etag").getValue();
 
-                    if (lastModified != null && eTag != null) {
-                        cacheRecord = new CacheRecord(result, lastModified, eTag);
-                        cache.put(urlString, cacheRecord);
+					if (lastModified != null && eTag != null) {
+						cacheRecord = new CacheRecord(result, lastModified, eTag);
+						cache.put(urlString, cacheRecord);
 //						System.out.println("Latest GET response document placed in cache: " + new String(result));
-                    }
-                    return result.clone();
-                }
-            } catch (NullPointerException e) {
+					}
+					return result.clone();
+				}
+			} catch (NullPointerException e) {
 				throw createIOException("Connection error", e);
-            } finally {
-                method.releaseConnection();
-            }
-        }
+			} finally {
+				method.releaseConnection();
+			}
+		}
 	}
 
 
 	/**
 	 * Helper method needed because IOException in Java 1.5 does not have constructor taking "cause"
+	 *
 	 * @param message message
-	 * @param cause chained reason for this exception
+	 * @param cause   chained reason for this exception
 	 * @return constructed exception
 	 */
 	private IOException createIOException(String message, Throwable cause) {
@@ -227,77 +228,77 @@ public abstract class AbstractHttpSession {
 		return ioException;
 	}
 
-    protected byte[] retrieveGetResponseAsBytes(String urlString)
-            throws IOException, JDOMException, RemoteApiSessionExpiredException {
-        return doConditionalGet(urlString);
-    }
+	protected byte[] retrieveGetResponseAsBytes(String urlString)
+			throws IOException, JDOMException, RemoteApiSessionExpiredException {
+		return doConditionalGet(urlString);
+	}
 
-    protected Document retrievePostResponse(String urlString, Document request)
-            throws IOException, JDOMException, RemoteApiSessionExpiredException {
-        return retrievePostResponse(urlString, request, true);
-    }
+	protected Document retrievePostResponse(String urlString, Document request)
+			throws IOException, JDOMException, RemoteApiSessionExpiredException {
+		return retrievePostResponse(urlString, request, true);
+	}
 
-    protected Document retrievePostResponse(String urlString, Document request, boolean expectResponse)
-            throws IOException, JDOMException, RemoteApiSessionExpiredException {
-        XMLOutputter serializer = new XMLOutputter(Format.getPrettyFormat());
-        String requestString = serializer.outputString(request);
-        return retrievePostResponse(urlString, requestString, expectResponse);
-    }
+	protected Document retrievePostResponse(String urlString, Document request, boolean expectResponse)
+			throws IOException, JDOMException, RemoteApiSessionExpiredException {
+		XMLOutputter serializer = new XMLOutputter(Format.getPrettyFormat());
+		String requestString = serializer.outputString(request);
+		return retrievePostResponse(urlString, requestString, expectResponse);
+	}
 
-    protected Document retrievePostResponse(String urlString, String request, boolean expectResponse)
-            throws IOException, JDOMException, RemoteApiSessionExpiredException {
-        UrlUtil.validateUrl(urlString);
+	protected Document retrievePostResponse(String urlString, String request, boolean expectResponse)
+			throws IOException, JDOMException, RemoteApiSessionExpiredException {
+		UrlUtil.validateUrl(urlString);
 		setUrl(urlString);
 		Document doc = null;
-        synchronized (clientLock) {
-            if (client == null) {
-                try {
-                	client = callback.getHttpClient(server);
-                } catch (HttpProxySettingsException e) {
-                    throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
-                }
-            }
+		synchronized (clientLock) {
+			if (client == null) {
+				try {
+					client = callback.getHttpClient(server);
+				} catch (HttpProxySettingsException e) {
+					throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
+				}
+			}
 
-            PostMethod method = new PostMethod(urlString);
+			PostMethod method = new PostMethod(urlString);
 
-            try {
-                method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
-                method.getParams().setSoTimeout(client.getParams().getSoTimeout());
-                callback.configureHttpMethod(this, method);
+			try {
+				method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
+				method.getParams().setSoTimeout(client.getParams().getSoTimeout());
+				callback.configureHttpMethod(this, method);
 
-                if (request != null && !"".equals(request)) {
-                    method.setRequestEntity(
-                            new StringRequestEntity(request, "application/xml", "UTF-8"));
-                }
+				if (request != null && !"".equals(request)) {
+					method.setRequestEntity(
+							new StringRequestEntity(request, "application/xml", "UTF-8"));
+				}
 
-                client.executeMethod(method);
+				client.executeMethod(method);
 
-                final int httpStatus = method.getStatusCode();
-                if (httpStatus == HttpStatus.SC_NO_CONTENT) {
+				final int httpStatus = method.getStatusCode();
+				if (httpStatus == HttpStatus.SC_NO_CONTENT) {
 					return doc;
 				} else if (httpStatus != HttpStatus.SC_OK
-                        && httpStatus != HttpStatus.SC_CREATED) {
+						&& httpStatus != HttpStatus.SC_CREATED) {
 
 					Document document;
 					SAXBuilder builder = new SAXBuilder();
 					document = builder.build(method.getResponseBodyAsStream());
 
 					throw new IOException(buildExceptionText(method.getStatusCode(), document));
-                }
+				}
 
-                if (expectResponse) {
-                    SAXBuilder builder = new SAXBuilder();
-                    doc = builder.build(method.getResponseBodyAsStream());
-                    preprocessResult(doc);
-                }
-            } catch (NullPointerException e) {
-                throw createIOException("Connection error", e);
-            } finally {
-                method.releaseConnection();
-            }
-        }
-        return doc;
-    }
+				if (expectResponse) {
+					SAXBuilder builder = new SAXBuilder();
+					doc = builder.build(method.getResponseBodyAsStream());
+					preprocessResult(doc);
+				}
+			} catch (NullPointerException e) {
+				throw createIOException("Connection error", e);
+			} finally {
+				method.releaseConnection();
+			}
+		}
+		return doc;
+	}
 
 	private String buildExceptionText(final int statusCode, final Document document) throws JDOMException {
 		String text = "Server returned HTTP " + statusCode + " (" + HttpStatus.getStatusText(statusCode) + ")\n"
@@ -307,9 +308,16 @@ public abstract class AbstractHttpSession {
 		@SuppressWarnings("unchecked")
 		final List<Element> nodes = xpath.selectNodes(document);
 		if (nodes != null && !nodes.isEmpty()) {
-//			System.out.println(nodes.get(0).getValue());
 			text += nodes.get(0).getValue() + " ";
 		}
+
+		xpath = XPath.newInstance("error/message");
+		@SuppressWarnings("unchecked")
+		final List<Element> messages = xpath.selectNodes(document);
+		if (messages != null && !messages.isEmpty()) {
+			text += "\nMessage: " + messages.get(0).getValue();
+		}
+
 
 //		xpath = XPath.newInstance("error/stacktrace");
 //		nodes = xpath.selectNodes(document);
@@ -322,63 +330,63 @@ public abstract class AbstractHttpSession {
 
 
 	protected Document retrieveDeleteResponse(String urlString, boolean expectResponse)
-            throws IOException, JDOMException, RemoteApiSessionExpiredException {
-        UrlUtil.validateUrl(urlString);
+			throws IOException, JDOMException, RemoteApiSessionExpiredException {
+		UrlUtil.validateUrl(urlString);
 
-        Document doc = null;
-        synchronized (clientLock) {
-            if (client == null) {
-                try {
-                	client = callback.getHttpClient(server);
-                } catch (HttpProxySettingsException e) {
-                    throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
-                }
-            }
+		Document doc = null;
+		synchronized (clientLock) {
+			if (client == null) {
+				try {
+					client = callback.getHttpClient(server);
+				} catch (HttpProxySettingsException e) {
+					throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
+				}
+			}
 
-            DeleteMethod method = new DeleteMethod(urlString);
+			DeleteMethod method = new DeleteMethod(urlString);
 
-            try {
-                method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
-                method.getParams().setSoTimeout(client.getParams().getSoTimeout());
-                callback.configureHttpMethod(this, method);
+			try {
+				method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
+				method.getParams().setSoTimeout(client.getParams().getSoTimeout());
+				callback.configureHttpMethod(this, method);
 
-                client.executeMethod(method);
+				client.executeMethod(method);
 
 				if (method.getStatusCode() == HttpStatus.SC_NO_CONTENT) {
 					return null;
 				}
 				if (method.getStatusCode() != HttpStatus.SC_OK) {
-                    throw new IOException("HTTP status code " + method.getStatusCode() + ": " + method.getStatusText());
-                }
+					throw new IOException("HTTP status code " + method.getStatusCode() + ": " + method.getStatusText());
+				}
 
-                if (expectResponse) {
-                    SAXBuilder builder = new SAXBuilder();
-                    doc = builder.build(method.getResponseBodyAsStream());
-                    preprocessResult(doc);
-                }
-            } catch (NullPointerException e) {
-                throw createIOException("Connection error", e);
-            } finally {
-                method.releaseConnection();
-            }
-        }
-        return doc;
-    }
+				if (expectResponse) {
+					SAXBuilder builder = new SAXBuilder();
+					doc = builder.build(method.getResponseBodyAsStream());
+					preprocessResult(doc);
+				}
+			} catch (NullPointerException e) {
+				throw createIOException("Connection error", e);
+			} finally {
+				method.releaseConnection();
+			}
+		}
+		return doc;
+	}
 
 
-    protected abstract void adjustHttpHeader(HttpMethod method);
+	protected abstract void adjustHttpHeader(HttpMethod method);
 
-    protected abstract void preprocessResult(Document doc) throws JDOMException, RemoteApiSessionExpiredException;
+	protected abstract void preprocessResult(Document doc) throws JDOMException, RemoteApiSessionExpiredException;
 
-    public static String getServerNameFromUrl(String urlString) {
-        int pos = urlString.indexOf("://");
-        if (pos != -1) {
-            urlString = urlString.substring(pos + 1 + 2);
-        }
-        pos = urlString.indexOf("/");
-        if (pos != -1) {
-            urlString = urlString.substring(0, pos);
-        }
-        return urlString;
-    }
+	public static String getServerNameFromUrl(String urlString) {
+		int pos = urlString.indexOf("://");
+		if (pos != -1) {
+			urlString = urlString.substring(pos + 1 + 2);
+		}
+		pos = urlString.indexOf("/");
+		if (pos != -1) {
+			urlString = urlString.substring(0, pos);
+		}
+		return urlString;
+	}
 }

@@ -16,26 +16,18 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
-/**
- *
- */
-public enum CrucibleNotificationType {
-	NEW_REVIEW,
-	NOT_VISIBLE_REVIEW,
-	NEW_REVIEW_ITEM,
-	REMOVED_REVIEW_ITEM,
-	NEW_GENERAL_COMMENT,
-	NEW_VERSIONED_COMMENT,
-	NEW_REPLY,
-	UPDATED_GENERAL_COMMENT,
-	UPDATED_VERSIONED_COMMENT,
-	UPDATED_REPLY,
-	REMOVED_GENERAL_COMMENT,
-	REMOVED_VERSIONED_COMMENT,
-	REMOVED_REPLY,
-	REVIEWER_COMPLETED,
-	REVIEW_COMPLETED,
-	EXCEPTION_RAISED,
-	REVIEW_STATE_CHANGED,
-	REVIEW_DATA_CHANGED
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
+
+public class ReviewDataChangedNotification extends AbstractReviewNotification {
+	public ReviewDataChangedNotification(ReviewAdapter review) {
+		super(review);
+	}
+
+	public CrucibleNotificationType getType() {
+		return CrucibleNotificationType.REVIEW_DATA_CHANGED;
+	}
+
+	public String getPresentationMessage() {
+		return "Review data changed";
+	}
 }

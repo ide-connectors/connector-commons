@@ -42,6 +42,9 @@ public class ReviewDifferenceProducer {
 
 	public List<CrucibleNotification> getDiff() {
 		shortEqual = isShortContentEqual();
+		if (!shortEqual) {
+			notifications.add(new ReviewDataChangedNotification(newReview));
+		}
 		filesEqual = areFilesEqual();
 		// check comments status
 		try {

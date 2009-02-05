@@ -54,6 +54,10 @@ public class ReviewAdapter {
 		facade = CrucibleServerFacadeImpl.getInstance();
 	}
 
+	public ReviewAdapter(ReviewAdapter reviewAdapter) {
+		this(reviewAdapter.review, reviewAdapter.server);
+	}
+
 	public boolean isCompleted() {
 		return review.isCompleted();
 	}
@@ -524,5 +528,4 @@ public class ReviewAdapter {
 	public String toString() {
 		return review.getPermId().getId() + ": " + review.getName() + " (" + server.getName() + ')';
 	}
-
 }

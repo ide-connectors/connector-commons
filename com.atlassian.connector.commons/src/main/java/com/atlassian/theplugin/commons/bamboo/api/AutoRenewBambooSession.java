@@ -16,10 +16,10 @@
 
 package com.atlassian.theplugin.commons.bamboo.api;
 
+import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
-import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
@@ -29,12 +29,16 @@ import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import java.util.List;
 
 public class AutoRenewBambooSession implements BambooSession {
-	private final BambooSessionImpl delegate;
+	private final BambooSession delegate;
 	private String userName;
 	private char[] password;
 
 	public AutoRenewBambooSession(BambooServerCfg serverCfg, HttpSessionCallback callback) throws RemoteApiException {
 		this.delegate = new BambooSessionImpl(serverCfg, callback);
+	}
+
+	AutoRenewBambooSession(BambooSession bambooSession) throws RemoteApiException {
+		this.delegate = bambooSession;
 	}
 
 	public void addCommentToBuild(String buildKey, String buildNumber, String buildComment) throws RemoteApiException {

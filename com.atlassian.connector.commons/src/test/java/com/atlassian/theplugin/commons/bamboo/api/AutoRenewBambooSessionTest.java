@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package com.atlassian.theplugin.commons.bamboo;
+package com.atlassian.theplugin.commons.bamboo.api;
 
-import com.atlassian.theplugin.commons.bamboo.api.AutoRenewBambooSession;
-import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
-import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.bamboo.BambooBuild;
+import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
+import com.atlassian.theplugin.commons.bamboo.BambooChangeSet;
+import com.atlassian.theplugin.commons.bamboo.BambooPlan;
+import com.atlassian.theplugin.commons.bamboo.BambooProject;
+import com.atlassian.theplugin.commons.bamboo.BuildDetails;
+import com.atlassian.theplugin.commons.bamboo.TestDetails;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
-import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 public class AutoRenewBambooSessionTest extends TestCase {
 	private BambooSession testedSession;
@@ -43,19 +42,10 @@ public class AutoRenewBambooSessionTest extends TestCase {
         super.setUp();
 
 		mockDelegate = EasyMock.createStrictMock(BambooSession.class);
-		testedSession = new AutoRenewBambooSession(new BambooServerCfg("mockbamboo", "http://whatever", new ServerId()),
-				new HttpSessionCallbackImpl());
+		testedSession = new AutoRenewBambooSession(mockDelegate);
+		// new BambooServerCfg("mockbamboo", "http://whatever", new ServerId()),
+//				new HttpSessionCallbackImpl());
 
-		Field field = AutoRenewBambooSession.class.getDeclaredField("delegate");
-		field.setAccessible(true);
-		field.set(testedSession, mockDelegate);
-
-	}
-
-    @Override
-	public void tearDown() throws Exception {
-        super.tearDown();
-		EasyMock.verify(mockDelegate);
 	}
 
 	public void testLogin() throws Exception {
@@ -95,7 +85,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
 		mockDelegate.listProjectNames();
-		EasyMock.expectLastCall().andReturn(Arrays.asList(new BambooProject[]{new BambooProject() {
+		EasyMock.expectLastCall().andReturn(Arrays.asList(new BambooProject() {
 			public String getProjectName() {
 				return "project1";
 			}
@@ -119,7 +109,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 			public String getProjectKey() {
 				return "key1";
 			}
-		}}));
+		}));
 		EasyMock.replay(mockDelegate);
 
 		testedSession.login(LOGIN, A_PASSWORD);
@@ -139,7 +129,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
 		mockDelegate.listPlanNames();
-		EasyMock.expectLastCall().andReturn(Arrays.asList(new BambooPlan[]{new BambooPlan() {
+		EasyMock.expectLastCall().andReturn(Arrays.asList(new BambooPlan() {
 			public String getPlanName() {
 				return "planName1";
 			}
@@ -165,7 +155,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 			public boolean isEnabled() {
 				return false;
 			}
-		}} ));
+		}));
 
 		EasyMock.replay(mockDelegate);
 
@@ -185,98 +175,8 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
 		mockDelegate.getLatestBuildForPlan("planKey");
-		EasyMock.expectLastCall().andReturn(new BambooBuild() {
-			public BambooServerCfg getServer() {
-				return null;  
-			}
+		EasyMock.expectLastCall().andReturn(new BambooBuildInfo());
 
-			public String getServerUrl() {
-				return null;
-			}
-
-			public String getProjectName() {
-				return null;
-			}
-
-			public String getProjectKey() {
-				return null;
-			}
-
-			public String getProjectUrl() {
-				return null;
-			}
-
-			public String getBuildUrl() {
-				return null;
-			}
-
-			public String getBuildName() {
-				return null;
-			}
-
-			public String getBuildKey() {
-				return null;
-			}
-
-			public boolean getEnabled() {
-				return false;
-			}
-
-			public String getBuildNumber() {
-				return null;
-			}
-
-			public String getBuildResultUrl() {
-				return null;
-			}
-
-			public BuildStatus getStatus() {
-				return null;
-			}
-
-			public String getMessage() {
-				return null;
-			}
-
-			public int getTestsPassed() {
-				return 0;
-			}
-
-			public int getTestsFailed() {
-				return 0;
-			}
-
-			public Date getBuildStartedDate() {
-				return null;
-			}
-
-			public String getBuildReason() {
-				return null;
-			}
-
-			public String getBuildRelativeBuildDate() {
-				return null;
-			}
-
-			public void setPollingTime(Date date) {
-			}
-			
-			public Date getPollingTime() {
-				return null;
-			}
-
-			public boolean isMyBuild() {
-				return false;
-			}
-
-			public Set<String> getCommiters() {
-				return null;
-			}
-
-			public Date getBuildCompletedDate() {
-				return null;  //To change body of implemented methods use File | Settings | File Templates.
-			}
-		});
 
 		EasyMock.replay(mockDelegate);
 

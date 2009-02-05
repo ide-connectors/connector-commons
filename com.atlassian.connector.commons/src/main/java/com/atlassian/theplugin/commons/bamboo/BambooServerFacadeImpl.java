@@ -36,6 +36,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 import org.joda.time.DateTime;
 import org.jetbrains.annotations.NotNull;
@@ -151,19 +153,20 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
      * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException
      *          when invoked for Server that has not had the password set yet
      */
-    public Collection<BambooPlanData> getPlanList(BambooServerCfg bambooServer)
+    public Collection<BambooPlan> getPlanList(BambooServerCfg bambooServer)
             throws ServerPasswordNotProvidedException, RemoteApiException {
         BambooSession api = getSession(bambooServer);
-        List<BambooPlanData> plans = api.listPlanNames();
+        List<BambooPlan> plans = api.listPlanNames();
         try {
             List<String> favPlans = api.getFavouriteUserPlans();
             for (String fav : favPlans) {
-                for (BambooPlanData plan : plans) {
-                    if (plan.getPlanKey().equalsIgnoreCase(fav)) {
-                        plan.setFavourite(true);
-                        break;
-                    }
-                }
+				for (ListIterator<BambooPlan> it = plans.listIterator(); it.hasNext();) {
+					final BambooPlan plan = it.next();
+					if (plan.getPlanKey().equalsIgnoreCase(fav)) {
+						it.set(plan.withFavourite(true));
+						break;
+					}
+				}
             }
         } catch (RemoteApiException e) {
             // lack of favourite info is not a blocker here
@@ -207,7 +210,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
             connectionErrorMessage = e.getMessage();
         }
 
-        Collection<BambooPlanData> plansForServer = null;
+        Collection<BambooPlan> plansForServer = null;
         try {
             plansForServer = getPlanList(bambooServer);
         } catch (RemoteApiException e) {
@@ -216,7 +219,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 
         if (bambooServer.isUseFavourites()) {
             if (plansForServer != null) {
-                for (BambooPlanData bambooPlan : plansForServer) {
+                for (BambooPlan bambooPlan : plansForServer) {
                     if (bambooPlan.isFavourite()) {
                         if (api != null && api.isLoggedIn()) {
                             try {
@@ -251,7 +254,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 						adjustBuildTimes(bambooServer, buildInfo);
 
                         if (plansForServer != null) {
-                            for (BambooPlanData bambooPlan : plansForServer) {
+                            for (BambooPlan bambooPlan : plansForServer) {
                                 if (plan.getPlanId().equals(bambooPlan.getPlanKey())) {
                                     buildInfo.setEnabled(bambooPlan.isEnabled());
                                 }

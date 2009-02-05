@@ -230,10 +230,10 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		return projects;
 	}
 
-	public List<BambooPlanData> listPlanNames() throws RemoteApiException {
+	public List<BambooPlan> listPlanNames() throws RemoteApiException {
 		String buildResultUrl = baseUrl + LIST_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
 
-		List<BambooPlanData> plans = new ArrayList<BambooPlanData>();
+		List<BambooPlan> plans = new ArrayList<BambooPlan>();
 		try {
 			Document doc = retrieveGetResponse(buildResultUrl);
 			XPath xpath = XPath.newInstance("/response/build");
@@ -248,8 +248,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 					}
 					String name = element.getChild("name").getText();
 					String key = element.getChild("key").getText();
-					BambooPlanData plan = new BambooPlanData(name, key);
-					plan.setEnabled(enabled);
+					BambooPlan plan = new BambooPlan(name, key, enabled);
 					plans.add(plan);
 				}
 			}

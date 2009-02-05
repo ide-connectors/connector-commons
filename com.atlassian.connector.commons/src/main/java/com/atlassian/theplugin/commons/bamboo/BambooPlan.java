@@ -16,21 +16,24 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
-public class BambooPlanData {
+/**
+ * This class is immutable
+ */
+public class BambooPlan {
 	private final String name;
 	private final String key;
 	private boolean favourite;
 	private boolean enabled;
 
-	public BambooPlanData(String name, String key) {
+	public BambooPlan(String name, String key) {
 		this(name, key, true);
 	}
 
-	public BambooPlanData(String name, String key, boolean isEnabled) {
+	public BambooPlan(String name, String key, boolean isEnabled) {
 		this(name, key, isEnabled, false);
 	}
 
-	public BambooPlanData(String name, String key, boolean isEnabled, boolean isFavourite) {
+	public BambooPlan(String name, String key, boolean isEnabled, boolean isFavourite) {
 		this.name = name;
 		this.key = key;
 		this.enabled = isEnabled;
@@ -50,16 +53,18 @@ public class BambooPlanData {
 		return favourite;
 	}
 
-	public void setFavourite(boolean favourite) {
-		this.favourite = favourite;
+	/**
+	 * Returns copy of this object with favourit information set.
+	 * 
+	 * @param isFavourite requested favourit state
+	 * @return copy of this object
+	 */
+	public BambooPlan withFavourite(boolean isFavourite) {
+		return new BambooPlan(name, key, enabled, isFavourite);
 	}
 
 	public boolean isEnabled() {
 		return enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
 	}
 
 	@Override
@@ -67,12 +72,13 @@ public class BambooPlanData {
 		if (this == o) {
             return true;
         }
-		if (!(o instanceof BambooPlanData)) {
+		if (!(o instanceof BambooPlan)) {
             return false;
         }
 
-		BambooPlanData that = (BambooPlanData) o;
+		BambooPlan that = (BambooPlan) o;
 
+		//noinspection RedundantIfStatement
 		if (key != null ? !key.equals(that.key) : that.key != null) {
             return false;
         }

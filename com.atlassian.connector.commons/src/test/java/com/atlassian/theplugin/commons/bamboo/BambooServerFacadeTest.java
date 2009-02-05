@@ -176,12 +176,12 @@ public class BambooServerFacadeTest extends TestCase {
 
 		final String key1 = "pl";
 		final DateTime buildDate1 = new DateTime(2009, 1, 10, 21, 29, 4, 0);
-		BambooPlanData plan1 = new BambooPlanData("planname1", key1);
-		BambooPlanData plan2 = new BambooPlanData("planname2-nofavourite", "keya");
+		BambooPlan plan1 = new BambooPlan("planname1", key1);
+		BambooPlan plan2 = new BambooPlan("planname2-nofavourite", "keya");
 		final String key3 = "keyb";
 		final DateTime buildDate3 = new DateTime(2009, 3, 27, 1, 9, 0, 0);
-		BambooPlanData plan3 = new BambooPlanData("planname3", key3);
-		List<BambooPlanData> plans = MiscUtil.buildArrayList(plan1, plan2, plan3);
+		BambooPlan plan3 = new BambooPlan("planname3", key3);
+		List<BambooPlan> plans = MiscUtil.buildArrayList(plan1, plan2, plan3);
 		EasyMock.expect(mockSession.listPlanNames()).andReturn(plans).anyTimes();
 		EasyMock.expect(mockSession.getFavouriteUserPlans()).andReturn(MiscUtil.buildArrayList("pl", "keyb")).anyTimes();
 		EasyMock.expect(mockSession.isLoggedIn()).andReturn(true).anyTimes();
@@ -297,7 +297,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 
-		Collection<BambooPlanData> plans = testedBambooServerFacade.getPlanList(bambooServerCfg);
+		Collection<BambooPlan> plans = testedBambooServerFacade.getPlanList(bambooServerCfg);
 		Util.verifyPlanListWithFavouritesResult(plans);
 
 		mockServer.verify();

@@ -141,7 +141,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		List<BambooPlanData> plans = apiHandler.listPlanNames();
+		List<BambooPlan> plans = apiHandler.listPlanNames();
 		apiHandler.logout();
 
 		Util.verifyPlanListResult(plans);

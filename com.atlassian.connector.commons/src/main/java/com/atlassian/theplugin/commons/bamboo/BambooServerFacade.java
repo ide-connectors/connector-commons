@@ -28,7 +28,7 @@ public interface BambooServerFacade extends ProductServerFacade {
     Collection<BambooProject> getProjectList(BambooServerCfg bambooServer)
             throws ServerPasswordNotProvidedException, RemoteApiException;
 
-    Collection<BambooPlanData> getPlanList(BambooServerCfg bambooServer)
+    Collection<BambooPlan> getPlanList(BambooServerCfg bambooServer)
             throws ServerPasswordNotProvidedException, RemoteApiException;
 
     Collection<BambooBuild> getSubscribedPlansResults(BambooServerCfg bambooServer)

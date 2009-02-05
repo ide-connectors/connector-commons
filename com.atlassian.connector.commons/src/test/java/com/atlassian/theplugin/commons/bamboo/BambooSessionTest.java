@@ -36,7 +36,6 @@ import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import org.ddsteps.mock.httpserver.JettyMockServer;
@@ -92,16 +91,19 @@ public class BambooSessionTest extends AbstractSessionTest {
 		}
 	}
 
+	@Override
 	protected ProductSession getProductSession(final String url) throws RemoteApiMalformedUrlException {
 		return new BambooSessionImpl(url);
 	}
 
 
 
+	@Override
 	protected JettyMockServer.Callback getLoginCallback(final boolean isFail) {
 		return new LoginCallback(USER_NAME, PASSWORD, LoginCallback.ALWAYS_FAIL);
 	}
 
+		@Override
 		protected String getLoginUrl() {
 		return "/api/rest/login.action";
 	}
@@ -139,7 +141,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		List<BambooPlan> plans = apiHandler.listPlanNames();
+		List<BambooPlanData> plans = apiHandler.listPlanNames();
 		apiHandler.logout();
 
 		Util.verifyPlanListResult(plans);
@@ -680,18 +682,14 @@ public class BambooSessionTest extends AbstractSessionTest {
 	}
 
 	public void testOutOfRangePort() {
-		String url = "http://localhost:80808";
-		RemoteApiLoginException exception = null;
 		try {
-			BambooSession apiHandler = new BambooSessionImpl(url);
+			BambooSession apiHandler = new BambooSessionImpl("http://localhost:80808");
 			apiHandler.login(USER_NAME, PASSWORD.toCharArray());
+			fail("Exception expected");
 		} catch (RemoteApiException e) {
-			exception = new RemoteApiLoginException(e.getMessage(), e);
+			assertTrue("MalformedURLException expected", e.getCause() instanceof IOException);
 		}
 
-		assertNotNull("Exception expected", exception);
-		assertNotNull("Exception should have a cause", exception.getCause());
-		assertTrue("MalformedURLException expected", exception.getCause().getCause() instanceof IOException);
 	}
 
 }

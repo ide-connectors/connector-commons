@@ -51,7 +51,6 @@ import java.util.List;
 public class BambooServerFacadeTest extends TestCase {
 
 	private static DateTimeFormatter buildDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-	private static DateTimeFormatter commitDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
 	private static final String USER_NAME = "someUser";
 	private static final String PASSWORD = "somePassword";
 	private static final String PLAN_ID = "TP-DEF"; // always the same - mock does the logic
@@ -182,7 +181,7 @@ public class BambooServerFacadeTest extends TestCase {
 		final String key3 = "keyb";
 		final DateTime buildDate3 = new DateTime(2009, 3, 27, 1, 9, 0, 0);
 		BambooPlanData plan3 = new BambooPlanData("planname3", key3);
-		List<BambooPlan> plans = MiscUtil.<BambooPlan>buildArrayList(plan1, plan2, plan3);
+		List<BambooPlanData> plans = MiscUtil.buildArrayList(plan1, plan2, plan3);
 		EasyMock.expect(mockSession.listPlanNames()).andReturn(plans).anyTimes();
 		EasyMock.expect(mockSession.getFavouriteUserPlans()).andReturn(MiscUtil.buildArrayList("pl", "keyb")).anyTimes();
 		EasyMock.expect(mockSession.isLoggedIn()).andReturn(true).anyTimes();
@@ -298,7 +297,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 
-		Collection<BambooPlan> plans = testedBambooServerFacade.getPlanList(bambooServerCfg);
+		Collection<BambooPlanData> plans = testedBambooServerFacade.getPlanList(bambooServerCfg);
 		Util.verifyPlanListWithFavouritesResult(plans);
 
 		mockServer.verify();

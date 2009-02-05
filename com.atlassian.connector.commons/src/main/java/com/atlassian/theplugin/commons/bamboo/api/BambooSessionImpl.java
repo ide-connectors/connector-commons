@@ -230,10 +230,10 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		return projects;
 	}
 
-	public List<BambooPlan> listPlanNames() throws RemoteApiException {
+	public List<BambooPlanData> listPlanNames() throws RemoteApiException {
 		String buildResultUrl = baseUrl + LIST_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
 
-		List<BambooPlan> plans = new ArrayList<BambooPlan>();
+		List<BambooPlanData> plans = new ArrayList<BambooPlanData>();
 		try {
 			Document doc = retrieveGetResponse(buildResultUrl);
 			XPath xpath = XPath.newInstance("/response/build");

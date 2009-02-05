@@ -16,35 +16,34 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
-public class BambooPlanData implements BambooPlan {
-	private String name;
-	private String key;
+public class BambooPlanData {
+	private final String name;
+	private final String key;
 	private boolean favourite;
 	private boolean enabled;
 
 	public BambooPlanData(String name, String key) {
-		this.name = name;
-		this.key = key;
+		this(name, key, true);
 	}
 
-	public BambooPlanData(String key) {
-		this.key = key;
+	public BambooPlanData(String name, String key, boolean isEnabled) {
+		this(name, key, isEnabled, false);
 	}
+
+	public BambooPlanData(String name, String key, boolean isEnabled, boolean isFavourite) {
+		this.name = name;
+		this.key = key;
+		this.enabled = isEnabled;
+		this.favourite = isFavourite;
+	}
+
 
 	public String getPlanName() {
 		return this.name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public String getPlanKey() {
 		return this.key;
-	}
-
-	public void setKey(String key) {
-		this.key = key;
 	}
 
 	public boolean isFavourite() {
@@ -63,6 +62,7 @@ public class BambooPlanData implements BambooPlan {
 		this.enabled = enabled;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
             return true;
@@ -80,6 +80,7 @@ public class BambooPlanData implements BambooPlan {
 		return true;
 	}
 
+	@Override
 	public int hashCode() {
 		return (key != null ? key.hashCode() : 0);
 	}

@@ -17,9 +17,9 @@
 package com.atlassian.theplugin.bamboo.api.bamboomock;
 
 import com.atlassian.theplugin.commons.bamboo.BambooBuild;
-import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildStatus;
+import com.atlassian.theplugin.commons.bamboo.BambooPlanData;
 import com.atlassian.theplugin.commons.util.ResourceUtil;
 import com.atlassian.theplugin.remoteapi.ErrorResponse;
 import junit.framework.Assert;
@@ -117,11 +117,11 @@ public abstract class Util {
 			{ "PT-TOP", "Second Project - The Only Plan", "false" }
 	};
 
-	public static void verifyPlanListResult(Collection<BambooPlan> plans) {
+	public static void verifyPlanListResult(Collection<BambooPlanData> plans) {
 		assertEquals(expectedPlans.length, plans.size());
-		Iterator<BambooPlan> iterator = plans.iterator();
+		Iterator<BambooPlanData> iterator = plans.iterator();
 		for (String[] pair : expectedPlans) {
-			BambooPlan plan = iterator.next();
+			BambooPlanData plan = iterator.next();
 			assertEquals(pair[0], plan.getPlanKey());
 			assertEquals(pair[1], plan.getPlanName());
 			assertEquals(Boolean.parseBoolean(pair[2]), plan.isEnabled());
@@ -149,11 +149,11 @@ public abstract class Util {
 			{ "PT-TOP", "Second Project - The Only Plan", "true" }
 	};
 
-	public static void verifyPlanListWithFavouritesResult(Collection<BambooPlan> plans) {
+	public static void verifyPlanListWithFavouritesResult(Collection<BambooPlanData> plans) {
 		assertEquals(expectedPlansWithFavourites.length, plans.size());
-		Iterator<BambooPlan> iterator = plans.iterator();
+		Iterator<BambooPlanData> iterator = plans.iterator();
 		for (String[] pair : expectedPlansWithFavourites) {
-			BambooPlan plan = iterator.next();
+			BambooPlanData plan = iterator.next();
 			assertEquals(pair[0], plan.getPlanKey());
 			assertEquals(pair[1], plan.getPlanName());
 			if ("true".equalsIgnoreCase(pair[2])) {

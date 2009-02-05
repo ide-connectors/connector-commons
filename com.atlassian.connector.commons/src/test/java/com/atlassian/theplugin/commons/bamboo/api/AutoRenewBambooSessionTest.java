@@ -19,10 +19,10 @@ package com.atlassian.theplugin.commons.bamboo.api;
 import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
 import com.atlassian.theplugin.commons.bamboo.BambooChangeSet;
-import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
 import com.atlassian.theplugin.commons.bamboo.TestDetails;
+import com.atlassian.theplugin.commons.bamboo.BambooPlanData;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import junit.framework.TestCase;
@@ -31,6 +31,7 @@ import org.easymock.EasyMock;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings({"ThrowableInstanceNeverThrown"})
 public class AutoRenewBambooSessionTest extends TestCase {
 	private BambooSession testedSession;
 	private BambooSession mockDelegate;
@@ -129,38 +130,13 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
 		mockDelegate.listPlanNames();
-		EasyMock.expectLastCall().andReturn(Arrays.asList(new BambooPlan() {
-			public String getPlanName() {
-				return "planName1";
-			}
-			public String getPlanKey() {
-				return "planKey1";
-			}
-			public boolean isFavourite() {
-				return false;
-			}
-			public boolean isEnabled() {
-				return false;
-			}
-		}, new BambooPlan() {
-			public String getPlanName() {
-				return "planName2";
-			}
-			public String getPlanKey() {
-				return "planKey2";
-			}
-			public boolean isFavourite() {
-				return false;
-			}
-			public boolean isEnabled() {
-				return false;
-			}
-		}));
+		EasyMock.expectLastCall().andReturn(Arrays.asList(new BambooPlanData("planName1", "planKey", false, false) ,
+				new BambooPlanData("planName2", "planKey2", false, false)));
 
 		EasyMock.replay(mockDelegate);
 
 		testedSession.login(LOGIN, A_PASSWORD);
-		List<BambooPlan> plans = testedSession.listPlanNames();
+		List<BambooPlanData> plans = testedSession.listPlanNames();
 		assertNotNull(plans);
 		assertEquals(2, plans.size());
 
@@ -195,7 +171,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
 		mockDelegate.getFavouriteUserPlans();
-		EasyMock.expectLastCall().andReturn(Arrays.asList(new String[] {"plan1", "plan2", "plan3"}));
+		EasyMock.expectLastCall().andReturn(Arrays.asList("plan1", "plan2", "plan3"));
 
 		EasyMock.replay(mockDelegate);
 

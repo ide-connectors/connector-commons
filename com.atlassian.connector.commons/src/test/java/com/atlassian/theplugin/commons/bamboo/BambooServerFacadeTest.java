@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.bamboo;
 
 import com.atlassian.theplugin.bamboo.api.bamboomock.*;
 import com.atlassian.theplugin.commons.SubscribedPlan;
+import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
@@ -26,17 +27,23 @@ import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedExcept
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
+import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.remoteapi.ErrorResponse;
 import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.DateTime;
+import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Date;
+import java.util.List;
 
 /**
  * {@link com.atlassian.theplugin.commons.bamboo.BambooServerFacadeImpl} test.
@@ -120,6 +127,11 @@ public class BambooServerFacadeTest extends TestCase {
 	}
 
 	public void testBuildCompletedDate() throws Exception {
+		implTestBuildCompletedDate(0);
+	}
+
+	private void implTestBuildCompletedDate(int timezoneOffset) throws Exception {
+		bambooServerCfg.setTimezoneOffset(timezoneOffset);
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
@@ -127,18 +139,86 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("bc"));
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("bt"));		
 
-		Collection<BambooBuild> plans = testedBambooServerFacade.getSubscribedPlansResults(bambooServerCfg);
+		final Collection<BambooBuild> plans = testedBambooServerFacade.getSubscribedPlansResults(bambooServerCfg);
 		assertNotNull(plans);
 		assertEquals(3, plans.size());
 		Date completedDate = parseBuildDate("2008-12-12 03:08:10");
+		final DateTime adjustedDate = new DateTime(completedDate.getTime()).plusHours(timezoneOffset);
 
 		Iterator<BambooBuild> iterator = plans.iterator();
-		Util.verifyBuildCompletedDate(iterator.next(), completedDate);
-		Util.verifyBuildCompletedDate(iterator.next(), completedDate);
+		Util.verifyBuildCompletedDate(iterator.next(), adjustedDate.toDate());
+		Util.verifyBuildCompletedDate(iterator.next(), adjustedDate.toDate());
 
 		mockServer.verify();
-
 	}
+	
+	public void testBuildCompletedDateWithTimezoneOffset() throws Exception {
+		implTestBuildCompletedDate(3);
+	}
+
+	public void testBuildCompletedDateWithTimezoneOffset2() throws Exception {
+		implTestBuildCompletedDate(-5);
+	}
+
+	private BambooBuildInfo createBambooBuildInfo(DateTime buildCompletionDate) {
+		BambooBuildInfo bbi = new BambooBuildInfo();
+		bbi.setBuildCompletedDate(buildCompletionDate.toDate());
+		return bbi;
+	}
+
+	public void testBuildCompletedDateWithTimeZoneForFavourites() throws RemoteApiException, ServerPasswordNotProvidedException {
+		final BambooSession mockSession = EasyMock.createMock(BambooSession.class);
+		BambooServerFacade facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(), new BambooSessionFactory() {
+			public BambooSession createSession(final BambooServerCfg serverCfg, final HttpSessionCallback callback)
+					throws RemoteApiException {
+				return mockSession;
+			}
+		});
+
+		final String key1 = "pl";
+		final DateTime buildDate1 = new DateTime(2009, 1, 10, 21, 29, 4, 0);
+		BambooPlanData plan1 = new BambooPlanData("planname1", key1);
+		BambooPlanData plan2 = new BambooPlanData("planname2-nofavourite", "keya");
+		final String key3 = "keyb";
+		final DateTime buildDate3 = new DateTime(2009, 3, 27, 1, 9, 0, 0);
+		BambooPlanData plan3 = new BambooPlanData("planname3", key3);
+		List<BambooPlan> plans = MiscUtil.<BambooPlan>buildArrayList(plan1, plan2, plan3);
+		EasyMock.expect(mockSession.listPlanNames()).andReturn(plans).anyTimes();
+		EasyMock.expect(mockSession.getFavouriteUserPlans()).andReturn(MiscUtil.buildArrayList("pl", "keyb")).anyTimes();
+		EasyMock.expect(mockSession.isLoggedIn()).andReturn(true).anyTimes();
+		EasyMock.expect(mockSession.getLatestBuildForPlan(key1)).andAnswer(new IAnswer<BambooBuildInfo>() {
+			public BambooBuildInfo answer() throws Throwable {
+				return createBambooBuildInfo(buildDate1);
+			}
+		}).anyTimes();
+		EasyMock.expect(mockSession.getLatestBuildForPlan(key3)).andAnswer(new IAnswer<BambooBuildInfo>() {
+			public BambooBuildInfo answer() throws Throwable {
+				return createBambooBuildInfo(buildDate3);
+			}
+		}).anyTimes();
+		EasyMock.replay(mockSession);
+		bambooServerCfg.setUseFavourites(true);
+
+
+		getAndVerifyDates(facade, buildDate1, buildDate3, 2);
+		getAndVerifyDates(facade, buildDate1, buildDate3, -7);
+
+		EasyMock.verify(mockSession);
+	}
+
+	private Collection<BambooBuild> getAndVerifyDates(final BambooServerFacade facade, final DateTime buildDate1,
+			final DateTime buildDate3, final int hourOffset) throws ServerPasswordNotProvidedException {
+		bambooServerCfg.setTimezoneOffset(hourOffset);
+		final Collection<BambooBuild> res = facade.getSubscribedPlansResults(bambooServerCfg);
+		assertNotNull(res);
+		assertEquals(2, res.size());
+
+		Iterator<BambooBuild> iterator = res.iterator();
+		Util.verifyBuildCompletedDate(iterator.next(), buildDate1.plusHours(hourOffset).toDate());
+		Util.verifyBuildCompletedDate(iterator.next(), buildDate3.plusHours(hourOffset).toDate());
+		return res;
+	}
+
 	public void testFailedLoginSubscribedBuildStatus() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD, LoginCallback.ALWAYS_FAIL));
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD, LoginCallback.ALWAYS_FAIL));

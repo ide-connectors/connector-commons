@@ -16,10 +16,10 @@
 
 package com.atlassian.theplugin.commons.bamboo.api;
 
-import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
+import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 
@@ -38,7 +38,7 @@ public interface BambooSession extends ProductSession {
 
 	List<BambooPlan> listPlanNames() throws RemoteApiException;
 
-	BambooBuild getLatestBuildForPlan(String planKey) throws RemoteApiException;
+	BambooBuildInfo getLatestBuildForPlan(String planKey) throws RemoteApiException;
 
 	List<String> getFavouriteUserPlans() throws RemoteApiException;
 

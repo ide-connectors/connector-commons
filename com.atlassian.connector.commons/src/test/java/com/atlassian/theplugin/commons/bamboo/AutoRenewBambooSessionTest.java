@@ -246,7 +246,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 				return 0;
 			}
 
-			public Date getBuildTime() {
+			public Date getBuildStartedDate() {
 				return null;
 			}
 

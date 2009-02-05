@@ -129,10 +129,6 @@ public class BambooBuildAdapter {
 		}
 	}
 
-	public Date getBuildTime() {
-		return build.getBuildTime();
-	}
-
 	public Date getBuildCompletedDate() {
 		return build.getBuildCompletedDate();
 	}

@@ -37,29 +37,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.joda.time.DateTime;
+import org.jetbrains.annotations.NotNull;
+
 
 /**
  * Class used for communication wiht Bamboo Server.
- * User: sginter
+ * @author sginter + others
  * Date: Jan 15, 2008
- * Time: 5:12:27 PM
  */
 public final class BambooServerFacadeImpl implements BambooServerFacade {
     private Map<String, BambooSession> sessions = new WeakHashMap<String, BambooSession>();
     private Logger loger;
 
-    private static BambooServerFacadeImpl instance = null;
+    private static BambooServerFacadeImpl instance;
+	private final BambooSessionFactory bambooSessionFactory;
 
     private HttpSessionCallback callback;
     
-    private BambooServerFacadeImpl(Logger loger) {
+    public BambooServerFacadeImpl(Logger loger, @NotNull BambooSessionFactory factory) {
         this.loger = loger;
         this.callback = new HttpSessionCallbackImpl();
+		this.bambooSessionFactory = factory;
     }                                                                                            
 
     public static synchronized BambooServerFacade getInstance(Logger loger) {
         if (instance == null) {
-            instance = new BambooServerFacadeImpl(loger);
+            instance = new BambooServerFacadeImpl(loger, new SimpleBambooSessionFactory());
         }
 
         return instance;
@@ -74,7 +78,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
         String key = server.getUsername() + server.getUrl() + server.getPassword();
         BambooSession session = sessions.get(key);
         if (session == null) {
-            session = new AutoRenewBambooSession(server, callback);
+            session = bambooSessionFactory.createSession(server, callback);
             sessions.put(key, session);
         }
         if (!session.isLoggedIn()) {
@@ -116,7 +120,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
      */
     public void testServerConnection(ServerCfg serverCfg) throws RemoteApiException {
     	assert serverCfg instanceof BambooServerCfg;
-    	BambooSession apiHandler = new AutoRenewBambooSession((BambooServerCfg) serverCfg, callback);
+    	BambooSession apiHandler = bambooSessionFactory.createSession((BambooServerCfg) serverCfg, callback);
         apiHandler.login(serverCfg.getUsername(), serverCfg.getPassword().toCharArray());
         apiHandler.logout();
     }
@@ -216,9 +220,14 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
                     if (bambooPlan.isFavourite()) {
                         if (api != null && api.isLoggedIn()) {
                             try {
-                                BambooBuild buildInfo = api.getLatestBuildForPlan(bambooPlan.getPlanKey());
-                                ((BambooBuildInfo) buildInfo).setServer(bambooServer);
-                                ((BambooBuildInfo) buildInfo).setEnabled(bambooPlan.isEnabled());
+                                BambooBuildInfo buildInfo = api.getLatestBuildForPlan(bambooPlan.getPlanKey());
+                                buildInfo.setServer(bambooServer);
+                                buildInfo.setEnabled(bambooPlan.isEnabled());
+
+								// now adjust the time for local caller time, as Bamboo servers always serves its local time
+								// without the timezone info
+								adjustBuildTimes(bambooServer, buildInfo);
+
                                 builds.add(buildInfo);
                             } catch (RemoteApiException e) {
                                 // go ahead, there are other builds
@@ -236,13 +245,15 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
             for (SubscribedPlan plan : bambooServer.getSubscribedPlans()) {
                 if (api != null && api.isLoggedIn()) {
                     try {
-                        BambooBuild buildInfo = api.getLatestBuildForPlan(plan.getPlanId());
-                        ((BambooBuildInfo) buildInfo).setEnabled(true);
-                        ((BambooBuildInfo) buildInfo).setServer(bambooServer);
+                        BambooBuildInfo buildInfo = api.getLatestBuildForPlan(plan.getPlanId());
+                        buildInfo.setEnabled(true);
+                        buildInfo.setServer(bambooServer);
+						adjustBuildTimes(bambooServer, buildInfo);
+
                         if (plansForServer != null) {
                             for (BambooPlan bambooPlan : plansForServer) {
                                 if (plan.getPlanId().equals(bambooPlan.getPlanKey())) {
-                                    ((BambooBuildInfo) buildInfo).setEnabled(bambooPlan.isEnabled());
+                                    buildInfo.setEnabled(bambooPlan.isEnabled());
                                 }
                             }
                         }
@@ -261,11 +272,20 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
         return builds;
     }
 
-    /**
-     * @param bambooServer
-     * @param buildKey
-     * @param buildNumber
-     * @return
+	private void adjustBuildTimes(final BambooServerCfg bambooServer, final BambooBuildInfo buildInfo) {
+		final Date buildCompletedDate = buildInfo.getBuildCompletedDate();
+		if (buildCompletedDate != null) {
+			buildInfo.setBuildCompletedDate(new DateTime(buildCompletedDate.getTime())
+					.plusHours(bambooServer.getTimezoneOffset()).toDate());
+
+		}
+	}
+
+	/**
+     * @param bambooServer server data
+     * @param buildKey key of the build
+     * @param buildNumber unique number of the build
+     * @return build data
      * @throws ServerPasswordNotProvidedException
      *
      * @throws RemoteApiException
@@ -282,10 +302,10 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
     }
 
     /**
-     * @param bambooServer
-     * @param buildKey
-     * @param buildNumber
-     * @param buildLabel
+	 * @param bambooServer server data
+	 * @param buildKey key of the build
+	 * @param buildNumber unique number of the build
+     * @param buildLabel label to add to the build
      * @throws ServerPasswordNotProvidedException
      *
      * @throws RemoteApiException
@@ -302,10 +322,10 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
     }
 
     /**
-     * @param bambooServer
-     * @param buildKey
-     * @param buildNumber
-     * @param buildComment
+	 * @param bambooServer server data
+	 * @param buildKey key of the build
+	 * @param buildNumber unique number of the build
+     * @param buildComment user comment to add to the build
      * @throws ServerPasswordNotProvidedException
      *
      * @throws RemoteApiException
@@ -322,8 +342,9 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
     }
 
     /**
-     * @param bambooServer
-     * @param buildKey
+	 * Runs selected plan
+	 * @param bambooServer server data
+	 * @param buildKey key of the build
      * @throws ServerPasswordNotProvidedException
      *
      * @throws RemoteApiException
@@ -357,6 +378,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
      * @return list of plans or null on error
      * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException
      *          when invoked for Server that has not had the password set yet
+	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiException in case of some IO or similar problem
      */
     public Collection<String> getFavouritePlans(BambooServerCfg bambooServer)
             throws ServerPasswordNotProvidedException, RemoteApiException {
@@ -384,5 +406,14 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
     
 	public void setCallback(HttpSessionCallback callback) {
 		this.callback = callback;
+	}
+
+
+	private static class SimpleBambooSessionFactory implements BambooSessionFactory {
+
+		public BambooSession createSession(final BambooServerCfg serverCfg, final HttpSessionCallback callback)
+				throws RemoteApiException {
+			return new AutoRenewBambooSession(serverCfg, callback);
+		}
 	}
 }

@@ -61,6 +61,7 @@ public class BambooPopupInfo {
 	 *
 	 * @return calls toHtml()
 	 */
+	@Override
 	public String toString() {
 		return toHtml();
 	}

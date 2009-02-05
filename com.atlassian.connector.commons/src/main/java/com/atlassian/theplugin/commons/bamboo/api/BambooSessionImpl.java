@@ -270,7 +270,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	 * @param planKey ID of the plan to get info about
 	 * @return Information about the last build or error message
 	 */
-	public BambooBuild getLatestBuildForPlan(String planKey) throws RemoteApiSessionExpiredException {
+	public BambooBuildInfo getLatestBuildForPlan(String planKey) throws RemoteApiSessionExpiredException {
 		String buildResultUrl = baseUrl + LATEST_BUILD_FOR_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
 				+ "&buildKey=" + UrlUtil.encodeUrl(planKey);
 
@@ -283,9 +283,9 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 			}
 
 			@SuppressWarnings("unchecked")
-			final List elements = XPath.newInstance("/response").selectNodes(doc);
+			final List<Element> elements = XPath.newInstance("/response").selectNodes(doc);
 			if (elements != null && !elements.isEmpty()) {
-				Element e = (Element) elements.iterator().next();
+				Element e = elements.iterator().next();
 				BambooBuildInfo build = constructBuildItem(e, new Date());
 				build.setCommiters(constructBuildCommiters(doc));
 				return build;
@@ -515,7 +515,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 	}
 
-	BambooBuild constructBuildErrorInfo(String planId, String message, Date lastPollingTime) {
+	BambooBuildInfo constructBuildErrorInfo(String planId, String message, Date lastPollingTime) {
 		BambooBuildInfo buildInfo = new BambooBuildInfo();
 
 		buildInfo.setServerUrl(baseUrl);
@@ -556,7 +556,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 		//older Bamboo versions do not generate buildCompletedDate so we set it as buildTime
 		if (buildInfo.getBuildCompletedDate() == null) {
-			buildInfo.setBuildCompletedDate(buildInfo.getBuildTime());
+			buildInfo.setBuildCompletedDate(buildInfo.getBuildStartedDate());
 		}
 
 		buildInfo.setPollingTime(lastPollingTime);

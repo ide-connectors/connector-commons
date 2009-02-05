@@ -18,32 +18,24 @@ package com.atlassian.theplugin.commons.util;
 
 import org.joda.time.Period;
 
-import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Created by IntelliJ IDEA.
- * User: lguminski
- * Date: Mar 11, 2008
- * Time: 4:55:29 PM
+ * @author lguminski
  * Taken from the Bamboo project.
  */
-public abstract class DateUtil /* extends TableColumnInfo */ {
+public abstract class DateUtil {
 	private static final String PRIOR_TEXT = "ago";
-	//private static final Category LOGGER = Logger.getInstance(PluginStatusBarToolTip.class);
 	public static final int SECONDS_IN_MINUTE = 60;
 	public static final int MILISECONDS_IN_SECOND = 1000;
 
     private DateUtil() {        
     }
 
-	public static  String getRelativeBuildTime(Date someDate, int timezoneOffset) {
+	public static String getRelativeBuildTime(Date someDate) {
 
 		if (someDate != null) {
-			Calendar c = Calendar.getInstance();
-			c.setTime(someDate);
-			c.add(Calendar.HOUR_OF_DAY, timezoneOffset);
-			return DateUtil.getRelativePastDate(new Date(), c.getTime());
+			return DateUtil.getRelativePastDate(new Date(), someDate);
 		}
 		return "Unknown";
 	}

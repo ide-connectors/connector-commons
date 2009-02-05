@@ -16,6 +16,11 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
+/**
+ * wseliga: This interface causes more harm than good. It dozen of places anyway there is a cast to BambooPlanData. I am
+ * going to remove it soon.
+ */
+@Deprecated
 public interface BambooPlan {
 	String getPlanName();
 

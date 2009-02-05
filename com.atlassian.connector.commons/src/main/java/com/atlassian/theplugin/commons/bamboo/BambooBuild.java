@@ -32,8 +32,6 @@ public interface BambooBuild extends RequestData {
 
     String getProjectName();
 
-//    String getProjectKey();
-
     String getProjectUrl();
 
 	String getBuildUrl();
@@ -58,7 +56,7 @@ public interface BambooBuild extends RequestData {
 
 	String getBuildReason();
 
-	Date getBuildTime();
+	Date getBuildStartedDate();
 
 	Date getBuildCompletedDate();
 

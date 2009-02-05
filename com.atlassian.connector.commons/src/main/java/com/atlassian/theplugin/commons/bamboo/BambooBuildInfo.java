@@ -97,10 +97,6 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		this.projectName = projectName;
 	}
 
-//	public String getProjectKey() {
-//		return this.projectKey;
-//	}
-
     public String getProjectUrl() {
         return this.getServerUrl() + "/browse/"
 				+ (projectKey == null ? buildKey.substring(0, buildKey.indexOf("-")) : projectKey);
@@ -219,7 +215,7 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
         }
     }
 
-	public Date getBuildTime() {
+	public Date getBuildStartedDate() {
 		return buildTime != null ? new Date(this.buildTime.getTime()) : null;
 	}
 
@@ -231,6 +227,7 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		this.buildCommitComment = buildCommitComment;
 	}
 
+	@Override
 	public String toString() {
 		return projectName
 				+ " " + buildName
@@ -247,11 +244,7 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	 * @return wheather I'm one of the commiters to that build or not
 	 */
 	public boolean isMyBuild() {
-		if (commiters.contains(server.getUsername())) {
-			return true;
-		}
-
-		return false;
+		return commiters.contains(server.getUsername());
 	}
 
 	/**

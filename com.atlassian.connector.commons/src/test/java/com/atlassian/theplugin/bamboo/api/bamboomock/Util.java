@@ -164,6 +164,6 @@ public abstract class Util {
 
 	public static void verifyBuildCompletedDate(final BambooBuild build, Date expectedDate) {
 		Assert.assertNotNull(build);
-		Assert.assertEquals(build.getBuildCompletedDate(), expectedDate);
+		Assert.assertEquals(expectedDate, build.getBuildCompletedDate());
 	}
 }

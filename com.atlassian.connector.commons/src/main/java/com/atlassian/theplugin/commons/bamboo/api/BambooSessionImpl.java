@@ -514,11 +514,10 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 	}
 
-	BambooBuildInfo constructBuildErrorInfo(String planId, String message, Date lastPollingTime) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo();
+	BambooBuildInfo constructBuildErrorInfo(String planKey, String message, Date lastPollingTime) {
+		BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, null);
 
 		buildInfo.setServerUrl(baseUrl);
-		buildInfo.setBuildKey(planId);
 		buildInfo.setBuildState(BuildStatus.UNKNOWN.toString());
 		buildInfo.setMessage(message);
 		buildInfo.setPollingTime(lastPollingTime);
@@ -527,13 +526,13 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	private BambooBuildInfo constructBuildItem(Element buildItemNode, Date lastPollingTime) throws RemoteApiException {
-		BambooBuildInfo buildInfo = new BambooBuildInfo();
 
+		final String planKey = getChildText(buildItemNode, "buildKey");
+		final String buildName = getChildText(buildItemNode, "buildName");
+		BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, buildName);
 		buildInfo.setServerUrl(baseUrl);
 
 		buildInfo.setProjectName(getChildText(buildItemNode, "projectName"));
-		buildInfo.setBuildName(getChildText(buildItemNode, "buildName"));
-		buildInfo.setBuildKey(getChildText(buildItemNode, "buildKey"));
 		buildInfo.setBuildState(getChildText(buildItemNode, "buildState"));
 		buildInfo.setBuildNumber(getChildText(buildItemNode, "buildNumber"));
 		buildInfo.setBuildReason(getChildText(buildItemNode, "buildReason"));

@@ -36,7 +36,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.joda.time.DateTime;
@@ -394,12 +393,11 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
     }
 
 
-    private BambooBuild constructBuildErrorInfo(BambooServerCfg server, String planId, String message) {
-        BambooBuildInfo buildInfo = new BambooBuildInfo();
+    private BambooBuild constructBuildErrorInfo(BambooServerCfg server, String planKey, String message) {
+        BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, null);
 
         buildInfo.setServer(server);
         buildInfo.setServerUrl(server.getUrl());
-        buildInfo.setBuildKey(planId);
         buildInfo.setBuildState(BuildStatus.UNKNOWN.toString());
 		buildInfo.setMessage(message);
 		buildInfo.setPollingTime(new Date());

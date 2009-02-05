@@ -159,8 +159,8 @@ public class BambooServerFacadeTest extends TestCase {
 		implTestBuildCompletedDate(-5);
 	}
 
-	private BambooBuildInfo createBambooBuildInfo(DateTime buildCompletionDate) {
-		BambooBuildInfo bbi = new BambooBuildInfo();
+	private BambooBuildInfo createBambooBuildInfo(String planKey, String planName, DateTime buildCompletionDate) {
+		BambooBuildInfo bbi = new BambooBuildInfo(planKey, planName);
 		bbi.setBuildCompletedDate(buildCompletionDate.toDate());
 		return bbi;
 	}
@@ -176,23 +176,23 @@ public class BambooServerFacadeTest extends TestCase {
 
 		final String key1 = "pl";
 		final DateTime buildDate1 = new DateTime(2009, 1, 10, 21, 29, 4, 0);
-		BambooPlan plan1 = new BambooPlan("planname1", key1);
-		BambooPlan plan2 = new BambooPlan("planname2-nofavourite", "keya");
+		final BambooPlan plan1 = new BambooPlan("planname1", key1);
+		final BambooPlan plan2 = new BambooPlan("planname2-nofavourite", "keya");
 		final String key3 = "keyb";
 		final DateTime buildDate3 = new DateTime(2009, 3, 27, 1, 9, 0, 0);
-		BambooPlan plan3 = new BambooPlan("planname3", key3);
+		final BambooPlan plan3 = new BambooPlan("planname3", key3);
 		List<BambooPlan> plans = MiscUtil.buildArrayList(plan1, plan2, plan3);
 		EasyMock.expect(mockSession.listPlanNames()).andReturn(plans).anyTimes();
 		EasyMock.expect(mockSession.getFavouriteUserPlans()).andReturn(MiscUtil.buildArrayList("pl", "keyb")).anyTimes();
 		EasyMock.expect(mockSession.isLoggedIn()).andReturn(true).anyTimes();
 		EasyMock.expect(mockSession.getLatestBuildForPlan(key1)).andAnswer(new IAnswer<BambooBuildInfo>() {
 			public BambooBuildInfo answer() throws Throwable {
-				return createBambooBuildInfo(buildDate1);
+				return createBambooBuildInfo(key1, plan1.getPlanName(), buildDate1);
 			}
 		}).anyTimes();
 		EasyMock.expect(mockSession.getLatestBuildForPlan(key3)).andAnswer(new IAnswer<BambooBuildInfo>() {
 			public BambooBuildInfo answer() throws Throwable {
-				return createBambooBuildInfo(buildDate3);
+				return createBambooBuildInfo(key3, plan3.getPlanName(), buildDate3);
 			}
 		}).anyTimes();
 		EasyMock.replay(mockSession);

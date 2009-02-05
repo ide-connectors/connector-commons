@@ -57,24 +57,12 @@ public class BambooBuildAdapter {
 		}
 	}
 
-	public String getServerUrl() {
-		return build.getServerUrl() == null ? "" : build.getServerUrl();
-	}
-
 	public Collection<String> getCommiters() {
 		return build.getCommiters();
 	}
 
 	public String getProjectName() {
 		return build.getProjectName() == null ? "" : build.getProjectName();
-	}
-
-//	public String getProjectKey() {
-//		return build.getProjectKey() == null ? "" : build.getProjectKey();
-//	}
-
-	public String getProjectUrl() {
-		return build.getProjectUrl() == null ? "" : build.getProjectUrl();
 	}
 
 	public String getBuildUrl() {

@@ -41,21 +41,23 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	private StatusListenerResultCatcher output;
 	private StausIconBambooListener testedListener;
 
-	private static final String DEFAULT_PLAN_ID = "PLAN-ID";
+	private static final String DEFAULT_PLAN_KEY = "PLAN-ID";
 	private static final int DEFAULT_BUILD_NO = 777;
 	private static final String DEFAULT_BUILD_NAME = "Default Plan";
 	private static final String DEFAULT_ERROR_MESSAGE = "default error message";
     private static final String DEFAULT_SERVER_URL = "http://test.atlassian.com/bamboo";
     private static final String DEFAULT_PROJECT_NAME = "ThePlugin";
-	private static final String DEFAULT_PLAN_ID_2 = "PLAN2-ID";
+	private static final String DEFAULT_PLAN_KEY_2 = "PLAN2-ID";
 
 
+	@Override
 	protected void tearDown() throws Exception {
 		output = null;
 		testedListener = null;
 		super.tearDown();
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 
@@ -64,8 +66,9 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	public void testUpdateDisplay() {
+		BambooBuildInfo buildUnknown = new BambooBuildInfo("whatever", null);
+		buildUnknown.setServerUrl("some url");
 
-		BambooBuild buildUnknown = generateRawBuildInfo();
 
 		// create mock and tested object
 		BambooStatusDisplay mockDisplay = EasyMock.createMock(BambooStatusDisplay.class);
@@ -144,14 +147,6 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		bambooListener.updateBuildStatuses(builds);
 
 		EasyMock.verify(mockDisplay);
-	}
-
-	private BambooBuild generateRawBuildInfo() {
-		BambooBuildInfo build = new BambooBuildInfo();
-
-		build.setServerUrl("some url");
-
-		return build;
 	}
 
 	public void testNullStatusCollection() throws Exception {
@@ -315,10 +310,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	public static BambooBuild generateBuildInfo(BuildStatus status) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo();
-
-		buildInfo.setBuildKey(DEFAULT_PLAN_ID);
-		buildInfo.setBuildName(DEFAULT_BUILD_NAME);
+		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY, DEFAULT_BUILD_NAME);
 		buildInfo.setBuildNumber(String.valueOf(DEFAULT_BUILD_NO));
         buildInfo.setProjectName(DEFAULT_PROJECT_NAME);
         buildInfo.setServerUrl(DEFAULT_SERVER_URL);
@@ -350,10 +342,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	public static BambooBuild generateDisabledBuildInfo(BuildStatus status) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo();
-
-		buildInfo.setBuildKey(DEFAULT_PLAN_ID);
-		buildInfo.setBuildName(DEFAULT_BUILD_NAME);
+		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY, DEFAULT_BUILD_NAME);
 		buildInfo.setBuildNumber(String.valueOf(DEFAULT_BUILD_NO));
         buildInfo.setProjectName(DEFAULT_PROJECT_NAME);
         buildInfo.setServerUrl(DEFAULT_SERVER_URL);
@@ -379,10 +368,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	public static BambooBuild generateBuildInfo2(BuildStatus status) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo();
-
-		buildInfo.setBuildKey(DEFAULT_PLAN_ID_2);
-		buildInfo.setBuildName(DEFAULT_BUILD_NAME);
+		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY_2, DEFAULT_BUILD_NAME);
 		buildInfo.setBuildNumber(String.valueOf(DEFAULT_BUILD_NO));
         buildInfo.setProjectName(DEFAULT_PROJECT_NAME);
         buildInfo.setServerUrl(DEFAULT_SERVER_URL);
@@ -411,14 +397,12 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 
-}
+	static class StatusListenerResultCatcher implements BambooStatusDisplay {
+	private BuildStatus buildStatus;
+	private String htmlPage;
+	private ResponseWrapper response;
 
-class StatusListenerResultCatcher implements BambooStatusDisplay {
-	public BuildStatus buildStatus;
-	public String htmlPage;
-	public ResponseWrapper response;
-
-	public int count;
+	private int count;
 
 	public void updateBambooStatus(BuildStatus generalBuildStatus, BambooPopupInfo info) {
 		buildStatus = generalBuildStatus;
@@ -437,3 +421,5 @@ class StatusListenerResultCatcher implements BambooStatusDisplay {
         return htmlPage;
     }
 }
+}
+

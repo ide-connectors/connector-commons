@@ -35,7 +35,7 @@ import java.util.HashSet;
 public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 	private BambooStatusDisplay displayMock;
 	private BambooStatusTooltipListener tooltipListener;
-	private static final String DEFAULT_PLAN_ID = "DEF";
+	private static final String DEFAULT_PLAN_KEY = "PL-DEF";
 	private static final String DEFAULT_BUILD_NAME = "Build";
 	private static final String DEFAULT_PROJECT_NAME = "Project";
 	private static final String DEFAULT_SERVER_URL = "Server URL";
@@ -128,10 +128,8 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 	}
 
 	public static BambooBuildInfo generateBuildInfo(BuildStatus status, String buildNumber, String loggedUser) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo();
+		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY, DEFAULT_BUILD_NAME);
 
-		buildInfo.setBuildKey(DEFAULT_PLAN_ID);
-		buildInfo.setBuildName(DEFAULT_BUILD_NAME);
 		buildInfo.setBuildNumber(buildNumber);
         buildInfo.setProjectName(DEFAULT_PROJECT_NAME);
         buildInfo.setServerUrl(DEFAULT_SERVER_URL);

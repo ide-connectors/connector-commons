@@ -23,11 +23,13 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	private BambooServerCfg server;
 	private String serverUrl;
 	private String projectName;
-	private String projectKey;
 	private String buildName;
 	private String buildKey;
 	private boolean enabled = true;
@@ -49,7 +51,9 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	private Set<String> commiters = new HashSet<String>();
 
 
-	public BambooBuildInfo() {
+	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName) {
+		this.buildKey = planKey;
+		this.buildName = planName;
 	}
 
 	public BambooServerCfg getServer() {
@@ -97,29 +101,12 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		this.projectName = projectName;
 	}
 
-    public String getProjectUrl() {
-        return this.getServerUrl() + "/browse/"
-				+ (projectKey == null ? buildKey.substring(0, buildKey.indexOf("-")) : projectKey);
-    }
-
-    public void setProjectKey(String projectKey) {
-		this.projectKey = projectKey;
-	}
-
 	public String getBuildName() {
 		return buildName;
 	}
 
-	public void setBuildName(String buildName) {
-		this.buildName = buildName;
-	}
-
 	public String getBuildKey() {
 		return buildKey;
-	}
-
-	public void setBuildKey(String buildKey) {
-		this.buildKey = buildKey;
 	}
 
 	public boolean getEnabled() {

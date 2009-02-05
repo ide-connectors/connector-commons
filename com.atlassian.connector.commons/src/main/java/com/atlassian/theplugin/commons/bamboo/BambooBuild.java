@@ -32,8 +32,6 @@ public interface BambooBuild extends RequestData {
 
     String getProjectName();
 
-    String getProjectUrl();
-
 	String getBuildUrl();
 
     String getBuildName();

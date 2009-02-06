@@ -29,6 +29,7 @@ import com.atlassian.theplugin.bamboo.api.bamboomock.LogoutCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.ProjectListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.Util;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultVelocityBallback;
 import com.atlassian.theplugin.commons.bamboo.api.AutoRenewBambooSession;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSessionImpl;
@@ -164,6 +165,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildForPlanSuccess() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
@@ -185,7 +187,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF");
+		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", true);
 		apiHandler.logout();
 
 		Util.verifyFailedBuildResult(build, mockBaseUrl);
@@ -200,7 +202,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF");
+		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", false);
 		apiHandler.logout();
 
 		Util.verifyErrorBuildResult(build);
@@ -689,6 +691,31 @@ public class BambooSessionTest extends AbstractSessionTest {
 		} catch (RemoteApiException e) {
 			assertTrue("MalformedURLException expected", e.getCause() instanceof IOException);
 		}
+
+	}
+
+	public void testEnabledStatus() throws RemoteApiException {
+		System.out.println(System.getProperty("user.dir"));
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
+		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultVelocityBallback("PO-TP", 123));
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
+		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultVelocityBallback("PT-TOP", 45));
+		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
+
+		BambooSession session = new BambooSessionImpl(mockBaseUrl);
+		session.login(USER_NAME, PASSWORD.toCharArray());
+
+		BambooBuildInfo bbi1 = session.getLatestBuildForPlan("PO-TP");
+		assertEquals("123", bbi1.getBuildNumber());
+		assertTrue(bbi1.getEnabled());
+
+		BambooBuildInfo bbi2 = session.getLatestBuildForPlan("PT-TOP");
+		assertEquals("45", bbi2.getBuildNumber());
+		assertFalse(bbi2.getEnabled());
+		session.logout();
+
+		mockServer.verify();
 
 	}
 

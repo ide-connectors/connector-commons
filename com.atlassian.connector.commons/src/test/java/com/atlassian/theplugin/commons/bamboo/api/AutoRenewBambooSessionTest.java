@@ -150,8 +150,8 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		EasyMock.expectLastCall().andThrow(new RemoteApiSessionExpiredException(""));
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
-		mockDelegate.getLatestBuildForPlan("planKey");
-		EasyMock.expectLastCall().andReturn(new BambooBuildInfo("planKey", null, null, null));
+		EasyMock.expect(mockDelegate.getLatestBuildForPlan("planKey")).andReturn(
+				new BambooBuildInfo.Builder("planKey", null, null, null, "123").build());
 
 
 		EasyMock.replay(mockDelegate);

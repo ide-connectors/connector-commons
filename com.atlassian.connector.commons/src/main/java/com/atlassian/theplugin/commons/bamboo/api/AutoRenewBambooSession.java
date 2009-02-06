@@ -28,6 +28,8 @@ import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 
 import java.util.List;
 
+import org.jetbrains.annotations.NotNull;
+
 public class AutoRenewBambooSession implements BambooSession {
 	private final BambooSession delegate;
 	private String userName;
@@ -68,6 +70,7 @@ public class AutoRenewBambooSession implements BambooSession {
 		}
 	}
 
+	@NotNull
 	public BuildDetails getBuildResultDetails(String buildKey, String buildNumber) throws RemoteApiException {
 		try {
 			return delegate.getBuildResultDetails(buildKey, buildNumber);
@@ -77,6 +80,7 @@ public class AutoRenewBambooSession implements BambooSession {
 		}					
 	}
 
+	@NotNull
 	public List<String> getFavouriteUserPlans() throws RemoteApiException {
 		try {
 			return delegate.getFavouriteUserPlans();
@@ -86,6 +90,17 @@ public class AutoRenewBambooSession implements BambooSession {
 		}		
 	}
 
+	@NotNull
+	public BambooBuildInfo getLatestBuildForPlan(final String planKey, final boolean isPlanEnabled) throws RemoteApiException {
+		try {
+			return delegate.getLatestBuildForPlan(planKey, isPlanEnabled);
+		} catch (RemoteApiSessionExpiredException e) {
+			delegate.login(userName, password);
+			return delegate.getLatestBuildForPlan(planKey, isPlanEnabled);
+		}
+	}
+
+	@NotNull
 	public BambooBuildInfo getLatestBuildForPlan(String planKey) throws RemoteApiException {
 		try {
 			return delegate.getLatestBuildForPlan(planKey);
@@ -108,7 +123,8 @@ public class AutoRenewBambooSession implements BambooSession {
         }
     }
 
-    public List<BambooPlan> listPlanNames() throws RemoteApiException {
+    @NotNull
+	public List<BambooPlan> listPlanNames() throws RemoteApiException {
 		try {
 			return delegate.listPlanNames();
 		} catch (RemoteApiSessionExpiredException e) {
@@ -117,6 +133,7 @@ public class AutoRenewBambooSession implements BambooSession {
 		}
 	}
 
+	@NotNull
 	public List<BambooProject> listProjectNames() throws RemoteApiException {
 		try {
 			return delegate.listProjectNames();

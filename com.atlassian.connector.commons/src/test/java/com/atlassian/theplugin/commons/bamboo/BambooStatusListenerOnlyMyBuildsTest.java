@@ -128,33 +128,32 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 	}
 
 	public static BambooBuildInfo generateBuildInfo(BuildStatus status, String buildNumber, String loggedUser) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY, DEFAULT_BUILD_NAME, DEFAULT_SERVER_URL,
-				DEFAULT_PROJECT_NAME);
-
-		buildInfo.setBuildNumber(buildNumber);
-		buildInfo.setEnabled(true);
-		buildInfo.setCommiters(COMMITERS);
+		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_BUILD_NAME, DEFAULT_SERVER_URL,
+				DEFAULT_PROJECT_NAME, buildNumber).enabled(true).commiters(COMMITERS);
 
 		switch (status) {
 			case UNKNOWN:
-				buildInfo.setBuildState("Unknown");
-				buildInfo.setMessage(DEFAULT_ERROR_MESSAGE);
+				builder.state("Unknown");
+				builder.message(DEFAULT_ERROR_MESSAGE);
 				break;
 			case BUILD_SUCCEED:
-				buildInfo.setBuildState(BambooBuildInfo.BUILD_SUCCESSFUL);
-				buildInfo.setBuildTime(new Date());
+				builder.state(BambooBuildInfo.BUILD_SUCCESSFUL);
+				builder.startTime(new Date());
 				break;
 			case BUILD_FAILED:
-				buildInfo.setBuildState(BambooBuildInfo.BUILD_FAILED);
-				buildInfo.setBuildTime(new Date());
+				builder.state(BambooBuildInfo.BUILD_FAILED);
+				builder.startTime(new Date());
 				break;
 			case BUILD_DISABLED:
-				buildInfo.setBuildState(BambooBuildInfo.BUILD_FAILED);
-				buildInfo.setBuildTime(new Date());
-				buildInfo.setEnabled(false);
+				builder.state(BambooBuildInfo.BUILD_FAILED);
+				builder.startTime(new Date());
+				builder.enabled(false);
 				break;
 
 		}
+
+		final BambooBuildInfo buildInfo = builder.build();
+
 		buildInfo.setPollingTime(new Date());
 
 		BambooServerCfg server = new BambooServerCfg("name", new ServerId(ServerID));

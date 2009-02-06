@@ -22,6 +22,8 @@ import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Collection;
+import java.util.TreeSet;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,9 +34,9 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	private final String projectName;
 	private final String planName;
 	private final String planKey;
-	private boolean enabled = true;
+	private final boolean enabled;
 	private String buildState;
-	private String buildNumber;
+	private final String buildNumber;
 	private String buildReason;
 	private String buildRelativeBuildDate;
 	private String buildDurationDescription;
@@ -52,11 +54,13 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 
 
 	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @Nullable String serverUrl,
-			@Nullable String projectName) {
+			@Nullable String projectName, boolean isEnabled, final String buildNumber) {
 		this.planKey = planKey;
 		this.planName = planName;
 		this.serverUrl = serverUrl;
 		this.projectName = projectName;
+		enabled = isEnabled;
+		this.buildNumber = buildNumber;
 	}
 
 	public BambooServerCfg getServer() {
@@ -112,21 +116,12 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		return enabled;
 	}
 
-	public void setEnabled(boolean value) {
-		enabled = value;
-	}
-
-
 	public void setBuildState(String buildState) {
 		this.buildState = buildState;
 	}
 
 	public String getBuildNumber() {
 		return buildNumber;
-	}
-
-	public void setBuildNumber(String buildNumber) {
-		this.buildNumber = buildNumber;
 	}
 
 	public String getBuildReason() {
@@ -240,9 +235,77 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		return commiters;
 	}
 
-	public void setCommiters(final Set<String> commiters) {
+	public void setCommiters(final Collection<String> commiters) {
 		if (commiters != null) {
-			this.commiters = commiters;
+			this.commiters = new TreeSet<String>(commiters);
+		}
+	}
+
+	@SuppressWarnings({"InnerClassFieldHidesOuterClassField"})
+	public static class Builder {
+		private String planKey;
+		private String planName;
+		private String serverUrl;
+		private String projectName;
+		private final String buildNumber;
+		private boolean isEnabled = true;
+		private String buildState;
+		private String message;
+		private Date startTime;
+		private Collection<String> commiters;
+		private Date pollingTime;
+
+		public Builder(@NotNull String planKey, @Nullable String planName, @Nullable String serverUrl,
+				@Nullable String projectName, String buildNumber) {
+			this.planKey = planKey;
+			this.planName = planName;
+			this.serverUrl = serverUrl;
+			this.projectName = projectName;
+			this.buildNumber = buildNumber;
+		}
+
+		public Builder enabled(boolean aIsEnabled) {
+			isEnabled = aIsEnabled;
+			return this;
+		}
+
+		public Builder state(String aState) {
+			this.buildState = aState;
+			return this;
+		}
+
+		public Builder message(String aMessage) {
+			this.message = aMessage;
+			return this;
+		}
+
+		public Builder startTime(Date aStartTime) {
+			this.startTime = aStartTime;
+			return this;
+		}
+
+		public Builder commiters(final Collection<String> aCommiters) {
+			this.commiters = aCommiters;
+			return this;
+		}
+
+		public Builder pollingTime(final Date aPollingTime) {
+			this.pollingTime = aPollingTime;
+			return this;
+		}
+
+		public BambooBuildInfo build() {
+			final BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, planName, serverUrl, projectName, isEnabled,
+					buildNumber);
+			buildInfo.setBuildState(buildState);
+			buildInfo.setMessage(message);
+			buildInfo.setBuildTime(startTime);
+			buildInfo.setCommiters(commiters);
+			if (pollingTime != null) {
+				buildInfo.setPollingTime(pollingTime);
+			}
+			return buildInfo;
+
 		}
 	}
 }

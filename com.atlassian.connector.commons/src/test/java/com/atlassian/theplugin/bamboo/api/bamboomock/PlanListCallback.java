@@ -24,10 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class PlanListCallback implements JettyMockServer.Callback {
-	public void onExpectedRequest(String target,
-								  HttpServletRequest request, HttpServletResponse response)
+	public void onExpectedRequest(String target, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
-
 		assertTrue(request.getPathInfo().endsWith("/api/rest/listBuildNames.action"));
 
 		final String[] authTokens = request.getParameterValues("auth");

@@ -66,9 +66,6 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	public void testUpdateDisplay() {
-		BambooBuildInfo buildUnknown = new BambooBuildInfo("whatever", null, "some url", null);
-
-
 		// create mock and tested object
 		BambooStatusDisplay mockDisplay = EasyMock.createMock(BambooStatusDisplay.class);
 		StausIconBambooListener bambooListener = new StausIconBambooListener(mockDisplay);
@@ -79,6 +76,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 		// test: empty builds (error connection) should be considered as unknown builds
 		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
+		final BambooBuildInfo buildUnknown = new BambooBuildInfo.Builder("whatever", null, "some url", null, null).build();
 		builds.add(buildUnknown);
 		bambooListener.updateBuildStatuses(builds);
 
@@ -309,83 +307,75 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	public static BambooBuild generateBuildInfo(BuildStatus status) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY, DEFAULT_PLAN_NAME, DEFAULT_SERVER_URL,
-				DEFAULT_PROJECT_NAME);
-		buildInfo.setBuildNumber(String.valueOf(DEFAULT_BUILD_NO));
-		buildInfo.setEnabled(true);
+		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_PLAN_NAME, DEFAULT_SERVER_URL,
+				DEFAULT_PROJECT_NAME, String.valueOf(DEFAULT_BUILD_NO)).enabled(true).pollingTime(new Date());
 
 		switch (status) {
 			case UNKNOWN:
-				buildInfo.setBuildState("Unknown");
-				buildInfo.setMessage(DEFAULT_ERROR_MESSAGE);
+				builder.state("Unknown");
+				builder.message(DEFAULT_ERROR_MESSAGE);
 				break;
 			case BUILD_SUCCEED:
-				buildInfo.setBuildState(BambooBuildInfo.BUILD_SUCCESSFUL);
-				buildInfo.setBuildTime(new Date());
+				builder.state(BambooBuildInfo.BUILD_SUCCESSFUL);
+				builder.startTime(new Date());
 				break;
 			case BUILD_FAILED:
-				buildInfo.setBuildState(BambooBuildInfo.BUILD_FAILED);
-				buildInfo.setBuildTime(new Date());
+				builder.state(BambooBuildInfo.BUILD_FAILED);
+				builder.startTime(new Date());
 				break;
 			case BUILD_DISABLED:
-				buildInfo.setBuildState(BambooBuildInfo.BUILD_FAILED);
-				buildInfo.setBuildTime(new Date());
-				buildInfo.setEnabled(false);
+				builder.state(BambooBuildInfo.BUILD_FAILED);
+				builder.startTime(new Date());
+				builder.enabled(false);
 				break;
 
 		}
-		buildInfo.setPollingTime(new Date());
 
-		return buildInfo;
+		return builder.build();
 	}
 
 	public static BambooBuild generateDisabledBuildInfo(BuildStatus status) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY, DEFAULT_PLAN_NAME, DEFAULT_SERVER_URL,
-				DEFAULT_PROJECT_NAME);
-		buildInfo.setBuildNumber(String.valueOf(DEFAULT_BUILD_NO));
-		buildInfo.setEnabled(false);
+		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_PLAN_NAME, DEFAULT_SERVER_URL,
+				DEFAULT_PROJECT_NAME, String.valueOf(DEFAULT_BUILD_NO)).enabled(false).pollingTime(new Date());
 
 		switch (status) {
 			case UNKNOWN:
-				buildInfo.setBuildState("Unknown");
-				buildInfo.setMessage(DEFAULT_ERROR_MESSAGE);
+				builder.state("Unknown");
+				builder.message(DEFAULT_ERROR_MESSAGE);
 				break;
 			case BUILD_SUCCEED:
-				buildInfo.setBuildState("Successful");
-				buildInfo.setBuildTime(new Date());
+				builder.state("Successful");
+				builder.startTime(new Date());
 				break;
 			case BUILD_FAILED:
-				buildInfo.setBuildState("Failed");
-				buildInfo.setBuildTime(new Date());
+				builder.state("Failed");
+				builder.startTime(new Date());
 				break;
 		}
-		buildInfo.setPollingTime(new Date());
 
-		return buildInfo;
+		return builder.build();
 	}
 
 	public static BambooBuild generateBuildInfo2(BuildStatus status) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY_2, DEFAULT_PLAN_NAME, DEFAULT_SERVER_URL,
-				DEFAULT_PROJECT_NAME);
-		buildInfo.setBuildNumber(String.valueOf(DEFAULT_BUILD_NO));
+		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY_2, DEFAULT_PLAN_NAME, DEFAULT_SERVER_URL,
+				DEFAULT_PROJECT_NAME, String.valueOf(DEFAULT_BUILD_NO)).pollingTime(new Date());
 
         switch (status) {
 			case UNKNOWN:
-				buildInfo.setBuildState("Unknown");
-				buildInfo.setMessage(DEFAULT_ERROR_MESSAGE);
+				builder.state("Unknown");
+				builder.message(DEFAULT_ERROR_MESSAGE);
 				break;
 			case BUILD_SUCCEED:
-				buildInfo.setBuildState("Successful");
-				buildInfo.setBuildTime(new Date());
+				builder.state("Successful");
+				builder.startTime(new Date());
 				break;
 			case BUILD_FAILED:
-				buildInfo.setBuildState("Failed");
-				buildInfo.setBuildTime(new Date());
+				builder.state("Failed");
+				builder.startTime(new Date());
 				break;
 		}
-		buildInfo.setPollingTime(new Date());
 
-		return buildInfo;
+		return builder.build();
 	}
 
 	public static Test suite() {

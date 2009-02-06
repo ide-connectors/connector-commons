@@ -160,7 +160,7 @@ public class BambooServerFacadeTest extends TestCase {
 	}
 
 	private BambooBuildInfo createBambooBuildInfo(String planKey, String planName, DateTime buildCompletionDate) {
-		BambooBuildInfo bbi = new BambooBuildInfo(planKey, planName, null, null);
+		BambooBuildInfo bbi = new BambooBuildInfo.Builder(planKey, planName, null, null, "123").build();
 		bbi.setBuildCompletedDate(buildCompletionDate.toDate());
 		return bbi;
 	}
@@ -180,17 +180,17 @@ public class BambooServerFacadeTest extends TestCase {
 		final BambooPlan plan2 = new BambooPlan("planname2-nofavourite", "keya");
 		final String key3 = "keyb";
 		final DateTime buildDate3 = new DateTime(2009, 3, 27, 1, 9, 0, 0);
-		final BambooPlan plan3 = new BambooPlan("planname3", key3);
+		final BambooPlan plan3 = new BambooPlan("planname3", key3, false);
 		List<BambooPlan> plans = MiscUtil.buildArrayList(plan1, plan2, plan3);
 		EasyMock.expect(mockSession.listPlanNames()).andReturn(plans).anyTimes();
 		EasyMock.expect(mockSession.getFavouriteUserPlans()).andReturn(MiscUtil.buildArrayList("pl", "keyb")).anyTimes();
 		EasyMock.expect(mockSession.isLoggedIn()).andReturn(true).anyTimes();
-		EasyMock.expect(mockSession.getLatestBuildForPlan(key1)).andAnswer(new IAnswer<BambooBuildInfo>() {
+		EasyMock.expect(mockSession.getLatestBuildForPlan(key1, true)).andAnswer(new IAnswer<BambooBuildInfo>() {
 			public BambooBuildInfo answer() throws Throwable {
 				return createBambooBuildInfo(key1, plan1.getPlanName(), buildDate1);
 			}
 		}).anyTimes();
-		EasyMock.expect(mockSession.getLatestBuildForPlan(key3)).andAnswer(new IAnswer<BambooBuildInfo>() {
+		EasyMock.expect(mockSession.getLatestBuildForPlan(key3, false)).andAnswer(new IAnswer<BambooBuildInfo>() {
 			public BambooBuildInfo answer() throws Throwable {
 				return createBambooBuildInfo(key3, plan3.getPlanName(), buildDate3);
 			}

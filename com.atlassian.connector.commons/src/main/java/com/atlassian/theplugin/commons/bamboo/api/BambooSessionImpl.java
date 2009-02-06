@@ -34,6 +34,8 @@ import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -205,6 +207,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 	}
 
+	@NotNull
 	public List<BambooProject> listProjectNames() throws RemoteApiException {
 		String buildResultUrl = baseUrl + LIST_PROJECT_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
 
@@ -230,6 +233,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		return projects;
 	}
 
+	@NotNull
 	public List<BambooPlan> listPlanNames() throws RemoteApiException {
 		String buildResultUrl = baseUrl + LIST_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
 
@@ -269,13 +273,32 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	 * @param planKey ID of the plan to get info about
 	 * @return Information about the last build or error message
 	 */
-	public BambooBuildInfo getLatestBuildForPlan(String planKey) throws RemoteApiSessionExpiredException {
+	@NotNull
+	public BambooBuildInfo getLatestBuildForPlan(String planKey) throws RemoteApiException {
+		final List<BambooPlan> planList = listPlanNames();
+		final Boolean isEnabled = isPlanEnabled(planList, planKey);
+		return getLatestBuildForPlan(planKey, isEnabled != null ? isEnabled : true);
+	}
+
+
+	@Nullable
+	public static Boolean isPlanEnabled(@NotNull Collection<BambooPlan> allPlans, @NotNull String planKey) {
+		for (BambooPlan bambooPlan : allPlans) {
+			if (planKey.equals(bambooPlan.getPlanKey())) {
+				return bambooPlan.isEnabled();
+			}
+		}
+		return null;
+	}
+
+
+	@NotNull
+	public BambooBuildInfo getLatestBuildForPlan(final String planKey, final boolean isPlanEnabled) throws RemoteApiException {
 		String buildResultUrl = baseUrl + LATEST_BUILD_FOR_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
 				+ "&buildKey=" + UrlUtil.encodeUrl(planKey);
 
 		try {
 			Document doc = retrieveGetResponse(buildResultUrl);
-//			XmlUtil.printXml(doc);
 			String exception = getExceptionMessages(doc);
 			if (null != exception) {
 				return constructBuildErrorInfo(planKey, exception, new Date());
@@ -285,7 +308,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 			final List<Element> elements = XPath.newInstance("/response").selectNodes(doc);
 			if (elements != null && !elements.isEmpty()) {
 				Element e = elements.iterator().next();
-				BambooBuildInfo build = constructBuildItem(e, new Date());
+				BambooBuildInfo build = constructBuildItem(e, new Date(), isPlanEnabled);
 				build.setCommiters(constructBuildCommiters(doc));
 				return build;
 			} else {
@@ -315,6 +338,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		return commiters;
 	}
 
+	@NotNull
 	public List<String> getFavouriteUserPlans() throws RemoteApiSessionExpiredException {
 		List<String> builds = new ArrayList<String>();
 		String buildResultUrl = baseUrl + LATEST_USER_BUILDS_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
@@ -344,6 +368,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 	}
 
+	@NotNull
 	public BuildDetails getBuildResultDetails(String buildKey, String buildNumber) throws RemoteApiException {
 		String buildResultUrl;
 
@@ -515,7 +540,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	BambooBuildInfo constructBuildErrorInfo(String planKey, String message, Date lastPollingTime) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, null, baseUrl, null);
+		BambooBuildInfo buildInfo = new BambooBuildInfo.Builder(planKey, null, baseUrl, null, null).build();
 
 		buildInfo.setBuildState(BuildStatus.UNKNOWN.toString());
 		buildInfo.setMessage(message);
@@ -524,15 +549,16 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		return buildInfo;
 	}
 
-	private BambooBuildInfo constructBuildItem(Element buildItemNode, Date lastPollingTime) throws RemoteApiException {
+	private BambooBuildInfo constructBuildItem(Element buildItemNode, Date lastPollingTime, boolean isEnabled) throws RemoteApiException {
 
 		final String planKey = getChildText(buildItemNode, "buildKey");
 		final String buildName = getChildText(buildItemNode, "buildName");
 		final String projectName = getChildText(buildItemNode, "projectName");
-		BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, buildName, baseUrl, projectName);
+		final String buildNumber = getChildText(buildItemNode, "buildNumber");
+		BambooBuildInfo buildInfo = new BambooBuildInfo.Builder(planKey, buildName, baseUrl, projectName, buildNumber)
+				.enabled(isEnabled).build();
 
 		buildInfo.setBuildState(getChildText(buildItemNode, "buildState"));
-		buildInfo.setBuildNumber(getChildText(buildItemNode, "buildNumber"));
 		buildInfo.setBuildReason(getChildText(buildItemNode, "buildReason"));
 		buildInfo.setBuildDurationDescription(getChildText(buildItemNode, "buildDurationDescription"));
 		buildInfo.setBuildTestSummary(getChildText(buildItemNode, "buildTestSummary"));

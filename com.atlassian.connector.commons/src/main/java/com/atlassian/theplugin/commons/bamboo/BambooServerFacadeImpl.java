@@ -20,6 +20,7 @@ import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.SubscribedPlan;
 import com.atlassian.theplugin.commons.bamboo.api.AutoRenewBambooSession;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
+import com.atlassian.theplugin.commons.bamboo.api.BambooSessionImpl;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
@@ -222,9 +223,9 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
                     if (bambooPlan.isFavourite()) {
                         if (api != null && api.isLoggedIn()) {
                             try {
-                                BambooBuildInfo buildInfo = api.getLatestBuildForPlan(bambooPlan.getPlanKey());
+                                BambooBuildInfo buildInfo = api.getLatestBuildForPlan(bambooPlan.getPlanKey(),
+										bambooPlan.isEnabled());
                                 buildInfo.setServer(bambooServer);
-                                buildInfo.setEnabled(bambooPlan.isEnabled());
 
 								// now adjust the time for local caller time, as Bamboo servers always serves its local time
 								// without the timezone info
@@ -245,18 +246,12 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
             for (SubscribedPlan plan : bambooServer.getSubscribedPlans()) {
                 if (api != null && api.isLoggedIn()) {
                     try {
-                        BambooBuildInfo buildInfo = api.getLatestBuildForPlan(plan.getKey());
-                        buildInfo.setEnabled(true);
-                        buildInfo.setServer(bambooServer);
+						final Boolean isEnabled = plansForServer != null
+								? BambooSessionImpl.isPlanEnabled(plansForServer, plan.getKey()) : null;
+						BambooBuildInfo buildInfo = api.getLatestBuildForPlan(plan.getKey(),
+								isEnabled != null ? isEnabled : true);
+						buildInfo.setServer(bambooServer);
 						adjustBuildTimes(bambooServer, buildInfo);
-
-                        if (plansForServer != null) {
-                            for (BambooPlan bambooPlan : plansForServer) {
-                                if (plan.getKey().equals(bambooPlan.getPlanKey())) {
-                                    buildInfo.setEnabled(bambooPlan.isEnabled());
-                                }
-                            }
-                        }
                         builds.add(buildInfo);
                     } catch (RemoteApiException e) {
                         // go ahead, there are other builds
@@ -392,11 +387,10 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 
 
     private BambooBuild constructBuildErrorInfo(BambooServerCfg server, String planKey, String planName, String message) {
-        BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, null, server.getUrl(), planName);
+        BambooBuildInfo buildInfo = new BambooBuildInfo.Builder(planKey, null, server.getUrl(), planName, null)
+				.message(message).state(BuildStatus.UNKNOWN.toString()).build();
 
         buildInfo.setServer(server);
-        buildInfo.setBuildState(BuildStatus.UNKNOWN.toString());
-		buildInfo.setMessage(message);
 		buildInfo.setPollingTime(new Date());
 
 		return buildInfo;

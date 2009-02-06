@@ -540,13 +540,10 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	BambooBuildInfo constructBuildErrorInfo(String planKey, String message, Date lastPollingTime) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo.Builder(planKey, null, baseUrl, null, null).build();
-
-		buildInfo.setBuildState(BuildStatus.UNKNOWN.toString());
-		buildInfo.setMessage(message);
-		buildInfo.setPollingTime(lastPollingTime);
-
-		return buildInfo;
+		return new BambooBuildInfo.Builder(planKey, null, baseUrl, null, null)
+				.state(BuildStatus.UNKNOWN.toString())
+				.pollingTime(lastPollingTime)
+				.message(message).build();
 	}
 
 	private BambooBuildInfo constructBuildItem(Element buildItemNode, Date lastPollingTime, boolean isEnabled) throws RemoteApiException {
@@ -556,10 +553,12 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		final String projectName = getChildText(buildItemNode, "projectName");
 		final String buildNumber = getChildText(buildItemNode, "buildNumber");
 		BambooBuildInfo buildInfo = new BambooBuildInfo.Builder(planKey, buildName, baseUrl, projectName, buildNumber)
-				.enabled(isEnabled).build();
+				.enabled(isEnabled)
+				.state(getChildText(buildItemNode, "buildState"))
+				.pollingTime(lastPollingTime)
+				.reason(getChildText(buildItemNode, "buildReason"))
+				.build();
 
-		buildInfo.setBuildState(getChildText(buildItemNode, "buildState"));
-		buildInfo.setBuildReason(getChildText(buildItemNode, "buildReason"));
 		buildInfo.setBuildDurationDescription(getChildText(buildItemNode, "buildDurationDescription"));
 		buildInfo.setBuildTestSummary(getChildText(buildItemNode, "buildTestSummary"));
 		buildInfo.setBuildCommitComment(getChildText(buildItemNode, "buildCommitComment"));
@@ -580,8 +579,6 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		if (buildInfo.getBuildCompletedDate() == null) {
 			buildInfo.setBuildCompletedDate(buildInfo.getBuildStartedDate());
 		}
-
-		buildInfo.setPollingTime(lastPollingTime);
 
 		return buildInfo;
 	}

@@ -35,9 +35,9 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	private final String planName;
 	private final String planKey;
 	private final boolean enabled;
-	private String buildState;
+	private final String buildState;
 	private final String buildNumber;
-	private String buildReason;
+	private final String buildReason;
 	private String buildRelativeBuildDate;
 	private String buildDurationDescription;
 	private String buildTestSummary;
@@ -54,13 +54,16 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 
 
 	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @Nullable String serverUrl,
-			@Nullable String projectName, boolean isEnabled, final String buildNumber) {
+			@Nullable String projectName, boolean isEnabled, final String buildNumber,
+			@Nullable String buildState, @Nullable String buildReason) {
 		this.planKey = planKey;
 		this.planName = planName;
 		this.serverUrl = serverUrl;
 		this.projectName = projectName;
-		enabled = isEnabled;
+		this.enabled = isEnabled;
 		this.buildNumber = buildNumber;
+		this.buildState = buildState;
+		this.buildReason = buildReason;
 	}
 
 	public BambooServerCfg getServer() {
@@ -116,20 +119,12 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		return enabled;
 	}
 
-	public void setBuildState(String buildState) {
-		this.buildState = buildState;
-	}
-
 	public String getBuildNumber() {
 		return buildNumber;
 	}
 
 	public String getBuildReason() {
 		return buildReason;
-	}
-
-	public void setBuildReason(String buildReason) {
-		this.buildReason = buildReason;
 	}
 
 	public String getBuildRelativeBuildDate() {
@@ -254,6 +249,7 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		private Date startTime;
 		private Collection<String> commiters;
 		private Date pollingTime;
+		private String buildReason;
 
 		public Builder(@NotNull String planKey, @Nullable String planName, @Nullable String serverUrl,
 				@Nullable String projectName, String buildNumber) {
@@ -266,6 +262,11 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 
 		public Builder enabled(boolean aIsEnabled) {
 			isEnabled = aIsEnabled;
+			return this;
+		}
+
+		public Builder reason(String aReason) {
+			this.buildReason = aReason;
 			return this;
 		}
 
@@ -296,8 +297,7 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 
 		public BambooBuildInfo build() {
 			final BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, planName, serverUrl, projectName, isEnabled,
-					buildNumber);
-			buildInfo.setBuildState(buildState);
+					buildNumber, buildState, buildReason);
 			buildInfo.setMessage(message);
 			buildInfo.setBuildTime(startTime);
 			buildInfo.setCommiters(commiters);

@@ -28,10 +28,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	private BambooServerCfg server;
-	private String serverUrl;
-	private String projectName;
-	private String buildName;
-	private String buildKey;
+	private final String serverUrl;
+	private final String projectName;
+	private final String planName;
+	private final String planKey;
 	private boolean enabled = true;
 	private String buildState;
 	private String buildNumber;
@@ -51,9 +51,12 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	private Set<String> commiters = new HashSet<String>();
 
 
-	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName) {
-		this.buildKey = planKey;
-		this.buildName = planName;
+	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @Nullable String serverUrl,
+			@Nullable String projectName) {
+		this.planKey = planKey;
+		this.planName = planName;
+		this.serverUrl = serverUrl;
+		this.projectName = projectName;
 	}
 
 	public BambooServerCfg getServer() {
@@ -76,16 +79,16 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		return this.serverUrl;
 	}
 
-	public void setServerUrl(String serverUrl) {
-		this.serverUrl = serverUrl;
-	}
-
+//	public void setServerUrl(String serverUrl) {
+//		this.serverUrl = serverUrl;
+//	}
+//
 	public String getBuildUrl() {
-		return this.serverUrl + "/browse/" + this.buildKey;
+		return this.serverUrl + "/browse/" + this.planKey;
 	}
 
 	public String getBuildResultUrl() {
-		String url = this.serverUrl + "/browse/" + this.buildKey;
+		String url = this.serverUrl + "/browse/" + this.planKey;
 		if (this.getStatus() != BuildStatus.UNKNOWN || this.buildNumber != null) {
 			url += "-" + this.buildNumber;
 		}
@@ -97,16 +100,12 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		return projectName;
 	}
 
-	public void setProjectName(String projectName) {
-		this.projectName = projectName;
-	}
-
 	public String getBuildName() {
-		return buildName;
+		return planName;
 	}
 
 	public String getBuildKey() {
-		return buildKey;
+		return planKey;
 	}
 
 	public boolean getEnabled() {
@@ -217,8 +216,8 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	@Override
 	public String toString() {
 		return projectName
-				+ " " + buildName
-				+ " " + buildKey
+				+ " " + planName
+				+ " " + planKey
 				+ " " + buildState
 				+ " " + buildReason
 				+ " " + buildTime

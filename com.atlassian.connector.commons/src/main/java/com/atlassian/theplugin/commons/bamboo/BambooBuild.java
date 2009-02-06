@@ -58,6 +58,14 @@ public interface BambooBuild extends RequestData {
 
 	Date getBuildCompletedDate();
 
+	/**
+	 * Relative build completion date on Bamboo server. Unfortunately it does not respect calling client timezone,
+	 * so in most cases it's useless. Instead it's preferable to use {@link #getBuildCompletedDate()} and then use
+	 * some utility method like {@link com.atlassian.theplugin.commons.util.DateUtil#getRelativeBuildTime(java.util.Date)}
+	 * to transform Date to relative string describing relative date.
+	 *
+	 * @return human readable string like "2 months ago"
+	 */
 	String getBuildRelativeBuildDate();
 
 	boolean isMyBuild();

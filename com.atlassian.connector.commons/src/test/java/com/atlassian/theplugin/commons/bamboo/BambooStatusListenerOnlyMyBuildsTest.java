@@ -128,11 +128,10 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 	}
 
 	public static BambooBuildInfo generateBuildInfo(BuildStatus status, String buildNumber, String loggedUser) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY, DEFAULT_BUILD_NAME);
+		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY, DEFAULT_BUILD_NAME, DEFAULT_SERVER_URL,
+				DEFAULT_PROJECT_NAME);
 
 		buildInfo.setBuildNumber(buildNumber);
-        buildInfo.setProjectName(DEFAULT_PROJECT_NAME);
-        buildInfo.setServerUrl(DEFAULT_SERVER_URL);
 		buildInfo.setEnabled(true);
 		buildInfo.setCommiters(COMMITERS);
 

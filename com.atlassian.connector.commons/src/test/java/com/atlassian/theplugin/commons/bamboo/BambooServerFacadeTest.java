@@ -160,7 +160,7 @@ public class BambooServerFacadeTest extends TestCase {
 	}
 
 	private BambooBuildInfo createBambooBuildInfo(String planKey, String planName, DateTime buildCompletionDate) {
-		BambooBuildInfo bbi = new BambooBuildInfo(planKey, planName);
+		BambooBuildInfo bbi = new BambooBuildInfo(planKey, planName, null, null);
 		bbi.setBuildCompletedDate(buildCompletionDate.toDate());
 		return bbi;
 	}

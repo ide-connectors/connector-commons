@@ -235,9 +235,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
                                 // go ahead, there are other builds
                             }
                         } else {
-                            builds.add(constructBuildErrorInfo(
-                                    bambooServer,
-                                    bambooPlan.getPlanKey(),
+                            builds.add(constructBuildErrorInfo(bambooServer, bambooPlan.getPlanKey(), bambooPlan.getPlanName(),
                                     connectionErrorMessage));
                         }
                     }
@@ -265,7 +263,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
                     }
                 } else {
                     builds.add(constructBuildErrorInfo(
-                            bambooServer, plan.getPlanId(), connectionErrorMessage));
+                            bambooServer, plan.getPlanId(), null, connectionErrorMessage));
                 }
             }
         }
@@ -393,11 +391,10 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
     }
 
 
-    private BambooBuild constructBuildErrorInfo(BambooServerCfg server, String planKey, String message) {
-        BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, null);
+    private BambooBuild constructBuildErrorInfo(BambooServerCfg server, String planKey, String planName, String message) {
+        BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, null, server.getUrl(), planName);
 
         buildInfo.setServer(server);
-        buildInfo.setServerUrl(server.getUrl());
         buildInfo.setBuildState(BuildStatus.UNKNOWN.toString());
 		buildInfo.setMessage(message);
 		buildInfo.setPollingTime(new Date());

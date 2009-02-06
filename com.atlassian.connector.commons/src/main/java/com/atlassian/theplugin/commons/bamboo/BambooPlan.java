@@ -22,8 +22,8 @@ package com.atlassian.theplugin.commons.bamboo;
 public class BambooPlan {
 	private final String name;
 	private final String key;
-	private boolean favourite;
-	private boolean enabled;
+	private final boolean favourite;
+	private final boolean enabled;
 
 	public BambooPlan(String name, String key) {
 		this(name, key, true);

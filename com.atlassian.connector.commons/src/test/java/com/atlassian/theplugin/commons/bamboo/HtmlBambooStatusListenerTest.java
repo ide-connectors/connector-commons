@@ -43,7 +43,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 	private static final String DEFAULT_PLAN_KEY = "PLAN-ID";
 	private static final int DEFAULT_BUILD_NO = 777;
-	private static final String DEFAULT_BUILD_NAME = "Default Plan";
+	private static final String DEFAULT_PLAN_NAME = "Default Plan";
 	private static final String DEFAULT_ERROR_MESSAGE = "default error message";
     private static final String DEFAULT_SERVER_URL = "http://test.atlassian.com/bamboo";
     private static final String DEFAULT_PROJECT_NAME = "ThePlugin";
@@ -66,8 +66,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	public void testUpdateDisplay() {
-		BambooBuildInfo buildUnknown = new BambooBuildInfo("whatever", null);
-		buildUnknown.setServerUrl("some url");
+		BambooBuildInfo buildUnknown = new BambooBuildInfo("whatever", null, "some url", null);
 
 
 		// create mock and tested object
@@ -245,7 +244,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		assertEquals(3, cells.size());
 
         assertEquals("<td width=\"1%\"><a href=\"" + DEFAULT_SERVER_URL + "/browse/PLAN-ID\"/></td>", trimWhitespace(cells.get(0).asXml()));
-		assertEquals(DEFAULT_PROJECT_NAME + " " + DEFAULT_BUILD_NAME + " > PLAN-ID-777", cells.get(1).asText());
+		assertEquals(DEFAULT_PROJECT_NAME + " " + DEFAULT_PLAN_NAME + " > PLAN-ID-777", cells.get(1).asText());
 
 		String buildTime = cells.get(2).asText().trim();
 		assertTrue(buildTime.length() > 1);
@@ -258,7 +257,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		assertEquals(3, cells.size());
 
         assertEquals("<td width=\"1%\"><a href=\"" + DEFAULT_SERVER_URL + "/browse/PLAN-ID\"/></td>", trimWhitespace(cells.get(0).asXml()));
-		assertEquals(DEFAULT_PROJECT_NAME + " " + DEFAULT_BUILD_NAME + " > Disabled", cells.get(1).asText());
+		assertEquals(DEFAULT_PROJECT_NAME + " " + DEFAULT_PLAN_NAME + " > Disabled", cells.get(1).asText());
 
 		String buildTime = cells.get(2).asText().trim();
 		assertTrue(buildTime.length() == 0);
@@ -279,7 +278,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		assertEquals(3, cells.size());
 
         assertEquals("<td width=\"1%\"><a href=\"" + DEFAULT_SERVER_URL + "/browse/PLAN-ID\"/></td>", trimWhitespace(cells.get(0).asXml()));
-		assertEquals(DEFAULT_PROJECT_NAME + " " + DEFAULT_BUILD_NAME + " > PLAN-ID-777", cells.get(1).asText());
+		assertEquals(DEFAULT_PROJECT_NAME + " " + DEFAULT_PLAN_NAME + " > PLAN-ID-777", cells.get(1).asText());
 
 		String buildTime = cells.get(2).asText().trim();
 		assertFalse("&nbsp;".equals(buildTime));
@@ -291,7 +290,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		assertEquals(3, cells.size());
 
         assertEquals("<td width=\"1%\"><a href=\"" + DEFAULT_SERVER_URL + "/browse/PLAN-ID\"/></td>", trimWhitespace(cells.get(0).asXml()));
-		assertEquals(DEFAULT_PROJECT_NAME + " " + DEFAULT_BUILD_NAME + " > Disabled", cells.get(1).asText());
+		assertEquals(DEFAULT_PROJECT_NAME + " " + DEFAULT_PLAN_NAME + " > Disabled", cells.get(1).asText());
 
 		String buildTime = cells.get(2).asText().trim();
 		assertTrue(buildTime.length() == 0);
@@ -310,10 +309,9 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	public static BambooBuild generateBuildInfo(BuildStatus status) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY, DEFAULT_BUILD_NAME);
+		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY, DEFAULT_PLAN_NAME, DEFAULT_SERVER_URL,
+				DEFAULT_PROJECT_NAME);
 		buildInfo.setBuildNumber(String.valueOf(DEFAULT_BUILD_NO));
-        buildInfo.setProjectName(DEFAULT_PROJECT_NAME);
-        buildInfo.setServerUrl(DEFAULT_SERVER_URL);
 		buildInfo.setEnabled(true);
 
 		switch (status) {
@@ -342,10 +340,9 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	public static BambooBuild generateDisabledBuildInfo(BuildStatus status) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY, DEFAULT_BUILD_NAME);
+		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY, DEFAULT_PLAN_NAME, DEFAULT_SERVER_URL,
+				DEFAULT_PROJECT_NAME);
 		buildInfo.setBuildNumber(String.valueOf(DEFAULT_BUILD_NO));
-        buildInfo.setProjectName(DEFAULT_PROJECT_NAME);
-        buildInfo.setServerUrl(DEFAULT_SERVER_URL);
 		buildInfo.setEnabled(false);
 
 		switch (status) {
@@ -368,10 +365,9 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	public static BambooBuild generateBuildInfo2(BuildStatus status) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY_2, DEFAULT_BUILD_NAME);
+		BambooBuildInfo buildInfo = new BambooBuildInfo(DEFAULT_PLAN_KEY_2, DEFAULT_PLAN_NAME, DEFAULT_SERVER_URL,
+				DEFAULT_PROJECT_NAME);
 		buildInfo.setBuildNumber(String.valueOf(DEFAULT_BUILD_NO));
-        buildInfo.setProjectName(DEFAULT_PROJECT_NAME);
-        buildInfo.setServerUrl(DEFAULT_SERVER_URL);
 
         switch (status) {
 			case UNKNOWN:
@@ -398,28 +394,28 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 
 	static class StatusListenerResultCatcher implements BambooStatusDisplay {
-	private BuildStatus buildStatus;
-	private String htmlPage;
-	private ResponseWrapper response;
+		private BuildStatus buildStatus;
+		private String htmlPage;
+		private ResponseWrapper response;
 
-	private int count;
+		private int count;
 
-	public void updateBambooStatus(BuildStatus generalBuildStatus, BambooPopupInfo info) {
-		buildStatus = generalBuildStatus;
-		this.htmlPage = info.toHtml();
+		public void updateBambooStatus(BuildStatus generalBuildStatus, BambooPopupInfo info) {
+			buildStatus = generalBuildStatus;
+			this.htmlPage = info.toHtml();
 
-		++count;
+			++count;
 
-		try {
-			response = new ResponseWrapper(info.toHtml());
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+			try {
+				response = new ResponseWrapper(info.toHtml());
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		public String getHtmlPage() {
+			return htmlPage;
 		}
 	}
-
-    public String getHtmlPage() {
-        return htmlPage;
-    }
-}
 }
 

@@ -515,9 +515,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	BambooBuildInfo constructBuildErrorInfo(String planKey, String message, Date lastPollingTime) {
-		BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, null);
+		BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, null, baseUrl, null);
 
-		buildInfo.setServerUrl(baseUrl);
 		buildInfo.setBuildState(BuildStatus.UNKNOWN.toString());
 		buildInfo.setMessage(message);
 		buildInfo.setPollingTime(lastPollingTime);
@@ -529,10 +528,9 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 		final String planKey = getChildText(buildItemNode, "buildKey");
 		final String buildName = getChildText(buildItemNode, "buildName");
-		BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, buildName);
-		buildInfo.setServerUrl(baseUrl);
+		final String projectName = getChildText(buildItemNode, "projectName");
+		BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, buildName, baseUrl, projectName);
 
-		buildInfo.setProjectName(getChildText(buildItemNode, "projectName"));
 		buildInfo.setBuildState(getChildText(buildItemNode, "buildState"));
 		buildInfo.setBuildNumber(getChildText(buildItemNode, "buildNumber"));
 		buildInfo.setBuildReason(getChildText(buildItemNode, "buildReason"));

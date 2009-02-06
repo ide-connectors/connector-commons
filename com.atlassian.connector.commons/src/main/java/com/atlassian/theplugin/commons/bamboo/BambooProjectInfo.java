@@ -17,15 +17,11 @@
 package com.atlassian.theplugin.commons.bamboo;
 
 /**
- * Created by IntelliJ IDEA.
- * User: mwent
- * Date: 2008-01-16
- * Time: 09:11:54
- * To change this template use File | Settings | File Templates.
+ * @author mwent
  */
 public class BambooProjectInfo implements BambooProject {
-	private String name;
-	private String key;
+	private final String name;
+	private final String key;
 
 	public BambooProjectInfo(String name, String key) {
 		this.name = name;

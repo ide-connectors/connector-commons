@@ -245,14 +245,14 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
             for (SubscribedPlan plan : bambooServer.getSubscribedPlans()) {
                 if (api != null && api.isLoggedIn()) {
                     try {
-                        BambooBuildInfo buildInfo = api.getLatestBuildForPlan(plan.getPlanId());
+                        BambooBuildInfo buildInfo = api.getLatestBuildForPlan(plan.getKey());
                         buildInfo.setEnabled(true);
                         buildInfo.setServer(bambooServer);
 						adjustBuildTimes(bambooServer, buildInfo);
 
                         if (plansForServer != null) {
                             for (BambooPlan bambooPlan : plansForServer) {
-                                if (plan.getPlanId().equals(bambooPlan.getPlanKey())) {
+                                if (plan.getKey().equals(bambooPlan.getPlanKey())) {
                                     buildInfo.setEnabled(bambooPlan.isEnabled());
                                 }
                             }
@@ -263,7 +263,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
                     }
                 } else {
                     builds.add(constructBuildErrorInfo(
-                            bambooServer, plan.getPlanId(), null, connectionErrorMessage));
+                            bambooServer, plan.getKey(), null, connectionErrorMessage));
                 }
             }
         }

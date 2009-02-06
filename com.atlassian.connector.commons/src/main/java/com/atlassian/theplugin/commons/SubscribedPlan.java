@@ -20,18 +20,18 @@ package com.atlassian.theplugin.commons;
  * This class is immutable
  */
 public final class SubscribedPlan {
-	private final String planId;
+	private final String key;
 
 	public SubscribedPlan(final SubscribedPlan cfg) {
-		planId = cfg.getPlanId();
+		key = cfg.getKey();
 	}
 
-    public SubscribedPlan(final String planId) {
-        this.planId = planId;
+    public SubscribedPlan(final String key) {
+        this.key = key;
     }
 
-    public String getPlanId() {
-		return planId;
+    public String getKey() {
+		return key;
 	}
 
 	@Override
@@ -45,7 +45,8 @@ public final class SubscribedPlan {
 
 		SubscribedPlan that = (SubscribedPlan) o;
 
-		if (!planId.equals(that.planId)) {
+		//noinspection RedundantIfStatement
+		if (!key.equals(that.key)) {
 			return false;
 		}
 
@@ -54,6 +55,6 @@ public final class SubscribedPlan {
 
 	@Override
 	public int hashCode() {
-		return planId.hashCode();
+		return key.hashCode();
 	}
 }

@@ -109,7 +109,7 @@ public final class JDomXStreamUtil {
 
 			public void marshal(final Object source, final HierarchicalStreamWriter writer, final MarshallingContext context) {
 				SubscribedPlan value = (SubscribedPlan) source;
-				writer.addAttribute(PLAN_KEY, value.getPlanId());
+				writer.addAttribute(PLAN_KEY, value.getKey());
 				//writer.setValue(value.getPlanId());
 			}
 

@@ -38,7 +38,6 @@ import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.spartez.util.junit3.TestUtil;
 import org.ddsteps.mock.httpserver.JettyMockServer;
@@ -169,13 +168,27 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.verify();
 	}
 
-	public void testBuildForPlanSuccess() throws Exception {
+	public void testBuildForPlanSuccessNoTimezone() throws Exception {
+	    implTestBuildForPlanSuccess(0);
+	}
+
+	public void testBuildForPlanSuccessNegativeTimezone() throws Exception {
+	    implTestBuildForPlanSuccess(-5);
+	}
+
+	public void testBuildForPlanSuccessPositiveTimezone() throws Exception {
+	    implTestBuildForPlanSuccess(7);
+	}
+
+	private void implTestBuildForPlanSuccess(int timezoneOffset) throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooServerCfg bambooServerCfg = new BambooServerCfg("mybamboo", mockBaseUrl, new ServerId());
+		bambooServerCfg.setTimezoneOffset(timezoneOffset);
+		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new HttpSessionCallbackImpl());
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF");
 		apiHandler.logout();
@@ -183,15 +196,18 @@ public class BambooSessionTest extends AbstractSessionTest {
 		Util.verifySuccessfulBuildResult(build, mockBaseUrl);
 		assertEquals(30, build.getTestsPassed());
 		assertEquals(10, build.getTestsFailed());
+		final DateTime expectedDate = new DateTime(2008, 1, 29, 14, 49, 36, 0).plusHours(timezoneOffset);
+		assertEquals(expectedDate.toDate(), build.getBuildCompletedDate());
+		assertEquals(expectedDate.toDate(), build.getBuildStartedDate());
 
 		mockServer.verify();
 	}
 
-	public void testGetLatestBuildForPlanBamboo2x1x5() throws RemoteApiException, RemoteApiLoginException {
+	public void testGetLatestBuildForPlanBamboo2x1x5() throws RemoteApiException {
 		implTestGetLatestBuildForPlanBamboo2x1x5(0);
 	}
 
-	public void implTestGetLatestBuildForPlanBamboo2x1x5(int timezoneOffset) throws RemoteApiException, RemoteApiLoginException {
+	private void implTestGetLatestBuildForPlanBamboo2x1x5(int timezoneOffset) throws RemoteApiException {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("",
@@ -261,7 +277,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildDetailsFor1CommitFailedSuccessTests() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/api/rest/getBuildResultsDetails.action", new BuildDetailsResultCallback("buildResult-1Commit-FailedTests-SuccessfulTests.xml", "100"));
+		mockServer.expect("/api/rest/getBuildResultsDetails.action",
+				new BuildDetailsResultCallback("buildResult-1Commit-FailedTests-SuccessfulTests.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
@@ -311,7 +328,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildDetailsFor1CommitFailedTests() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/api/rest/getBuildResultsDetails.action", new BuildDetailsResultCallback("buildResult-1Commit-FailedTests.xml", "100"));
+		mockServer.expect("/api/rest/getBuildResultsDetails.action",
+				new BuildDetailsResultCallback("buildResult-1Commit-FailedTests.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
@@ -393,7 +411,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildDetailsFor3CommitFailedSuccessTests() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/api/rest/getBuildResultsDetails.action", new BuildDetailsResultCallback("buildResult-3Commit-FailedTests-SuccessfulTests.xml", "100"));
+		mockServer.expect("/api/rest/getBuildResultsDetails.action",
+				new BuildDetailsResultCallback("buildResult-3Commit-FailedTests-SuccessfulTests.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
@@ -458,7 +477,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildDetailsForNoCommitFailedSuccessTests() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/api/rest/getBuildResultsDetails.action", new BuildDetailsResultCallback("buildResult-NoCommit-FailedTests-SuccessfulTests.xml", "100"));
+		mockServer.expect("/api/rest/getBuildResultsDetails.action",
+				new BuildDetailsResultCallback("buildResult-NoCommit-FailedTests-SuccessfulTests.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);

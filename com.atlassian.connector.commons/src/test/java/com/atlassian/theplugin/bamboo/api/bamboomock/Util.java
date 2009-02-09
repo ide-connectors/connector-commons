@@ -32,7 +32,7 @@ import java.util.Date;
 
 public abstract class Util {
 
-	private static final String RESOURCE_BASE = "/mock/bamboo/1_2_4/api/rest/";
+	public static final String RESOURCE_BASE_1_2_4 = "/mock/bamboo/1_2_4/api/rest/";
 	private static final String HTTP_400_TEXT = "Bad Request";
 	private static final int HTTP_400 = 400;
 
@@ -41,7 +41,11 @@ public abstract class Util {
 	}
 
 	public static void copyResource(OutputStream outputStream, String resource) {
-		ResourceUtil.copyResource(outputStream, Util.class, RESOURCE_BASE + resource);
+		ResourceUtil.copyResource(outputStream, Util.class, RESOURCE_BASE_1_2_4 + resource);
+	}
+
+	public static void copyResourceWithFullPath(OutputStream outputStream, String resourceFullPath) {
+		ResourceUtil.copyResource(outputStream, Util.class, resourceFullPath);
 	}
 
 	public static void verifySuccessfulBuildResult(BambooBuild build, String baseUrl) {

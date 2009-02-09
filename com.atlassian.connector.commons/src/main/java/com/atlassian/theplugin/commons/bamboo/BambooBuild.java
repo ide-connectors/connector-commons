@@ -22,6 +22,8 @@ import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import java.util.Date;
 import java.util.Set;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Build information retrieved from Bamboo server.
  */
@@ -47,6 +49,12 @@ public interface BambooBuild extends RequestData {
 	BuildStatus getStatus();
 
 	String getMessage();
+
+	/**
+	 * @return human readable info about unit tests like "267 passed"
+	 */
+	@Nullable
+	String getBuildTestSummary();
 
 	int getTestsPassed();
 

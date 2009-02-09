@@ -36,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -67,9 +68,12 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	private String authToken;
 
 	private static final String AUTHENTICATION_ERROR_MESSAGE = "User not authenticated yet, or session timed out";
+	private static final String BUILD_COMPLETED_DATE_ELEM = "buildCompletedDate";
+
+	private final BambooServerCfg bambooServerCfg; 
 
 	/**
-	 * For testing purposes, shouldn't be publicb
+	 * For testing purposes, shouldn't be public
 	 *
 	 * @param url bamboo server url
 	 * @throws RemoteApiMalformedUrlException malformed url
@@ -93,6 +97,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	 */
 	public BambooSessionImpl(BambooServerCfg serverCfg, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
 		super(serverCfg, callback);
+		bambooServerCfg = serverCfg;
 	}
 
 
@@ -560,39 +565,65 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		final String buildName = getChildText(buildItemNode, "buildName");
 		final String projectName = getChildText(buildItemNode, "projectName");
 		final String buildNumber = getChildText(buildItemNode, "buildNumber");
+		final String relativeBuildDate = getChildText(buildItemNode, "buildRelativeBuildDate");
+		final Date startTime = parseBuildDate(getChildText(buildItemNode, "buildTime"), "Cannot parse buildTime.");
+		final String buildCompletedDateStr = getChildText(buildItemNode, BUILD_COMPLETED_DATE_ELEM);
+		final Date completionTime = (buildCompletedDateStr != null && buildCompletedDateStr.length() > 0)
+				? parseDateUniversal(buildCompletedDateStr, BUILD_COMPLETED_DATE_ELEM)
+				//older Bamboo versions do not generate buildCompletedDate so we set it as buildTime
+				: startTime;
 		BambooBuildInfo buildInfo = new BambooBuildInfo.Builder(planKey, buildName, baseUrl, projectName, buildNumber)
 				.enabled(isEnabled)
 				.state(getChildText(buildItemNode, "buildState"))
 				.pollingTime(lastPollingTime)
 				.reason(getChildText(buildItemNode, "buildReason"))
-				.startTime(parseBuildDate(getChildText(buildItemNode, "buildTime"), "Cannot parse buildTime."))
+				.startTime(startTime)
 				.testSummary(getChildText(buildItemNode, "buildTestSummary"))
 				.commitComment(getChildText(buildItemNode, "buildCommitComment"))
 				.testsPassedCount(parseInt(getChildText(buildItemNode, "successfulTestCount")))
 				.testsFailedCount(parseInt(getChildText(buildItemNode, "failedTestCount")))
+				.completionTime(completionTime)
+				.relativeBuildDate(relativeBuildDate)
 				.build();
 
 		buildInfo.setBuildDurationDescription(getChildText(buildItemNode, "buildDurationDescription"));
-		buildInfo.setBuildRelativeBuildDate(getChildText(buildItemNode, "buildRelativeBuildDate"));
-
-		buildInfo.setBuildCompletedDate(
-			parseBuildDate(getChildText(buildItemNode, "buildCompletedDate"), "Cannot parse buildCompletedDate"));
-
-		//older Bamboo versions do not generate buildCompletedDate so we set it as buildTime
-		if (buildInfo.getBuildCompletedDate() == null) {
-			buildInfo.setBuildCompletedDate(buildInfo.getBuildStartedDate());
-		}
-
 		return buildInfo;
+	}
+
+	private Date parseDateUniversal(@Nullable String dateStr, @NotNull String element) throws RemoteApiException {
+		if (dateStr != null) {
+			if (dateStr.indexOf('T') != -1) {
+				// new format
+				return parseCommitTime(dateStr);
+			} else {
+				// old format
+				return parseBuildDate(dateStr, "Cannot parse " + element);
+			}
+		}
+		throw new RemoteApiException(element + " cannot be found");
 	}
 
 	private static DateTimeFormatter buildDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 	private static DateTimeFormatter commitDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
 
+	/**
+	 * Parses date without timezone info
+	 * 
+	 * wseliga: I have no idea why this method silently returns null in case of parsing problem.
+	 * For now, I am going to leave it as it is to avoid hell of the problems, should it be really necessary
+	 * (and I am now a few days before 2.0.0 final release)
+
+	 * @param date string to parse
+	 * @param errorMessage message used during logging
+	 * @return parsed date
+	 */
 	@Nullable
 	private Date parseBuildDate(String date, String errorMessage) {
 		try {
-			return buildDateFormat.parseDateTime(date).toDate();
+			final DateTime dateTime = buildDateFormat.parseDateTime(date);
+			// now adjust the time for local caller time, as Bamboo servers always serves its local time
+			// without the timezone info
+			return dateTime.plusHours(bambooServerCfg.getTimezoneOffset()).toDate();
 		} catch (IllegalArgumentException e) {
 			LoggerImpl.getInstance().debug("Cannot parse build date: " + errorMessage);
 			return null;

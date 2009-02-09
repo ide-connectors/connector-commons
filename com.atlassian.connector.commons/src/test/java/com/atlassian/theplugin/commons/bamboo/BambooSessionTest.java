@@ -38,11 +38,17 @@ import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
+import com.spartez.util.junit3.TestUtil;
 import org.ddsteps.mock.httpserver.JettyMockServer;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.io.IOException;
 import java.util.List;
+
+import junit.framework.Assert;
 
 
 /**
@@ -179,6 +185,47 @@ public class BambooSessionTest extends AbstractSessionTest {
 		assertEquals(10, build.getTestsFailed());
 
 		mockServer.verify();
+	}
+
+	public void testGetLatestBuildForPlanBamboo2x1x5() throws RemoteApiException, RemoteApiLoginException {
+		implTestGetLatestBuildForPlanBamboo2x1x5(0);
+	}
+
+	public void implTestGetLatestBuildForPlanBamboo2x1x5(int timezoneOffset) throws RemoteApiException, RemoteApiLoginException {
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
+		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("",
+				"/mock/bamboo/2_1_5/api/rest/getLatestBuildForPlanResponse.xml"));
+		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
+
+		BambooServerCfg bambooServerCfg = new BambooServerCfg("mybamboo", mockBaseUrl, new ServerId());
+		bambooServerCfg.setTimezoneOffset(timezoneOffset);
+		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new HttpSessionCallbackImpl());
+		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
+		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF");
+		apiHandler.logout();
+
+		Assert.assertEquals("ACC-TST", build.getBuildKey());
+		Assert.assertEquals("193", build.getBuildNumber());
+		assertEquals(BuildStatus.BUILD_SUCCEED, build.getStatus());
+		Assert.assertTrue(build.getPollingTime().getTime() - System.currentTimeMillis() < 5000);
+		Assert.assertEquals(mockBaseUrl, build.getServerUrl());
+		Assert.assertEquals(mockBaseUrl + "/browse/ACC-TST-193", build.getBuildResultUrl());
+		Assert.assertEquals(mockBaseUrl + "/browse/ACC-TST", build.getBuildUrl());
+		assertEquals("Atlassian Connector Commons", build.getProjectName());
+		assertEquals(267, build.getTestsPassed());
+		assertEquals(0, build.getTestsFailed());
+		assertEquals("Code has changed", build.getBuildReason());
+		assertEquals("267 passed", build.getBuildTestSummary());
+		assertEquals("3 minutes ago", build.getBuildRelativeBuildDate());
+		assertEquals(new DateTime(2009, 2, 9, 7, 38, 36, 0, DateTimeZone.forOffsetHours(-6)).toDate(),
+				build.getBuildCompletedDate());
+		TestUtil.assertHasOnlyElements(build.getCommiters(), "wseliga", "mwent");
+		mockServer.verify();
+	}
+
+	public void testGetLatestBuildForPlanBamboo2x1x5WithTimeZoneOffset() throws RemoteApiException {
+		implTestGetLatestBuildForPlanBamboo2x1x5(3);
 	}
 
 
@@ -697,7 +744,6 @@ public class BambooSessionTest extends AbstractSessionTest {
 	}
 
 	public void testEnabledStatus() throws RemoteApiException {
-		System.out.println(System.getProperty("user.dir"));
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultVelocityBallback("PO-TP", 123));

@@ -160,9 +160,9 @@ public class BambooServerFacadeTest extends TestCase {
 	}
 
 	private BambooBuildInfo createBambooBuildInfo(String planKey, String planName, DateTime buildCompletionDate) {
-		BambooBuildInfo bbi = new BambooBuildInfo.Builder(planKey, planName, null, null, "123").build();
-		bbi.setBuildCompletedDate(buildCompletionDate.toDate());
-		return bbi;
+		return new BambooBuildInfo.Builder(planKey, planName, null, null, "123")
+				.completionTime(buildCompletionDate.toDate())
+				.build();
 	}
 
 	public void testBuildCompletedDateWithTimeZoneForFavourites() throws RemoteApiException, ServerPasswordNotProvidedException {
@@ -187,12 +187,18 @@ public class BambooServerFacadeTest extends TestCase {
 		EasyMock.expect(mockSession.isLoggedIn()).andReturn(true).anyTimes();
 		EasyMock.expect(mockSession.getLatestBuildForPlan(key1, true)).andAnswer(new IAnswer<BambooBuildInfo>() {
 			public BambooBuildInfo answer() throws Throwable {
-				return createBambooBuildInfo(key1, plan1.getPlanName(), buildDate1);
+				synchronized (bambooServerCfg) {
+					return createBambooBuildInfo(key1, plan1.getPlanName(),
+							buildDate1.plusHours(bambooServerCfg.getTimezoneOffset()));
+				}
 			}
 		}).anyTimes();
 		EasyMock.expect(mockSession.getLatestBuildForPlan(key3, false)).andAnswer(new IAnswer<BambooBuildInfo>() {
 			public BambooBuildInfo answer() throws Throwable {
-				return createBambooBuildInfo(key3, plan3.getPlanName(), buildDate3);
+				synchronized (bambooServerCfg) {
+					return createBambooBuildInfo(key3, plan3.getPlanName(),
+							buildDate3.plusHours(bambooServerCfg.getTimezoneOffset()));
+				}
 			}
 		}).anyTimes();
 		EasyMock.replay(mockSession);
@@ -207,7 +213,9 @@ public class BambooServerFacadeTest extends TestCase {
 
 	private Collection<BambooBuild> getAndVerifyDates(final BambooServerFacade facade, final DateTime buildDate1,
 			final DateTime buildDate3, final int hourOffset) throws ServerPasswordNotProvidedException {
-		bambooServerCfg.setTimezoneOffset(hourOffset);
+		synchronized (bambooServerCfg) {
+			bambooServerCfg.setTimezoneOffset(hourOffset);
+		}
 		final Collection<BambooBuild> res = facade.getSubscribedPlansResults(bambooServerCfg);
 		assertNotNull(res);
 		assertEquals(2, res.size());

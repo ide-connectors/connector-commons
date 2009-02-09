@@ -25,14 +25,18 @@ import javax.servlet.http.HttpServletResponse;
 
 public class LatestBuildResultCallback implements JettyMockServer.Callback {
 
-	private final String resourcePrefix;
+	private final String resource;
 
 	public LatestBuildResultCallback() {
-		resourcePrefix = "";
+		resource = Util.RESOURCE_BASE_1_2_4 + "latestBuildResultResponse.xml";
 	}
 
 	public LatestBuildResultCallback(String resourcePrefix) {
-		this.resourcePrefix = resourcePrefix + "-";
+		this.resource = Util.RESOURCE_BASE_1_2_4 + resourcePrefix + "-" + "latestBuildResultResponse.xml";
+	}
+
+	public LatestBuildResultCallback(String resourcePrefix, String fullFilePath) {
+		this.resource = fullFilePath;
 	}
 
 	public void onExpectedRequest(String target,
@@ -53,7 +57,7 @@ public class LatestBuildResultCallback implements JettyMockServer.Callback {
 		assertEquals(LoginCallback.AUTH_TOKEN, authToken);
 		assertEquals("TP-DEF", buildKey);
 
-		Util.copyResource(response.getOutputStream(), resourcePrefix + "latestBuildResultResponse.xml");
+		Util.copyResourceWithFullPath(response.getOutputStream(), resource);
 		response.getOutputStream().flush();
 
 	}

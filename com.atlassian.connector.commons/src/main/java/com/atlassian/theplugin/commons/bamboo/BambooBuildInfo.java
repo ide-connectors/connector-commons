@@ -38,16 +38,16 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	private final String buildState;
 	private final String buildNumber;
 	private final String buildReason;
-	private String buildRelativeBuildDate;
+	private final String buildRelativeBuildDate;
 	private String buildDurationDescription;
 	private final String buildTestSummary;
 	private final String commitComment;
 	private final int testsPassedCount;
 	private final int testsFailedCount;
-	private String message;
+	private final String message;
 
 	private final Date buildTime;
-	private Date buildCompletedDate;
+	private final Date buildCompletedDate;
 	public static final String BUILD_SUCCESSFUL = "Successful";
 	public static final String BUILD_FAILED = "Failed";
 	private Set<String> commiters = new HashSet<String>();
@@ -56,7 +56,8 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @Nullable String serverUrl,
 			@Nullable String projectName, boolean isEnabled, @Nullable String buildNumber, @Nullable String buildState,
 			@Nullable String buildReason, @Nullable Date startTime, @Nullable String buildTestSummary,
-			@Nullable String commitComment, final int testsPassedCount, final int testsFailedCount) {
+			@Nullable String commitComment, final int testsPassedCount, final int testsFailedCount,
+			@Nullable Date completedDate, @Nullable String message, @Nullable String relativeBuildDate) {
 		this.planKey = planKey;
 		this.planName = planName;
 		this.serverUrl = serverUrl;
@@ -69,7 +70,10 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		this.commitComment = commitComment;
 		this.testsPassedCount = testsPassedCount;
 		this.testsFailedCount = testsFailedCount;
+		this.message = message;
+		this.buildRelativeBuildDate = relativeBuildDate;
 		this.buildTime =  (startTime != null) ? new Date(startTime.getTime()) : null;
+		this.buildCompletedDate =  (completedDate != null) ? new Date(completedDate.getTime()) : null;
 	}
 
 	public BambooServerCfg getServer() {
@@ -78,10 +82,6 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 
 	public Date getBuildCompletedDate() {
 		return buildCompletedDate;
-	}
-
-	public void setBuildCompletedDate(final Date buildCompletedDate) {
-		this.buildCompletedDate = buildCompletedDate;
 	}
 
 	public void setServer(BambooServerCfg server) {
@@ -133,10 +133,6 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		return buildRelativeBuildDate;
 	}
 
-	public void setBuildRelativeBuildDate(String buildRelativeBuildDate) {
-		this.buildRelativeBuildDate = buildRelativeBuildDate;
-	}
-
 	public String getBuildDurationDescription() {
 		return buildDurationDescription;
 	}
@@ -177,10 +173,6 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 
 	public Date getBuildStartedDate() {
 		return buildTime != null ? new Date(this.buildTime.getTime()) : null;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
 	}
 
 	@Override
@@ -236,6 +228,9 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		private String commitComment;
 		private int testsPassedCount;
 		private int testsFailedCount;
+		private Date completionTime;
+		@Nullable
+		private String relativeBuildDate;
 
 		public Builder(@NotNull String planKey, @Nullable String planName, @Nullable String serverUrl,
 				@Nullable String projectName, @Nullable String buildNumber) {
@@ -271,6 +266,12 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 			return this;
 		}
 
+		public Builder completionTime(Date aCompletionTime) {
+			this.completionTime = aCompletionTime;
+			return this;
+		}
+
+
 		public Builder commiters(final Collection<String> aCommiters) {
 			this.commiters = aCommiters;
 			return this;
@@ -301,11 +302,15 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 			return this;
 		}
 
+		public Builder relativeBuildDate(@Nullable String aRelativeBuildDate) {
+			this.relativeBuildDate = aRelativeBuildDate;
+			return this;
+		}
+
 		public BambooBuildInfo build() {
 			final BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, planName, serverUrl, projectName, isEnabled,
 					buildNumber, buildState, buildReason, startTime, testSummary, commitComment, testsPassedCount,
-					testsFailedCount);
-			buildInfo.setMessage(message);
+					testsFailedCount, completionTime, message, relativeBuildDate);
 			buildInfo.setCommiters(commiters);
 			if (pollingTime != null) {
 				buildInfo.setPollingTime(pollingTime);

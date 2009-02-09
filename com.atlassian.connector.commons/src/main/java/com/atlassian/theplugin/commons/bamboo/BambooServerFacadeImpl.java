@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.ListIterator;
 
-import org.joda.time.DateTime;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -227,10 +226,6 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 										bambooPlan.isEnabled());
                                 buildInfo.setServer(bambooServer);
 
-								// now adjust the time for local caller time, as Bamboo servers always serves its local time
-								// without the timezone info
-								adjustBuildTimes(bambooServer, buildInfo);
-
                                 builds.add(buildInfo);
                             } catch (RemoteApiException e) {
                                 // go ahead, there are other builds
@@ -251,7 +246,6 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 						BambooBuildInfo buildInfo = api.getLatestBuildForPlan(plan.getKey(),
 								isEnabled != null ? isEnabled : true);
 						buildInfo.setServer(bambooServer);
-						adjustBuildTimes(bambooServer, buildInfo);
                         builds.add(buildInfo);
                     } catch (RemoteApiException e) {
                         // go ahead, there are other builds
@@ -266,15 +260,6 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 
         return builds;
     }
-
-	private void adjustBuildTimes(final BambooServerCfg bambooServer, final BambooBuildInfo buildInfo) {
-		final Date buildCompletedDate = buildInfo.getBuildCompletedDate();
-		if (buildCompletedDate != null) {
-			buildInfo.setBuildCompletedDate(new DateTime(buildCompletedDate.getTime())
-					.plusHours(bambooServer.getTimezoneOffset()).toDate());
-
-		}
-	}
 
 	/**
      * @param bambooServer server data

@@ -123,7 +123,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 			throw new RemoteApiLoginException("Corrupted configuration. Username or Password null");
 		}
 		String pass = String.valueOf(aPassword);
-		loginUrl = baseUrl + LOGIN_ACTION + "?username=" + UrlUtil.encodeUrl(name) + "&password="
+		loginUrl = getBaseUrl() + LOGIN_ACTION + "?username=" + UrlUtil.encodeUrl(name) + "&password="
 				+ UrlUtil.encodeUrl(pass) + "&os_username="
 				+ UrlUtil.encodeUrl(name) + "&os_password=" + UrlUtil.encodeUrl(pass);
 
@@ -146,7 +146,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 			}
 			this.authToken = elements.get(0).getText();
 		} catch (MalformedURLException e) {
-			throw new RemoteApiLoginException("Malformed server URL: " + baseUrl, e);
+			throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
 		} catch (UnknownHostException e) {
 			throw new RemoteApiLoginException("Unknown host: " + e.getMessage(), e);
 		} catch (IOException e) {
@@ -156,7 +156,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		} catch (RemoteApiSessionExpiredException e) {
 			throw new RemoteApiLoginException("Session expired", e);
 		} catch (IllegalArgumentException e) {
-			throw new RemoteApiLoginException("Malformed server URL: " + baseUrl, e);
+			throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
 		}
 
 	}
@@ -167,7 +167,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 
 		try {
-			String logoutUrl = baseUrl + LOGOUT_ACTION + "?auth=" + URLEncoder.encode(authToken, "UTF-8");
+			String logoutUrl = getBaseUrl() + LOGOUT_ACTION + "?auth=" + URLEncoder.encode(authToken, "UTF-8");
 			retrieveGetResponse(logoutUrl);
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException("URLEncoding problem", e);
@@ -185,7 +185,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	public int getBamboBuildNumber() throws RemoteApiException {
-		String queryUrl = baseUrl + GET_BAMBOO_BUILD_NUMBER_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
+		String queryUrl = getBaseUrl() + GET_BAMBOO_BUILD_NUMBER_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
 
 		try {
 			Document doc = retrieveGetResponse(queryUrl);
@@ -213,7 +213,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 	@NotNull
 	public List<BambooProject> listProjectNames() throws RemoteApiException {
-		String buildResultUrl = baseUrl + LIST_PROJECT_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
+		String buildResultUrl = getBaseUrl() + LIST_PROJECT_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
 
 		List<BambooProject> projects = new ArrayList<BambooProject>();
 		try {
@@ -239,7 +239,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 	@NotNull
 	public List<BambooPlan> listPlanNames() throws RemoteApiException {
-		String buildResultUrl = baseUrl + LIST_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
+		String buildResultUrl = getBaseUrl() + LIST_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
 
 		List<BambooPlan> plans = new ArrayList<BambooPlan>();
 		try {
@@ -278,7 +278,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	 * @return Information about the last build or error message
 	 */
 	@NotNull
-	public BambooBuildInfo getLatestBuildForPlan(String planKey) throws RemoteApiException {
+	public BambooBuild getLatestBuildForPlan(String planKey) throws RemoteApiException {
 		final List<BambooPlan> planList = listPlanNames();
 		final Boolean isEnabled = isPlanEnabled(planList, planKey);
 		return getLatestBuildForPlan(planKey, isEnabled != null ? isEnabled : true);
@@ -297,8 +297,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 
 	@NotNull
-	public BambooBuildInfo getLatestBuildForPlan(final String planKey, final boolean isPlanEnabled) throws RemoteApiException {
-		String buildResultUrl = baseUrl + LATEST_BUILD_FOR_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
+	public BambooBuild getLatestBuildForPlan(final String planKey, final boolean isPlanEnabled) throws RemoteApiException {
+		String buildResultUrl = getBaseUrl() + LATEST_BUILD_FOR_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
 				+ "&buildKey=" + UrlUtil.encodeUrl(planKey);
 
 		try {
@@ -344,7 +344,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	@NotNull
 	public List<String> getFavouriteUserPlans() throws RemoteApiSessionExpiredException {
 		List<String> builds = new ArrayList<String>();
-		String buildResultUrl = baseUrl + LATEST_USER_BUILDS_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
+		String buildResultUrl = getBaseUrl() + LATEST_USER_BUILDS_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
 
 		try {
 			Document doc = retrieveGetResponse(buildResultUrl);
@@ -376,7 +376,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		String buildResultUrl;
 
 
-		buildResultUrl = baseUrl + GET_BUILD_DETAILS_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
+		buildResultUrl = getBaseUrl() + GET_BUILD_DETAILS_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
 				+ "&buildKey=" + UrlUtil.encodeUrl(buildKey)
 				+ "&buildNumber=" + UrlUtil.encodeUrl(buildNumber);
 
@@ -481,7 +481,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	public void addLabelToBuild(String buildKey, String buildNumber, String buildLabel) throws RemoteApiException {
 		String buildResultUrl;
 
-		buildResultUrl = baseUrl + ADD_LABEL_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
+		buildResultUrl = getBaseUrl() + ADD_LABEL_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
 				+ "&buildKey=" + UrlUtil.encodeUrl(buildKey)
 				+ "&buildNumber=" + UrlUtil.encodeUrl(buildNumber)
 				+ "&label=" + UrlUtil.encodeUrl(buildLabel);
@@ -503,7 +503,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	public void addCommentToBuild(String buildKey, String buildNumber, String buildComment) throws RemoteApiException {
 		String buildResultUrl;
 
-		buildResultUrl = baseUrl + ADD_COMMENT_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
+		buildResultUrl = getBaseUrl() + ADD_COMMENT_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
 				+ "&buildKey=" + UrlUtil.encodeUrl(buildKey)
 				+ "&buildNumber=" + UrlUtil.encodeUrl(buildNumber)
 				+ "&content=" + UrlUtil.encodeUrl(buildComment);
@@ -525,7 +525,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	public void executeBuild(String buildKey) throws RemoteApiException {
 		String buildResultUrl;
 
-		buildResultUrl = baseUrl + EXECUTE_BUILD_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
+		buildResultUrl = getBaseUrl() + EXECUTE_BUILD_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
 				+ "&buildKey=" + UrlUtil.encodeUrl(buildKey);
 
 
@@ -543,7 +543,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	BambooBuildInfo constructBuildErrorInfo(String planKey, String message, Date lastPollingTime) {
-		return new BambooBuildInfo.Builder(planKey, null, baseUrl, null, null)
+		return new BambooBuildInfo.Builder(planKey, null, bambooServerCfg, null, null)
 				.state(BuildStatus.UNKNOWN.toString())
 				.pollingTime(lastPollingTime)
 				.message(message).build();
@@ -573,7 +573,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 				: startTime;
 		final String durationDescription = getChildText(buildItemNode, "buildDurationDescription");
 
-		return new BambooBuildInfo.Builder(planKey, buildName, baseUrl, projectName, buildNumber)
+		return new BambooBuildInfo.Builder(planKey, buildName, bambooServerCfg, projectName, buildNumber)
 				.enabled(isEnabled)
 				.state(getChildText(buildItemNode, "buildState"))
 				.pollingTime(lastPollingTime)
@@ -667,7 +667,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	public byte[] getBuildLogs(String buildKey, String buildNumber) throws RemoteApiException {
 		String buildResultUrl;
 
-		buildResultUrl = baseUrl + "/download/"
+		buildResultUrl = getBaseUrl() + "/download/"
 				+ UrlUtil.encodeUrl(buildKey)
 				+ "/build_logs/" + UrlUtil.encodeUrl(buildKey)
 				+ "-" + UrlUtil.encodeUrl(buildNumber)

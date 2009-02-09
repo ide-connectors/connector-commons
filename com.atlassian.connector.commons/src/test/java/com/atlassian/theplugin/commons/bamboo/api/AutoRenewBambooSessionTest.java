@@ -25,6 +25,8 @@ import com.atlassian.theplugin.commons.bamboo.TestDetails;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerId;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
 
@@ -151,7 +153,8 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
 		EasyMock.expect(mockDelegate.getLatestBuildForPlan("planKey")).andReturn(
-				new BambooBuildInfo.Builder("planKey", null, null, null, "123").build());
+				new BambooBuildInfo.Builder("planKey", null, new BambooServerCfg("mybamboo", new ServerId()), null, "123")
+						.build());
 
 
 		EasyMock.replay(mockDelegate);

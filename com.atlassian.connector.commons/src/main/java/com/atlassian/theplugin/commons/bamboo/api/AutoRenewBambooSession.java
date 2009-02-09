@@ -16,10 +16,10 @@
 
 package com.atlassian.theplugin.commons.bamboo.api;
 
-import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
+import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
@@ -91,7 +91,7 @@ public class AutoRenewBambooSession implements BambooSession {
 	}
 
 	@NotNull
-	public BambooBuildInfo getLatestBuildForPlan(final String planKey, final boolean isPlanEnabled) throws RemoteApiException {
+	public BambooBuild getLatestBuildForPlan(final String planKey, final boolean isPlanEnabled) throws RemoteApiException {
 		try {
 			return delegate.getLatestBuildForPlan(planKey, isPlanEnabled);
 		} catch (RemoteApiSessionExpiredException e) {
@@ -101,7 +101,7 @@ public class AutoRenewBambooSession implements BambooSession {
 	}
 
 	@NotNull
-	public BambooBuildInfo getLatestBuildForPlan(String planKey) throws RemoteApiException {
+	public BambooBuild getLatestBuildForPlan(String planKey) throws RemoteApiException {
 		try {
 			return delegate.getLatestBuildForPlan(planKey);
 		} catch (RemoteApiSessionExpiredException e) {

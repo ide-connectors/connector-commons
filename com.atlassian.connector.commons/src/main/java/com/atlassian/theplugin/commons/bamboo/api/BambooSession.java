@@ -18,8 +18,8 @@ package com.atlassian.theplugin.commons.bamboo.api;
 
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
-import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
+import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 
@@ -60,10 +60,10 @@ public interface BambooSession extends ProductSession {
 	 * @throws RemoteApiException in case of some communication problem or malformed response
 	 */
 	@NotNull
-	BambooBuildInfo getLatestBuildForPlan(String planKey) throws RemoteApiException;
+	BambooBuild getLatestBuildForPlan(String planKey) throws RemoteApiException;
 
 	@NotNull
-	BambooBuildInfo getLatestBuildForPlan(String planKey, boolean isPlanEnabled) throws RemoteApiException;
+	BambooBuild getLatestBuildForPlan(String planKey, boolean isPlanEnabled) throws RemoteApiException;
 
 	@NotNull
 	List<String> getFavouriteUserPlans() throws RemoteApiException;

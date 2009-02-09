@@ -20,7 +20,11 @@ import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;
 import com.atlassian.theplugin.commons.cfg.Server;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
-import com.atlassian.theplugin.commons.remoteapi.*;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
@@ -51,7 +55,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 	 * For testing purposes
 	 *
 	 * @param url
-	 * @throws RemoteApiException
+	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
 	 */
 	FishEyeRestSession(String url) throws RemoteApiMalformedUrlException {
 		this(createServerCfg(url), new HttpSessionCallbackImpl());
@@ -103,7 +107,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 		if (name == null || aPassword == null) {
 			throw new RemoteApiLoginException("Corrupted configuration. Username or Password null");
 		}
-		loginUrl = baseUrl + LOGIN_ACTION + "?username=" + UrlUtil.encodeUrl(name) + "&password="
+		loginUrl = getBaseUrl() + LOGIN_ACTION + "?username=" + UrlUtil.encodeUrl(name) + "&password="
 				+ UrlUtil.encodeUrl(String.valueOf(aPassword));
 
 
@@ -126,7 +130,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 			this.authToken = elements.get(0).getText();
 			loggedIn = true;
 		} catch (MalformedURLException e) {
-			throw new RemoteApiLoginException("Malformed server URL: " + baseUrl, e);
+			throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
 		} catch (UnknownHostException e) {
 			throw new RemoteApiLoginException("Unknown host: " + e.getMessage(), e);
 		} catch (IOException e) {
@@ -136,7 +140,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 		} catch (RemoteApiSessionExpiredException e) {
 			throw new RemoteApiLoginException("Session expired", e);
 		} catch (IllegalArgumentException e) {
-			throw new RemoteApiLoginException("Malformed server URL: " + baseUrl, e);
+			throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
 		}
 	}
 
@@ -154,7 +158,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 		}
 
 		try {
-			String logoutUrl = baseUrl + LOGOUT_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
+			String logoutUrl = getBaseUrl() + LOGOUT_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
 			retrieveGetResponse(logoutUrl);
 		} catch (IOException e) {
 			LoggerImpl.getInstance().error("Exception encountered while logout:" + e.getMessage(), e);
@@ -178,7 +182,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
 
-		String requestUrl = baseUrl + LIST_REPOSITORIES_ACTION;
+		String requestUrl = getBaseUrl() + LIST_REPOSITORIES_ACTION;
 		try {
 			Document doc = retrieveGetResponse(requestUrl);
 
@@ -194,9 +198,9 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 			}
 			return myRepositories;
 		} catch (IOException e) {
-			throw new RemoteApiException(baseUrl + ": " + e.getMessage(), e);
+			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(baseUrl + ": Server returned malformed response", e);
+			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
 		}
 	}
 

@@ -159,8 +159,9 @@ public class BambooServerFacadeTest extends TestCase {
 		implTestBuildCompletedDate(-5);
 	}
 
-	private BambooBuildInfo createBambooBuildInfo(String planKey, String planName, DateTime buildCompletionDate) {
-		return new BambooBuildInfo.Builder(planKey, planName, null, null, "123")
+	private BambooBuild createBambooBuildInfo(BambooServerCfg bambooServerCfg,
+			String planKey, String planName, DateTime buildCompletionDate) {
+		return new BambooBuildInfo.Builder(planKey, planName, bambooServerCfg, null, "123")
 				.completionTime(buildCompletionDate.toDate())
 				.build();
 	}
@@ -185,18 +186,18 @@ public class BambooServerFacadeTest extends TestCase {
 		EasyMock.expect(mockSession.listPlanNames()).andReturn(plans).anyTimes();
 		EasyMock.expect(mockSession.getFavouriteUserPlans()).andReturn(MiscUtil.buildArrayList("pl", "keyb")).anyTimes();
 		EasyMock.expect(mockSession.isLoggedIn()).andReturn(true).anyTimes();
-		EasyMock.expect(mockSession.getLatestBuildForPlan(key1, true)).andAnswer(new IAnswer<BambooBuildInfo>() {
-			public BambooBuildInfo answer() throws Throwable {
+		EasyMock.expect(mockSession.getLatestBuildForPlan(key1, true)).andAnswer(new IAnswer<BambooBuild>() {
+			public BambooBuild answer() throws Throwable {
 				synchronized (bambooServerCfg) {
-					return createBambooBuildInfo(key1, plan1.getPlanName(),
+					return createBambooBuildInfo(bambooServerCfg, key1, plan1.getPlanName(),
 							buildDate1.plusHours(bambooServerCfg.getTimezoneOffset()));
 				}
 			}
 		}).anyTimes();
-		EasyMock.expect(mockSession.getLatestBuildForPlan(key3, false)).andAnswer(new IAnswer<BambooBuildInfo>() {
-			public BambooBuildInfo answer() throws Throwable {
+		EasyMock.expect(mockSession.getLatestBuildForPlan(key3, false)).andAnswer(new IAnswer<BambooBuild>() {
+			public BambooBuild answer() throws Throwable {
 				synchronized (bambooServerCfg) {
-					return createBambooBuildInfo(key3, plan3.getPlanName(),
+					return createBambooBuildInfo(bambooServerCfg, key3, plan3.getPlanName(),
 							buildDate3.plusHours(bambooServerCfg.getTimezoneOffset()));
 				}
 			}

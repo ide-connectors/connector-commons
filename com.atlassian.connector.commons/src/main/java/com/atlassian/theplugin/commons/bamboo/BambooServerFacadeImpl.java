@@ -222,10 +222,8 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
                     if (bambooPlan.isFavourite()) {
                         if (api != null && api.isLoggedIn()) {
                             try {
-                                BambooBuildInfo buildInfo = api.getLatestBuildForPlan(bambooPlan.getPlanKey(),
+                                BambooBuild buildInfo = api.getLatestBuildForPlan(bambooPlan.getPlanKey(),
 										bambooPlan.isEnabled());
-                                buildInfo.setServer(bambooServer);
-
                                 builds.add(buildInfo);
                             } catch (RemoteApiException e) {
                                 // go ahead, there are other builds
@@ -243,9 +241,8 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
                     try {
 						final Boolean isEnabled = plansForServer != null
 								? BambooSessionImpl.isPlanEnabled(plansForServer, plan.getKey()) : null;
-						BambooBuildInfo buildInfo = api.getLatestBuildForPlan(plan.getKey(),
+						BambooBuild buildInfo = api.getLatestBuildForPlan(plan.getKey(),
 								isEnabled != null ? isEnabled : true);
-						buildInfo.setServer(bambooServer);
                         builds.add(buildInfo);
                     } catch (RemoteApiException e) {
                         // go ahead, there are other builds
@@ -372,13 +369,11 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 
 
     private BambooBuild constructBuildErrorInfo(BambooServerCfg server, String planKey, String planName, String message) {
-        BambooBuildInfo buildInfo = new BambooBuildInfo.Builder(planKey, null, server.getUrl(), planName, null)
-				.message(message).state(BuildStatus.UNKNOWN.toString()).build();
-
-        buildInfo.setServer(server);
-		buildInfo.setPollingTime(new Date());
-
-		return buildInfo;
+		return new BambooBuildInfo.Builder(planKey, null, server, planName, null)
+				.message(message)
+				.state(BuildStatus.UNKNOWN.toString())
+				.pollingTime(new Date())
+				.build();
 	}
     
 	public void setCallback(HttpSessionCallback callback) {

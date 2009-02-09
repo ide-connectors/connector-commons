@@ -17,6 +17,8 @@ package com.atlassian.theplugin.commons.bamboo;
 
 import com.gargoylesoftware.htmlunit.html.HtmlTableCell;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
+import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerId;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -48,6 +50,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
     private static final String DEFAULT_SERVER_URL = "http://test.atlassian.com/bamboo";
     private static final String DEFAULT_PROJECT_NAME = "ThePlugin";
 	private static final String DEFAULT_PLAN_KEY_2 = "PLAN2-ID";
+	private static final BambooServerCfg BAMBOO = new BambooServerCfg("mybamboo", DEFAULT_SERVER_URL, new ServerId());
 
 
 	@Override
@@ -76,7 +79,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 		// test: empty builds (error connection) should be considered as unknown builds
 		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
-		final BambooBuildInfo buildUnknown = new BambooBuildInfo.Builder("whatever", null, "some url", null, null).build();
+		final BambooBuildInfo buildUnknown = new BambooBuildInfo.Builder("whatever", null, BAMBOO, null, null).build();
 		builds.add(buildUnknown);
 		bambooListener.updateBuildStatuses(builds);
 
@@ -307,7 +310,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	public static BambooBuild generateBuildInfo(BuildStatus status) {
-		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_PLAN_NAME, DEFAULT_SERVER_URL,
+		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_PLAN_NAME, BAMBOO,
 				DEFAULT_PROJECT_NAME, String.valueOf(DEFAULT_BUILD_NO)).enabled(true).pollingTime(new Date());
 
 		switch (status) {
@@ -335,7 +338,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	public static BambooBuild generateDisabledBuildInfo(BuildStatus status) {
-		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_PLAN_NAME, DEFAULT_SERVER_URL,
+		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_PLAN_NAME, BAMBOO,
 				DEFAULT_PROJECT_NAME, String.valueOf(DEFAULT_BUILD_NO)).enabled(false).pollingTime(new Date());
 
 		switch (status) {
@@ -357,7 +360,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	public static BambooBuild generateBuildInfo2(BuildStatus status) {
-		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY_2, DEFAULT_PLAN_NAME, DEFAULT_SERVER_URL,
+		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY_2, DEFAULT_PLAN_NAME, BAMBOO,
 				DEFAULT_PROJECT_NAME, String.valueOf(DEFAULT_BUILD_NO)).pollingTime(new Date());
 
         switch (status) {

@@ -50,7 +50,6 @@ import java.util.Map;
  * Communication stub for lightweight XML based APIs.
  */
 public abstract class AbstractHttpSession {
-	protected final String baseUrl;
 	protected HttpClient client;
 	private HttpSessionCallback callback;
 	@NotNull
@@ -116,6 +115,10 @@ public abstract class AbstractHttpSession {
 		setUrl(new URL(urlString));
 	}
 
+	protected String getBaseUrl() {
+		return UrlUtil.removeUrlTrailingSlashes(server.getUrl());
+	}
+
 	/**
 	 * Public constructor for AbstractHttpSession
 	 *
@@ -128,9 +131,6 @@ public abstract class AbstractHttpSession {
 		this.server = server;
 		this.callback = callback;
 		String myurl = server.getUrl();
-
-		this.baseUrl = UrlUtil.removeUrlTrailingSlashes(myurl);
-
 		try {
 			UrlUtil.validateUrl(myurl);
 		} catch (MalformedURLException e) {

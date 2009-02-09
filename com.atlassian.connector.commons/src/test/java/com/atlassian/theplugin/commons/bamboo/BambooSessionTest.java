@@ -775,11 +775,11 @@ public class BambooSessionTest extends AbstractSessionTest {
 		BambooSession session = new BambooSessionImpl(mockBaseUrl);
 		session.login(USER_NAME, PASSWORD.toCharArray());
 
-		BambooBuildInfo bbi1 = session.getLatestBuildForPlan("PO-TP");
+		BambooBuild bbi1 = session.getLatestBuildForPlan("PO-TP");
 		assertEquals("123", bbi1.getBuildNumber());
 		assertTrue(bbi1.getEnabled());
 
-		BambooBuildInfo bbi2 = session.getLatestBuildForPlan("PT-TOP");
+		BambooBuild bbi2 = session.getLatestBuildForPlan("PT-TOP");
 		assertEquals("45", bbi2.getBuildNumber());
 		assertFalse(bbi2.getEnabled());
 		session.logout();

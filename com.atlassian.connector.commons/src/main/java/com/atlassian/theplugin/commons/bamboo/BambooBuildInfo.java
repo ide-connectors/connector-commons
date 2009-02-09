@@ -16,7 +16,6 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
-import com.atlassian.theplugin.commons.RequestDataInfo;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 
 import java.util.Date;
@@ -28,9 +27,9 @@ import java.util.HashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
-	private BambooServerCfg server;
-	private final String serverUrl;
+public class BambooBuildInfo implements BambooBuild {
+	private final Date pollingTime;
+	private final BambooServerCfg server;
 	private final String projectName;
 	private final String planName;
 	private final String planKey;
@@ -53,15 +52,17 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	private final Set<String> commiters;
 
 
-	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @Nullable String serverUrl,
-			@Nullable String projectName, boolean isEnabled, @Nullable String buildNumber, @Nullable String buildState,
-			@Nullable String buildReason, @Nullable Date startTime, @Nullable String buildTestSummary,
-			@Nullable String commitComment, final int testsPassedCount, final int testsFailedCount,
-			@Nullable Date completedDate, @Nullable String message, @Nullable String relativeBuildDate,
-			@Nullable String buildDurationDescription, @Nullable Collection<String> commiters) {
+	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerCfg bambooServerCfg,
+			@NotNull Date pollingTime, @Nullable String projectName, boolean isEnabled, @Nullable String buildNumber,
+			@Nullable String buildState, @Nullable String buildReason, @Nullable Date startTime,
+			@Nullable String buildTestSummary, @Nullable String commitComment, final int testsPassedCount,
+			final int testsFailedCount, @Nullable Date completedDate, @Nullable String message,
+			@Nullable String relativeBuildDate, @Nullable String buildDurationDescription,
+			@Nullable Collection<String> commiters) {
+		this.pollingTime = pollingTime;
 		this.planKey = planKey;
 		this.planName = planName;
-		this.serverUrl = serverUrl;
+		this.server = bambooServerCfg;
 		this.projectName = projectName;
 		this.enabled = isEnabled;
 		this.buildNumber = buildNumber;
@@ -91,20 +92,16 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		return buildCompletedDate;
 	}
 
-	public void setServer(BambooServerCfg server) {
-		this.server = server;
-	}
-		
 	public String getServerUrl() {
-		return this.serverUrl;
+		return server.getUrl();
 	}
 
 	public String getBuildUrl() {
-		return this.serverUrl + "/browse/" + this.planKey;
+		return getServerUrl() + "/browse/" + this.planKey;
 	}
 
 	public String getBuildResultUrl() {
-		String url = this.serverUrl + "/browse/" + this.planKey;
+		String url = getServerUrl() + "/browse/" + this.planKey;
 		if (this.getStatus() != BuildStatus.UNKNOWN || this.buildNumber != null) {
 			url += "-" + this.buildNumber;
 		}
@@ -205,11 +202,15 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		return commiters;
 	}
 
+	public Date getPollingTime() {
+		return pollingTime;
+	}
+
 	@SuppressWarnings({"InnerClassFieldHidesOuterClassField"})
 	public static class Builder {
 		private String planKey;
 		private String planName;
-		private String serverUrl;
+		private final BambooServerCfg bambooServerCfg;
 		private String projectName;
 		private final String buildNumber;
 		private boolean isEnabled = true;
@@ -217,7 +218,7 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		private String message;
 		private Date startTime;
 		private Collection<String> commiters;
-		private Date pollingTime;
+		private Date pollingTime = new Date();
 		private String buildReason;
 		@Nullable
 		private String testSummary;
@@ -231,11 +232,11 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		@Nullable
 		private String durationDescription;
 
-		public Builder(@NotNull String planKey, @Nullable String planName, @Nullable String serverUrl,
+		public Builder(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerCfg bambooServerCfg,
 				@Nullable String projectName, @Nullable String buildNumber) {
 			this.planKey = planKey;
 			this.planName = planName;
-			this.serverUrl = serverUrl;
+			this.bambooServerCfg = bambooServerCfg;
 			this.projectName = projectName;
 			this.buildNumber = buildNumber;
 		}
@@ -313,13 +314,9 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 
 
 		public BambooBuildInfo build() {
-			final BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, planName, serverUrl, projectName, isEnabled,
-					buildNumber, buildState, buildReason, startTime, testSummary, commitComment, testsPassedCount,
+			return new BambooBuildInfo(planKey, planName, bambooServerCfg, pollingTime, projectName, 
+					isEnabled, buildNumber, buildState, buildReason, startTime, testSummary, commitComment, testsPassedCount,
 					testsFailedCount, completionTime, message, relativeBuildDate, durationDescription, commiters);
-			if (pollingTime != null) {
-				buildInfo.setPollingTime(pollingTime);
-			}
-			return buildInfo;
 
 		}
 	}

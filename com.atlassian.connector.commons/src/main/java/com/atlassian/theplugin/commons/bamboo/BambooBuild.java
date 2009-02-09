@@ -16,7 +16,6 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
-import com.atlassian.theplugin.commons.RequestData;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 
 import java.util.Date;
@@ -27,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Build information retrieved from Bamboo server.
  */
-public interface BambooBuild extends RequestData {
+public interface BambooBuild {
 	BambooServerCfg getServer();
 
 	String getServerUrl();
@@ -84,4 +83,6 @@ public interface BambooBuild extends RequestData {
 	boolean isMyBuild();
 
 	Set<String> getCommiters();
+
+	Date getPollingTime();
 }

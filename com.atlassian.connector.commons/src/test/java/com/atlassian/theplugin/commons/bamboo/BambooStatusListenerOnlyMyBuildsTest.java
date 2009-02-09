@@ -38,7 +38,6 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 	private static final String DEFAULT_PLAN_KEY = "PL-DEF";
 	private static final String DEFAULT_BUILD_NAME = "Build";
 	private static final String DEFAULT_PROJECT_NAME = "Project";
-	private static final String DEFAULT_SERVER_URL = "Server URL";
 	private static final String DEFAULT_ERROR_MESSAGE = "Error message";
 	private static final HashSet<String> COMMITERS = new HashSet<String>(Arrays.asList("jjaroczynski", "unknown"));
 	private static final String LOGGED_USER_JJ = "jjaroczynski";
@@ -128,7 +127,9 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 	}
 
 	public static BambooBuildInfo generateBuildInfo(BuildStatus status, String buildNumber, String loggedUser) {
-		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_BUILD_NAME, DEFAULT_SERVER_URL,
+		BambooServerCfg server = new BambooServerCfg("name", new ServerId(ServerID));
+		server.setUsername(loggedUser);
+		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_BUILD_NAME, server,
 				DEFAULT_PROJECT_NAME, buildNumber).enabled(true).commiters(COMMITERS);
 
 		switch (status) {
@@ -152,15 +153,7 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 
 		}
 
-		final BambooBuildInfo buildInfo = builder.build();
-
-		buildInfo.setPollingTime(new Date());
-
-		BambooServerCfg server = new BambooServerCfg("name", new ServerId(ServerID));
-		server.setUsername(loggedUser);
-		buildInfo.setServer(server);
-
-		return buildInfo;
+		return builder.build();
 	}
 
 }

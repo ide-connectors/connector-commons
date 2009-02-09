@@ -223,7 +223,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		Assert.assertEquals("ACC-TST", build.getBuildKey());
 		Assert.assertEquals("193", build.getBuildNumber());
-		assertEquals(BuildStatus.BUILD_SUCCEED, build.getStatus());
+		assertEquals(BuildStatus.SUCCESS, build.getStatus());
 		Assert.assertTrue(build.getPollingTime().getTime() - System.currentTimeMillis() < 5000);
 		Assert.assertEquals(mockBaseUrl, build.getServerUrl());
 		Assert.assertEquals(mockBaseUrl + "/browse/ACC-TST-193", build.getBuildResultUrl());

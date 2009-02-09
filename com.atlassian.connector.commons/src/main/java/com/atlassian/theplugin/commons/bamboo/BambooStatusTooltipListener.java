@@ -70,21 +70,21 @@ public class BambooStatusTooltipListener implements BambooStatusListener {
 
 					switch (currentBuild.getStatus()) {
 
-						case BUILD_FAILED:
+						case FAILURE:
 
 							BambooBuild prevBuild = prevBuildStatuses.get(getBuildMapKey(currentBuild));
 
 							if (prevBuildStatuses.containsKey(getBuildMapKey(currentBuild))) {
 
-								if (prevBuild.getStatus() == BuildStatus.BUILD_SUCCEED
-										|| (prevBuild.getStatus() == BuildStatus.BUILD_FAILED
+								if (prevBuild.getStatus() == BuildStatus.SUCCESS
+										|| (prevBuild.getStatus() == BuildStatus.FAILURE
 										&& !prevBuild.getBuildNumber().equals(currentBuild.getBuildNumber())
 										&& bambooTooltipOption == BambooTooltipOption.ALL_FAULIRES_AND_FIRST_SUCCESS)) {
 
 									// build has changed status from SUCCEED to FAILED
 									// or this is new build and still failed
 									fireTooltip = true;
-									status = BuildStatus.BUILD_FAILED;
+									status = BuildStatus.FAILURE;
 
 									// prepare information
 									popupInfo.add(currentBuild);
@@ -96,15 +96,15 @@ public class BambooStatusTooltipListener implements BambooStatusListener {
 						case UNKNOWN:
 							// no action here
 							break;
-						case BUILD_SUCCEED:
+						case SUCCESS:
 
 							if (prevBuildStatuses.containsKey(getBuildMapKey(currentBuild))) {
 								if (prevBuildStatuses.get(getBuildMapKey(currentBuild)).getStatus()
-										== BuildStatus.BUILD_FAILED) {
+										== BuildStatus.FAILURE) {
 									// build has changed status from FAILED to SUCCEED
 									fireTooltip = true;
 									if (status == null) {
-										status = BuildStatus.BUILD_SUCCEED;
+										status = BuildStatus.SUCCESS;
 									}
 									// prepare information
 									popupInfo.add(currentBuild);

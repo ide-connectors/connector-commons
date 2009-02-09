@@ -17,10 +17,12 @@
 package com.atlassian.theplugin.commons.bamboo;
 
 public enum BuildStatus {
-    BUILD_SUCCEED("Succeeded"),
-    BUILD_FAILED("Failed"),  // build error
-    UNKNOWN("Unknown"),   // ststus retrieval error
-	BUILD_DISABLED("Disabled");
+	/** Build finished successfully */
+    SUCCESS("Succeeded"),
+	/** Build failed, e.g. due to compilation or unit test failure */
+    FAILURE("Failed"),
+	/** Status unknown due to data retrieval problem */
+    UNKNOWN("Unknown");
 
 	private String name;
 

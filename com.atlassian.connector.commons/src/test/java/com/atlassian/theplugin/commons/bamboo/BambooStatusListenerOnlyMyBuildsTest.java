@@ -74,16 +74,16 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 		bean.setOnlyMyBuilds(true);
 		tooltipListener = new BambooStatusTooltipListener(displayMock, conf);
 
-		BambooBuild buildOK_JJ = generateBuildInfo(BuildStatus.BUILD_SUCCEED, "1", LOGGED_USER_JJ);
-		BambooBuild buildFail_JJ = generateBuildInfo(BuildStatus.BUILD_FAILED, "2", LOGGED_USER_JJ);
-		BambooBuild buildFail_US = generateBuildInfo(BuildStatus.BUILD_FAILED, "3", LOGGED_USER_US);
-		BambooBuild buildOK_US = generateBuildInfo(BuildStatus.BUILD_SUCCEED, "4", LOGGED_USER_US);
-		BambooBuild buildFail_UN = generateBuildInfo(BuildStatus.BUILD_FAILED, "5", LOGGED_USER_UN);
-		BambooBuild buildOK_UN = generateBuildInfo(BuildStatus.BUILD_SUCCEED, "6", LOGGED_USER_UN);
+		BambooBuild buildOK_JJ = generateBuildInfo(BuildStatus.SUCCESS, "1", LOGGED_USER_JJ);
+		BambooBuild buildFail_JJ = generateBuildInfo(BuildStatus.FAILURE, "2", LOGGED_USER_JJ);
+		BambooBuild buildFail_US = generateBuildInfo(BuildStatus.FAILURE, "3", LOGGED_USER_US);
+		BambooBuild buildOK_US = generateBuildInfo(BuildStatus.SUCCESS, "4", LOGGED_USER_US);
+		BambooBuild buildFail_UN = generateBuildInfo(BuildStatus.FAILURE, "5", LOGGED_USER_UN);
+		BambooBuild buildOK_UN = generateBuildInfo(BuildStatus.SUCCESS, "6", LOGGED_USER_UN);
 
-		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.BUILD_FAILED), EasyMock.isA(BambooPopupInfo.class));
-		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.BUILD_FAILED), EasyMock.isA(BambooPopupInfo.class));
-		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.BUILD_SUCCEED), EasyMock.isA(BambooPopupInfo.class));
+		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.FAILURE), EasyMock.isA(BambooPopupInfo.class));
+		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.FAILURE), EasyMock.isA(BambooPopupInfo.class));
+		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.SUCCESS), EasyMock.isA(BambooPopupInfo.class));
 
 		EasyMock.replay(displayMock);
 
@@ -101,19 +101,19 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 		bean.setOnlyMyBuilds(false);
 		tooltipListener = new BambooStatusTooltipListener(displayMock, conf);
 
-		BambooBuild buildOK_JJ = generateBuildInfo(BuildStatus.BUILD_SUCCEED, "1", LOGGED_USER_JJ);
-		BambooBuild buildFail_JJ = generateBuildInfo(BuildStatus.BUILD_FAILED, "2", LOGGED_USER_JJ);
-		BambooBuild buildFail_US = generateBuildInfo(BuildStatus.BUILD_FAILED, "3", LOGGED_USER_US);
-		BambooBuild buildOK_US = generateBuildInfo(BuildStatus.BUILD_SUCCEED, "4", LOGGED_USER_US);
-		BambooBuild buildFail_UN = generateBuildInfo(BuildStatus.BUILD_FAILED, "5", LOGGED_USER_UN);
-		BambooBuild buildOK_UN = generateBuildInfo(BuildStatus.BUILD_SUCCEED, "6", LOGGED_USER_UN);
+		BambooBuild buildOK_JJ = generateBuildInfo(BuildStatus.SUCCESS, "1", LOGGED_USER_JJ);
+		BambooBuild buildFail_JJ = generateBuildInfo(BuildStatus.FAILURE, "2", LOGGED_USER_JJ);
+		BambooBuild buildFail_US = generateBuildInfo(BuildStatus.FAILURE, "3", LOGGED_USER_US);
+		BambooBuild buildOK_US = generateBuildInfo(BuildStatus.SUCCESS, "4", LOGGED_USER_US);
+		BambooBuild buildFail_UN = generateBuildInfo(BuildStatus.FAILURE, "5", LOGGED_USER_UN);
+		BambooBuild buildOK_UN = generateBuildInfo(BuildStatus.SUCCESS, "6", LOGGED_USER_UN);
 
-		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.BUILD_FAILED), EasyMock.isA(BambooPopupInfo.class));
-		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.BUILD_FAILED), EasyMock.isA(BambooPopupInfo.class));
-		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.BUILD_FAILED), EasyMock.isA(BambooPopupInfo.class));
-		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.BUILD_SUCCEED), EasyMock.isA(BambooPopupInfo.class));
-		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.BUILD_FAILED), EasyMock.isA(BambooPopupInfo.class));
-		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.BUILD_SUCCEED), EasyMock.isA(BambooPopupInfo.class));
+		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.FAILURE), EasyMock.isA(BambooPopupInfo.class));
+		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.FAILURE), EasyMock.isA(BambooPopupInfo.class));
+		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.FAILURE), EasyMock.isA(BambooPopupInfo.class));
+		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.SUCCESS), EasyMock.isA(BambooPopupInfo.class));
+		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.FAILURE), EasyMock.isA(BambooPopupInfo.class));
+		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.SUCCESS), EasyMock.isA(BambooPopupInfo.class));
 
 		EasyMock.replay(displayMock);
 
@@ -136,17 +136,12 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 			case UNKNOWN:
 				builder.message(DEFAULT_ERROR_MESSAGE);
 				break;
-			case BUILD_SUCCEED:
+			case SUCCESS:
 				builder.startTime(new Date());
 				break;
-			case BUILD_FAILED:
+			case FAILURE:
 				builder.startTime(new Date());
 				break;
-			case BUILD_DISABLED:
-				builder.startTime(new Date());
-				builder.enabled(false);
-				break;
-
 		}
 
 		return builder.build();

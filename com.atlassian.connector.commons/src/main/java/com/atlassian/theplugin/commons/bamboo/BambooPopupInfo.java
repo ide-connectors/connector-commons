@@ -72,11 +72,11 @@ public class BambooPopupInfo {
 		String status = "unknown";
 		String icon = "";
 
-		if (buildStatus == BuildStatus.BUILD_FAILED) {
+		if (buildStatus == BuildStatus.FAILURE) {
 			color = "red";
 			status = "failed";
 			icon = ICON_PLAN_FAILED;
-		} else if (buildStatus == BuildStatus.BUILD_SUCCEED) {
+		} else if (buildStatus == BuildStatus.SUCCESS) {
 			color = "green";
 			status = "succeed";
 			icon = ICON_PLAN_PASSED;

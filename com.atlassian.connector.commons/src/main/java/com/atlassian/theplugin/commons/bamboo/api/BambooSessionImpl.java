@@ -595,9 +595,9 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	@NotNull
 	private BuildStatus getStatus(@Nullable String stateStr) {
 		if (BUILD_SUCCESSFUL.equalsIgnoreCase(stateStr)) {
-			return BuildStatus.BUILD_SUCCEED;
+			return BuildStatus.SUCCESS;
 		} else if (BUILD_FAILED.equalsIgnoreCase(stateStr)) {
-			return BuildStatus.BUILD_FAILED;
+			return BuildStatus.FAILURE;
 		} else {
 			return BuildStatus.UNKNOWN;
 		}

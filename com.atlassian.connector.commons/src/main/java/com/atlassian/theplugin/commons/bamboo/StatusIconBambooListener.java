@@ -21,14 +21,14 @@ import java.util.*;
 /**
  * Renders Bamboo build results
  */
-public class StausIconBambooListener implements BambooStatusListener {
+public class StatusIconBambooListener implements BambooStatusListener {
 
 	private final BambooStatusDisplay display;
 
 	public static final String BODY_WITH_STYLE =
 			"<body style=\"font-size:12pt ; font-family: arial, helvetica, sans-serif\">";
 
-	public StausIconBambooListener(BambooStatusDisplay aDisplay) {
+	public StatusIconBambooListener(BambooStatusDisplay aDisplay) {
 		this.display = aDisplay;
 	}
 
@@ -49,17 +49,17 @@ public class StausIconBambooListener implements BambooStatusListener {
 			for (BambooBuild buildInfo : buildStatuses) {
 				if (buildInfo.getEnabled()) {
 					switch (buildInfo.getStatus()) {
-						case BUILD_FAILED:
-							status = BuildStatus.BUILD_FAILED;
+						case FAILURE:
+							status = BuildStatus.FAILURE;
 							break;
 						case UNKNOWN:
 //							if (status != BUILD_FAILED && status != BuildStatus.BUILD_SUCCEED) {
 //								status = BuildStatus.UNKNOWN;
 //							}
 							break;
-						case BUILD_SUCCEED:
-							if (status != BuildStatus.BUILD_FAILED) {
-								status = BuildStatus.BUILD_SUCCEED;
+						case SUCCESS:
+							if (status != BuildStatus.FAILURE) {
+								status = BuildStatus.SUCCESS;
 							}
 							break;
 						default:

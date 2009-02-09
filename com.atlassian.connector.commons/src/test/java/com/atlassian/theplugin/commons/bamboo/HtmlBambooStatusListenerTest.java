@@ -41,7 +41,7 @@ import java.util.StringTokenizer;
 public class HtmlBambooStatusListenerTest extends TestCase {
 
 	private StatusListenerResultCatcher output;
-	private StausIconBambooListener testedListener;
+	private StatusIconBambooListener testedListener;
 
 	private static final String DEFAULT_PLAN_KEY = "PLAN-ID";
 	private static final int DEFAULT_BUILD_NO = 777;
@@ -65,13 +65,13 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		super.setUp();
 
 		output = new StatusListenerResultCatcher();
-        testedListener = new StausIconBambooListener(output);
+        testedListener = new StatusIconBambooListener(output);
 	}
 
 	public void testUpdateDisplay() {
 		// create mock and tested object
 		BambooStatusDisplay mockDisplay = EasyMock.createMock(BambooStatusDisplay.class);
-		StausIconBambooListener bambooListener = new StausIconBambooListener(mockDisplay);
+		StatusIconBambooListener bambooListener = new StatusIconBambooListener(mockDisplay);
 
 		// record mock
 		mockDisplay.updateBambooStatus(EasyMock.eq(BuildStatus.UNKNOWN), EasyMock.isA(BambooPopupInfo.class));
@@ -91,14 +91,14 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	public void testUpdateDisplayUnknownSuccessful() {
 
 		BambooBuild buildUnknown = generateBuildInfo(BuildStatus.UNKNOWN);
-		BambooBuild buildSuccessful = generateBuildInfo2(BuildStatus.BUILD_SUCCEED);
+		BambooBuild buildSuccessful = generateBuildInfo2(BuildStatus.SUCCESS);
 
 		// create mock display and tested listener
 		BambooStatusDisplay mockDisplay = EasyMock.createMock(BambooStatusDisplay.class);
-		StausIconBambooListener bambooListener = new StausIconBambooListener(mockDisplay);
+		StatusIconBambooListener bambooListener = new StatusIconBambooListener(mockDisplay);
 
 		// record mock
-		mockDisplay.updateBambooStatus(EasyMock.eq(BuildStatus.BUILD_SUCCEED), EasyMock.isA(BambooPopupInfo.class));
+		mockDisplay.updateBambooStatus(EasyMock.eq(BuildStatus.SUCCESS), EasyMock.isA(BambooPopupInfo.class));
 		EasyMock.replay(mockDisplay);
 
 		// test: unknown and successful build should generate green (successful) state
@@ -112,14 +112,14 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 	public void testUpdateDisplaySuccessful() {
 
-		BambooBuild buildSuccessful = generateBuildInfo(BuildStatus.BUILD_SUCCEED);
+		BambooBuild buildSuccessful = generateBuildInfo(BuildStatus.SUCCESS);
 
 		// create mock display and tested listener
 		BambooStatusDisplay mockDisplay = EasyMock.createMock(BambooStatusDisplay.class);
-		StausIconBambooListener bambooListener = new StausIconBambooListener(mockDisplay);
+		StatusIconBambooListener bambooListener = new StatusIconBambooListener(mockDisplay);
 
 		// record mock
-		mockDisplay.updateBambooStatus(EasyMock.eq(BuildStatus.BUILD_SUCCEED), EasyMock.isA(BambooPopupInfo.class));
+		mockDisplay.updateBambooStatus(EasyMock.eq(BuildStatus.SUCCESS), EasyMock.isA(BambooPopupInfo.class));
 		EasyMock.replay(mockDisplay);
 
 		// test: successful build should generate green (successful) state
@@ -136,7 +136,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 		// create mock display and tested listener
 		BambooStatusDisplay mockDisplay = EasyMock.createMock(BambooStatusDisplay.class);
-		StausIconBambooListener bambooListener = new StausIconBambooListener(mockDisplay);
+		StatusIconBambooListener bambooListener = new StatusIconBambooListener(mockDisplay);
 
 		// record mock
 		mockDisplay.updateBambooStatus(EasyMock.eq(BuildStatus.UNKNOWN), EasyMock.isA(BambooPopupInfo.class));
@@ -155,7 +155,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		assertEquals(1, output.count);
 		assertSame(BuildStatus.UNKNOWN, output.buildStatus);
 //		assertEquals(
-//                "<html>" + StausIconBambooListener.BODY_WITH_STYLE + "No plans defined.</body></html>",
+//                "<html>" + StatusIconBambooListener.BODY_WITH_STYLE + "No plans defined.</body></html>",
 //                output.htmlPage);
 	}
 
@@ -164,17 +164,17 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		assertEquals(1, output.count);
 		assertSame(BuildStatus.UNKNOWN, output.buildStatus);
 //        assertEquals(
-//                "<html>" + StausIconBambooListener.BODY_WITH_STYLE + "No plans defined.</body></html>",
+//                "<html>" + StatusIconBambooListener.BODY_WITH_STYLE + "No plans defined.</body></html>",
 //                output.htmlPage);
 	}
 
 	public void testSingleSuccessResult() throws Exception {
 		Collection<BambooBuild> buildInfo = new ArrayList<BambooBuild>();
 
-		buildInfo.add(generateBuildInfo(BuildStatus.BUILD_SUCCEED));
+		buildInfo.add(generateBuildInfo(BuildStatus.SUCCESS));
 		testedListener.updateBuildStatuses(buildInfo);
 
-        assertSame(BuildStatus.BUILD_SUCCEED, output.buildStatus);
+        assertSame(BuildStatus.SUCCESS, output.buildStatus);
 
 ////		HtmlTable table = output.response.getTheTable();
 ////		assertEquals(2, table.getRowCount());
@@ -186,7 +186,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	public void testSingleSuccessResultForDisabledBuild() throws Exception {
 		Collection<BambooBuild> buildInfo = new ArrayList<BambooBuild>();
 
-		buildInfo.add(generateDisabledBuildInfo(BuildStatus.BUILD_SUCCEED));
+		buildInfo.add(generateDisabledBuildInfo(BuildStatus.SUCCESS));
 		testedListener.updateBuildStatuses(buildInfo);
 
 		// disabled builds are not considered
@@ -201,11 +201,11 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 	public void testSingleFailedResult() throws Exception {
 		Collection<BambooBuild> buildInfo = new ArrayList<BambooBuild>();
-		buildInfo.add(generateBuildInfo(BuildStatus.BUILD_FAILED));
+		buildInfo.add(generateBuildInfo(BuildStatus.FAILURE));
 		testedListener.updateBuildStatuses(buildInfo);
 
 		// disabled builds are not considered
-		assertSame(BuildStatus.BUILD_FAILED, output.buildStatus);
+		assertSame(BuildStatus.FAILURE, output.buildStatus);
 
 //		HtmlTable table = output.response.getTheTable();
 //		assertEquals(2, table.getRowCount());
@@ -216,7 +216,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 	public void testSingleFailedResultForDisabledBuild() throws Exception {
 		Collection<BambooBuild> buildInfo = new ArrayList<BambooBuild>();
-		buildInfo.add(generateDisabledBuildInfo(BuildStatus.BUILD_FAILED));
+		buildInfo.add(generateDisabledBuildInfo(BuildStatus.FAILURE));
 		testedListener.updateBuildStatuses(buildInfo);
 		assertSame(BuildStatus.UNKNOWN, output.buildStatus);
 
@@ -318,17 +318,12 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 			case UNKNOWN:
 				builder.message(DEFAULT_ERROR_MESSAGE);
 				break;
-			case BUILD_SUCCEED:
+			case SUCCESS:
 				builder.startTime(new Date());
 				break;
-			case BUILD_FAILED:
+			case FAILURE:
 				builder.startTime(new Date());
 				break;
-			case BUILD_DISABLED:
-				builder.startTime(new Date());
-				builder.enabled(false);
-				break;
-
 		}
 
 		return builder.build();
@@ -342,10 +337,10 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 			case UNKNOWN:
 				builder.message(DEFAULT_ERROR_MESSAGE);
 				break;
-			case BUILD_SUCCEED:
+			case SUCCESS:
 				builder.startTime(new Date());
 				break;
-			case BUILD_FAILED:
+			case FAILURE:
 				builder.startTime(new Date());
 				break;
 			default:
@@ -363,10 +358,10 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 			case UNKNOWN:
 				builder.message(DEFAULT_ERROR_MESSAGE);
 				break;
-			case BUILD_SUCCEED:
+			case SUCCESS:
 				builder.startTime(new Date());
 				break;
-			case BUILD_FAILED:
+			case FAILURE:
 				builder.startTime(new Date());
 				break;
 			default:

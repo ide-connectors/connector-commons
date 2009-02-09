@@ -54,7 +54,7 @@ public abstract class Util {
 		Assert.assertEquals("140", build.getBuildNumber());
 		//todo: sginter: What should go here? bamboo-provided status or the BuildStatus.toString()
 		//assertEquals("Successful", build.getStatus());
-		Assert.assertSame(BuildStatus.BUILD_SUCCEED, build.getStatus());
+		Assert.assertSame(BuildStatus.SUCCESS, build.getStatus());
 		Assert.assertTrue(build.getPollingTime().getTime() - System.currentTimeMillis() < 5000);
 		Assert.assertEquals(baseUrl, build.getServerUrl());
 		Assert.assertEquals(baseUrl + "/browse/TP-DEF-140", build.getBuildResultUrl());
@@ -68,7 +68,7 @@ public abstract class Util {
 		Assert.assertEquals("141", build.getBuildNumber());
 		//todo: sginter: What should go here? bamboo-provided status or the BuildStatus.toString()
 		//assertEquals("Failed", build.getStatus());
-		Assert.assertSame(BuildStatus.BUILD_FAILED, build.getStatus());
+		Assert.assertSame(BuildStatus.FAILURE, build.getStatus());
 		Assert.assertTrue(build.getPollingTime().getTime() - System.currentTimeMillis() < 5000);
 		Assert.assertEquals(baseUrl, build.getServerUrl());
 		Assert.assertEquals(baseUrl + "/browse/TP-DEF-141", build.getBuildResultUrl());

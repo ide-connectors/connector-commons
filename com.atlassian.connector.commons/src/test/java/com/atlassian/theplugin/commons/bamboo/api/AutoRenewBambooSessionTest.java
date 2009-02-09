@@ -155,7 +155,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		EasyMock.expectLastCall();
 		EasyMock.expect(mockDelegate.getLatestBuildForPlan("planKey")).andReturn(
 				new BambooBuildInfo.Builder("planKey", null, new BambooServerCfg("mybamboo", new ServerId()), null, "123",
-						BuildStatus.BUILD_SUCCEED)
+						BuildStatus.SUCCESS)
 						.build());
 
 

@@ -62,6 +62,11 @@ public interface BambooBuild extends RequestData {
 
 	String getBuildReason();
 
+	/**
+	 * @return human readable info about the time taken by given build - e.g. "3 minutes"
+	 */
+	String getBuildDurationDescription();
+
 	Date getBuildStartedDate();
 
 	Date getBuildCompletedDate();

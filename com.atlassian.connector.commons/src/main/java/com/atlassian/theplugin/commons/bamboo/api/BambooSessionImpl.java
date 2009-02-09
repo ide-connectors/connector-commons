@@ -572,7 +572,9 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 				? parseDateUniversal(buildCompletedDateStr, BUILD_COMPLETED_DATE_ELEM)
 				//older Bamboo versions do not generate buildCompletedDate so we set it as buildTime
 				: startTime;
-		BambooBuildInfo buildInfo = new BambooBuildInfo.Builder(planKey, buildName, baseUrl, projectName, buildNumber)
+		final String durationDescription = getChildText(buildItemNode, "buildDurationDescription");
+
+		return new BambooBuildInfo.Builder(planKey, buildName, baseUrl, projectName, buildNumber)
 				.enabled(isEnabled)
 				.state(getChildText(buildItemNode, "buildState"))
 				.pollingTime(lastPollingTime)
@@ -584,10 +586,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 				.testsFailedCount(parseInt(getChildText(buildItemNode, "failedTestCount")))
 				.completionTime(completionTime)
 				.relativeBuildDate(relativeBuildDate)
+				.durationDescription(durationDescription)
 				.build();
-
-		buildInfo.setBuildDurationDescription(getChildText(buildItemNode, "buildDurationDescription"));
-		return buildInfo;
 	}
 
 	private Date parseDateUniversal(@Nullable String dateStr, @NotNull String element) throws RemoteApiException {

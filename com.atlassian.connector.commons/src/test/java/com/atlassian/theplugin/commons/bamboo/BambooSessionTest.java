@@ -234,6 +234,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		assertEquals("Code has changed", build.getBuildReason());
 		assertEquals("267 passed", build.getBuildTestSummary());
 		assertEquals("3 minutes ago", build.getBuildRelativeBuildDate());
+		assertEquals("28 seconds", build.getBuildDurationDescription());
 		assertEquals(new DateTime(2009, 2, 9, 7, 38, 36, 0, DateTimeZone.forOffsetHours(-6)).toDate(),
 				build.getBuildCompletedDate());
 		TestUtil.assertHasOnlyElements(build.getCommiters(), "wseliga", "mwent");

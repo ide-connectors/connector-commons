@@ -46,7 +46,7 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	private int buildTestsFailed;
 	private String message;
 
-	private Date buildTime;
+	private final Date buildTime;
 	private Date buildCompletedDate;
 	public static final String BUILD_SUCCESSFUL = "Successful";
 	public static final String BUILD_FAILED = "Failed";
@@ -54,8 +54,8 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 
 
 	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @Nullable String serverUrl,
-			@Nullable String projectName, boolean isEnabled, final String buildNumber,
-			@Nullable String buildState, @Nullable String buildReason) {
+			@Nullable String projectName, boolean isEnabled, final String buildNumber, @Nullable String buildState, @Nullable String buildReason,
+			final Date startTime) {
 		this.planKey = planKey;
 		this.planName = planName;
 		this.serverUrl = serverUrl;
@@ -64,6 +64,7 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		this.buildNumber = buildNumber;
 		this.buildState = buildState;
 		this.buildReason = buildReason;
+		this.buildTime =  (startTime != null) ? new Date(startTime.getTime()) : null;
 	}
 
 	public BambooServerCfg getServer() {
@@ -86,10 +87,6 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		return this.serverUrl;
 	}
 
-//	public void setServerUrl(String serverUrl) {
-//		this.serverUrl = serverUrl;
-//	}
-//
 	public String getBuildUrl() {
 		return this.serverUrl + "/browse/" + this.planKey;
 	}
@@ -184,12 +181,6 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	public int getTestsFailed() {
 		return this.buildTestsFailed;
 	}
-
-	public void setBuildTime(Date buildTime) {
-        if (buildTime != null) {
-            this.buildTime = new Date(buildTime.getTime());
-        }
-    }
 
 	public Date getBuildStartedDate() {
 		return buildTime != null ? new Date(this.buildTime.getTime()) : null;
@@ -297,9 +288,8 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 
 		public BambooBuildInfo build() {
 			final BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, planName, serverUrl, projectName, isEnabled,
-					buildNumber, buildState, buildReason);
+					buildNumber, buildState, buildReason, startTime);
 			buildInfo.setMessage(message);
-			buildInfo.setBuildTime(startTime);
 			buildInfo.setCommiters(commiters);
 			if (pollingTime != null) {
 				buildInfo.setPollingTime(pollingTime);

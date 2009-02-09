@@ -557,6 +557,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 				.state(getChildText(buildItemNode, "buildState"))
 				.pollingTime(lastPollingTime)
 				.reason(getChildText(buildItemNode, "buildReason"))
+				.startTime(parseBuildDate(getChildText(buildItemNode, "buildTime"), "Cannot parse buildTime."))
 				.build();
 
 		buildInfo.setBuildDurationDescription(getChildText(buildItemNode, "buildDurationDescription"));
@@ -571,10 +572,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 
 
-		buildInfo.setBuildTime(parseBuildDate(getChildText(buildItemNode, "buildTime"), "Cannot parse buildTime.", buildInfo));
 		buildInfo.setBuildCompletedDate(
-				parseBuildDate(getChildText(buildItemNode, "buildCompletedDate"), "Cannot parse buildCompletedDate",
-						buildInfo));
+			parseBuildDate(getChildText(buildItemNode, "buildCompletedDate"), "Cannot parse buildCompletedDate"));
 
 		//older Bamboo versions do not generate buildCompletedDate so we set it as buildTime
 		if (buildInfo.getBuildCompletedDate() == null) {
@@ -587,11 +586,12 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	private static DateTimeFormatter buildDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 	private static DateTimeFormatter commitDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
 
-	private Date parseBuildDate(String date, String errorMessage, BambooBuildInfo build) {
+	@Nullable
+	private Date parseBuildDate(String date, String errorMessage) {
 		try {
 			return buildDateFormat.parseDateTime(date).toDate();
 		} catch (IllegalArgumentException e) {
-			LoggerImpl.getInstance().debug(errorMessage + " resultUrl:" + build.getBuildResultUrl());
+			LoggerImpl.getInstance().debug("Cannot parse build date: " + errorMessage);
 			return null;
 		}
 	}

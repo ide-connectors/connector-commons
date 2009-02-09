@@ -855,7 +855,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
 
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + REVIEW_ITEMS + "/" + reviewItemId.getId() + COMMENTS;
+		final String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId()
+				+ REVIEW_ITEMS + "/" + reviewItemId.getId() + COMMENTS;
 		try {
 			Document doc = retrieveGetResponse(requestUrl);
 

@@ -545,6 +545,14 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 				.message(message).build();
 	}
 
+	private int parseInt(String number) throws RemoteApiException {
+		try {
+			return Integer.parseInt(number);
+		} catch (NumberFormatException ex) {
+			throw new RemoteApiException("Invalid number", ex);
+		}
+	}
+
 	private BambooBuildInfo constructBuildItem(Element buildItemNode, Date lastPollingTime, boolean isEnabled)
 			throws RemoteApiException {
 
@@ -558,19 +566,14 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 				.pollingTime(lastPollingTime)
 				.reason(getChildText(buildItemNode, "buildReason"))
 				.startTime(parseBuildDate(getChildText(buildItemNode, "buildTime"), "Cannot parse buildTime."))
+				.testSummary(getChildText(buildItemNode, "buildTestSummary"))
+				.commitComment(getChildText(buildItemNode, "buildCommitComment"))
+				.testsPassedCount(parseInt(getChildText(buildItemNode, "successfulTestCount")))
+				.testsFailedCount(parseInt(getChildText(buildItemNode, "failedTestCount")))
 				.build();
 
 		buildInfo.setBuildDurationDescription(getChildText(buildItemNode, "buildDurationDescription"));
-		buildInfo.setBuildTestSummary(getChildText(buildItemNode, "buildTestSummary"));
-		buildInfo.setBuildCommitComment(getChildText(buildItemNode, "buildCommitComment"));
 		buildInfo.setBuildRelativeBuildDate(getChildText(buildItemNode, "buildRelativeBuildDate"));
-		try {
-			buildInfo.setBuildTestsPassed(Integer.parseInt(getChildText(buildItemNode, "successfulTestCount")));
-			buildInfo.setBuildTestsFailed(Integer.parseInt(getChildText(buildItemNode, "failedTestCount")));
-		} catch (NumberFormatException ex) {
-			throw new RemoteApiException("Invalid number", ex);
-		}
-
 
 		buildInfo.setBuildCompletedDate(
 			parseBuildDate(getChildText(buildItemNode, "buildCompletedDate"), "Cannot parse buildCompletedDate"));

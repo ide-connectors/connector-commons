@@ -175,6 +175,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 		apiHandler.logout();
 
 		Util.verifySuccessfulBuildResult(build, mockBaseUrl);
+		assertEquals(30, build.getTestsPassed());
+		assertEquals(10, build.getTestsFailed());
 
 		mockServer.verify();
 	}

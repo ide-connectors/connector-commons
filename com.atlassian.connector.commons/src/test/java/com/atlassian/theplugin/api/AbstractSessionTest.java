@@ -107,19 +107,16 @@ public abstract class AbstractSessionTest extends TestCase {
 	}
 
 	public void testNonExistingServerLogin() throws Exception {
-		RemoteApiLoginException exception = null;
-
 		try {
 			ProductSession apiHandler = getProductSession("http://non.existing.server.utest");
 			apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		} catch (RemoteApiLoginException ex) {
-			exception = ex;
+			fail("Exception expected");
+		} catch (RemoteApiLoginException exception) {
+			assertNotNull("Exception should have a cause", exception.getCause());
+			assertSame("UnknownHostException expected", UnknownHostException.class, exception.getCause().getClass());
+			assertEquals("Checking exception message", "Unknown host: non.existing.server.utest", exception.getMessage());
 		}
 
-		assertNotNull("Exception expected", exception);
-		assertNotNull("Exception should have a cause", exception.getCause());
-		assertSame("UnknownHostException expected", UnknownHostException.class, exception.getCause().getClass());
-		assertEquals("Checking exception message", "Unknown host: non.existing.server.utest", exception.getMessage());
 	}
 
 

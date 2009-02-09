@@ -25,17 +25,17 @@ import com.atlassian.theplugin.commons.remoteapi.*;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
-import com.atlassian.theplugin.commons.util.UrlUtil;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
+import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.apache.commons.httpclient.HttpMethod;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -90,7 +90,6 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	 * @param serverCfg The server configuration for this session
 	 * @param callback  The callback needed for preparing HttpClient calls
 	 * @throws RemoteApiMalformedUrlException malformed url
-	 *
 	 */
 	public BambooSessionImpl(BambooServerCfg serverCfg, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
 		super(serverCfg, callback);
@@ -546,7 +545,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 				.message(message).build();
 	}
 
-	private BambooBuildInfo constructBuildItem(Element buildItemNode, Date lastPollingTime, boolean isEnabled) throws RemoteApiException {
+	private BambooBuildInfo constructBuildItem(Element buildItemNode, Date lastPollingTime, boolean isEnabled)
+			throws RemoteApiException {
 
 		final String planKey = getChildText(buildItemNode, "buildKey");
 		final String buildName = getChildText(buildItemNode, "buildName");
@@ -570,10 +570,11 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 			throw new RemoteApiException("Invalid number", ex);
 		}
 
-		
+
 		buildInfo.setBuildTime(parseBuildDate(getChildText(buildItemNode, "buildTime"), "Cannot parse buildTime.", buildInfo));
 		buildInfo.setBuildCompletedDate(
-			parseBuildDate(getChildText(buildItemNode, "buildCompletedDate"), "Cannot parse buildCompletedDate", buildInfo));
+				parseBuildDate(getChildText(buildItemNode, "buildCompletedDate"), "Cannot parse buildCompletedDate",
+						buildInfo));
 
 		//older Bamboo versions do not generate buildCompletedDate so we set it as buildTime
 		if (buildInfo.getBuildCompletedDate() == null) {

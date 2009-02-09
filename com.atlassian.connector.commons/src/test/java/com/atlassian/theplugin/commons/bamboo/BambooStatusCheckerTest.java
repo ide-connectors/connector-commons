@@ -21,7 +21,7 @@ import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
-import com.atlassian.theplugin.commons.SubscribedPlan;
+import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.UIActionScheduler;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.cfg.ProjectId;

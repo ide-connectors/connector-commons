@@ -17,7 +17,7 @@
 package com.atlassian.theplugin.commons.bamboo;
 
 import com.atlassian.theplugin.bamboo.api.bamboomock.*;
-import com.atlassian.theplugin.commons.SubscribedPlan;
+import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;

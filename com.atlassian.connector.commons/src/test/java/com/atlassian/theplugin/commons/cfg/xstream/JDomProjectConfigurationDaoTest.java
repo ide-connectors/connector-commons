@@ -15,7 +15,7 @@
  */
 package com.atlassian.theplugin.commons.cfg.xstream;
 
-import com.atlassian.theplugin.commons.SubscribedPlan;
+import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
 import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;

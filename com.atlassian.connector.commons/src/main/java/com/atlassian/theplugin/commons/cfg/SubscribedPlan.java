@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.atlassian.theplugin.commons;
+package com.atlassian.theplugin.commons.cfg;
 
 /**
  * This class is immutable

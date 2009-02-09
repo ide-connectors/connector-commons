@@ -16,7 +16,6 @@
 package com.atlassian.theplugin.commons.cfg.xstream;
 
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.util.StringUtil;
 import com.thoughtworks.xstream.XStream;
 import junit.framework.TestCase;
@@ -24,12 +23,6 @@ import junit.framework.TestCase;
 import java.io.IOException;
 
 public class JDomXStreamUtilTest extends TestCase {
-
-	private static final BambooServerCfg BAMBOO = new BambooServerCfg("mybamboo", new ServerId());
-
-	static {
-//		BAMBOO.getSubscribedPlans().add(new SuppressWarnings())
-	}
 
 	public void testBambooServerCfg() throws IOException {
 		final XStream xstream = JDomXStreamUtil.getProjectJDomXStream();

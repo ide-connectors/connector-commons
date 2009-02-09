@@ -18,7 +18,6 @@ package com.atlassian.theplugin.commons.cfg;
 import junit.framework.TestCase;
 import static com.spartez.util.junit3.TestUtil.assertNotEquals;
 import com.spartez.util.junit3.TestUtil;
-import com.atlassian.theplugin.commons.SubscribedPlan;
 
 /**
  * BambooServerCfg Tester.

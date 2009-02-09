@@ -16,7 +16,6 @@
 package com.atlassian.theplugin.commons.cfg;
 
 import com.atlassian.theplugin.commons.ServerType;
-import com.atlassian.theplugin.commons.SubscribedPlan;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 
 import java.util.Collection;

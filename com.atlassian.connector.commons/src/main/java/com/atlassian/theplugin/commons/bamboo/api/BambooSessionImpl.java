@@ -312,9 +312,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 			final List<Element> elements = XPath.newInstance("/response").selectNodes(doc);
 			if (elements != null && !elements.isEmpty()) {
 				Element e = elements.iterator().next();
-				BambooBuildInfo build = constructBuildItem(e, new Date(), isPlanEnabled);
-				build.setCommiters(constructBuildCommiters(doc));
-				return build;
+				final Set<String> commiters = constructBuildCommiters(doc);
+				return constructBuildItem(e, new Date(), isPlanEnabled, commiters);
 			} else {
 				return constructBuildErrorInfo(planKey, "Malformed server reply: no response element", new Date());
 			}
@@ -558,8 +557,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 	}
 
-	private BambooBuildInfo constructBuildItem(Element buildItemNode, Date lastPollingTime, boolean isEnabled)
-			throws RemoteApiException {
+	private BambooBuildInfo constructBuildItem(Element buildItemNode, Date lastPollingTime, boolean isEnabled,
+			@Nullable Set<String> commiters) throws RemoteApiException {
 
 		final String planKey = getChildText(buildItemNode, "buildKey");
 		final String buildName = getChildText(buildItemNode, "buildName");
@@ -587,6 +586,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 				.completionTime(completionTime)
 				.relativeBuildDate(relativeBuildDate)
 				.durationDescription(durationDescription)
+				.commiters(commiters)
 				.build();
 	}
 

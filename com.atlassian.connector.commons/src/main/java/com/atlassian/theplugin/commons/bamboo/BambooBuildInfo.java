@@ -20,10 +20,10 @@ import com.atlassian.theplugin.commons.RequestDataInfo;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.Collection;
 import java.util.TreeSet;
+import java.util.HashSet;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,7 +50,7 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 	private final Date buildCompletedDate;
 	public static final String BUILD_SUCCESSFUL = "Successful";
 	public static final String BUILD_FAILED = "Failed";
-	private Set<String> commiters = new HashSet<String>();
+	private final Set<String> commiters;
 
 
 	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @Nullable String serverUrl,
@@ -58,7 +58,7 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 			@Nullable String buildReason, @Nullable Date startTime, @Nullable String buildTestSummary,
 			@Nullable String commitComment, final int testsPassedCount, final int testsFailedCount,
 			@Nullable Date completedDate, @Nullable String message, @Nullable String relativeBuildDate,
-			@Nullable String buildDurationDescription) {
+			@Nullable String buildDurationDescription, @Nullable Collection<String> commiters) {
 		this.planKey = planKey;
 		this.planName = planName;
 		this.serverUrl = serverUrl;
@@ -76,6 +76,11 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		this.buildDurationDescription = buildDurationDescription;
 		this.buildTime =  (startTime != null) ? new Date(startTime.getTime()) : null;
 		this.buildCompletedDate =  (completedDate != null) ? new Date(completedDate.getTime()) : null;
+		if (commiters != null) {
+			this.commiters = new TreeSet<String>(commiters);
+		} else {
+			this.commiters = new HashSet<String>();
+		}
 	}
 
 	public BambooServerCfg getServer() {
@@ -200,12 +205,6 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		return commiters;
 	}
 
-	public void setCommiters(final Collection<String> commiters) {
-		if (commiters != null) {
-			this.commiters = new TreeSet<String>(commiters);
-		}
-	}
-
 	@SuppressWarnings({"InnerClassFieldHidesOuterClassField"})
 	public static class Builder {
 		private String planKey;
@@ -316,8 +315,7 @@ public class BambooBuildInfo extends RequestDataInfo implements BambooBuild {
 		public BambooBuildInfo build() {
 			final BambooBuildInfo buildInfo = new BambooBuildInfo(planKey, planName, serverUrl, projectName, isEnabled,
 					buildNumber, buildState, buildReason, startTime, testSummary, commitComment, testsPassedCount,
-					testsFailedCount, completionTime, message, relativeBuildDate, durationDescription);
-			buildInfo.setCommiters(commiters);
+					testsFailedCount, completionTime, message, relativeBuildDate, durationDescription, commiters);
 			if (pollingTime != null) {
 				buildInfo.setPollingTime(pollingTime);
 			}

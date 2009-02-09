@@ -130,23 +130,19 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 		BambooServerCfg server = new BambooServerCfg("name", new ServerId(ServerID));
 		server.setUsername(loggedUser);
 		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_BUILD_NAME, server,
-				DEFAULT_PROJECT_NAME, buildNumber).enabled(true).commiters(COMMITERS);
+				DEFAULT_PROJECT_NAME, buildNumber, status).enabled(true).commiters(COMMITERS);
 
 		switch (status) {
 			case UNKNOWN:
-				builder.state("Unknown");
 				builder.message(DEFAULT_ERROR_MESSAGE);
 				break;
 			case BUILD_SUCCEED:
-				builder.state(BambooBuildInfo.BUILD_SUCCESSFUL);
 				builder.startTime(new Date());
 				break;
 			case BUILD_FAILED:
-				builder.state(BambooBuildInfo.BUILD_FAILED);
 				builder.startTime(new Date());
 				break;
 			case BUILD_DISABLED:
-				builder.state(BambooBuildInfo.BUILD_FAILED);
 				builder.startTime(new Date());
 				builder.enabled(false);
 				break;

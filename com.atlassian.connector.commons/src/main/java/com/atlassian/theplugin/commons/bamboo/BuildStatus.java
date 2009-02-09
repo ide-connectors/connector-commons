@@ -28,6 +28,7 @@ public enum BuildStatus {
 		this.name = name;
 	}
 
+	@Override
 	public String toString() {
 		return name;
 	}

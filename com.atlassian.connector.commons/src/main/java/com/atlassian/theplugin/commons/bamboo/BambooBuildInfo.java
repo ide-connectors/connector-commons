@@ -34,7 +34,8 @@ public class BambooBuildInfo implements BambooBuild {
 	private final String planName;
 	private final String planKey;
 	private final boolean enabled;
-	private final String buildState;
+	@NotNull
+	private final BuildStatus buildState;
 	private final String buildNumber;
 	private final String buildReason;
 	private final String buildRelativeBuildDate;
@@ -47,14 +48,12 @@ public class BambooBuildInfo implements BambooBuild {
 
 	private final Date buildTime;
 	private final Date buildCompletedDate;
-	public static final String BUILD_SUCCESSFUL = "Successful";
-	public static final String BUILD_FAILED = "Failed";
 	private final Set<String> commiters;
 
 
 	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerCfg bambooServerCfg,
 			@NotNull Date pollingTime, @Nullable String projectName, boolean isEnabled, @Nullable String buildNumber,
-			@Nullable String buildState, @Nullable String buildReason, @Nullable Date startTime,
+			@NotNull BuildStatus buildState, @Nullable String buildReason, @Nullable Date startTime,
 			@Nullable String buildTestSummary, @Nullable String commitComment, final int testsPassedCount,
 			final int testsFailedCount, @Nullable Date completedDate, @Nullable String message,
 			@Nullable String relativeBuildDate, @Nullable String buildDurationDescription,
@@ -149,14 +148,9 @@ public class BambooBuildInfo implements BambooBuild {
 		return commitComment;
 	}
 
+	@NotNull
 	public BuildStatus getStatus() {
-		if (BUILD_SUCCESSFUL.equalsIgnoreCase(buildState)) {
-			return BuildStatus.BUILD_SUCCEED;
-		} else if (BUILD_FAILED.equalsIgnoreCase(buildState)) {
-			return BuildStatus.BUILD_FAILED;
-		} else {
-			return BuildStatus.UNKNOWN;
-		}
+		return buildState;
 	}
 
 	public String getMessage() {
@@ -208,13 +202,14 @@ public class BambooBuildInfo implements BambooBuild {
 
 	@SuppressWarnings({"InnerClassFieldHidesOuterClassField"})
 	public static class Builder {
-		private String planKey;
-		private String planName;
+		private final String planKey;
+		private final String planName;
 		private final BambooServerCfg bambooServerCfg;
-		private String projectName;
+		private final String projectName;
 		private final String buildNumber;
+		@NotNull
+		private final BuildStatus buildState;
 		private boolean isEnabled = true;
-		private String buildState;
 		private String message;
 		private Date startTime;
 		private Collection<String> commiters;
@@ -233,12 +228,13 @@ public class BambooBuildInfo implements BambooBuild {
 		private String durationDescription;
 
 		public Builder(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerCfg bambooServerCfg,
-				@Nullable String projectName, @Nullable String buildNumber) {
+				@Nullable String projectName, @Nullable String buildNumber, @NotNull BuildStatus state) {
 			this.planKey = planKey;
 			this.planName = planName;
 			this.bambooServerCfg = bambooServerCfg;
 			this.projectName = projectName;
 			this.buildNumber = buildNumber;
+			this.buildState = state;
 		}
 
 		public Builder enabled(boolean aIsEnabled) {
@@ -248,11 +244,6 @@ public class BambooBuildInfo implements BambooBuild {
 
 		public Builder reason(String aReason) {
 			this.buildReason = aReason;
-			return this;
-		}
-
-		public Builder state(String aState) {
-			this.buildState = aState;
 			return this;
 		}
 
@@ -317,7 +308,6 @@ public class BambooBuildInfo implements BambooBuild {
 			return new BambooBuildInfo(planKey, planName, bambooServerCfg, pollingTime, projectName, 
 					isEnabled, buildNumber, buildState, buildReason, startTime, testSummary, commitComment, testsPassedCount,
 					testsFailedCount, completionTime, message, relativeBuildDate, durationDescription, commiters);
-
 		}
 	}
 }

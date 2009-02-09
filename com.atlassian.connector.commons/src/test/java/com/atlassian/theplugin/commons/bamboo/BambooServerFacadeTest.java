@@ -159,9 +159,9 @@ public class BambooServerFacadeTest extends TestCase {
 		implTestBuildCompletedDate(-5);
 	}
 
-	private BambooBuild createBambooBuildInfo(BambooServerCfg bambooServerCfg,
+	private BambooBuild createBambooBuildInfo(BambooServerCfg serverCfg,
 			String planKey, String planName, DateTime buildCompletionDate) {
-		return new BambooBuildInfo.Builder(planKey, planName, bambooServerCfg, null, "123")
+		return new BambooBuildInfo.Builder(planKey, planName, serverCfg, null, "123", BuildStatus.UNKNOWN)
 				.completionTime(buildCompletionDate.toDate())
 				.build();
 	}

@@ -69,6 +69,9 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 	private static final String AUTHENTICATION_ERROR_MESSAGE = "User not authenticated yet, or session timed out";
 	private static final String BUILD_COMPLETED_DATE_ELEM = "buildCompletedDate";
+	private static final String BUILD_SUCCESSFUL = "Successful";
+	private static final String BUILD_FAILED = "Failed";
+
 
 	private final BambooServerCfg bambooServerCfg; 
 
@@ -543,8 +546,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	BambooBuildInfo constructBuildErrorInfo(String planKey, String message, Date lastPollingTime) {
-		return new BambooBuildInfo.Builder(planKey, null, bambooServerCfg, null, null)
-				.state(BuildStatus.UNKNOWN.toString())
+		return new BambooBuildInfo.Builder(planKey, null, bambooServerCfg, null, null, BuildStatus.UNKNOWN)
 				.pollingTime(lastPollingTime)
 				.message(message).build();
 	}
@@ -573,9 +575,9 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 				: startTime;
 		final String durationDescription = getChildText(buildItemNode, "buildDurationDescription");
 
-		return new BambooBuildInfo.Builder(planKey, buildName, bambooServerCfg, projectName, buildNumber)
+		final String stateStr = getChildText(buildItemNode, "buildState");
+		return new BambooBuildInfo.Builder(planKey, buildName, bambooServerCfg, projectName, buildNumber, getStatus(stateStr))
 				.enabled(isEnabled)
-				.state(getChildText(buildItemNode, "buildState"))
 				.pollingTime(lastPollingTime)
 				.reason(getChildText(buildItemNode, "buildReason"))
 				.startTime(startTime)
@@ -588,6 +590,17 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 				.durationDescription(durationDescription)
 				.commiters(commiters)
 				.build();
+	}
+
+	@NotNull
+	private BuildStatus getStatus(@Nullable String stateStr) {
+		if (BUILD_SUCCESSFUL.equalsIgnoreCase(stateStr)) {
+			return BuildStatus.BUILD_SUCCEED;
+		} else if (BUILD_FAILED.equalsIgnoreCase(stateStr)) {
+			return BuildStatus.BUILD_FAILED;
+		} else {
+			return BuildStatus.UNKNOWN;
+		}
 	}
 
 	private Date parseDateUniversal(@Nullable String dateStr, @NotNull String element) throws RemoteApiException {

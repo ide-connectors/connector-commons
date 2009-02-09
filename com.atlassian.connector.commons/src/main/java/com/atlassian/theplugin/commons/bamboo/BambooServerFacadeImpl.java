@@ -369,9 +369,8 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 
 
     private BambooBuild constructBuildErrorInfo(BambooServerCfg server, String planKey, String planName, String message) {
-		return new BambooBuildInfo.Builder(planKey, null, server, planName, null)
+		return new BambooBuildInfo.Builder(planKey, null, server, planName, null, BuildStatus.UNKNOWN)
 				.message(message)
-				.state(BuildStatus.UNKNOWN.toString())
 				.pollingTime(new Date())
 				.build();
 	}

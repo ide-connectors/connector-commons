@@ -79,7 +79,8 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 		// test: empty builds (error connection) should be considered as unknown builds
 		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
-		final BambooBuildInfo buildUnknown = new BambooBuildInfo.Builder("whatever", null, BAMBOO, null, null).build();
+		final BambooBuildInfo buildUnknown = new BambooBuildInfo.Builder("whatever", null, BAMBOO, null, null,
+				BuildStatus.UNKNOWN).build();
 		builds.add(buildUnknown);
 		bambooListener.updateBuildStatuses(builds);
 
@@ -311,23 +312,19 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 	public static BambooBuild generateBuildInfo(BuildStatus status) {
 		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_PLAN_NAME, BAMBOO,
-				DEFAULT_PROJECT_NAME, String.valueOf(DEFAULT_BUILD_NO)).enabled(true).pollingTime(new Date());
+				DEFAULT_PROJECT_NAME, String.valueOf(DEFAULT_BUILD_NO), status).enabled(true).pollingTime(new Date());
 
 		switch (status) {
 			case UNKNOWN:
-				builder.state("Unknown");
 				builder.message(DEFAULT_ERROR_MESSAGE);
 				break;
 			case BUILD_SUCCEED:
-				builder.state(BambooBuildInfo.BUILD_SUCCESSFUL);
 				builder.startTime(new Date());
 				break;
 			case BUILD_FAILED:
-				builder.state(BambooBuildInfo.BUILD_FAILED);
 				builder.startTime(new Date());
 				break;
 			case BUILD_DISABLED:
-				builder.state(BambooBuildInfo.BUILD_FAILED);
 				builder.startTime(new Date());
 				builder.enabled(false);
 				break;
@@ -339,20 +336,19 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 	public static BambooBuild generateDisabledBuildInfo(BuildStatus status) {
 		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_PLAN_NAME, BAMBOO,
-				DEFAULT_PROJECT_NAME, String.valueOf(DEFAULT_BUILD_NO)).enabled(false).pollingTime(new Date());
+				DEFAULT_PROJECT_NAME, String.valueOf(DEFAULT_BUILD_NO), status).enabled(false).pollingTime(new Date());
 
 		switch (status) {
 			case UNKNOWN:
-				builder.state("Unknown");
 				builder.message(DEFAULT_ERROR_MESSAGE);
 				break;
 			case BUILD_SUCCEED:
-				builder.state("Successful");
 				builder.startTime(new Date());
 				break;
 			case BUILD_FAILED:
-				builder.state("Failed");
 				builder.startTime(new Date());
+				break;
+			default:
 				break;
 		}
 
@@ -361,20 +357,19 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 	public static BambooBuild generateBuildInfo2(BuildStatus status) {
 		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY_2, DEFAULT_PLAN_NAME, BAMBOO,
-				DEFAULT_PROJECT_NAME, String.valueOf(DEFAULT_BUILD_NO)).pollingTime(new Date());
+				DEFAULT_PROJECT_NAME, String.valueOf(DEFAULT_BUILD_NO), status).pollingTime(new Date());
 
         switch (status) {
 			case UNKNOWN:
-				builder.state("Unknown");
 				builder.message(DEFAULT_ERROR_MESSAGE);
 				break;
 			case BUILD_SUCCEED:
-				builder.state("Successful");
 				builder.startTime(new Date());
 				break;
 			case BUILD_FAILED:
-				builder.state("Failed");
 				builder.startTime(new Date());
+				break;
+			default:
 				break;
 		}
 

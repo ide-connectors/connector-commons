@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Set;
 
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Build information retrieved from Bamboo server.
@@ -45,6 +46,7 @@ public interface BambooBuild {
 
     String getBuildResultUrl();
 
+	@NotNull
 	BuildStatus getStatus();
 
 	String getMessage();

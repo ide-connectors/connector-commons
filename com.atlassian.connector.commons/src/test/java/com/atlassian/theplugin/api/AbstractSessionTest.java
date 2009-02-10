@@ -34,7 +34,6 @@ public abstract class AbstractSessionTest extends TestCase {
 		server.start();		
 
 		mockBaseUrl = "http://localhost:" + server.getConnectors()[0].getLocalPort();
-
 		mockServer = new JettyMockServer(server);
     }
 

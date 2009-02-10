@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.EnumSet;
 
 public class ReviewAdapter {
 	private Review review;
@@ -138,11 +139,11 @@ public class ReviewAdapter {
 		return review.getGeneralComments();
 	}
 
-	public List<Action> getTransitions() throws ValueNotYetInitialized {
+	public EnumSet<CrucibleAction> getTransitions() throws ValueNotYetInitialized {
 		return review.getTransitions();
 	}
 
-	public Set<Action> getActions() throws ValueNotYetInitialized {
+	public EnumSet<CrucibleAction> getActions() throws ValueNotYetInitialized {
 		return review.getActions();
 	}
 

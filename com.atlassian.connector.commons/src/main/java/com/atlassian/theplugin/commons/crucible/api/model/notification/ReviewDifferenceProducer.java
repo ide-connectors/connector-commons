@@ -1,8 +1,8 @@
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
-import com.atlassian.theplugin.commons.crucible.api.model.Action;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
@@ -12,6 +12,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ public class ReviewDifferenceProducer {
 	private final List<CrucibleNotification> notifications = new ArrayList<CrucibleNotification>();
 	private boolean shortEqual;
 	private boolean filesEqual;
-	private int changes = 0;
+	private int changes;
 
 	public ReviewDifferenceProducer(@NotNull final ReviewAdapter oldReview, @NotNull final ReviewAdapter newReview) {
 		this.oldReview = oldReview;
@@ -123,8 +124,8 @@ public class ReviewDifferenceProducer {
 	}
 
 	private boolean areActionsEqual() {
-		Set<Action> l = null;
-		Set<Action> r = null;
+		Set<CrucibleAction> l = null;
+		Set<CrucibleAction> r = null;
 		try {
 			l = oldReview.getActions();
 		} catch (ValueNotYetInitialized e) {	/* ignore */ }
@@ -135,8 +136,8 @@ public class ReviewDifferenceProducer {
 	}
 
 	private boolean areTransitionsEqual() {
-		List<Action> l = null;
-		List<Action> r = null;
+		EnumSet<CrucibleAction> l = null;
+		EnumSet<CrucibleAction> r = null;
 		try {
 			l = oldReview.getTransitions();
 		} catch (ValueNotYetInitialized e) {	/* ignore */ }
@@ -146,7 +147,7 @@ public class ReviewDifferenceProducer {
 		return areObjectsEqual(l, r);
 	}
 
-	private static boolean areObjectsEqual(Object oldReview, Object newReview) {
+	private static <T> boolean areObjectsEqual(T oldReview, T newReview) {
 		if (oldReview == null && newReview == null) {
 			return true;
 		}

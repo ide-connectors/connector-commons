@@ -22,13 +22,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.EnumSet;
+import java.util.Collection;
 
 
 public class ReviewBean implements Review {
 	private Set<Reviewer> reviewers;
 	private List<GeneralComment> generalComments;
-	private List<Action> transitions;
-	private Set<Action> actions;
+	private EnumSet<CrucibleAction> transitions;
+	private EnumSet<CrucibleAction> actions;
 	private User author;
 	private User creator;
 	private String description;
@@ -93,16 +95,19 @@ public class ReviewBean implements Review {
 		}
 	}
 
-	public void setTransitions(List<Action> transitions) {
-		this.transitions = transitions;
+	public void setTransitions(Collection<CrucibleAction> transitions) {
+		// as EnumSet.copyOf does not work for empty collections we use such 2-phase approach
+		this.transitions = EnumSet.noneOf(CrucibleAction.class);
+		this.transitions.addAll(transitions);
 	}
 
-	public void setActions(Set<Action> actions) {
-		this.actions = actions;
+	public void setActions(Set<CrucibleAction> actions) {
+		// as EnumSet.copyOf does not work for empty collections we use such 2-phase approach
+		this.actions = EnumSet.noneOf(CrucibleAction.class);
+		this.actions.addAll(actions);
 	}
 
 	public ReviewBean(String serverUrl) {
-		super();
 		this.serverUrl = serverUrl;
 //		reviewItems = new ArrayList<CrucibleReviewItemInfo>();
 	}
@@ -131,14 +136,14 @@ public class ReviewBean implements Review {
 
 	//	}
 
-	public List<Action> getTransitions() throws ValueNotYetInitialized {
+	public EnumSet<CrucibleAction> getTransitions() throws ValueNotYetInitialized {
 		if (transitions == null) {
 			throw new ValueNotYetInitialized("Object trasferred only partially");
 		}
 		return transitions;
 	}
 
-	public Set<Action> getActions() throws ValueNotYetInitialized {
+	public EnumSet<CrucibleAction> getActions() throws ValueNotYetInitialized {
 		if (actions == null) {
 			throw new ValueNotYetInitialized("Object trasferred only partially");
 		}
@@ -417,6 +422,7 @@ public class ReviewBean implements Review {
 
 	//	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -430,6 +436,7 @@ public class ReviewBean implements Review {
 		return !(permId != null ? !permId.equals(that.permId) : that.permId != null);
 	}
 
+	@Override
 	public int hashCode() {
 		int result;
 		result = (permId != null ? permId.hashCode() : 0);

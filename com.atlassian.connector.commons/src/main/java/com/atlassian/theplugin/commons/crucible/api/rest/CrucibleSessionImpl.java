@@ -21,7 +21,7 @@ import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.crucible.ProjectCache;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
-import com.atlassian.theplugin.commons.crucible.api.model.Action;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
@@ -1222,7 +1222,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	public List<Action> getAvailableActions(PermId permId) throws RemoteApiException {
+	public List<CrucibleAction> getAvailableActions(PermId permId) throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
@@ -1234,7 +1234,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			XPath xpath = XPath.newInstance("/actions/actionData");
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
-			List<Action> actions = new ArrayList<Action>();
+			List<CrucibleAction> actions = new ArrayList<CrucibleAction>();
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
@@ -1249,7 +1249,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	public List<Action> getAvailableTransitions(PermId permId) throws RemoteApiException {
+	public List<CrucibleAction> getAvailableTransitions(PermId permId) throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
@@ -1261,7 +1261,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			XPath xpath = XPath.newInstance("/transitions/actionData");
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
-			List<Action> transitions = new ArrayList<Action>();
+			List<CrucibleAction> transitions = new ArrayList<CrucibleAction>();
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {

@@ -518,12 +518,12 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public List<Action> getTransitions() throws ValueNotYetInitialized {
+			public EnumSet<CrucibleAction> getTransitions() throws ValueNotYetInitialized {
 				return null;
 			}
 
 			@Override
-			public Set<Action> getActions() throws ValueNotYetInitialized {
+			public EnumSet<CrucibleAction> getActions() throws ValueNotYetInitialized {
 				return null;
 			}
 
@@ -698,12 +698,12 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public List<Action> getTransitions() {
+			public EnumSet<CrucibleAction> getTransitions() {
 				return null;
 			}
 
 			@Override
-			public Set<Action> getActions() throws ValueNotYetInitialized {
+			public EnumSet<CrucibleAction> getActions() throws ValueNotYetInitialized {
 				return null;
 			}
 

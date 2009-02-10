@@ -98,8 +98,8 @@ public final class CrucibleRestXmlHelper {
 		return userDataBean;
 	}
 
-	public static Action parseActionNode(Element element) {
-		return Action.fromValue(getChildText(element, "name"));
+	public static CrucibleAction parseActionNode(Element element) {
+		return CrucibleAction.fromValue(getChildText(element, "name"));
 	}
 
 	public static ReviewerBean parseReviewerNode(Element reviewerNode) {
@@ -226,7 +226,7 @@ public final class CrucibleRestXmlHelper {
 		//	review.setReviewItems(reviewItems);
 
 		List<Element> transitionsNode = getChildElements(reviewNode, "transitions");
-		List<Action> transitions = new ArrayList<Action>();
+		List<CrucibleAction> transitions = new ArrayList<CrucibleAction>();
 		for (Element transition : transitionsNode) {
 			List<Element> trans = getChildElements(transition, "transitionData");
 			for (Element element : trans) {
@@ -236,7 +236,7 @@ public final class CrucibleRestXmlHelper {
 		review.setTransitions(transitions);
 
 		List<Element> actionsNode = getChildElements(reviewNode, "actions");
-		Set<Action> actions = new HashSet<Action>();
+		Set<CrucibleAction> actions = new HashSet<CrucibleAction>();
 		for (Element action : actionsNode) {
 			List<Element> act = getChildElements(action, "actionData");
 			for (Element element : act) {

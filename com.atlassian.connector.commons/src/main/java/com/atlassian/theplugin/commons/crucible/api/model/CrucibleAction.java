@@ -16,7 +16,7 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-public enum Action {
+public enum CrucibleAction {
     VIEW("View review", "action:viewReview"),
     CREATE("Create review", "action:createReview"),
     ABANDON("Abandon review", "action:abandonReview"),
@@ -30,18 +30,18 @@ public enum Action {
     COMPLETE("Complete review", "action:completeReview"),
     UNCOMPLETE("Uncomplete review", "action:uncompleteReview"),
     COMMENT("Comment", "action:commentOnReview"),
-    MODIFYFILES("Modify files", "action:modifyReviewFiles"),
+    MODIFY_FILES("Modify files", "action:modifyReviewFiles"),
     DELETE("Delete review", "action:deleteReview");
 
     private final String displayName;
     private final String actionName;
 
-    Action(String dName, String aName) {
+    CrucibleAction(String dName, String aName) {
         displayName = dName;
         actionName = aName;
     }
 
-    public String displayName() {
+	public String displayName() {
         return displayName;
     }
 
@@ -49,8 +49,8 @@ public enum Action {
         return actionName;
     }
 
-    public static Action fromValue(String v) {
-        for (Action c : Action.values()) {
+    public static CrucibleAction fromValue(String v) {
+        for (CrucibleAction c : CrucibleAction.values()) {
             if (c.actionName.equals(v)) {
                 return c;
             }

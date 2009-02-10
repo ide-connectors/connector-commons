@@ -22,6 +22,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.EnumSet;
+import java.util.Collection;
 
 public interface Review {
 
@@ -72,9 +74,9 @@ public interface Review {
 	@Nullable
 	CrucibleFileInfo getFileByPermId(PermId id) throws ValueNotYetInitialized;
 
-	List<Action> getTransitions() throws ValueNotYetInitialized;
+	EnumSet<CrucibleAction> getTransitions() throws ValueNotYetInitialized;
 
-	Set<Action> getActions() throws ValueNotYetInitialized;
+	EnumSet<CrucibleAction> getActions() throws ValueNotYetInitialized;
 
 	void removeGeneralComment(final GeneralComment comment);
 
@@ -88,9 +90,9 @@ public interface Review {
 
 	void setGeneralComments(List<GeneralComment> generalComments);
 
-	void setTransitions(List<Action> transitions);
+	void setTransitions(Collection<CrucibleAction> transitions);
 
-	void setActions(Set<Action> actions);
+	void setActions(Set<CrucibleAction> actions);
 
 	void setAuthor(User value);
 

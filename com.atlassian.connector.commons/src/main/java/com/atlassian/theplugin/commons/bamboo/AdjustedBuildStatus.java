@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,26 +16,22 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
-public enum BuildStatus {
+public enum AdjustedBuildStatus {
 	/** Build finished successfully */
     SUCCESS("Succeeded"),
 	/** Build failed, e.g. due to compilation or unit test failure */
     FAILURE("Failed"),
+	DISABLED("Disabled"),
 	/** Status unknown due to data retrieval problem */
     UNKNOWN("Unknown");
 
 	private String name;
 
-	BuildStatus(String name) {
+	AdjustedBuildStatus(String name) {
 		this.name = name;
-	}
-
-	@Override
-	public String toString() {
-		return name;
 	}
 
 	public String getName() {
 		return name;
 	}
-} 
+}

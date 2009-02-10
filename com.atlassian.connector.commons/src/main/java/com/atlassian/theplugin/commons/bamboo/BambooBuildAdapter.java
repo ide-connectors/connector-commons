@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,14 +23,10 @@ import java.util.Collection;
 import java.util.Date;
 
 /**
- * Created by IntelliJ IDEA.
- * User: Jacek
- * Date: 2008-05-28
- * Time: 11:47:32
- * To change this template use File | Settings | File Templates.
+ * @author Jacek Jaroczynski
  */
 public class BambooBuildAdapter {
-	protected BambooBuild build;
+	protected final BambooBuild build;
 	public static final SimpleDateFormat BAMBOO_BUILD_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public BambooBuildAdapter(BambooBuild build) {
@@ -42,19 +38,17 @@ public class BambooBuildAdapter {
 	}
 
 	public String getServerName() {
-		if (build.getServer() != null) {
-			return build.getServer().getName() == null ? "" : build.getServer().getName();
+		final BambooServerCfg server = build.getServer();
+		if (server != null) {
+			return server.getName() == null ? "" : server.getName();
 		} else {
 			return "";
 		}
 	}
 
 	public boolean isBamboo2() {
-		if (build.getServer() != null) {
-			return build.getServer().isBamboo2();
-		} else {
-			return false;
-		}
+		final BambooServerCfg server = build.getServer();
+		return server != null && server.isBamboo2();
 	}
 
 	public Collection<String> getCommiters() {
@@ -133,7 +127,7 @@ public class BambooBuildAdapter {
 		return build;
 	}
 
-		public boolean isMyBuild() {
+	public boolean isMyBuild() {
 		return build.isMyBuild();
 	}
 }

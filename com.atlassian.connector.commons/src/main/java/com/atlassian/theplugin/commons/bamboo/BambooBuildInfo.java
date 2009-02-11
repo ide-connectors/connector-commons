@@ -233,7 +233,7 @@ public class BambooBuildInfo implements BambooBuild {
 			this.buildState = state;
 			planName = null;
 			projectName = null;
-			buildNumber= null;
+			buildNumber = null;
 		}
 
 		public Builder(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerCfg bambooServerCfg,

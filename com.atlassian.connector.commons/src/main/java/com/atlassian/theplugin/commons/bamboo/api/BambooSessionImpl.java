@@ -559,8 +559,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 	}
 
-	private BambooBuildInfo constructBuildItem(Element buildItemNode, Date lastPollingTime, final String aPlanKey, boolean isEnabled,
-			@Nullable Set<String> commiters) throws RemoteApiException {
+	private BambooBuildInfo constructBuildItem(Element buildItemNode, Date lastPollingTime, final String aPlanKey,
+			boolean isEnabled, @Nullable Set<String> commiters) throws RemoteApiException {
 
 		// for never executed build we actually have no data here (no children)
 		if (buildItemNode.getChildren().iterator().hasNext() == false) {

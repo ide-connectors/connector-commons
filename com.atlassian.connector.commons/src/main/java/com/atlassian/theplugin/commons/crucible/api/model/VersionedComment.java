@@ -16,7 +16,11 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import com.atlassian.connector.commons.misc.IntRanges;
+
 import java.util.List;
+
+import org.jetbrains.annotations.Nullable;
 
 public interface VersionedComment extends Comment {
 	PermId getPermId();
@@ -36,4 +40,16 @@ public interface VersionedComment extends Comment {
 	int getFromEndLine();
 
     List<VersionedComment> getReplies();
+
+	/**
+	 * @return precise information about lines this comment references in "from" revision 
+	 */
+	@Nullable
+	IntRanges getFromLineRanges();
+
+	/**
+	 * @return precise information about lines this comment references in "to" revision
+	 */
+	@Nullable
+	IntRanges getToLineRanges();
 }

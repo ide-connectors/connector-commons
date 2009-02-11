@@ -28,16 +28,21 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.*;
 import com.atlassian.theplugin.remoteapi.ErrorResponse;
+import com.atlassian.connector.commons.misc.IntRanges;
+import com.atlassian.connector.commons.misc.IntRange;
 import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.mortbay.jetty.Server;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -116,7 +121,7 @@ public class CrucibleSessionTest extends TestCase {
 		mockServer.verify();
 	}
 
-	public void testSuccessBambooLoginURLWithSlash() throws Exception {
+	public void testSuccessCrucibleLoginURLWithSlash() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl + "/", USER_NAME, PASSWORD);
@@ -148,7 +153,7 @@ public class CrucibleSessionTest extends TestCase {
 		}
 	}
 
-	public void testWrongUrlBambooLogin() throws Exception {
+	public void testWrongUrlCrucibleLogin() throws Exception {
 		ErrorResponse error = new ErrorResponse(400, "Bad Request");
 		mockServer.expect("/wrongurl/rest-service/auth-v1/login", error);
 		RemoteApiLoginException exception = null;
@@ -167,7 +172,7 @@ public class CrucibleSessionTest extends TestCase {
 		assertTrue(exception.getMessage().contains(error.getErrorMessage()));
 	}
 
-	public void testNonExistingServerBambooLogin() throws Exception {
+	public void testNonExistingServerCrucibleLogin() throws Exception {
 		RemoteApiLoginException exception = null;
 
 		try {
@@ -775,6 +780,119 @@ public class CrucibleSessionTest extends TestCase {
 		serverCfg.setUsername(username);
 		serverCfg.setPassword(password);
 		return new CrucibleSessionImpl(serverCfg, new HttpSessionCallbackImpl());
+	}
+
+	public void testGetReviewDetailsWithAddedFile() throws Exception {
+		PermId permId = new PermIdBean("CR-4");
+
+		final Review review = getReview(permId, "reviewDetailsResponse-withAddedFile.xml", 2);
+		assertNotNull(review);
+		assertTrue(review.isAllowReviewerToJoin());
+		assertEquals(permId, review.getPermId());
+		assertEquals("CR", review.getProjectKey());
+		final Set<CrucibleFileInfo> files = review.getFiles();
+		assertEquals(3, files.size());
+		CrucibleFileInfo fileInfo = null;
+		for (CrucibleFileInfo crucibleFileInfo : files) {
+			if (crucibleFileInfo.getFileDescriptor().getName().contains("AdjustedBuildStatus.java")) {
+				fileInfo = crucibleFileInfo;
+				break;
+			}
+		}
+		assertNotNull(fileInfo);
+		final List<VersionedComment> vcs = fileInfo.getVersionedComments();
+		assertEquals(2, vcs.size());
+
+		//		<toLineRange>14, 17-19, 25-35</toLineRange>
+
+		final VersionedComment vc1 = vcs.get(0);
+		assertEquals("CMT:910", vc1.getPermId().getId());
+		assertEquals(0, vc1.getFromStartLine());
+		assertEquals(0, vc1.getFromEndLine());
+		assertFalse(vc1.isFromLineInfo());
+		assertTrue(vc1.isToLineInfo());
+		assertEquals(14, vc1.getToStartLine());
+		assertEquals(35, vc1.getToEndLine());
+		assertEquals(new IntRanges(new IntRange(14), new IntRange(17, 19), new IntRange(25, 35)),
+				vc1.getToLineRanges());
+		assertNull(vc1.getFromLineRanges());
+
+		//		<toLineRange>3-5</toLineRange>
+
+		final VersionedComment vc2 = vcs.get(1);
+		assertEquals("CMT:909", vc2.getPermId().getId());
+		assertFalse(vc2.isFromLineInfo());
+		assertEquals(0, vc2.getFromStartLine());
+		assertEquals(0, vc2.getFromEndLine());
+		assertTrue(vc2.isToLineInfo());
+		assertEquals(3, vc2.getToStartLine());
+		assertEquals(5, vc2.getToEndLine());
+		assertNull(vc2.getFromLineRanges());
+		assertEquals(new IntRanges(new IntRange(3, 5)), vc2.getToLineRanges());
+	}
+
+	public void testGetReviewDetails() throws Exception {
+		PermId permId = new PermIdBean("TST-9");
+
+		final Review review = getReview(permId, "reviewDetailsResponse.xml", 1);
+		assertNotNull(review);
+		assertFalse(review.isAllowReviewerToJoin());
+		assertEquals(permId, review.getPermId());
+		assertEquals("TST", review.getProjectKey());
+		final Set<CrucibleFileInfo> files = review.getFiles();
+		assertEquals(1, files.size());
+		final CrucibleFileInfo fileInfo = files.iterator().next();
+		final List<VersionedComment> vcs = fileInfo.getVersionedComments();
+		assertEquals(2, vcs.size());
+
+		//		<fromLineRange>61, 65-66, 77, 79-80</fromLineRange>
+		//		<toLineRange>61, 66-67, 78, 80-82</toLineRange>
+
+		final VersionedComment vc1 = vcs.get(0);
+		assertEquals("CMT:908", vc1.getPermId().getId());
+		assertEquals(61, vc1.getFromStartLine());
+		assertEquals(80, vc1.getFromEndLine());
+		assertEquals(61, vc1.getToStartLine());
+		assertEquals(82, vc1.getToEndLine());
+		assertEquals(new IntRanges(new IntRange(61), new IntRange(65, 66), new IntRange(77), new IntRange(79, 80)),
+				vc1.getFromLineRanges());
+		assertEquals(new IntRanges(new IntRange(61), new IntRange(66, 67), new IntRange(78), new IntRange(80, 82)),
+				vc1.getToLineRanges());
+
+		//		<fromLineRange>64-65, 79-80</fromLineRange>
+		//		<toLineRange>65-66, 80, 82</toLineRange>
+
+		final VersionedComment vc2 = vcs.get(1);
+		assertEquals("CMT:907", vc2.getPermId().getId());
+		assertEquals(64, vc2.getFromStartLine());
+		assertEquals(80, vc2.getFromEndLine());
+		assertEquals(65, vc2.getToStartLine());
+		assertEquals(82, vc2.getToEndLine());
+		assertEquals(new IntRanges(new IntRange(64, 65), new IntRange(79, 80)), vc2.getFromLineRanges());
+		assertEquals(new IntRanges(new IntRange(65, 66), new IntRange(80), new IntRange(82)), vc2.getToLineRanges());
+	}
+
+
+	private Review getReview(final PermId permId, final String resource, int numRepos) throws RemoteApiException {
+		final int size = 4;
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/rest-service/reviews-v1/" + permId.getId() + "/details", new JettyMockServer.Callback() {
+			public void onExpectedRequest(final String target, final HttpServletRequest request, final HttpServletResponse response)
+					throws Exception {
+				Util.copyResource(response.getOutputStream(), resource);
+				response.getOutputStream().flush();
+			}
+		});
+		mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(size));
+		for (int i = 0; i < numRepos; i++) {
+			mockServer.expect("/rest-service/repositories-v1", new GetRepositoriesCallback(size));
+		}
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
+
+		apiHandler.login();
+		final Review review = apiHandler.getReview(permId, true);
+		mockServer.verify();
+		return review;
 	}
 
 }

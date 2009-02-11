@@ -16,18 +16,22 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import com.atlassian.connector.commons.misc.IntRanges;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class VersionedCommentBean extends CommentBean implements VersionedComment {
 	private PermId reviewItemId;
-	private int fromStartLine = 0;
-	private int fromEndLine = 0;
-	private boolean fromLineInfo = false;
-	private int toStartLine = 0;
-	private int toEndLine = 0;
-	private boolean toLineInfo = false;
+	private int fromStartLine;
+	private int fromEndLine;
+	private boolean fromLineInfo;
+	private int toStartLine;
+	private int toEndLine;
+	private boolean toLineInfo;
+	private IntRanges toLineRanges;
 	private List<VersionedComment> replies = new ArrayList<VersionedComment>();
+	private IntRanges fromLineRanges;
 
 	public VersionedCommentBean(VersionedComment bean) {
 		super(bean);
@@ -45,7 +49,6 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 	}
 
 	public VersionedCommentBean() {
-		super();
 	}
 
 
@@ -73,6 +76,22 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		return replies;
 	}
 
+	public IntRanges getFromLineRanges() {
+		return fromLineRanges;
+	}
+
+	public void setFromLineRanges(final IntRanges fromLineRanges) {
+		this.fromLineRanges = fromLineRanges;
+	}
+
+	public IntRanges getToLineRanges() {
+		return toLineRanges;
+	}
+
+	public void setToLineRanges(IntRanges toLineRanges) {
+		this.toLineRanges = toLineRanges;
+	}
+	
 	public void setReplies(List<VersionedComment> replies) {
 		this.replies = replies;
 	}

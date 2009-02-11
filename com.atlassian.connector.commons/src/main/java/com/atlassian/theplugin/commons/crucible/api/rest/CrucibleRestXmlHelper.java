@@ -20,12 +20,15 @@ import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.CrucibleVersion;
 import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
 import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.connector.commons.misc.IntRangesParser;
+import com.atlassian.connector.commons.misc.IntRanges;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.CDATA;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -38,6 +41,7 @@ public final class CrucibleRestXmlHelper {
 	}
 	///CLOVER:ON
 
+	@NotNull
 	public static String getChildText(Element node, String childName) {
 		final Element child = node.getChild(childName);
 		if (child != null) {
@@ -683,45 +687,33 @@ public final class CrucibleRestXmlHelper {
 		}
 
 		if (reviewCommentNode.getChild("fromLineRange") != null) {
-			String toLineRange = getChildText(reviewCommentNode, "fromLineRange");
-			String[] tokens = toLineRange.split("-");
-			if (tokens.length > 0) {
-				comment.setFromLineInfo(true);
+			final String fromLineRange = getChildText(reviewCommentNode, "fromLineRange");
+			if (fromLineRange.trim().length() > 0) {
 				try {
-					int start = Integer.parseInt(tokens[0]);
-					comment.setFromStartLine(start);
+					final IntRanges intRanges = IntRangesParser.parse(fromLineRange);
+					comment.setFromLineRanges(intRanges);
+					comment.setFromLineInfo(true);
+					comment.setFromStartLine(intRanges.getTotalMin());
+					comment.setFromEndLine(intRanges.getTotalMax());
+
 				} catch (NumberFormatException e) {
-					// leave 0 value
-				}
-				if (tokens.length > 1) {
-					try {
-						int stop = Integer.parseInt(tokens[1]);
-						comment.setFromEndLine(stop);
-					} catch (NumberFormatException e) {
-						// leave 0 value
-					}
+					// @todo add some logging here at least
 				}
 			}
 		}
 
 		if (reviewCommentNode.getChild("toLineRange") != null) {
-			String toLineRange = getChildText(reviewCommentNode, "toLineRange");
-			String[] tokens = toLineRange.split("-");
-			if (tokens.length > 0) {
-				comment.setToLineInfo(true);
+			final String toLineRange = getChildText(reviewCommentNode, "toLineRange");
+			if (toLineRange.trim().length() > 0) {
 				try {
-					int start = Integer.parseInt(tokens[0]);
-					comment.setToStartLine(start);
+					final IntRanges intRanges = IntRangesParser.parse(toLineRange);
+					comment.setToLineRanges(intRanges);
+					comment.setToLineInfo(true);
+					comment.setToStartLine(intRanges.getTotalMin());
+					comment.setToEndLine(intRanges.getTotalMax());
+
 				} catch (NumberFormatException e) {
-					// leave 0 value
-				}
-				if (tokens.length > 1) {
-					try {
-						int stop = Integer.parseInt(tokens[1]);
-						comment.setToEndLine(stop);
-					} catch (NumberFormatException e) {
-						// leave 0 value
-					}
+					// @todo add some logging here at least
 				}
 			}
 		}

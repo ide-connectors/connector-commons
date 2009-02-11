@@ -18,6 +18,7 @@ package com.atlassian.connector.commons.misc;
 public final class IntRange {
 	private final int min;
 	private final int max;
+	private static final int MAGIC = 31;
 
 	public IntRange(final int number) {
 		this.min = number;
@@ -78,7 +79,7 @@ public final class IntRange {
 	@Override
 	public int hashCode() {
 		int result = min;
-		result = 31 * result + max;
+		result = MAGIC * result + max;
 		return result;
 	}
 }

@@ -71,7 +71,7 @@ public class BambooBuildAdapter {
 		return build.getBuildKey() == null ? "" : build.getBuildKey();
 	}
 
-	public boolean getEnabled() {
+	public boolean isEnabled() {
 		return build.getEnabled();
 	}
 
@@ -85,10 +85,6 @@ public class BambooBuildAdapter {
 
 	public BuildStatus getStatus() {
 		return build.getStatus();
-	}
-
-	public String getMessage() {
-		return build.getMessage() == null ? "" : build.getMessage();
 	}
 
 	public int getTestsPassed() {

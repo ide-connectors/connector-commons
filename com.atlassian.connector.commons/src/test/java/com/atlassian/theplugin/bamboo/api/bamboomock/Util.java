@@ -59,7 +59,7 @@ public abstract class Util {
 		Assert.assertEquals(baseUrl, build.getServerUrl());
 		Assert.assertEquals(baseUrl + "/browse/TP-DEF-140", build.getBuildResultUrl());
 		Assert.assertEquals(baseUrl + "/browse/TP-DEF", build.getBuildUrl());
-		Assert.assertNull(build.getMessage());
+		Assert.assertNull(build.getErrorMessage());
 	}
 
 	public static void verifyFailedBuildResult(BambooBuild build, String baseUrl) {
@@ -73,26 +73,27 @@ public abstract class Util {
 		Assert.assertEquals(baseUrl, build.getServerUrl());
 		Assert.assertEquals(baseUrl + "/browse/TP-DEF-141", build.getBuildResultUrl());
 		Assert.assertEquals(baseUrl + "/browse/TP-DEF", build.getBuildUrl());
-		Assert.assertNull(build.getMessage());
+		Assert.assertNull(build.getErrorMessage());
 	}
 
 	public static void verifyErrorBuildResult(BambooBuild build) {
 		Assert.assertSame(BuildStatus.UNKNOWN, build.getStatus());
 		Assert.assertTrue(build.getPollingTime().getTime() - System.currentTimeMillis() < 5000);
-		Assert.assertEquals("The user does not have sufficient permissions to perform this action.\n", build.getMessage());
+		Assert.assertEquals("The user does not have sufficient permissions to perform this action.\n", build.getErrorMessage());
 	}
 
 	public static void verifyLoginErrorBuildResult(BambooBuild build) {
 		Assert.assertSame(BuildStatus.UNKNOWN, build.getStatus());
 		Assert.assertTrue(build.getPollingTime().getTime() - System.currentTimeMillis() < 5000);
-		Assert.assertEquals("The user does not have sufficient permissions to perform this action.\n", build.getMessage());
+		Assert.assertEquals("The user does not have sufficient permissions to perform this action.\n", build.getErrorMessage());
 	}
 
 	public static void verifyError400BuildResult(BambooBuild build) {
 		Assert.assertSame(BuildStatus.UNKNOWN, build.getStatus());
 		Assert.assertTrue(build.getPollingTime().getTime() - System.currentTimeMillis() < 5000);
-		Assert.assertTrue(build.getMessage().startsWith(
-				ErrorResponse.getStaticErrorMessage(HTTP_400, HTTP_400_TEXT)));
+		final String errorMessage = build.getErrorMessage();
+		Assert.assertNotNull(errorMessage);
+		Assert.assertTrue(errorMessage.startsWith(ErrorResponse.getStaticErrorMessage(HTTP_400, HTTP_400_TEXT)));
 	}
 
 

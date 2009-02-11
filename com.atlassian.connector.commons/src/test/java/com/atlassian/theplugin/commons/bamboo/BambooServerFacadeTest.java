@@ -269,9 +269,9 @@ public class BambooServerFacadeTest extends TestCase {
 		assertNotNull(plans);
 		assertEquals(3, plans.size());
 		iterator = plans.iterator();
-		assertEquals("Malformed server URL: malformed", iterator.next().getMessage());
-		assertEquals("Malformed server URL: malformed", iterator.next().getMessage());
-		assertEquals("Malformed server URL: malformed", iterator.next().getMessage());
+		assertEquals("Malformed server URL: malformed", iterator.next().getErrorMessage());
+		assertEquals("Malformed server URL: malformed", iterator.next().getErrorMessage());
+		assertEquals("Malformed server URL: malformed", iterator.next().getErrorMessage());
 
 		mockServer.verify();
 

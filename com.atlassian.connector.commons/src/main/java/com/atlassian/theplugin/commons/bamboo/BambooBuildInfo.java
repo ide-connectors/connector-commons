@@ -153,7 +153,7 @@ public class BambooBuildInfo implements BambooBuild {
 		return buildState;
 	}
 
-	public String getMessage() {
+	public String getErrorMessage() {
 		return this.message;
 	}
 
@@ -227,6 +227,15 @@ public class BambooBuildInfo implements BambooBuild {
 		@Nullable
 		private String durationDescription;
 
+		public Builder(@NotNull String planKey, @NotNull BambooServerCfg bambooServerCfg, @NotNull BuildStatus state) {
+			this.planKey = planKey;
+			this.bambooServerCfg = bambooServerCfg;
+			this.buildState = state;
+			planName = null;
+			projectName = null;
+			buildNumber= null;
+		}
+
 		public Builder(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerCfg bambooServerCfg,
 				@Nullable String projectName, @Nullable String buildNumber, @NotNull BuildStatus state) {
 			this.planKey = planKey;
@@ -247,7 +256,7 @@ public class BambooBuildInfo implements BambooBuild {
 			return this;
 		}
 
-		public Builder message(String aMessage) {
+		public Builder errorMessage(String aMessage) {
 			this.message = aMessage;
 			return this;
 		}

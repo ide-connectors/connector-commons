@@ -42,6 +42,7 @@ public interface BambooBuild {
 
 	boolean getEnabled();
 
+	@Nullable
 	String getBuildNumber();
 
     String getBuildResultUrl();
@@ -49,7 +50,8 @@ public interface BambooBuild {
 	@NotNull
 	BuildStatus getStatus();
 
-	String getMessage();
+	@Nullable
+	String getErrorMessage();
 
 	/**
 	 * @return human readable info about unit tests like "267 passed"

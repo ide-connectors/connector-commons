@@ -316,7 +316,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 		switch (status) {
 			case UNKNOWN:
-				builder.message(DEFAULT_ERROR_MESSAGE);
+				builder.errorMessage(DEFAULT_ERROR_MESSAGE);
 				break;
 			case SUCCESS:
 				builder.startTime(new Date());
@@ -335,7 +335,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 		switch (status) {
 			case UNKNOWN:
-				builder.message(DEFAULT_ERROR_MESSAGE);
+				builder.errorMessage(DEFAULT_ERROR_MESSAGE);
 				break;
 			case SUCCESS:
 				builder.startTime(new Date());
@@ -356,7 +356,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
         switch (status) {
 			case UNKNOWN:
-				builder.message(DEFAULT_ERROR_MESSAGE);
+				builder.errorMessage(DEFAULT_ERROR_MESSAGE);
 				break;
 			case SUCCESS:
 				builder.startTime(new Date());

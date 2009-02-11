@@ -73,7 +73,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	private static final String BUILD_FAILED = "Failed";
 
 
-	private final BambooServerCfg bambooServerCfg; 
+	private final BambooServerCfg bambooServerCfg;
 
 	/**
 	 * For testing purposes, shouldn't be public
@@ -316,7 +316,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 			if (elements != null && !elements.isEmpty()) {
 				Element e = elements.iterator().next();
 				final Set<String> commiters = constructBuildCommiters(doc);
-				return constructBuildItem(e, new Date(), isPlanEnabled, commiters);
+				return constructBuildItem(e, new Date(), planKey, isPlanEnabled, commiters);
 			} else {
 				return constructBuildErrorInfo(planKey, "Malformed server reply: no response element", new Date());
 			}
@@ -548,7 +548,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	BambooBuildInfo constructBuildErrorInfo(String planKey, String message, Date lastPollingTime) {
 		return new BambooBuildInfo.Builder(planKey, null, bambooServerCfg, null, null, BuildStatus.UNKNOWN)
 				.pollingTime(lastPollingTime)
-				.message(message).build();
+				.errorMessage(message).build();
 	}
 
 	private int parseInt(String number) throws RemoteApiException {
@@ -559,8 +559,17 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 	}
 
-	private BambooBuildInfo constructBuildItem(Element buildItemNode, Date lastPollingTime, boolean isEnabled,
+	private BambooBuildInfo constructBuildItem(Element buildItemNode, Date lastPollingTime, final String aPlanKey, boolean isEnabled,
 			@Nullable Set<String> commiters) throws RemoteApiException {
+
+		// for never executed build we actually have no data here (no children)
+		if (buildItemNode.getChildren().iterator().hasNext() == false) {
+			return new BambooBuildInfo.Builder(aPlanKey, bambooServerCfg, BuildStatus.UNKNOWN)
+					.enabled(isEnabled).pollingTime(lastPollingTime)
+					.reason("Never built")
+					.build();
+
+		}
 
 		final String planKey = getChildText(buildItemNode, "buildKey");
 		final String buildName = getChildText(buildItemNode, "buildName");
@@ -569,27 +578,20 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		final String relativeBuildDate = getChildText(buildItemNode, "buildRelativeBuildDate");
 		final Date startTime = parseBuildDate(getChildText(buildItemNode, "buildTime"), "Cannot parse buildTime.");
 		final String buildCompletedDateStr = getChildText(buildItemNode, BUILD_COMPLETED_DATE_ELEM);
-		final Date completionTime = (buildCompletedDateStr != null && buildCompletedDateStr.length() > 0)
-				? parseDateUniversal(buildCompletedDateStr, BUILD_COMPLETED_DATE_ELEM)
+		final Date completionTime = (buildCompletedDateStr != null && buildCompletedDateStr.length() > 0) ? parseDateUniversal(
+				buildCompletedDateStr, BUILD_COMPLETED_DATE_ELEM)
 				//older Bamboo versions do not generate buildCompletedDate so we set it as buildTime
 				: startTime;
 		final String durationDescription = getChildText(buildItemNode, "buildDurationDescription");
 
 		final String stateStr = getChildText(buildItemNode, "buildState");
 		return new BambooBuildInfo.Builder(planKey, buildName, bambooServerCfg, projectName, buildNumber, getStatus(stateStr))
-				.enabled(isEnabled)
-				.pollingTime(lastPollingTime)
-				.reason(getChildText(buildItemNode, "buildReason"))
-				.startTime(startTime)
-				.testSummary(getChildText(buildItemNode, "buildTestSummary"))
+				.enabled(isEnabled).pollingTime(lastPollingTime).reason(getChildText(buildItemNode, "buildReason"))
+				.startTime(startTime).testSummary(getChildText(buildItemNode, "buildTestSummary"))
 				.commitComment(getChildText(buildItemNode, "buildCommitComment"))
 				.testsPassedCount(parseInt(getChildText(buildItemNode, "successfulTestCount")))
-				.testsFailedCount(parseInt(getChildText(buildItemNode, "failedTestCount")))
-				.completionTime(completionTime)
-				.relativeBuildDate(relativeBuildDate)
-				.durationDescription(durationDescription)
-				.commiters(commiters)
-				.build();
+				.testsFailedCount(parseInt(getChildText(buildItemNode, "failedTestCount"))).completionTime(completionTime)
+				.relativeBuildDate(relativeBuildDate).durationDescription(durationDescription).commiters(commiters).build();
 	}
 
 	@NotNull
@@ -648,11 +650,11 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	private String getChildText(Element node, String childName) {
-		try {
-			return node.getChild(childName).getText();
-		} catch (Exception e) {
+		final Element child = node.getChild(childName);
+		if (child == null) {
 			return "";
 		}
+		return child.getText();
 	}
 
 	private static String getExceptionMessages(Document doc) throws JDOMException {

@@ -46,6 +46,7 @@ import org.joda.time.DateTimeZone;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Date;
 
 import junit.framework.Assert;
 
@@ -201,6 +202,45 @@ public class BambooSessionTest extends AbstractSessionTest {
 		assertEquals(expectedDate.toDate(), build.getBuildStartedDate());
 
 		mockServer.verify();
+	}
+
+	public void testGetLatestBuildForNeverExecutedPlan() throws RemoteApiException {
+		implTestGetLatestBuildForNeverExecutedPlan(
+				"/mock/bamboo/2_1_5/api/rest/getLatestBuildForPlanResponse-never-executed.xml");
+	}
+
+	public void testGetLatestBuildForNeverExecutedPlan2() throws RemoteApiException {
+		implTestGetLatestBuildForNeverExecutedPlan(
+				"/mock/bamboo/2_1_5/api/rest/getLatestBuildForPlanResponse-never-executed2.xml");
+	}
+
+	private void implTestGetLatestBuildForNeverExecutedPlan(final String fullFilePath) throws RemoteApiException {
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
+		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("", fullFilePath));
+		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
+
+		Date now = new Date();
+		BambooServerCfg bambooServerCfg = new BambooServerCfg("mybamboo", mockBaseUrl, new ServerId());
+		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new HttpSessionCallbackImpl());
+		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
+		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF");
+		apiHandler.logout();
+		assertEquals(BuildStatus.UNKNOWN, build.getStatus());
+		assertEquals(null, build.getBuildNumber());
+		assertNull(build.getBuildStartedDate());
+		assertNull(build.getBuildCompletedDate());
+		TestUtil.assertHasOnlyElements(build.getCommiters());
+		assertNull(build.getBuildDurationDescription());
+		assertEquals(mockBaseUrl + "/browse/TP-DEF", build.getBuildUrl());
+		assertNull(build.getBuildTestSummary());
+		assertEquals(bambooServerCfg, build.getServer());
+		assertTrue(build.getEnabled());
+		assertNull(build.getProjectName());
+		assertTrue(build.getPollingTime().getTime() >= now.getTime()
+				&& build.getPollingTime().getTime() <= new Date().getTime());
+		assertNull(build.getErrorMessage());
+		assertEquals("Never built", build.getBuildReason());
 	}
 
 	public void testGetLatestBuildForPlanBamboo2x1x5() throws RemoteApiException {

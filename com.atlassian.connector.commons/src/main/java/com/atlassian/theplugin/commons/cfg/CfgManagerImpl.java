@@ -26,8 +26,6 @@ public class CfgManagerImpl implements CfgManager {
 	private final Map<ProjectId, ProjectConfiguration> projectConfigurations = buildConcurrentHashMap(INITIAL_CAPACITY);
 	private Collection<ServerCfg> globalServers = MiscUtil.buildArrayList();
 	private final Map<ProjectId, Collection<ConfigurationListener>> listeners = buildConcurrentHashMap(100);
-	private final Map<ProjectId, Collection<ConfigurationCredentialsListener>> credentialListeners =
-			buildConcurrentHashMap(100);
 	private BambooCfg bambooCfg;
 	private static final int INITIAL_CAPACITY = 4;
 
@@ -386,12 +384,9 @@ public class CfgManagerImpl implements CfgManager {
 				return false;
 			}
 
-			if (!oldServer.getUsername().equals(newServer.getUsername())
-					|| !oldServer.getPassword().equals(newServer.getPassword())) {
-				return true;
-			}
+			return !oldServer.getUsername().equals(newServer.getUsername())
+					|| !oldServer.getPassword().equals(newServer.getPassword());
 
-			return false;
 		}
 
 		private boolean checkUrlChanged(final ServerCfg oldServer, final ServerCfg newServer) {
@@ -402,7 +397,7 @@ public class CfgManagerImpl implements CfgManager {
 		}
 	}
 
-	private class ServerAddedAction implements ProjectListenerAction {
+	private static class ServerAddedAction implements ProjectListenerAction {
 		private final ProjectConfiguration newConfiguration;
 		private final ProjectConfiguration oldConfiguration;
 
@@ -424,7 +419,7 @@ public class CfgManagerImpl implements CfgManager {
 		}
 	}
 
-	private class ServerRemovedAction implements ProjectListenerAction {
+	private static class ServerRemovedAction implements ProjectListenerAction {
 		private final ProjectConfiguration newConfiguration;
 		private final ProjectConfiguration oldConfiguration;
 
@@ -446,7 +441,7 @@ public class CfgManagerImpl implements CfgManager {
 		}
 	}
 
-	private class ServerEnabledDisabledAction implements ProjectListenerAction {
+	private static class ServerEnabledDisabledAction implements ProjectListenerAction {
 
 		private final ProjectConfiguration newConfiguration;
 		private final ProjectConfiguration oldConfiguration;
@@ -475,7 +470,7 @@ public class CfgManagerImpl implements CfgManager {
 
 	}
 
-	private class ConfigurationTypeChangedAction implements ProjectListenerAction {
+	private static class ConfigurationTypeChangedAction implements ProjectListenerAction {
 		private final ProjectConfiguration newConfiguration;
 		private final ProjectConfiguration oldConfiguration;
 

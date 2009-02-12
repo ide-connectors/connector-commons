@@ -58,7 +58,7 @@ public class BambooBuildInfo implements BambooBuild {
 			final int testsFailedCount, @Nullable Date completedDate, @Nullable String message,
 			@Nullable String relativeBuildDate, @Nullable String buildDurationDescription,
 			@Nullable Collection<String> commiters) {
-		this.pollingTime = pollingTime;
+		this.pollingTime = new Date(pollingTime.getTime());
 		this.planKey = planKey;
 		this.planName = planName;
 		this.server = bambooServerCfg;
@@ -74,8 +74,8 @@ public class BambooBuildInfo implements BambooBuild {
 		this.message = message;
 		this.buildRelativeBuildDate = relativeBuildDate;
 		this.buildDurationDescription = buildDurationDescription;
-		this.buildTime =  (startTime != null) ? new Date(startTime.getTime()) : null;
-		this.buildCompletedDate =  (completedDate != null) ? new Date(completedDate.getTime()) : null;
+		this.buildTime = (startTime != null) ? new Date(startTime.getTime()) : null;
+		this.buildCompletedDate = (completedDate != null) ? new Date(completedDate.getTime()) : null;
 		if (commiters != null) {
 			this.commiters = new TreeSet<String>(commiters);
 		} else {
@@ -88,7 +88,7 @@ public class BambooBuildInfo implements BambooBuild {
 	}
 
 	public Date getBuildCompletedDate() {
-		return buildCompletedDate;
+		return new Date(buildCompletedDate.getTime());
 	}
 
 	public String getServerUrl() {
@@ -197,7 +197,7 @@ public class BambooBuildInfo implements BambooBuild {
 	}
 
 	public Date getPollingTime() {
-		return pollingTime;
+		return new Date(pollingTime.getTime());
 	}
 
 	@SuppressWarnings({"InnerClassFieldHidesOuterClassField"})

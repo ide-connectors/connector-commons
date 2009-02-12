@@ -154,11 +154,13 @@ public class BambooServerCfg extends ServerCfg {
 		return this;
 	}
 
+	@Override
 	public PrivateServerCfgInfo createPrivateProjectConfiguration() {
 		return new PrivateBambooServerCfgInfo(getServerId(), isEnabled(), getUsername(),
 				isPasswordStored() ? getPassword() : null, getTimezoneOffset());
 	}
 
+	@Override
 	public void mergePrivateConfiguration(PrivateServerCfgInfo psci) {
 		super.mergePrivateConfiguration(psci);
 		if (psci != null) {

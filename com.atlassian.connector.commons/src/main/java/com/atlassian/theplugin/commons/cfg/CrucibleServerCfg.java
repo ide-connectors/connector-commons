@@ -49,10 +49,6 @@ public class CrucibleServerCfg extends ServerCfg {
 					return CrucibleServerCfg.this.getUrl();
 				}
 
-				public void setPassword(final String password) {
-					CrucibleServerCfg.this.setPassword(password);
-				}
-
 				public boolean isEnabled() {
 					return CrucibleServerCfg.this.isEnabled();
 				}

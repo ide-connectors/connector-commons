@@ -131,8 +131,11 @@ public class HomeDirPrivateConfigurationDao implements PrivateConfigurationDao {
 
 	private void writeXmlFile(final Element element, @NotNull final File outputFile) throws IOException {
 		final FileWriter writer = new FileWriter(outputFile);
-		new XMLOutputter(Format.getPrettyFormat()).output(element, writer);
-		writer.close();
+		try {
+			new XMLOutputter(Format.getPrettyFormat()).output(element, writer);
+		} finally {
+			writer.close();
+		}
 	}
 
 	static void saveJDom(final Object object, final Element rootElement) {

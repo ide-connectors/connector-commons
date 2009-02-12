@@ -38,7 +38,6 @@ public class CustomFilterBean implements CustomFilter {
 	private static final int SHIFT_32 = 32;
 	public static final String FILTER_ID = "MANUAL_FILTER_ID";
 	private final String filterName = "Custom";
-	private final String filterUrl = "";
 
 	@Override
 	public boolean equals(Object o) {

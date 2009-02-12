@@ -88,7 +88,7 @@ public class BambooBuildInfo implements BambooBuild {
 	}
 
 	public Date getBuildCompletedDate() {
-		return new Date(buildCompletedDate.getTime());
+		return buildCompletedDate == null ? null : new Date(buildCompletedDate.getTime());
 	}
 
 	public String getServerUrl() {

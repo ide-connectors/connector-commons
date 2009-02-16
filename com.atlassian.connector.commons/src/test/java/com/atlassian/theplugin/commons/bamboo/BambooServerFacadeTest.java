@@ -31,6 +31,8 @@ import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.remoteapi.ErrorResponse;
+import com.spartez.util.junit3.TestUtil;
+import com.spartez.util.junit3.IAction;
 import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.joda.time.format.DateTimeFormatter;
@@ -324,41 +326,43 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.verify();
 	}
 
+	private BambooServerCfg createBambooServerCfg(String url, String username, String password) {
+		BambooServerCfg bambooServerCfg = new BambooServerCfg("mybamboo", url, new ServerId());
+		bambooServerCfg.setUsername(username);
+		bambooServerCfg.setPassword(password);
+		return bambooServerCfg;
+	}
+
 	public void testConnectionTest() throws Exception {
-		BambooServerFacade facade = testedBambooServerFacade;
 
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
-		facade.testServerConnection(mockBaseUrl, USER_NAME, PASSWORD);
+		testedBambooServerFacade.testServerConnection(createBambooServerCfg(mockBaseUrl, USER_NAME, PASSWORD));
 
-		try {
-			facade.testServerConnection("", "", "");
-			fail();
-		} catch (RemoteApiMalformedUrlException e) {
-			// expected
-		}
+		TestUtil.assertThrows(RemoteApiMalformedUrlException.class, new IAction() {
+			public void run() throws Throwable {
+				testedBambooServerFacade.testServerConnection(createBambooServerCfg("", "", ""));
+			}
+		});
+
 
 		mockServer.expect("/api/rest/login.action", new LoginCallback("", "", LoginCallback.ALWAYS_FAIL));
-		try {
-			facade.testServerConnection(mockBaseUrl, "", "");
-			fail();
-		} catch (RemoteApiLoginException e) {
-			//expected
-		}
+		TestUtil.assertThrows(RemoteApiLoginException.class, new IAction() {
+			public void run() throws Throwable {
+				testedBambooServerFacade.testServerConnection(createBambooServerCfg(mockBaseUrl, "", ""));
+			}
+		});
+		TestUtil.assertThrows(RemoteApiMalformedUrlException.class, new IAction() {
+			public void run() throws Throwable {
+				testedBambooServerFacade.testServerConnection(createBambooServerCfg("", USER_NAME, ""));
+			}
+		});
+		TestUtil.assertThrows(RemoteApiMalformedUrlException.class, new IAction() {
+			public void run() throws Throwable {
+				testedBambooServerFacade.testServerConnection(createBambooServerCfg("", "", PASSWORD));
+			}
+		});
 
-		try {
-			facade.testServerConnection("", USER_NAME, "");
-			fail();
-		} catch (RemoteApiMalformedUrlException e) {
-			//expected
-		}
-
-		try {
-			facade.testServerConnection("", "", PASSWORD);
-			fail();
-		} catch (RemoteApiMalformedUrlException e) {
-			//expected
-		}
 		mockServer.verify();
 	}
 

@@ -48,6 +48,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 	private CrucibleServerFacade facade;
 	private CrucibleSession crucibleSessionMock;
 	public static final String INVALID_PROJECT_KEY = "INVALID project key";
+	private CrucibleServerCfg crucibleServerCfg;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -55,6 +56,10 @@ public class CrucibleServerFacadeTest extends TestCase {
 		ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
 
 		crucibleSessionMock = createMock(CrucibleSession.class);
+		crucibleServerCfg = new CrucibleServerCfg("mycrucible", new ServerId());
+		crucibleServerCfg.setUrl(VALID_URL);
+		crucibleServerCfg.setPassword(VALID_PASSWORD);
+		crucibleServerCfg.setUsername(VALID_LOGIN.getUserName());
 
 		facade = CrucibleServerFacadeImpl.getInstance();
 
@@ -74,13 +79,13 @@ public class CrucibleServerFacadeTest extends TestCase {
 		Server server = new Server(0);
 		server.start();
 
-		String mockBaseUrl = "http://localhost:" + server.getConnectors()[0].getLocalPort();
+		crucibleServerCfg.setUrl("http://localhost:" + server.getConnectors()[0].getLocalPort());
 		JettyMockServer mockServer = new JettyMockServer(server);
 		mockServer.expect("/rest-service/auth-v1/login",
 				new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD, LoginCallback.ALWAYS_FAIL));
 
 		try {
-			facade.testServerConnection(mockBaseUrl, VALID_LOGIN.getUserName(), VALID_PASSWORD);
+			facade.testServerConnection(crucibleServerCfg);
 			fail("testServerConnection failed");
 		} catch (RemoteApiException e) {
 			//
@@ -94,14 +99,14 @@ public class CrucibleServerFacadeTest extends TestCase {
 		Server server = new Server(0);
 		server.start();
 
-		String mockBaseUrl = "http://localhost:" + server.getConnectors()[0].getLocalPort();
+		crucibleServerCfg.setUrl("http://localhost:" + server.getConnectors()[0].getLocalPort());
 		JettyMockServer mockServer = new JettyMockServer(server);
 
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD, false));
 		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(false));
 
 		try {
-			facade.testServerConnection(mockBaseUrl, VALID_LOGIN.getUserName(), VALID_PASSWORD);
+			facade.testServerConnection(crucibleServerCfg);
 			fail("testServerConnection failed");
 		} catch (RemoteApiException e) {
 		}
@@ -114,14 +119,14 @@ public class CrucibleServerFacadeTest extends TestCase {
 		Server server = new Server(0);
 		server.start();
 
-		String mockBaseUrl = "http://localhost:" + server.getConnectors()[0].getLocalPort();
+		crucibleServerCfg.setUrl("http://localhost:" + server.getConnectors()[0].getLocalPort());
 		JettyMockServer mockServer = new JettyMockServer(server);
 
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD, false));
 		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 
 		try {
-			facade.testServerConnection(mockBaseUrl, VALID_LOGIN.getUserName(), VALID_PASSWORD);
+			facade.testServerConnection(crucibleServerCfg);
 		} catch (RemoteApiException e) {
 			fail("testServerConnection failed");
 		}
@@ -137,7 +142,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		try {
 			f = CrucibleServerFacadeImpl.class.getDeclaredField("sessions");
 			f.setAccessible(true);
-			return (Map) f.get(facade);
+			return (Map<String, CrucibleSession>) f.get(facade);
 		} catch (NoSuchFieldException e) {
 			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {

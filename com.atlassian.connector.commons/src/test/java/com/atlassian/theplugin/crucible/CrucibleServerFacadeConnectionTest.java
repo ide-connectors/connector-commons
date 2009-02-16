@@ -92,7 +92,7 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 	public void testConnectionTestSucceed() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
-		testedCrucibleServerFacade.testServerConnection(mockBaseUrl, USER_NAME, PASSWORD);
+		testedCrucibleServerFacade.testServerConnection(crucibleServerCfg);
 		mockServer.verify();
 	}
 
@@ -101,7 +101,7 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(false));
 
 		try {
-			testedCrucibleServerFacade.testServerConnection(mockBaseUrl, USER_NAME, PASSWORD);
+			testedCrucibleServerFacade.testServerConnection(crucibleServerCfg);
 			fail();
 		} catch (RemoteApiLoginFailedException e) {
 			// expected
@@ -113,8 +113,9 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 	}
 
 	public void testConnectionTestFailedNullUser() throws Exception {
+		crucibleServerCfg.setUsername(null);
 		try {
-			testedCrucibleServerFacade.testServerConnection(mockBaseUrl, null, PASSWORD);
+			testedCrucibleServerFacade.testServerConnection(crucibleServerCfg);
 			fail();
 		} catch (RemoteApiLoginException e) {
 			// expected
@@ -122,8 +123,9 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 	}
 
 	public void testConnectionTestFailedNullPassword() throws Exception {
+		crucibleServerCfg.setPassword(null);
 		try {
-			testedCrucibleServerFacade.testServerConnection(mockBaseUrl, USER_NAME, null);
+			testedCrucibleServerFacade.testServerConnection(crucibleServerCfg);
 			fail();
 		} catch (RemoteApiLoginException e) {
 			// expected
@@ -131,9 +133,9 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 	}
 
 	public void testConnectionTestFailedEmptyUrl() throws Exception {
-
+		crucibleServerCfg.setUrl("");
 		try {
-			testedCrucibleServerFacade.testServerConnection("", USER_NAME, PASSWORD);
+			testedCrucibleServerFacade.testServerConnection(crucibleServerCfg);
 			fail();
 		} catch (RemoteApiMalformedUrlException e) {
 			// expected

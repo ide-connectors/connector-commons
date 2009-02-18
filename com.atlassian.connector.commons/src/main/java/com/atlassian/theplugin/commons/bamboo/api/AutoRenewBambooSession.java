@@ -91,7 +91,8 @@ public class AutoRenewBambooSession implements BambooSession {
 	}
 
 	@NotNull
-	public BambooBuild getLatestBuildForPlan(@NotNull final String planKey, final boolean isPlanEnabled) throws RemoteApiException {
+	public BambooBuild getLatestBuildForPlan(@NotNull final String planKey, final boolean isPlanEnabled)
+			throws RemoteApiException {
 		try {
 			return delegate.getLatestBuildForPlan(planKey, isPlanEnabled);
 		} catch (RemoteApiSessionExpiredException e) {

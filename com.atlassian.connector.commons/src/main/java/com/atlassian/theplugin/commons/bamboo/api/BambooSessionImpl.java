@@ -45,10 +45,6 @@ import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.*;
 
-/*
-@todo get logs based on url: BASE_URL/download/TP-TEST/build_logs/TP-TEST-341.log
- */
-
 /**
  * Communication stub for Bamboo REST API.
  */
@@ -300,7 +296,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 
 	@NotNull
-	public BambooBuild getLatestBuildForPlan(@NotNull final String planKey, final boolean isPlanEnabled) throws RemoteApiException {
+	public BambooBuild getLatestBuildForPlan(@NotNull final String planKey, final boolean isPlanEnabled)
+			throws RemoteApiException {
 		String buildResultUrl = getBaseUrl() + LATEST_BUILD_FOR_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
 				+ "&buildKey=" + UrlUtil.encodeUrl(planKey);
 

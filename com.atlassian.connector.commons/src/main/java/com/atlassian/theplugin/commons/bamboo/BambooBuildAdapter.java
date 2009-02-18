@@ -22,8 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 
-import org.jetbrains.annotations.Nullable;
-
 /**
  * @author Jacek Jaroczynski
  */

@@ -78,7 +78,8 @@ public class BambooStatusTooltipListener implements BambooStatusListener {
 
 								if (prevBuild.getStatus() == BuildStatus.SUCCESS
 										|| (prevBuild.getStatus() == BuildStatus.FAILURE
-										&& !prevBuild.getBuildNumber().equals(currentBuild.getBuildNumber())
+										&& currentBuild.isValid() && prevBuild.isValid()
+										&& prevBuild.getBuildNumber() != currentBuild.getBuildNumber()
 										&& bambooTooltipOption == BambooTooltipOption.ALL_FAULIRES_AND_FIRST_SUCCESS)) {
 
 									// build has changed status from SUCCEED to FAILED

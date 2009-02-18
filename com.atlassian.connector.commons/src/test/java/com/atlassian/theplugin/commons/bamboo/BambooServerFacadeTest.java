@@ -163,7 +163,7 @@ public class BambooServerFacadeTest extends TestCase {
 
 	private BambooBuild createBambooBuildInfo(BambooServerCfg serverCfg,
 			String planKey, String planName, DateTime buildCompletionDate) {
-		return new BambooBuildInfo.Builder(planKey, planName, serverCfg, null, "123", BuildStatus.UNKNOWN)
+		return new BambooBuildInfo.Builder(planKey, planName, serverCfg, null, 123, BuildStatus.UNKNOWN)
 				.completionTime(buildCompletionDate.toDate())
 				.build();
 	}
@@ -388,7 +388,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/addLabelToBuildResults.action", new AddLabelToBuildCallback(label));
 
-		testedBambooServerFacade.addLabelToBuild(bambooServerCfg, "TP-DEF", "100", label);
+		testedBambooServerFacade.addLabelToBuild(bambooServerCfg, "TP-DEF", 100, label);
 
 		mockServer.verify();
 	}
@@ -400,7 +400,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/addLabelToBuildResults.action", new AddLabelToBuildCallback(label));
 
-		testedBambooServerFacade.addLabelToBuild(bambooServerCfg, "TP-DEF", "100", label);
+		testedBambooServerFacade.addLabelToBuild(bambooServerCfg, "TP-DEF", 100, label);
 
 		mockServer.verify();
 	}
@@ -413,7 +413,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/addLabelToBuildResults.action", new AddLabelToBuildCallback(label, "200", AddLabelToBuildCallback.NON_EXIST_FAIL));
 
 		try {
-			testedBambooServerFacade.addLabelToBuild(bambooServerCfg, "TP-DEF", "200", label);
+			testedBambooServerFacade.addLabelToBuild(bambooServerCfg, "TP-DEF", 200, label);
 			fail();
 		} catch (RemoteApiException e) {
 			// expected
@@ -429,7 +429,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/addCommentToBuildResults.action", new AddCommentToBuildCallback(label));
 
-		testedBambooServerFacade.addCommentToBuild(bambooServerCfg, "TP-DEF", "100", label);
+		testedBambooServerFacade.addCommentToBuild(bambooServerCfg, "TP-DEF", 100, label);
 
 		mockServer.verify();
 	}
@@ -441,7 +441,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/addCommentToBuildResults.action", new AddCommentToBuildCallback(label));
 
-		testedBambooServerFacade.addCommentToBuild(bambooServerCfg, "TP-DEF", "100", label);
+		testedBambooServerFacade.addCommentToBuild(bambooServerCfg, "TP-DEF", 100, label);
 
 		mockServer.verify();
 	}
@@ -454,7 +454,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/addCommentToBuildResults.action", new AddCommentToBuildCallback(label, "200", AddCommentToBuildCallback.NON_EXIST_FAIL));
 
 		try {
-			testedBambooServerFacade.addCommentToBuild(bambooServerCfg, "TP-DEF", "200", label);
+			testedBambooServerFacade.addCommentToBuild(bambooServerCfg, "TP-DEF", 200, label);
 			fail();
 		} catch (RemoteApiException e) {
 			// expected
@@ -492,7 +492,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/getBuildResultsDetails.action", new BuildDetailsResultCallback("buildResult-3Commit-FailedTests-SuccessfulTests.xml", "100"));
 
-		BuildDetails details = testedBambooServerFacade.getBuildDetails(bambooServerCfg, "TP-DEF", "100");
+		BuildDetails details = testedBambooServerFacade.getBuildDetails(bambooServerCfg, "TP-DEF", 100);
 		assertEquals(3, details.getCommitInfo().size());
 		assertEquals(2, details.getFailedTestDetails().size());
 		assertEquals(117, details.getSuccessfulTestDetails().size());
@@ -506,7 +506,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/getBuildResultsDetails.action", new BuildDetailsResultCallback("buildNotExistsResponse.xml", "200"));
 
 		try {
-			testedBambooServerFacade.getBuildDetails(bambooServerCfg, "TP-DEF", "200");
+			testedBambooServerFacade.getBuildDetails(bambooServerCfg, "TP-DEF", 200);
 			fail();
 		} catch (RemoteApiException e) {
 			// expected

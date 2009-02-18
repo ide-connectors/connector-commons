@@ -51,7 +51,7 @@ public abstract class Util {
 	public static void verifySuccessfulBuildResult(BambooBuild build, String baseUrl) {
 		Assert.assertNotNull(build);
 		Assert.assertEquals("TP-DEF", build.getBuildKey());
-		Assert.assertEquals("140", build.getBuildNumber());
+		Assert.assertEquals(140, build.getBuildNumber());
 		//todo: sginter: What should go here? bamboo-provided status or the BuildStatus.toString()
 		//assertEquals("Successful", build.getStatus());
 		Assert.assertSame(BuildStatus.SUCCESS, build.getStatus());
@@ -65,7 +65,7 @@ public abstract class Util {
 	public static void verifyFailedBuildResult(BambooBuild build, String baseUrl) {
 		Assert.assertNotNull(build);
 		Assert.assertEquals("TP-DEF", build.getBuildKey());
-		Assert.assertEquals("141", build.getBuildNumber());
+		Assert.assertEquals(141, build.getBuildNumber());
 		//todo: sginter: What should go here? bamboo-provided status or the BuildStatus.toString()
 		//assertEquals("Failed", build.getStatus());
 		Assert.assertSame(BuildStatus.FAILURE, build.getStatus());

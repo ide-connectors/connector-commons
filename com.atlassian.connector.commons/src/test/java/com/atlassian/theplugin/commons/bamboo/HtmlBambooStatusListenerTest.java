@@ -312,7 +312,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 	public static BambooBuild generateBuildInfo(BuildStatus status) {
 		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_PLAN_NAME, BAMBOO,
-				DEFAULT_PROJECT_NAME, String.valueOf(DEFAULT_BUILD_NO), status).enabled(true).pollingTime(new Date());
+				DEFAULT_PROJECT_NAME, DEFAULT_BUILD_NO, status).enabled(true).pollingTime(new Date());
 
 		switch (status) {
 			case UNKNOWN:
@@ -331,7 +331,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 	public static BambooBuild generateDisabledBuildInfo(BuildStatus status) {
 		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_PLAN_NAME, BAMBOO,
-				DEFAULT_PROJECT_NAME, String.valueOf(DEFAULT_BUILD_NO), status).enabled(false).pollingTime(new Date());
+				DEFAULT_PROJECT_NAME, DEFAULT_BUILD_NO, status).enabled(false).pollingTime(new Date());
 
 		switch (status) {
 			case UNKNOWN:
@@ -352,7 +352,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 	public static BambooBuild generateBuildInfo2(BuildStatus status) {
 		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY_2, DEFAULT_PLAN_NAME, BAMBOO,
-				DEFAULT_PROJECT_NAME, String.valueOf(DEFAULT_BUILD_NO), status).pollingTime(new Date());
+				DEFAULT_PROJECT_NAME, DEFAULT_BUILD_NO, status).pollingTime(new Date());
 
         switch (status) {
 			case UNKNOWN:

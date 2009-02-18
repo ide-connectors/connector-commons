@@ -38,8 +38,8 @@ import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -48,10 +48,14 @@ import java.util.Map;
 
 /**
  * Communication stub for lightweight XML based APIs.
+ * This method should be tread-safe (at least it is used in this manner), however
+ * I think there are still some issues with thread-safety here [wseliga].
+ * E.g. as Server is not immutable then this may be the cause of races
  */
 public abstract class AbstractHttpSession {
 	protected HttpClient client;
-	private HttpSessionCallback callback;
+	@NotNull
+	private final HttpSessionCallback callback;
 	@NotNull
 	private final Server server;
 
@@ -76,11 +80,11 @@ public abstract class AbstractHttpSession {
 	 * modification time and Etag.
 	 */
 	private final class CacheRecord {
-		private final byte[] document;
+		private final String document;
 		private final String lastModified;
 		private final String etag;
 
-		private CacheRecord(byte[] document, String lastModified, String etag) {
+		private CacheRecord(String document, String lastModified, String etag) {
 			if (document == null || lastModified == null || etag == null) {
 				throw new IllegalArgumentException("null");
 			} else {
@@ -90,7 +94,7 @@ public abstract class AbstractHttpSession {
 			}
 		}
 
-		public byte[] getDocument() {
+		public String getDocument() {
 			return document;
 		}
 
@@ -127,7 +131,8 @@ public abstract class AbstractHttpSession {
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
 	 *          for malformed url
 	 */
-	public AbstractHttpSession(@NotNull Server server, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
+	public AbstractHttpSession(@NotNull Server server, @NotNull HttpSessionCallback callback)
+			throws RemoteApiMalformedUrlException {
 		this.server = server;
 		this.callback = callback;
 		String myurl = server.getUrl();
@@ -141,20 +146,23 @@ public abstract class AbstractHttpSession {
 	protected Document retrieveGetResponse(String urlString)
 			throws IOException, JDOMException, RemoteApiSessionExpiredException {
 
-		byte[] result = doConditionalGet(urlString);
-		Document doc;
-
-		SAXBuilder builder = new SAXBuilder();
-		doc = builder.build(new ByteArrayInputStream(result));
-
+		final SAXBuilder builder = new SAXBuilder();
+		final Document doc = builder.build(new StringReader(doConditionalGet(urlString)));
 //		XmlUtil.printXml(doc);
-
 		preprocessResult(doc);
-
 		return doc;
 	}
 
-	protected byte[] doConditionalGet(String urlString) throws IOException, JDOMException, RemoteApiSessionExpiredException {
+	/**
+	 * Use it only for retrieving text information (like XML or text files)
+	 * This method could be refactored into one part returning GetMethod and another
+	 * using such method to operate on strings. 
+	 *
+	 * @param urlString URL to retrieve data from
+	 * @return response encoded as String (following charset information send by remote party in HTTP header)
+	 * @throws IOException in case of IO problem
+	 */
+	protected String doConditionalGet(String urlString) throws IOException {
 
 		UrlUtil.validateUrl(urlString);
 		setUrl(urlString);
@@ -167,7 +175,7 @@ public abstract class AbstractHttpSession {
 				}
 			}
 
-			GetMethod method = new GetMethod(urlString);
+			final GetMethod method = new GetMethod(urlString);
 
 			CacheRecord cacheRecord = cache.get(urlString);
 			if (cacheRecord != null) {
@@ -185,15 +193,13 @@ public abstract class AbstractHttpSession {
 
 				if (method.getStatusCode() == HttpStatus.SC_NOT_MODIFIED && cacheRecord != null) {
 //					System.out.println("Cache record valid, using cached value: " + new String(cacheRecord.getDocument()));
-					return cacheRecord.getDocument().clone();
+					return cacheRecord.getDocument();
 				} else if (method.getStatusCode() != HttpStatus.SC_OK) {
-
 					throw new IOException(
 							"HTTP " + method.getStatusCode() + " (" + HttpStatus.getStatusText(method.getStatusCode())
 									+ ")\n" + method.getStatusText());
 				} else {
-//					System.out.println("Received GET response document.");
-					final byte[] result = method.getResponseBody();
+					final String result = method.getResponseBodyAsString();
 					final String lastModified = method.getResponseHeader("Last-Modified") == null ? null
 							: method.getResponseHeader("Last-Modified").getValue();
 					final String eTag = method.getResponseHeader("Etag") == null ? null
@@ -204,7 +210,7 @@ public abstract class AbstractHttpSession {
 						cache.put(urlString, cacheRecord);
 //						System.out.println("Latest GET response document placed in cache: " + new String(result));
 					}
-					return result.clone();
+					return result;
 				}
 			} catch (NullPointerException e) {
 				throw createIOException("Connection error", e);
@@ -226,11 +232,6 @@ public abstract class AbstractHttpSession {
 		final IOException ioException = new IOException(message);
 		ioException.initCause(cause);
 		return ioException;
-	}
-
-	protected byte[] retrieveGetResponseAsBytes(String urlString)
-			throws IOException, JDOMException, RemoteApiSessionExpiredException {
-		return doConditionalGet(urlString);
 	}
 
 	protected Document retrievePostResponse(String urlString, Document request)

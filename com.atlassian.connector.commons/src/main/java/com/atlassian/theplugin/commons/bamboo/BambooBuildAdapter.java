@@ -22,6 +22,8 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * @author Jacek Jaroczynski
  */
@@ -75,8 +77,20 @@ public class BambooBuildAdapter {
 		return build.getEnabled();
 	}
 
-	public String getBuildNumber() {
-		return build.getBuildNumber() == null ? "" : build.getBuildNumber();
+	public int getBuildNumber() {
+		return build.getBuildNumber();
+	}
+
+	public boolean isValid() {
+		return build.isValid();
+	}
+
+	/**
+	 *
+	 * @return build number as string (base 10) or empty string when this object does not represent successfully fetched build 
+	 */
+	public String getBuildNumberAsString() {
+		return build.isValid() ? Integer.toString(build.getBuildNumber()) : "";
 	}
 
 	public String getBuildResultUrl() {

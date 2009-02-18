@@ -28,10 +28,8 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Created by IntelliJ IDEA.
- * User: mwent
- * Date: 2008-03-06
- * Time: 11:16:09
+ * @author Marek Went
+ * @author Wojciech Seliga
  */
 public interface BambooSession extends ProductSession {
 	int getBamboBuildNumber() throws RemoteApiException;
@@ -60,22 +58,30 @@ public interface BambooSession extends ProductSession {
 	 * @throws RemoteApiException in case of some communication problem or malformed response
 	 */
 	@NotNull
-	BambooBuild getLatestBuildForPlan(String planKey) throws RemoteApiException;
+	BambooBuild getLatestBuildForPlan(@NotNull String planKey) throws RemoteApiException;
 
 	@NotNull
-	BambooBuild getLatestBuildForPlan(String planKey, boolean isPlanEnabled) throws RemoteApiException;
+	BambooBuild getLatestBuildForPlan(@NotNull String planKey, boolean isPlanEnabled) throws RemoteApiException;
 
 	@NotNull
 	List<String> getFavouriteUserPlans() throws RemoteApiException;
 
 	@NotNull
-	BuildDetails getBuildResultDetails(String buildKey, String buildNumber) throws RemoteApiException;
+	BuildDetails getBuildResultDetails(@NotNull String planKey, int buildNumber) throws RemoteApiException;
 
-	void addLabelToBuild(String buildKey, String buildNumber, String buildLabel) throws RemoteApiException;
+	void addLabelToBuild(@NotNull String planKey, int buildNumber, String buildLabel) throws RemoteApiException;
 
-	void addCommentToBuild(String buildKey, String buildNumber, String buildComment) throws RemoteApiException;
+	/**
+	 * Adds comment to selected build.
+	 * 
+	 * @param planKey plan identifier
+	 * @param buildNumber build number
+	 * @param buildComment the comment to add.
+	 * @throws RemoteApiException in case of some communication problem
+	 */
+	void addCommentToBuild(@NotNull String planKey, int buildNumber, String buildComment) throws RemoteApiException;
 
-	void executeBuild(String buildKey) throws RemoteApiException;	
+	void executeBuild(@NotNull String buildKey) throws RemoteApiException;
 
-    byte[] getBuildLogs(String buildKey, String buildNumber) throws RemoteApiException;
+    String getBuildLogs(@NotNull String planKey, int buildNumber) throws RemoteApiException;
 }

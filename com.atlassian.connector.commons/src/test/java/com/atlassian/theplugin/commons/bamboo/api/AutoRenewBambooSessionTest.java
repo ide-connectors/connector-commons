@@ -40,6 +40,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 	private BambooSession mockDelegate;
 	private static final String LOGIN = "login";
 	private static final char[] A_PASSWORD = "password".toCharArray();
+	private static final int BUILD_NUMBER = 1;
 
 	@Override
 	public void setUp() throws Exception {
@@ -154,7 +155,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
 		EasyMock.expect(mockDelegate.getLatestBuildForPlan("planKey")).andReturn(
-				new BambooBuildInfo.Builder("planKey", null, new BambooServerCfg("mybamboo", new ServerId()), null, "123",
+				new BambooBuildInfo.Builder("planKey", null, new BambooServerCfg("mybamboo", new ServerId()), null, 123,
 						BuildStatus.SUCCESS)
 						.build());
 
@@ -192,11 +193,11 @@ public class AutoRenewBambooSessionTest extends TestCase {
 	public void testGetBuildResultDetails() throws Exception {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
-		mockDelegate.getBuildResultDetails("buildKey", "buildNumber");
+		mockDelegate.getBuildResultDetails("buildKey", BUILD_NUMBER);
 		EasyMock.expectLastCall().andThrow(new RemoteApiSessionExpiredException(""));
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
-		mockDelegate.getBuildResultDetails("buildKey", "buildNumber");
+		mockDelegate.getBuildResultDetails("buildKey", BUILD_NUMBER);
 		EasyMock.expectLastCall().andReturn(new BuildDetails() {
 
 			public String getVcsRevisionKey() {
@@ -219,7 +220,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		EasyMock.replay(mockDelegate);
 
 		testedSession.login(LOGIN, A_PASSWORD);
-		BuildDetails build = testedSession.getBuildResultDetails("buildKey", "buildNumber");
+		BuildDetails build = testedSession.getBuildResultDetails("buildKey", BUILD_NUMBER);
 		assertNotNull(build);
 
 		EasyMock.verify(mockDelegate);
@@ -228,17 +229,17 @@ public class AutoRenewBambooSessionTest extends TestCase {
 	public void testAddLabelToBuild() throws Exception {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
-		mockDelegate.addLabelToBuild("buildKey", "buildNumber", "label");
+		mockDelegate.addLabelToBuild("buildKey", BUILD_NUMBER, "label");
 		EasyMock.expectLastCall().andThrow(new RemoteApiSessionExpiredException(""));
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
-		mockDelegate.addLabelToBuild("buildKey", "buildNumber", "label");
+		mockDelegate.addLabelToBuild("buildKey", BUILD_NUMBER, "label");
 		EasyMock.expectLastCall();
 
 		EasyMock.replay(mockDelegate);
 
 		testedSession.login(LOGIN, A_PASSWORD);
-		testedSession.addLabelToBuild("buildKey", "buildNumber", "label");
+		testedSession.addLabelToBuild("buildKey", BUILD_NUMBER, "label");
 
 		EasyMock.verify(mockDelegate);
 	}
@@ -246,17 +247,17 @@ public class AutoRenewBambooSessionTest extends TestCase {
 	public void testAddCommentToBuild() throws Exception {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
-		mockDelegate.addCommentToBuild("buildKey", "buildNumber", "comment");
+		mockDelegate.addCommentToBuild("buildKey", BUILD_NUMBER, "comment");
 		EasyMock.expectLastCall().andThrow(new RemoteApiSessionExpiredException(""));
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
-		mockDelegate.addCommentToBuild("buildKey", "buildNumber", "comment");
+		mockDelegate.addCommentToBuild("buildKey", BUILD_NUMBER, "comment");
 		EasyMock.expectLastCall();
 
 		EasyMock.replay(mockDelegate);
 
 		testedSession.login(LOGIN, A_PASSWORD);
-		testedSession.addCommentToBuild("buildKey", "buildNumber", "comment");
+		testedSession.addCommentToBuild("buildKey", BUILD_NUMBER, "comment");
 
 		EasyMock.verify(mockDelegate);
 	}

@@ -40,15 +40,21 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.spartez.util.junit3.TestUtil;
+import com.spartez.util.junit3.IAction;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Date;
 
 import junit.framework.Assert;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletOutputStream;
 
 
 /**
@@ -224,10 +230,14 @@ public class BambooSessionTest extends AbstractSessionTest {
 		BambooServerCfg bambooServerCfg = new BambooServerCfg("mybamboo", mockBaseUrl, new ServerId());
 		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new HttpSessionCallbackImpl());
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF");
+		final BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF");
 		apiHandler.logout();
 		assertEquals(BuildStatus.UNKNOWN, build.getStatus());
-		assertEquals(null, build.getBuildNumber());
+		TestUtil.assertThrows(UnsupportedOperationException.class, new IAction() {
+			public void run() throws Throwable {
+				build.getBuildNumber();
+			}
+		});
 		assertNull(build.getBuildStartedDate());
 		assertNull(build.getBuildCompletedDate());
 		TestUtil.assertHasOnlyElements(build.getCommiters());
@@ -262,7 +272,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		apiHandler.logout();
 
 		Assert.assertEquals("ACC-TST", build.getBuildKey());
-		Assert.assertEquals("193", build.getBuildNumber());
+		Assert.assertEquals(193, build.getBuildNumber());
 		assertEquals(BuildStatus.SUCCESS, build.getStatus());
 		Assert.assertTrue(build.getPollingTime().getTime() - System.currentTimeMillis() < 5000);
 		Assert.assertEquals(mockBaseUrl, build.getServerUrl());
@@ -324,7 +334,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", "100");
+		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", 100);
 		apiHandler.logout();
 
 		mockServer.verify();
@@ -375,7 +385,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", "100");
+		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", 100);
 		apiHandler.logout();
 		
 		mockServer.verify();
@@ -416,7 +426,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", "100");
+		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", 100);
 		apiHandler.logout();
 
 		mockServer.verify();
@@ -458,7 +468,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", "100");
+		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", 100);
 		apiHandler.logout();
 
 		mockServer.verify();
@@ -524,7 +534,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", "100");
+		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", 100);
 		apiHandler.logout();
 
 		mockServer.verify();
@@ -567,7 +577,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		try {
-			apiHandler.getBuildResultDetails("TP-DEF", "200");
+			apiHandler.getBuildResultDetails("TP-DEF", 200);
 			fail();
 		} catch (RemoteApiException e) {
 			// expected
@@ -585,7 +595,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		try {
-			apiHandler.getBuildResultDetails("TP-DEF", "100");
+			apiHandler.getBuildResultDetails("TP-DEF", 100);
 			fail();
 		} catch (RemoteApiException e) {
 			assertEquals("org.jdom.input.JDOMParseException", e.getCause().getClass().getName());
@@ -602,7 +612,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", "100");
+		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", 100);
 		apiHandler.logout();
 
 		assertEquals(0, build.getCommitInfo().size());
@@ -621,7 +631,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		apiHandler.addLabelToBuild("TP-DEF", "100", label);
+		apiHandler.addLabelToBuild("TP-DEF", 100, label);
 		apiHandler.logout();
 
 		mockServer.verify();
@@ -636,7 +646,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		apiHandler.addLabelToBuild("TP-DEF", "100", label);
+		apiHandler.addLabelToBuild("TP-DEF", 100, label);
 		apiHandler.logout();
 
 		mockServer.verify();
@@ -651,7 +661,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		apiHandler.addLabelToBuild("TP-DEF", "100", label);
+		apiHandler.addLabelToBuild("TP-DEF", 100, label);
 		apiHandler.logout();
 
 		mockServer.verify();
@@ -667,7 +677,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		try {
-			apiHandler.addLabelToBuild("TP-DEF", "200", label);
+			apiHandler.addLabelToBuild("TP-DEF", 200, label);
 			fail();
 		} catch (RemoteApiException e) {
 
@@ -686,7 +696,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		apiHandler.addCommentToBuild("TP-DEF", "100", comment);
+		apiHandler.addCommentToBuild("TP-DEF", 100, comment);
 		apiHandler.logout();
 
 		mockServer.verify();
@@ -701,7 +711,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		apiHandler.addCommentToBuild("TP-DEF", "100", comment);
+		apiHandler.addCommentToBuild("TP-DEF", 100, comment);
 		apiHandler.logout();
 
 		mockServer.verify();
@@ -716,7 +726,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		apiHandler.addCommentToBuild("TP-DEF", "100", comment);
+		apiHandler.addCommentToBuild("TP-DEF", 100, comment);
 		apiHandler.logout();
 
 		mockServer.verify();
@@ -732,7 +742,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		try {
-			apiHandler.addCommentToBuild("TP-DEF", "200", comment);
+			apiHandler.addCommentToBuild("TP-DEF", 200, comment);
 			fail();
 		} catch (RemoteApiException e) {
 
@@ -816,11 +826,11 @@ public class BambooSessionTest extends AbstractSessionTest {
 		session.login(USER_NAME, PASSWORD.toCharArray());
 
 		BambooBuild bbi1 = session.getLatestBuildForPlan("PO-TP");
-		assertEquals("123", bbi1.getBuildNumber());
+		assertEquals(123, bbi1.getBuildNumber());
 		assertTrue(bbi1.getEnabled());
 
 		BambooBuild bbi2 = session.getLatestBuildForPlan("PT-TOP");
-		assertEquals("45", bbi2.getBuildNumber());
+		assertEquals(45, bbi2.getBuildNumber());
 		assertFalse(bbi2.getEnabled());
 		session.logout();
 
@@ -828,4 +838,43 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	}
 
+	public void testGetBuildLogs() throws RemoteApiException, UnsupportedEncodingException {
+		final String TEXT = "ĄŚĆŹ$&#";
+		final String charset1 = "UTF-8";
+		final String charset2 = "UTF-16";
+		final String charset3 = "ISO-8859-2";
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/download/myplan/build_logs/myplan-123.log", new BuildLogCallback(TEXT, charset1));
+		mockServer.expect("/download/myplan/build_logs/myplan-123.log", new BuildLogCallback(TEXT, charset2));
+		mockServer.expect("/download/myplan/build_logs/myplan-123.log", new BuildLogCallback(TEXT, charset3));
+		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
+
+		final BambooSession session = new BambooSessionImpl(mockBaseUrl);
+		session.login(USER_NAME, PASSWORD.toCharArray());
+
+		assertEquals(TEXT, session.getBuildLogs("myplan", 123));
+		assertEquals(TEXT, session.getBuildLogs("myplan", 123));
+		assertEquals(TEXT, session.getBuildLogs("myplan", 123));
+		session.logout();
+		mockServer.verify();
+
+	}
+
+	private static class BuildLogCallback implements JettyMockServer.Callback {
+		private final String text;
+		private final String charsetName;
+
+		public BuildLogCallback(final String text, final String charsetName) {
+			this.text = text;
+			this.charsetName = charsetName;
+		}
+
+		public void onExpectedRequest(final String target, final HttpServletRequest request,
+				final HttpServletResponse response) throws Exception {
+			final ServletOutputStream out = response.getOutputStream();
+			response.setContentType("text/plain; charset=" + charsetName + "");
+			out.write(text.getBytes(charsetName));
+			out.close();
+		}
+	}
 }

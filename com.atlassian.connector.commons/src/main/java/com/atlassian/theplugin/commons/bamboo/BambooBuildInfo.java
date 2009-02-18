@@ -32,11 +32,12 @@ public class BambooBuildInfo implements BambooBuild {
 	private final BambooServerCfg server;
 	private final String projectName;
 	private final String planName;
+	@NotNull
 	private final String planKey;
 	private final boolean enabled;
 	@NotNull
 	private final BuildStatus buildState;
-	private final String buildNumber;
+	private final Integer buildNumber;
 	private final String buildReason;
 	private final String buildRelativeBuildDate;
 	private final String buildDurationDescription;
@@ -52,7 +53,7 @@ public class BambooBuildInfo implements BambooBuild {
 
 
 	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerCfg bambooServerCfg,
-			@NotNull Date pollingTime, @Nullable String projectName, boolean isEnabled, @Nullable String buildNumber,
+			@NotNull Date pollingTime, @Nullable String projectName, boolean isEnabled, @Nullable Integer buildNumber,
 			@NotNull BuildStatus buildState, @Nullable String buildReason, @Nullable Date startTime,
 			@Nullable String buildTestSummary, @Nullable String commitComment, final int testsPassedCount,
 			final int testsFailedCount, @Nullable Date completedDate, @Nullable String message,
@@ -116,6 +117,7 @@ public class BambooBuildInfo implements BambooBuild {
 		return planName;
 	}
 
+	@NotNull
 	public String getBuildKey() {
 		return planKey;
 	}
@@ -124,7 +126,18 @@ public class BambooBuildInfo implements BambooBuild {
 		return enabled;
 	}
 
-	public String getBuildNumber() {
+	public boolean isValid() {
+		return buildNumber != null;
+	}
+
+	/**
+	 * @return build number
+	 * @throws UnsupportedOperationException in case this object represents invalid build
+	 */
+	public int getBuildNumber() throws UnsupportedOperationException {
+		if (buildNumber == null) {
+			throw new UnsupportedOperationException("This build has no number information");
+		}
 		return buildNumber;
 	}
 
@@ -206,7 +219,7 @@ public class BambooBuildInfo implements BambooBuild {
 		private final String planName;
 		private final BambooServerCfg bambooServerCfg;
 		private final String projectName;
-		private final String buildNumber;
+		private final Integer buildNumber;
 		@NotNull
 		private final BuildStatus buildState;
 		private boolean isEnabled = true;
@@ -237,7 +250,7 @@ public class BambooBuildInfo implements BambooBuild {
 		}
 
 		public Builder(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerCfg bambooServerCfg,
-				@Nullable String projectName, @Nullable String buildNumber, @NotNull BuildStatus state) {
+				@Nullable String projectName, @Nullable Integer buildNumber, @NotNull BuildStatus state) {
 			this.planKey = planKey;
 			this.planName = planName;
 			this.bambooServerCfg = bambooServerCfg;

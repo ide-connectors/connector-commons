@@ -281,7 +281,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	 * @return Information about the last build or error message
 	 */
 	@NotNull
-	public BambooBuild getLatestBuildForPlan(String planKey) throws RemoteApiException {
+	public BambooBuild getLatestBuildForPlan(@NotNull String planKey) throws RemoteApiException {
 		final List<BambooPlan> planList = listPlanNames();
 		final Boolean isEnabled = isPlanEnabled(planList, planKey);
 		return getLatestBuildForPlan(planKey, isEnabled != null ? isEnabled : true);
@@ -300,7 +300,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 
 	@NotNull
-	public BambooBuild getLatestBuildForPlan(final String planKey, final boolean isPlanEnabled) throws RemoteApiException {
+	public BambooBuild getLatestBuildForPlan(@NotNull final String planKey, final boolean isPlanEnabled) throws RemoteApiException {
 		String buildResultUrl = getBaseUrl() + LATEST_BUILD_FOR_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
 				+ "&buildKey=" + UrlUtil.encodeUrl(planKey);
 
@@ -375,14 +375,9 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	@NotNull
-	public BuildDetails getBuildResultDetails(String buildKey, String buildNumber) throws RemoteApiException {
-		String buildResultUrl;
-
-
-		buildResultUrl = getBaseUrl() + GET_BUILD_DETAILS_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
-				+ "&buildKey=" + UrlUtil.encodeUrl(buildKey)
-				+ "&buildNumber=" + UrlUtil.encodeUrl(buildNumber);
-
+	public BuildDetails getBuildResultDetails(@NotNull String planKey, int buildNumber) throws RemoteApiException {
+		final String buildResultUrl = getBaseUrl() + GET_BUILD_DETAILS_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
+				+ "&buildKey=" + UrlUtil.encodeUrl(planKey) + "&buildNumber=" + buildNumber;
 
 		try {
 			BuildDetailsInfo build = new BuildDetailsInfo();
@@ -481,36 +476,14 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 	}
 
-	public void addLabelToBuild(String buildKey, String buildNumber, String buildLabel) throws RemoteApiException {
-		String buildResultUrl;
-
-		buildResultUrl = getBaseUrl() + ADD_LABEL_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
-				+ "&buildKey=" + UrlUtil.encodeUrl(buildKey)
-				+ "&buildNumber=" + UrlUtil.encodeUrl(buildNumber)
-				+ "&label=" + UrlUtil.encodeUrl(buildLabel);
-
-
-		try {
-			Document doc = retrieveGetResponse(buildResultUrl);
-			String exception = getExceptionMessages(doc);
-			if (null != exception) {
-				throw new RemoteApiException(exception);
-			}
-		} catch (JDOMException e) {
-			throw new RemoteApiException("Server returned malformed response", e);
-		} catch (IOException e) {
-			throw new RemoteApiException(e.getMessage(), e);
-		}
-	}
-
-	public void addCommentToBuild(String buildKey, String buildNumber, String buildComment) throws RemoteApiException {
-		String buildResultUrl;
-
-		buildResultUrl = getBaseUrl() + ADD_COMMENT_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
-				+ "&buildKey=" + UrlUtil.encodeUrl(buildKey)
-				+ "&buildNumber=" + UrlUtil.encodeUrl(buildNumber)
-				+ "&content=" + UrlUtil.encodeUrl(buildComment);
-
+	/**
+	 * Currently length of the comment is limited by poor implementation which uses
+	 *        GET HTTP method (sic!) to post a new comment and the comment becomes part of URL, which is typically truncated
+	 *        by web servers.
+	 */
+	public void addLabelToBuild(@NotNull String planKey, int buildNumber, String buildLabel) throws RemoteApiException {
+		String buildResultUrl = getBaseUrl() + ADD_LABEL_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken) + "&buildKey="
+				+ UrlUtil.encodeUrl(planKey) + "&buildNumber=" + buildNumber + "&label=" + UrlUtil.encodeUrl(buildLabel);
 
 		try {
 			Document doc = retrieveGetResponse(buildResultUrl);
@@ -525,7 +498,29 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 	}
 
-	public void executeBuild(String buildKey) throws RemoteApiException {
+	/**
+	 * Currently length of the comment is limited by poor implementation which uses
+	 *        GET HTTP method (sic!) to post a new comment and the comment becomes part of URL, which is typically truncated
+	 *        by web servers.
+	 */
+	public void addCommentToBuild(@NotNull String planKey, int buildNumber, String buildComment) throws RemoteApiException {
+		String buildResultUrl = getBaseUrl() + ADD_COMMENT_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken) + "&buildKey="
+				+ UrlUtil.encodeUrl(planKey) + "&buildNumber=" + buildNumber + "&content=" + UrlUtil.encodeUrl(buildComment);
+
+		try {
+			Document doc = retrieveGetResponse(buildResultUrl);
+			String exception = getExceptionMessages(doc);
+			if (null != exception) {
+				throw new RemoteApiException(exception);
+			}
+		} catch (JDOMException e) {
+			throw new RemoteApiException("Server returned malformed response", e);
+		} catch (IOException e) {
+			throw new RemoteApiException(e.getMessage(), e);
+		}
+	}
+
+	public void executeBuild(@NotNull String buildKey) throws RemoteApiException {
 		String buildResultUrl;
 
 		buildResultUrl = getBaseUrl() + EXECUTE_BUILD_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
@@ -574,7 +569,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		final String planKey = getChildText(buildItemNode, "buildKey");
 		final String buildName = getChildText(buildItemNode, "buildName");
 		final String projectName = getChildText(buildItemNode, "projectName");
-		final String buildNumber = getChildText(buildItemNode, "buildNumber");
+		final int buildNumber = parseInt(getChildText(buildItemNode, "buildNumber"));
 		final String relativeBuildDate = getChildText(buildItemNode, "buildRelativeBuildDate");
 		final Date startTime = parseBuildDate(getChildText(buildItemNode, "buildTime"), "Cannot parse buildTime.");
 		final String buildCompletedDateStr = getChildText(buildItemNode, BUILD_COMPLETED_DATE_ELEM);
@@ -679,19 +674,13 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		return authToken != null;
 	}
 
-	public byte[] getBuildLogs(String buildKey, String buildNumber) throws RemoteApiException {
-		String buildResultUrl;
-
-		buildResultUrl = getBaseUrl() + "/download/"
-				+ UrlUtil.encodeUrl(buildKey)
-				+ "/build_logs/" + UrlUtil.encodeUrl(buildKey)
-				+ "-" + UrlUtil.encodeUrl(buildNumber)
-				+ ".log";
+	public String getBuildLogs(@NotNull String planKey, int buildNumber) throws RemoteApiException {
+		String buildResultUrl = new StringBuilder().append(getBaseUrl()).append("/download/")
+				.append(UrlUtil.encodeUrl(planKey)).append("/build_logs/").append(UrlUtil.encodeUrl(planKey)).append("-")
+				.append(buildNumber).append(".log").toString();
 
 		try {
-			return retrieveGetResponseAsBytes(buildResultUrl);
-		} catch (JDOMException e) {
-			throw new RemoteApiException("Server returned malformed response", e);
+			return doConditionalGet(buildResultUrl);
 		} catch (IOException e) {
 			throw new RemoteApiException(e.getMessage(), e);
 		}

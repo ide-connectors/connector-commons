@@ -43,16 +43,16 @@ public class AutoRenewBambooSession implements BambooSession {
 		this.delegate = bambooSession;
 	}
 
-	public void addCommentToBuild(String buildKey, String buildNumber, String buildComment) throws RemoteApiException {
+	public void addCommentToBuild(@NotNull String planKey, int buildNumber, String buildComment) throws RemoteApiException {
 		try {
-			delegate.addCommentToBuild(buildKey, buildNumber, buildComment);
+			delegate.addCommentToBuild(planKey, buildNumber, buildComment);
 		} catch (RemoteApiSessionExpiredException e) {
 			delegate.login(userName, password);
-			delegate.addCommentToBuild(buildKey, buildNumber, buildComment);
+			delegate.addCommentToBuild(planKey, buildNumber, buildComment);
 		}
 	}
 
-	public void executeBuild(String buildKey) throws RemoteApiException {
+	public void executeBuild(@NotNull String buildKey) throws RemoteApiException {
 		try {
 			delegate.executeBuild(buildKey);
 		} catch (RemoteApiSessionExpiredException e) {
@@ -61,22 +61,22 @@ public class AutoRenewBambooSession implements BambooSession {
 		}
 	}
 
-	public void addLabelToBuild(String buildKey, String buildNumber, String buildLabel) throws RemoteApiException {
+	public void addLabelToBuild(@NotNull String planKey, int buildNumber, String buildLabel) throws RemoteApiException {
 		try {
-			delegate.addLabelToBuild(buildKey, buildNumber, buildLabel);
+			delegate.addLabelToBuild(planKey, buildNumber, buildLabel);
 		} catch (RemoteApiSessionExpiredException e) {
 			delegate.login(userName, password);
-			delegate.addLabelToBuild(buildKey, buildNumber, buildLabel);
+			delegate.addLabelToBuild(planKey, buildNumber, buildLabel);
 		}
 	}
 
 	@NotNull
-	public BuildDetails getBuildResultDetails(String buildKey, String buildNumber) throws RemoteApiException {
+	public BuildDetails getBuildResultDetails(@NotNull String planKey, int buildNumber) throws RemoteApiException {
 		try {
-			return delegate.getBuildResultDetails(buildKey, buildNumber);
+			return delegate.getBuildResultDetails(planKey, buildNumber);
 		} catch (RemoteApiSessionExpiredException e) {
 			delegate.login(userName, password);
-			return delegate.getBuildResultDetails(buildKey, buildNumber);
+			return delegate.getBuildResultDetails(planKey, buildNumber);
 		}					
 	}
 
@@ -91,7 +91,7 @@ public class AutoRenewBambooSession implements BambooSession {
 	}
 
 	@NotNull
-	public BambooBuild getLatestBuildForPlan(final String planKey, final boolean isPlanEnabled) throws RemoteApiException {
+	public BambooBuild getLatestBuildForPlan(@NotNull final String planKey, final boolean isPlanEnabled) throws RemoteApiException {
 		try {
 			return delegate.getLatestBuildForPlan(planKey, isPlanEnabled);
 		} catch (RemoteApiSessionExpiredException e) {
@@ -101,7 +101,7 @@ public class AutoRenewBambooSession implements BambooSession {
 	}
 
 	@NotNull
-	public BambooBuild getLatestBuildForPlan(String planKey) throws RemoteApiException {
+	public BambooBuild getLatestBuildForPlan(@NotNull String planKey) throws RemoteApiException {
 		try {
 			return delegate.getLatestBuildForPlan(planKey);
 		} catch (RemoteApiSessionExpiredException e) {
@@ -114,12 +114,12 @@ public class AutoRenewBambooSession implements BambooSession {
 		return delegate.isLoggedIn();
 	}
 
-    public byte[] getBuildLogs(String buildKey, String buildNumber) throws RemoteApiException {
+    public String getBuildLogs(@NotNull String planKey, int buildNumber) throws RemoteApiException {
         try {
-            return delegate.getBuildLogs(buildKey, buildNumber);
+            return delegate.getBuildLogs(planKey, buildNumber);
         } catch (RemoteApiSessionExpiredException e) {
             delegate.login(userName, password);
-            return delegate.getBuildLogs(buildKey, buildNumber);
+            return delegate.getBuildLogs(planKey, buildNumber);
         }
     }
 

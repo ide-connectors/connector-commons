@@ -24,6 +24,8 @@ import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 
 import java.util.Collection;
 
+import org.jetbrains.annotations.NotNull;
+
 public interface BambooServerFacade extends ProductServerFacade {
     Collection<BambooProject> getProjectList(BambooServerCfg bambooServer)
             throws ServerPasswordNotProvidedException, RemoteApiException;
@@ -34,21 +36,21 @@ public interface BambooServerFacade extends ProductServerFacade {
     Collection<BambooBuild> getSubscribedPlansResults(BambooServerCfg bambooServer)
             throws ServerPasswordNotProvidedException;
 
-    BuildDetails getBuildDetails(BambooServerCfg bambooServer, String buildKey, String buildNumber)
+    BuildDetails getBuildDetails(BambooServerCfg bambooServer, @NotNull String planKey, int buildNumber)
             throws ServerPasswordNotProvidedException, RemoteApiException;
 
-    void addLabelToBuild(BambooServerCfg bambooServer, String buildKey, String buildNumber, String buildComment)
+    void addLabelToBuild(BambooServerCfg bambooServer, @NotNull String planKey, int buildNumber, String buildComment)
             throws ServerPasswordNotProvidedException, RemoteApiException;
 
-    void addCommentToBuild(BambooServerCfg bambooServer, String buildKey, String buildNumber, String buildComment)
+    void addCommentToBuild(BambooServerCfg bambooServer, @NotNull String planKey, int buildNumber, String buildComment)
             throws ServerPasswordNotProvidedException, RemoteApiException;
 
-    void executeBuild(BambooServerCfg bambooServer, String buildKey)
+    void executeBuild(BambooServerCfg bambooServer, @NotNull String planKey)
             throws ServerPasswordNotProvidedException, RemoteApiException;
 
-    byte[] getBuildLogs(BambooServerCfg server, String buildKey, String buildNumber)
-            throws ServerPasswordNotProvidedException, RemoteApiException;
-    
+	String getBuildLogs(BambooServerCfg bambooServer, @NotNull String planKey, int buildNumber)
+			throws ServerPasswordNotProvidedException, RemoteApiException;
+
 	void setCallback(HttpSessionCallback callback);
 
 }

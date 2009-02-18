@@ -38,12 +38,18 @@ public interface BambooBuild {
 
     String getBuildName();
 
+	@NotNull
 	String getBuildKey();
 
 	boolean getEnabled();
 
-	@Nullable
-	String getBuildNumber();
+	boolean isValid();
+
+	/**
+	 * @return build number
+	 * @throws UnsupportedOperationException in case this object represents invalid build
+	 */
+	int getBuildNumber() throws UnsupportedOperationException;
 
     String getBuildResultUrl();
 

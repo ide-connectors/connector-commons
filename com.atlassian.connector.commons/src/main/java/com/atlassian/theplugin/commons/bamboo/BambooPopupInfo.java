@@ -48,8 +48,7 @@ public class BambooPopupInfo {
 
 		for (BambooBuild build : bambooBuilds) {
 			htmlContent.append(createHtmlRow(
-					build.getBuildKey(),
-					build.getBuildNumber(),
+					build.getBuildKey(), build.isValid() ? build.getBuildNumber() : null,
 					build.getBuildResultUrl(),
 					build.getStatus()));
 		}
@@ -67,7 +66,7 @@ public class BambooPopupInfo {
 	}
 
 
-	private String createHtmlRow(String buildKey, String buildNumber, String url, BuildStatus buildStatus) {
+	private String createHtmlRow(String buildKey, Integer buildNumber, String url, BuildStatus buildStatus) {
 		String color = "grey";
 		String status = "unknown";
 		String icon = "";
@@ -88,16 +87,17 @@ public class BambooPopupInfo {
 		sb.append(icon);
 		sb.append("\" height=16 width=16 border=0 valing=bottom/>&nbsp;");
 		sb.append("</td><td nowrap valign=top align=left>");
-		sb
-				.append("<span style=\"font-size:12pt ; font-family: arial, helvetica, sans-serif; font-weight: bold; color: ");
+		sb.append("<span style=\"font-size:12pt ; font-family: arial, helvetica, sans-serif; font-weight: bold; color: ");
 		sb.append(color);
 		sb.append("\">");
 		sb.append("<a href=\"");
 		sb.append(url);
 		sb.append("\">");
 		sb.append(buildKey);
-		sb.append("-");
-		sb.append(buildNumber);
+		if (buildNumber != null) {
+			sb.append("-");
+			sb.append(buildNumber);
+		}
 		sb.append("</a> ");
 		sb.append(status);
 		sb.append("</span></td></tr></table>");

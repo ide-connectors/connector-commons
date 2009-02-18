@@ -842,17 +842,14 @@ public class BambooSessionTest extends AbstractSessionTest {
 		final String TEXT = "ĄŚĆŹ$&#";
 		final String charset1 = "UTF-8";
 		final String charset2 = "UTF-16";
-		final String charset3 = "ISO-8859-2";
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/download/myplan/build_logs/myplan-123.log", new BuildLogCallback(TEXT, charset1));
 		mockServer.expect("/download/myplan/build_logs/myplan-123.log", new BuildLogCallback(TEXT, charset2));
-		mockServer.expect("/download/myplan/build_logs/myplan-123.log", new BuildLogCallback(TEXT, charset3));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		final BambooSession session = new BambooSessionImpl(mockBaseUrl);
 		session.login(USER_NAME, PASSWORD.toCharArray());
 
-		assertEquals(TEXT, session.getBuildLogs("myplan", 123));
 		assertEquals(TEXT, session.getBuildLogs("myplan", 123));
 		assertEquals(TEXT, session.getBuildLogs("myplan", 123));
 		session.logout();

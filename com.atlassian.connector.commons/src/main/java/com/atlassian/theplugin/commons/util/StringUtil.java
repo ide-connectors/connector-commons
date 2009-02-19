@@ -88,4 +88,20 @@ public final class StringUtil {
 		}
 		return out.toString();
 	}
+
+	public static String removeTrailingSlashes(String text) {
+		if (text == null) {
+			return null;
+		}
+
+		while (text.endsWith("/")) {
+			text = text.substring(0, text.length() - 1);
+		}
+
+		while (text.startsWith("/")) {
+			text = text.substring(1, text.length());
+		}
+
+		return text;
+	}
 }

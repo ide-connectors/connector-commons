@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractReviewNotification implements CrucibleNotification {
 	protected ReviewAdapter review;
@@ -32,6 +33,7 @@ public abstract class AbstractReviewNotification implements CrucibleNotification
 		return review.getPermId();
 	}
 
+	@NotNull
 	public String getItemUrl() {
 		return review.getReviewUrl();
 	}

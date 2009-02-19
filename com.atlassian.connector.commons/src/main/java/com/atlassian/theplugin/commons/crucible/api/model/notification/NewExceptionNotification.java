@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
 import com.atlassian.theplugin.commons.cfg.Server;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import org.jetbrains.annotations.NotNull;
 
 
 public class NewExceptionNotification implements CrucibleNotification {
@@ -39,6 +40,7 @@ public class NewExceptionNotification implements CrucibleNotification {
 		return null;
 	}
 
+	@NotNull
 	public String getItemUrl() {
 		return "";
 	}

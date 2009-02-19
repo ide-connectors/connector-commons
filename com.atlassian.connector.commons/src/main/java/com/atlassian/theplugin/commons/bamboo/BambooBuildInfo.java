@@ -52,7 +52,7 @@ public class BambooBuildInfo implements BambooBuild {
 	private final Set<String> commiters;
 
 
-	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerCfg bambooServerCfg,
+	private BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerCfg bambooServerCfg,
 			@NotNull Date pollingTime, @Nullable String projectName, boolean isEnabled, @Nullable Integer buildNumber,
 			@NotNull BuildStatus buildState, @Nullable String buildReason, @Nullable Date startTime,
 			@Nullable String buildTestSummary, @Nullable String commitComment, final int testsPassedCount,

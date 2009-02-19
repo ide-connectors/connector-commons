@@ -13,23 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
+import org.jetbrains.annotations.NotNull;
 
-public class ReviewDataChangedNotification extends AbstractReviewNotification {
-	public ReviewDataChangedNotification(ReviewAdapter review) {
+public class BasisReviewDetailsChangedNotification extends AbstractReviewNotification {
+	private final CrucibleNotificationType notificationType;
+	private final String message;
+
+	public BasisReviewDetailsChangedNotification(@NotNull ReviewAdapter review,
+			@NotNull CrucibleNotificationType notificationType, @NotNull String message) {
 		super(review);
+		this.notificationType = notificationType;
+		this.message = message;
 	}
 
 	@Override
 	public CrucibleNotificationType getType() {
-		return CrucibleNotificationType.REVIEW_DATA_CHANGED;
+		return notificationType;
 	}
 
 	@Override
 	public String getPresentationMessage() {
-		return "Review data changed";
+		return message;
 	}
 }

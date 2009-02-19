@@ -9,10 +9,12 @@ public class UpdatedGeneralCommentNotification extends AbstractUpdatedCommentNot
 		super(review, user, isDraft, wasDraft);
 	}
 
+	@Override
 	public CrucibleNotificationType getType() {
 		return CrucibleNotificationType.UPDATED_GENERAL_COMMENT;
 	}
 
+	@Override
 	public String getPresentationMessage() {
 		return "General comment updated by " + getAuthor().getDisplayName();
 	}

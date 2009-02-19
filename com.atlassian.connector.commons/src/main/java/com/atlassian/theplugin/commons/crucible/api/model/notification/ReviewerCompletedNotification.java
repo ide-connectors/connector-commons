@@ -27,10 +27,12 @@ public class ReviewerCompletedNotification extends AbstractReviewNotification {
 		this.reviewer = reviewer;
 	}
 
+	@Override
 	public CrucibleNotificationType getType() {
 		return CrucibleNotificationType.REVIEWER_COMPLETED;
 	}
 
+	@Override
 	public String getPresentationMessage() {
 		return "Reviewer " + reviewer.getDisplayName() + " " + (reviewer.isCompleted() ? "completed" : " uncompleted")
 				+ " review";

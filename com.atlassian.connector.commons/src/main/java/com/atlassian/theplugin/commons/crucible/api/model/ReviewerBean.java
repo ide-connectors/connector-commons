@@ -19,7 +19,12 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 public class ReviewerBean extends UserBean implements Reviewer {
     private boolean completed;
 
-    public ReviewerBean() {
+	public ReviewerBean(final String userName, final boolean completed) {
+		super(userName);
+		this.completed = completed;
+	}
+
+	public ReviewerBean() {
     }
 
     public boolean isCompleted() {

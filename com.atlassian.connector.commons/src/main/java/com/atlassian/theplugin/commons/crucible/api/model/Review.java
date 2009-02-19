@@ -27,14 +27,16 @@ import java.util.Collection;
 
 public interface Review {
 
-	// todo add server configuration (Server object)
-
 	boolean isCompleted();
 
 	User getAuthor();
 
 	User getCreator();
 
+	/**
+	 *
+	 * @return Statement of Objectives
+	 */
 	String getDescription();
 
 	User getModerator();

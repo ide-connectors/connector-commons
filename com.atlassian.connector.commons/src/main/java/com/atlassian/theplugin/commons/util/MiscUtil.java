@@ -45,6 +45,10 @@ public final class MiscUtil {
         return new HashSet<T>();
     }
 
+	public static <T> Set<T> buildHashSet(T ... elements) {
+		return new HashSet<T>(Arrays.asList(elements));
+	}
+
 	public static <T> Set<T> buildHashSet(Collection<T> elements) {
 		return new HashSet<T>(elements);
 	}

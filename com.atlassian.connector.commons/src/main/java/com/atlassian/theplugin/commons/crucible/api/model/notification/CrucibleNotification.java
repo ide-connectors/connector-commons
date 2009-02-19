@@ -17,12 +17,14 @@
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import org.jetbrains.annotations.NotNull;
 
 public interface CrucibleNotification {
 	CrucibleNotificationType getType();
 
 	PermId getId();
 
+	@NotNull
 	String getItemUrl();
 
 	String getPresentationMessage();

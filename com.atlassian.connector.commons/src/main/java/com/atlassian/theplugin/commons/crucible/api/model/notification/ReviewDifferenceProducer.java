@@ -5,17 +5,24 @@ import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
-import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.util.MiscUtil;
+import static com.atlassian.theplugin.commons.util.MiscUtil.isModified;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Collection;
+import java.util.HashSet;
 
+/**
+ * This class is NOT thread-safe!
+ */
 public class ReviewDifferenceProducer {
 	private final ReviewAdapter oldReview;
 	private final ReviewAdapter newReview;
@@ -37,11 +44,43 @@ public class ReviewDifferenceProducer {
 		return filesEqual;
 	}
 
-	public int getChangesCount() {
+	public int getCommentChangesCount() {
 		return changes;
 	}
 
 	public List<CrucibleNotification> getDiff() {
+		notifications.clear();
+		if (isModified(oldReview.getDescription(), newReview.getDescription())) {
+			notifications.add(new BasisReviewDetailsChangedNotification(newReview,
+					CrucibleNotificationType.STATEMENT_OF_OBJECTIVES_CHANGED, "Statement of Objectives has been changed"));
+		}
+		if (isModified(oldReview.getName(), newReview.getName())) {
+			notifications.add(new BasisReviewDetailsChangedNotification(newReview, CrucibleNotificationType.NAME_CHANGED,
+					"Review name has been changed"));
+		}
+
+		if (isModified(oldReview.getModerator(), newReview.getModerator())) {
+			notifications.add(new BasisReviewDetailsChangedNotification(newReview, CrucibleNotificationType.MODERATOR_CHANGED,
+					"Moderator has changed"));
+		}
+
+		if (isModified(oldReview.getAuthor(), newReview.getAuthor())) {
+			notifications.add(new BasisReviewDetailsChangedNotification(newReview, CrucibleNotificationType.AUTHOR_CHANGED,
+					"Author has changed"));
+		}
+
+		if (isModified(oldReview.getSummary(), newReview.getSummary())) {
+			notifications.add(new BasisReviewDetailsChangedNotification(newReview, CrucibleNotificationType.SUMMARY_CHANGED,
+					"Summary has been changed"));
+		}
+
+		if (isModified(oldReview.getProjectKey(), newReview.getProjectKey())) {
+			notifications.add(new BasisReviewDetailsChangedNotification(newReview, CrucibleNotificationType.PROJECT_CHANGED,
+					"Project has been changed"));
+		}
+
+		processReviewers();
+
 		shortEqual = isShortContentEqual();
 		if (!shortEqual) {
 			notifications.add(new ReviewDataChangedNotification(newReview));
@@ -59,23 +98,15 @@ public class ReviewDifferenceProducer {
 
 	private boolean isShortContentEqual() {
 		return !stateChanged()
-				&& !reviewersStatusChanged()
 				&& areGeneralCommentsEqual()
 				&& areActionsEqual()
 				&& oldReview.isAllowReviewerToJoin() == newReview.isAllowReviewerToJoin()
 				&& oldReview.getMetricsVersion() == newReview.getMetricsVersion()
-				&& areObjectsEqual(oldReview.getAuthor(), newReview.getAuthor())
 				&& areObjectsEqual(oldReview.getCloseDate(), newReview.getCloseDate())
 				&& areObjectsEqual(oldReview.getCreateDate(), newReview.getCreateDate())
 				&& areObjectsEqual(oldReview.getCreator(), newReview.getCreator())
-				&& areObjectsEqual(oldReview.getDescription(), newReview.getDescription())
-				&& areObjectsEqual(oldReview.getModerator(), newReview.getModerator())
-				&& areObjectsEqual(oldReview.getName(), newReview.getName())
 				&& areObjectsEqual(oldReview.getParentReview(), newReview.getParentReview())
-				&& areObjectsEqual(oldReview.getProjectKey(), newReview.getProjectKey())
 				&& areObjectsEqual(oldReview.getRepoName(), newReview.getRepoName())
-				&& areObjectsEqual(oldReview.getSummary(), newReview.getSummary())
-				&& areObjectsEqual(oldReview.getDescription(), newReview.getDescription())
 				&& areTransitionsEqual();
 	}
 
@@ -148,25 +179,30 @@ public class ReviewDifferenceProducer {
 	}
 
 	private static <T> boolean areObjectsEqual(T oldReview, T newReview) {
-		if (oldReview == null && newReview == null) {
-			return true;
-		}
-		if (oldReview == null || newReview == null) {
-			return false;
-		}
-		return oldReview.equals(newReview);
+		return MiscUtil.isEqual(oldReview, newReview);
 	}
 
 	private boolean stateChanged() {
-		if (!oldReview.getState().equals(newReview.getState())) {
+		if (!MiscUtil.isEqual(oldReview.getState(), newReview.getState())) {
 			notifications.add(new ReviewStateChangedNotification(oldReview, newReview.getState()));
 			return true;
 		}
 		return false;
 	}
 
-	private boolean reviewersStatusChanged() {
-		boolean change = false;
+	@Nullable
+	private Collection<String> buildReviewerSet(@Nullable Set<Reviewer> reviewers) {
+		if (reviewers == null) {
+			return null;
+		}
+		final Set<String> res = new HashSet<String>(reviewers.size() * 2);
+		for (Reviewer reviewer : reviewers) {
+			res.add(reviewer.getUserName());
+		}
+		return res;
+	}
+
+	private void processReviewers() {
 		boolean allCompleted = true;
 		boolean atLeastOneChanged = false;
 
@@ -179,14 +215,16 @@ public class ReviewDifferenceProducer {
 			newReviewers = newReview.getReviewers();
 		} catch (ValueNotYetInitialized e) { /* ignore */ }
 
-		if (oldReviewers == null && newReviewers == null) {
-			return false;
+		final Collection<String> oldR = buildReviewerSet(oldReviewers);
+		final Collection<String> newR = buildReviewerSet(newReviewers);
+
+		if (MiscUtil.isModified(oldR, newR)) {
+			notifications.add(new BasisReviewDetailsChangedNotification(newReview, CrucibleNotificationType.REVIEWERS_CHANGED,
+					"Reviewers have been changed"));
 		}
+
 		if (oldReviewers == null || newReviewers == null) {
-			return true;
-		}
-		if (oldReviewers.size() != newReviewers.size()) {
-			return true;
+			return;
 		}
 
 		for (Reviewer reviewer : newReviewers) {
@@ -194,7 +232,6 @@ public class ReviewDifferenceProducer {
 				if (reviewer.getUserName().equals(oldReviewer.getUserName())) {
 					if (reviewer.isCompleted() != oldReviewer.isCompleted()) {
 						notifications.add(new ReviewerCompletedNotification(newReview, reviewer));
-						change = true;
 						atLeastOneChanged = true;
 					}
 				}
@@ -204,10 +241,8 @@ public class ReviewDifferenceProducer {
 			}
 		}
 		if (allCompleted && atLeastOneChanged) {
-			change = true;
 			notifications.add(new ReviewCompletedNotification(newReview));
 		}
-		return change;
 	}
 
 	private int checkGeneralReplies(ReviewAdapter review, GeneralComment oldComment, GeneralComment newComment) {
@@ -248,8 +283,7 @@ public class ReviewDifferenceProducer {
 		return replyChanges;
 	}
 
-	private int checkVersionedReplies(ReviewAdapter review, final PermId filePermId, VersionedComment oldComment,
-			VersionedComment newComment) {
+	private int checkVersionedReplies(ReviewAdapter review, VersionedComment oldComment, VersionedComment newComment) {
 		int replyChanges = 0;
 		for (VersionedComment reply : newComment.getReplies()) {
 			VersionedComment existingReply = null;
@@ -356,7 +390,7 @@ public class ReviewDifferenceProducer {
 											comment.isDraft(), existing.isDraft()));
 						}
 					}
-					commentChanges += checkVersionedReplies(newReviewAdapter, fileInfo.getPermId(), existing, comment);
+					commentChanges += checkVersionedReplies(newReviewAdapter, existing, comment);
 				}
 			}
 

@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.EnumSet;
 
+import org.jetbrains.annotations.NotNull;
+
 public class ReviewAdapter {
 	private Review review;
 
@@ -155,6 +157,7 @@ public class ReviewAdapter {
 		return server;
 	}
 
+	@NotNull
 	public String getReviewUrl() {
 		String baseUrl = server.getUrl();
 		while (baseUrl.length() > 0 && baseUrl.charAt(baseUrl.length() - 1) == '/') {
@@ -400,6 +403,17 @@ public class ReviewAdapter {
 
 		ReviewDifferenceProducer reviewDifferenceProducer = new ReviewDifferenceProducer(this, newReview);
 		List<CrucibleNotification> differences = reviewDifferenceProducer.getDiff();
+		review.setAuthor(newReview.getAuthor());
+		review.setModerator(newReview.getModerator());
+		review.setName(newReview.getName());
+		review.setProjectKey(newReview.getProjectKey());
+		review.setDescription(newReview.getDescription());
+		review.setSummary(newReview.getSummary());
+		try {
+			review.setReviewers(newReview.getReviewers());
+		} catch (ValueNotYetInitialized valueNotYetInitialized) {
+			// shame
+		}
 		if (!reviewDifferenceProducer.isShortEqual()) {
 			try {
 				setGeneralComments(newReview.getGeneralComments());
@@ -413,24 +427,13 @@ public class ReviewAdapter {
 				// shame
 			}
 			review.setAllowReviewerToJoin(newReview.isAllowReviewerToJoin());
-			review.setAuthor(newReview.getAuthor());
 			review.setCloseDate(newReview.getCloseDate());
 			review.setCreateDate(newReview.getCreateDate());
 			review.setCreator(newReview.getCreator());
-			review.setDescription(newReview.getDescription());
 			review.setMetricsVersion(newReview.getMetricsVersion());
-			review.setModerator(newReview.getModerator());
-			review.setName(newReview.getName());
 			review.setParentReview(newReview.getParentReview());
-			review.setProjectKey(newReview.getProjectKey());
 			review.setRepoName(newReview.getRepoName());
-			try {
-				review.setReviewers(newReview.getReviewers());
-			} catch (ValueNotYetInitialized valueNotYetInitialized) {
-				// shame
-			}
 			review.setState(newReview.getState());
-			review.setSummary(newReview.getSummary());
 			try {
 				review.setTransitions(newReview.getTransitions());
 			} catch (ValueNotYetInitialized valueNotYetInitialized) {
@@ -446,7 +449,7 @@ public class ReviewAdapter {
 			} catch (ValueNotYetInitialized valueNotYetInitialized) {
 				// shame
 			}
-			if (reviewDifferenceProducer.getChangesCount() > 0) {
+			if (reviewDifferenceProducer.getCommentChangesCount() > 0) {
 				reviewChanged = true;
 			}
 		}

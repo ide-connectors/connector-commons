@@ -75,7 +75,7 @@ public class BambooBuildAdapter {
 		return build.getEnabled();
 	}
 
-	public int getBuildNumber() {
+	public int getBuildNumber() throws UnsupportedOperationException {
 		return build.getBuildNumber();
 	}
 

@@ -27,7 +27,7 @@ import java.util.HashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BambooBuildInfo implements BambooBuild {
+public final class BambooBuildInfo implements BambooBuild {
 	private final Date pollingTime;
 	private final BambooServerCfg server;
 	private final String projectName;
@@ -52,7 +52,7 @@ public class BambooBuildInfo implements BambooBuild {
 	private final Set<String> commiters;
 
 
-	private BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerCfg bambooServerCfg,
+	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerCfg bambooServerCfg,
 			@NotNull Date pollingTime, @Nullable String projectName, boolean isEnabled, @Nullable Integer buildNumber,
 			@NotNull BuildStatus buildState, @Nullable String buildReason, @Nullable Date startTime,
 			@Nullable String buildTestSummary, @Nullable String commitComment, final int testsPassedCount,

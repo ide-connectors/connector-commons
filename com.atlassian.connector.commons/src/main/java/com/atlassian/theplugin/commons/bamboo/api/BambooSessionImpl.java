@@ -18,10 +18,24 @@ package com.atlassian.theplugin.commons.bamboo.api;
 
 import com.atlassian.theplugin.commons.BambooFileInfo;
 import com.atlassian.theplugin.commons.BambooFileInfoImpl;
-import com.atlassian.theplugin.commons.bamboo.*;
+import com.atlassian.theplugin.commons.bamboo.BambooBuild;
+import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
+import com.atlassian.theplugin.commons.bamboo.BambooChangeSetImpl;
+import com.atlassian.theplugin.commons.bamboo.BambooPlan;
+import com.atlassian.theplugin.commons.bamboo.BambooProject;
+import com.atlassian.theplugin.commons.bamboo.BambooProjectInfo;
+import com.atlassian.theplugin.commons.bamboo.BuildDetails;
+import com.atlassian.theplugin.commons.bamboo.BuildDetailsInfo;
+import com.atlassian.theplugin.commons.bamboo.BuildStatus;
+import com.atlassian.theplugin.commons.bamboo.TestDetailsInfo;
+import com.atlassian.theplugin.commons.bamboo.TestResult;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
-import com.atlassian.theplugin.commons.remoteapi.*;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
@@ -34,16 +48,21 @@ import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Communication stub for Bamboo REST API.
@@ -54,6 +73,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	private static final String LIST_PROJECT_ACTION = "/api/rest/listProjectNames.action";
 	private static final String LIST_PLAN_ACTION = "/api/rest/listBuildNames.action";
 	private static final String LATEST_BUILD_FOR_PLAN_ACTION = "/api/rest/getLatestBuildResults.action";
+	private static final String RECENT_BUILDS_FOR_PLAN_ACTION = "/api/rest/getRecentlyCompletedBuildResultsForBuild.action";
+	private static final String RECENT_BUILDS_FOR_USER_ACTION = "/api/rest/getLatestBuildsByUser.action";
 	private static final String LATEST_USER_BUILDS_ACTION = "/api/rest/getLatestUserBuilds.action";
 	private static final String GET_BUILD_DETAILS_ACTION = "/api/rest/getBuildResultsDetails.action";
 	private static final String ADD_LABEL_ACTION = "/api/rest/addLabelToBuildResults.action";
@@ -312,7 +333,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 			final List<Element> elements = XPath.newInstance("/response").selectNodes(doc);
 			if (elements != null && !elements.isEmpty()) {
 				Element e = elements.iterator().next();
-				final Set<String> commiters = constructBuildCommiters(doc);
+				final Set<String> commiters = constructBuildCommiters(e);
 				return constructBuildItem(e, new Date(), planKey, isPlanEnabled, commiters);
 			} else {
 				return constructBuildErrorInfo(planKey, "Malformed server reply: no response element", new Date());
@@ -326,18 +347,62 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 	}
 
-	private Set<String> constructBuildCommiters(final Document doc) throws JDOMException {
+	public Collection<BambooBuild> getRecentBuildsForPlan(@NotNull final String planKey)
+			throws RemoteApiException {
+		String buildResultUrl = getBaseUrl() + RECENT_BUILDS_FOR_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
+				+ "&buildKey=" + UrlUtil.encodeUrl(planKey);
+		return getBuildsCollection(buildResultUrl, planKey);
+	}
+
+	public Collection<BambooBuild> getRecentBuildsForUser()
+			throws RemoteApiException {
+		String buildResultUrl = getBaseUrl() + RECENT_BUILDS_FOR_USER_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
+				+ "&username=" + UrlUtil.encodeUrl(getUsername());
+		return getBuildsCollection(buildResultUrl, getUsername());
+	}
+
+	private Collection<BambooBuild> getBuildsCollection(@NotNull final String url, @NotNull final String key)
+			throws RemoteApiException {
+
+		final List<BambooBuild> builds = new ArrayList<BambooBuild>();
+		try {
+			Document doc = retrieveGetResponse(url);
+			String exception = getExceptionMessages(doc);
+			if (null != exception) {
+				builds.add(constructBuildErrorInfo(url, exception, new Date()));
+				return builds;
+			}
+
+			@SuppressWarnings("unchecked")
+			final List<Element> elements = XPath.newInstance("/response/build").selectNodes(doc);
+			if (elements == null && elements.isEmpty()) {
+				builds.add(constructBuildErrorInfo(url, "Malformed server reply: no response element", new Date()));
+			} else {
+				for (Element element : elements) {
+					final Set<String> commiters = constructBuildCommiters(element);
+					builds.add(constructBuildItem(element, new Date(), key, true, commiters));
+				}
+			}
+		} catch (IOException e) {
+			builds.add(constructBuildErrorInfo(key, e.getMessage(), new Date()));
+		} catch (JDOMException e) {
+			builds.add(constructBuildErrorInfo(key, "Server returned malformed response", new Date()));
+		} catch (RemoteApiException e) {
+			builds.add(constructBuildErrorInfo(key, e.getMessage(), new Date()));
+		}
+		return builds;
+	}
+
+	private Set<String> constructBuildCommiters(final Element element) throws JDOMException {
 
 		Set<String> commiters = new HashSet<String>();
 		@SuppressWarnings("unchecked")
-		final List<Element> commitElements = XPath.newInstance("/response/commits/commit").selectNodes(doc);
+		final List<Element> commitElements = XPath.newInstance("commits/commit").selectNodes(element);
 		if (!commitElements.isEmpty()) {
-
-			for (Element element : commitElements) {
-				commiters.add(element.getAttributeValue("author"));
+			for (Element commiter : commitElements) {
+				commiters.add(commiter.getAttributeValue("author"));
 			}
 		}
-
 		return commiters;
 	}
 
@@ -475,8 +540,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 	/**
 	 * Currently length of the comment is limited by poor implementation which uses
-	 *        GET HTTP method (sic!) to post a new comment and the comment becomes part of URL, which is typically truncated
-	 *        by web servers.
+	 * GET HTTP method (sic!) to post a new comment and the comment becomes part of URL, which is typically truncated
+	 * by web servers.
 	 */
 	public void addLabelToBuild(@NotNull String planKey, int buildNumber, String buildLabel) throws RemoteApiException {
 		String buildResultUrl = getBaseUrl() + ADD_LABEL_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken) + "&buildKey="
@@ -497,8 +562,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 	/**
 	 * Currently length of the comment is limited by poor implementation which uses
-	 *        GET HTTP method (sic!) to post a new comment and the comment becomes part of URL, which is typically truncated
-	 *        by web servers.
+	 * GET HTTP method (sic!) to post a new comment and the comment becomes part of URL, which is typically truncated
+	 * by web servers.
 	 */
 	public void addCommentToBuild(@NotNull String planKey, int buildNumber, String buildComment) throws RemoteApiException {
 		String buildResultUrl = getBaseUrl() + ADD_COMMENT_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken) + "&buildKey="
@@ -615,12 +680,12 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 	/**
 	 * Parses date without timezone info
-	 * 
+	 * <p/>
 	 * wseliga: I have no idea why this method silently returns null in case of parsing problem.
 	 * For now, I am going to leave it as it is to avoid hell of the problems, should it be really necessary
 	 * (and I am now a few days before 2.0.0 final release)
-
-	 * @param date string to parse
+	 *
+	 * @param date		 string to parse
 	 * @param errorMessage message used during logging
 	 * @return parsed date
 	 */

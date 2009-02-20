@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,19 +16,19 @@
 
 package com.atlassian.theplugin.commons.bamboo.api;
 
+import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
-import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
-
-import java.util.List;
-
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
+import java.util.List;
 
 public class AutoRenewBambooSession implements BambooSession {
 	private final BambooSession delegate;
@@ -77,7 +77,7 @@ public class AutoRenewBambooSession implements BambooSession {
 		} catch (RemoteApiSessionExpiredException e) {
 			delegate.login(userName, password);
 			return delegate.getBuildResultDetails(planKey, buildNumber);
-		}					
+		}
 	}
 
 	@NotNull
@@ -87,7 +87,7 @@ public class AutoRenewBambooSession implements BambooSession {
 		} catch (RemoteApiSessionExpiredException e) {
 			delegate.login(userName, password);
 			return delegate.getFavouriteUserPlans();
-		}		
+		}
 	}
 
 	@NotNull
@@ -108,23 +108,42 @@ public class AutoRenewBambooSession implements BambooSession {
 		} catch (RemoteApiSessionExpiredException e) {
 			delegate.login(userName, password);
 			return delegate.getLatestBuildForPlan(planKey);
-		}				
+		}
 	}
 
 	public boolean isLoggedIn() {
 		return delegate.isLoggedIn();
 	}
 
-    public String getBuildLogs(@NotNull String planKey, int buildNumber) throws RemoteApiException {
-        try {
-            return delegate.getBuildLogs(planKey, buildNumber);
-        } catch (RemoteApiSessionExpiredException e) {
-            delegate.login(userName, password);
-            return delegate.getBuildLogs(planKey, buildNumber);
-        }
-    }
+	public String getBuildLogs(@NotNull String planKey, int buildNumber) throws RemoteApiException {
+		try {
+			return delegate.getBuildLogs(planKey, buildNumber);
+		} catch (RemoteApiSessionExpiredException e) {
+			delegate.login(userName, password);
+			return delegate.getBuildLogs(planKey, buildNumber);
+		}
+	}
 
-    @NotNull
+	public Collection<BambooBuild> getRecentBuildsForPlan(@NotNull final String planKey) throws RemoteApiException {
+		try {
+			return delegate.getRecentBuildsForPlan(planKey);
+		} catch (RemoteApiSessionExpiredException e) {
+			delegate.login(userName, password);
+			return delegate.getRecentBuildsForPlan(planKey);
+		}
+	}
+
+	public Collection<BambooBuild> getRecentBuildsForUser()
+			throws RemoteApiException {
+		try {
+			return delegate.getRecentBuildsForUser();
+		} catch (RemoteApiSessionExpiredException e) {
+			delegate.login(userName, password);
+			return delegate.getRecentBuildsForUser();
+		}
+	}
+
+	@NotNull
 	public List<BambooPlan> listPlanNames() throws RemoteApiException {
 		try {
 			return delegate.listPlanNames();

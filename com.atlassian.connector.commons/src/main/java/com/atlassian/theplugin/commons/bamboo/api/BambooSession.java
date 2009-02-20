@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,16 +16,16 @@
 
 package com.atlassian.theplugin.commons.bamboo.api;
 
+import com.atlassian.theplugin.commons.bamboo.BambooBuild;
+import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
-import com.atlassian.theplugin.commons.bamboo.BambooPlan;
-import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-
-import java.util.List;
-
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Marek Went
@@ -49,7 +49,7 @@ public interface BambooSession extends ProductSession {
 	 * belongs to plans rather than to builds. When build was executed it must have been enabled! So even though
 	 * the plan may be disabled now it has nothing to do with the build for this plan which was executed before that!</li>
 	 * </ul>
-	 *
+	 * <p/>
 	 * Avoid calling this method, use rather {@link #getLatestBuildForPlan(String, boolean)}. In the future the whole
 	 * concept may be probably rethought.
 	 *
@@ -73,9 +73,9 @@ public interface BambooSession extends ProductSession {
 
 	/**
 	 * Adds comment to selected build.
-	 * 
-	 * @param planKey plan identifier
-	 * @param buildNumber build number
+	 *
+	 * @param planKey	  plan identifier
+	 * @param buildNumber  build number
 	 * @param buildComment the comment to add.
 	 * @throws RemoteApiException in case of some communication problem
 	 */
@@ -83,5 +83,9 @@ public interface BambooSession extends ProductSession {
 
 	void executeBuild(@NotNull String buildKey) throws RemoteApiException;
 
-    String getBuildLogs(@NotNull String planKey, int buildNumber) throws RemoteApiException;
+	String getBuildLogs(@NotNull String planKey, int buildNumber) throws RemoteApiException;
+
+	Collection<BambooBuild> getRecentBuildsForPlan(@NotNull String planKey) throws RemoteApiException;
+
+	Collection<BambooBuild> getRecentBuildsForUser() throws RemoteApiException;
 }

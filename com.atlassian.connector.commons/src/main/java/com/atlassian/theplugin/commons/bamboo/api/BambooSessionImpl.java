@@ -375,7 +375,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 			@SuppressWarnings("unchecked")
 			final List<Element> elements = XPath.newInstance("/response/build").selectNodes(doc);
-			if (elements == null && elements.isEmpty()) {
+			if (elements == null || elements.isEmpty()) {
 				builds.add(constructBuildErrorInfo(url, "Malformed server reply: no response element", new Date()));
 			} else {
 				for (Element element : elements) {

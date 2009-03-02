@@ -34,6 +34,7 @@ public enum CrucibleAction {
     DELETE("Delete review", "action:deleteReview");
 
     private final String displayName;
+	
     private final String actionName;
 
     CrucibleAction(String dName, String aName) {

@@ -30,56 +30,55 @@ import org.ddsteps.mock.httpserver.JettyMockServer;
  */
 public class FishEyeRestSessionTest extends AbstractSessionTest {
 
-    @Override
+	@Override
 	public void setUp() throws Exception {
-        super.setUp();
-    }
+		super.setUp();
+	}
 
-    @Override
+	@Override
 	public void tearDown() throws Exception {
-        super.tearDown();
-    }
+		super.tearDown();
+	}
 
+	@Override
 	protected String getLoginUrl() {
 		return "/api/rest/login";
 	}
 
+	@Override
 	protected ProductSession getProductSession(final String url) throws RemoteApiMalformedUrlException {
 		return new FishEyeRestSession(url);
 	}
 
+	@Override
 	protected JettyMockServer.Callback getLoginCallback(final boolean isFail) {
 		return new FishEyeLoginCallback(USER_NAME, PASSWORD, isFail);
 	}
 
 	public void xtestAdjustHttpHeader() {
-        //TODO: wseliga implement it
-        fail("unimplemented");
-    }
+		//TODO: wseliga implement it
+		fail("unimplemented");
+	}
 
-    public void xtestPreprocessResult() {
-        //TODO: wseliga implement it
-        fail("unimplemented");
-    }
+	public void xtestPreprocessResult() {
+		//TODO: wseliga implement it
+		fail("unimplemented");
+	}
 
+	public void xtestGetDocument() {
+		//TODO: wseliga implement it
+		fail("unimplemented");
+	}
 
-    public void xtestGetDocument() {
-        //TODO: wseliga implement it
-        fail("unimplemented");
-    }
+	public void xtestGetLastModified() {
+		//TODO: wseliga implement it
+		fail("unimplemented");
+	}
 
-    public void xtestGetLastModified() {
-        //TODO: wseliga implement it
-        fail("unimplemented");
-    }
-
-    public void xtestGetEtag() {
-        //TODO: wseliga implement it
-        fail("unimplemented");
-    }
-
-    public void testPlaceholder() {
-    }
+	public void xtestGetEtag() {
+		//TODO: wseliga implement it
+		fail("unimplemented");
+	}
 
 	public void testSuccessLoginURLWithSlash() throws Exception {
 		mockServer.expect(FishEyeRestSession.LOGIN_ACTION, new FishEyeLoginCallback(USER_NAME, PASSWORD));

@@ -16,25 +16,59 @@
 
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
+import com.atlassian.connector.commons.misc.IntRanges;
+import com.atlassian.connector.commons.misc.IntRangesParser;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.CrucibleVersion;
 import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
-import com.atlassian.connector.commons.misc.IntRangesParser;
-import com.atlassian.connector.commons.misc.IntRanges;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CommitType;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfoImpl;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProjectBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfoBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomField;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDefBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldValue;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldValueType;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.FileType;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.PermIdBean;
+import com.atlassian.theplugin.commons.crucible.api.model.RepositoryBean;
+import com.atlassian.theplugin.commons.crucible.api.model.RepositoryType;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewBean;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewerBean;
+import com.atlassian.theplugin.commons.crucible.api.model.State;
+import com.atlassian.theplugin.commons.crucible.api.model.SvnRepositoryBean;
+import com.atlassian.theplugin.commons.crucible.api.model.UserBean;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.CDATA;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class CrucibleRestXmlHelper {
 	private static final String CDATA_END = "]]>";
-
 
 	///CLOVER:OFF
 	private CrucibleRestXmlHelper() {
@@ -424,6 +458,15 @@ public final class CrucibleRestXmlHelper {
 				null
 		);
 
+		final String fromContentUrl = getChildText(reviewItemNode, "fromContentUrl");
+		if (!"".equals(fromContentUrl)) {
+			reviewItem.getOldFileDescriptor().setContentUrl(fromContentUrl);
+		}
+		final String toContentUrl = getChildText(reviewItemNode, "toContentUrl");
+		if (!"".equals(toContentUrl)) {
+			reviewItem.getFileDescriptor().setContentUrl(toContentUrl);
+		}
+
 		String c = getChildText(reviewItemNode, "commitType");
 		if (!"".equals(c)) {
 			reviewItem.setCommitType(CommitType.valueOf(c));
@@ -453,6 +496,15 @@ public final class CrucibleRestXmlHelper {
 			}
 		}
 		reviewItem.setRepositoryName(getChildText(reviewItemNode, "repositoryName"));
+		if (reviewItem.getRepositoryName().startsWith(RepositoryType.UPLOAD.name())) {
+			reviewItem.setRepositoryType(RepositoryType.UPLOAD);
+		} else {
+			if (reviewItem.getRepositoryName().startsWith(RepositoryType.PATCH.name())) {
+				reviewItem.setRepositoryType(RepositoryType.PATCH);
+			} else {
+				reviewItem.setRepositoryType(RepositoryType.SCM);
+			}
+		}
 		reviewItem.setAuthorName(getChildText(reviewItemNode, "authorName"));
 		reviewItem.setCommitDate(parseDateTime(getChildText(reviewItemNode, "commitDate")));
 		final String fileType = getChildText(reviewItemNode, "fileType");

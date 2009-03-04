@@ -21,8 +21,9 @@ import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.crucible.ProjectCache;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
+import com.atlassian.theplugin.commons.crucible.api.UploadItem;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
@@ -35,6 +36,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewBean;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewItemContentType;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
 import com.atlassian.theplugin.commons.crucible.api.model.State;
 import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
@@ -54,6 +56,9 @@ import com.atlassian.theplugin.commons.util.ProductVersionUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.multipart.ByteArrayPartSource;
+import org.apache.commons.httpclient.methods.multipart.FilePart;
+import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -117,7 +122,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	private static final String ADD_CHANGESET = "/addChangeset";
 	private static final String ADD_PATCH = "/addPatch";
-//	private static final String ADD_ITEM = "/addItem";
+	private static final String ADD_FILE = "/addFile";
 
 	private String authToken;
 
@@ -346,6 +351,25 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		try {
 			ProductVersionUtil version = new ProductVersionUtil(crucibleVersionInfo.getReleaseNumber());
 			if (version.greater(new ProductVersionUtil("1.6.3"))) {
+				return true;
+			}
+		} catch (IncorrectVersionException e) {
+			return false;
+		}
+		return false;
+	}
+
+	public boolean checkContentUrlAvailable() {
+		if (crucibleVersionInfo == null) {
+			try {
+				getServerVersion();
+			} catch (RemoteApiException e) {
+				return false;
+			}
+		}
+		try {
+			ProductVersionUtil version = new ProductVersionUtil(crucibleVersionInfo.getReleaseNumber());
+			if (version.greater(new ProductVersionUtil("1.6.6"))) {
 				return true;
 			}
 		} catch (IncorrectVersionException e) {
@@ -1192,6 +1216,36 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
+	public Review createReviewFromUpload(Review review, UploadItem[] uploadItems) throws RemoteApiException {
+		if (!isLoggedIn()) {
+			throw new IllegalStateException("Calling method without calling login() first");
+		}
+		Review newReview = createReviewFromPatch(review, null);
+
+		try {
+			String urlString = getBaseUrl() + REVIEW_SERVICE + "/" + newReview.getPermId().getId() + ADD_FILE;
+			for (UploadItem uploadItem : uploadItems) {
+				ByteArrayPartSource targetOldFile = new ByteArrayPartSource(uploadItem.getFileName(),
+						uploadItem.getOldContent().getBytes());
+				ByteArrayPartSource targetNewFile = new ByteArrayPartSource(uploadItem.getFileName(),
+						uploadItem.getNewContent().getBytes());
+
+				Part[] parts = {
+						new FilePart("file", targetNewFile),
+						new FilePart("diffFile", targetOldFile)
+				};
+
+				retrievePostResponse(urlString, parts, true);
+			}
+		} catch (IOException e) {
+			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+		} catch (JDOMException e) {
+			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
+		}
+
+		return newReview;
+	}
+
 	public Review createReviewFromRevision(Review review, List<String> revisions) throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
@@ -1215,6 +1269,34 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
 			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
+		}
+	}
+
+	public String getFileContent(CrucibleFileInfo file, ReviewItemContentType type) throws RemoteApiException {
+		if (!isLoggedIn()) {
+			throw new IllegalStateException("Calling method without calling login() first");
+		}
+
+		String contentUrl = "";
+		switch (type) {
+			case OldContent:
+				contentUrl = file.getOldFileDescriptor().getContentUrl();
+				break;
+			case NewContent:
+				contentUrl = file.getFileDescriptor().getContentUrl();
+				break;
+			default:
+				break;
+		}
+		if (StringUtils.isBlank(contentUrl)) {
+			throw new RemoteApiException(getBaseUrl() + ": Content not accessible");
+		}
+
+		String requestUrl = getBaseUrl() + contentUrl;
+		try {
+			return doConditionalGet(requestUrl);
+		} catch (IOException e) {
+			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		}
 	}
 

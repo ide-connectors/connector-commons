@@ -29,6 +29,9 @@ import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -156,7 +159,7 @@ public abstract class AbstractHttpSession {
 	/**
 	 * Use it only for retrieving text information (like XML or text files)
 	 * This method could be refactored into one part returning GetMethod and another
-	 * using such method to operate on strings. 
+	 * using such method to operate on strings.
 	 *
 	 * @param urlString URL to retrieve data from
 	 * @return response encoded as String (following charset information send by remote party in HTTP header)
@@ -274,6 +277,64 @@ public abstract class AbstractHttpSession {
 
 				client.executeMethod(method);
 
+				final int httpStatus = method.getStatusCode();
+				if (httpStatus == HttpStatus.SC_NO_CONTENT) {
+					return doc;
+				} else if (httpStatus != HttpStatus.SC_OK
+						&& httpStatus != HttpStatus.SC_CREATED) {
+
+					Document document;
+					SAXBuilder builder = new SAXBuilder();
+					document = builder.build(method.getResponseBodyAsStream());
+
+					throw new IOException(buildExceptionText(method.getStatusCode(), document));
+				}
+
+				if (expectResponse) {
+					SAXBuilder builder = new SAXBuilder();
+					doc = builder.build(method.getResponseBodyAsStream());
+					preprocessResult(doc);
+				}
+			} catch (NullPointerException e) {
+				throw createIOException("Connection error", e);
+			} finally {
+				method.releaseConnection();
+			}
+		}
+		return doc;
+	}
+
+	/**
+	 * This method will connect to server, and return the results of the push
+	 * You must set Query first, which is the contents of your XML file
+	 */
+	protected Document retrievePostResponse(String urlString, Part[] parts, boolean expectResponse)
+			throws IOException, JDOMException, RemoteApiSessionExpiredException {
+		Document doc = null;
+
+		synchronized (clientLock) {
+			if (client == null) {
+				try {
+					client = callback.getHttpClient(server);
+				} catch (HttpProxySettingsException e) {
+					throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
+				}
+			}
+
+			PostMethod method = new PostMethod(urlString);
+
+			try {
+				//create new post method, and set parameters
+
+				method.getParams().setBooleanParameter(HttpMethodParams.USE_EXPECT_CONTINUE,
+						true);
+
+				//Create the multi-part request
+				method.setRequestEntity(
+						new MultipartRequestEntity(parts, method.getParams())
+				);
+
+				client.executeMethod(method);
 				final int httpStatus = method.getStatusCode();
 				if (httpStatus == HttpStatus.SC_NO_CONTENT) {
 					return doc;

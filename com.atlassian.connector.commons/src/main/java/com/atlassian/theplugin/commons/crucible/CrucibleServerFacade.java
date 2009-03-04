@@ -17,7 +17,22 @@
 package com.atlassian.theplugin.commons.crucible;
 
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.UploadItem;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewItemContentType;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
@@ -170,4 +185,12 @@ public interface CrucibleServerFacade extends ProductServerFacade {
 	CrucibleProject getProject(@NotNull final CrucibleServerCfg server, @NotNull final String projectKey)
 			throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	boolean checkContentUrlAvailable(CrucibleServerCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
+
+	Review createReviewFromUpload(CrucibleServerCfg server, Review review,
+			UploadItem[] uploadItems) throws RemoteApiException, ServerPasswordNotProvidedException;
+
+	String getFileContent(@NotNull CrucibleServerCfg server, @NotNull CrucibleFileInfo file,
+			@NotNull ReviewItemContentType type)
+			throws RemoteApiException, ServerPasswordNotProvidedException;
 }

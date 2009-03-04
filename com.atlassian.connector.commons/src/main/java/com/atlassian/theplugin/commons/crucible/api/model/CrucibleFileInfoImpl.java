@@ -30,6 +30,7 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 	private String authorName;
 	private Date commitDate;
 	private CommitType commitType;
+	private RepositoryType repositoryType;
 
 	private PermId permId;
 
@@ -311,5 +312,13 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 		result = HASH_NUMBER * result + permId.hashCode();
 		return result;
 		///CLOVER:ON
+	}
+
+	public RepositoryType getRepositoryType() {
+		return repositoryType;
+	}
+
+	public void setRepositoryType(final RepositoryType repositoryType) {
+		this.repositoryType = repositoryType;
 	}
 }

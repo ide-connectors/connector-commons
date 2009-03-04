@@ -27,6 +27,7 @@ public class VersionedVirtualFile {
 	private String revision;
 	private String url;
 	private String repoUrl;
+	private String contentUrl;
 
 	public VersionedVirtualFile(String path, String revision) {
 		this.revision = revision;
@@ -69,5 +70,13 @@ public class VersionedVirtualFile {
 
 	public String getAbsoluteUrl() {
 		return (repoUrl != null ? repoUrl : "") + url;
+	}
+
+	public String getContentUrl() {
+		return contentUrl;
+	}
+
+	public void setContentUrl(final String contentUrl) {
+		this.contentUrl = contentUrl;
 	}
 }

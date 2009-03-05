@@ -37,6 +37,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -142,9 +143,11 @@ public interface CrucibleSession {
 
 	List<CrucibleProject> getProjectsFromCache() throws RemoteApiException;
 
-	Review createReviewFromUpload(Review review, UploadItem[] uploadItems) throws RemoteApiException;
+	Review createReviewFromUpload(Review review, Collection<UploadItem> uploadItems) throws RemoteApiException;
 
 	String getFileContent(CrucibleFileInfo file, ReviewItemContentType type) throws RemoteApiException;
 
 	boolean checkContentUrlAvailable();
+
+	void addItemsToReview(PermId permId, Collection<UploadItem> uploadItems) throws RemoteApiException;
 }

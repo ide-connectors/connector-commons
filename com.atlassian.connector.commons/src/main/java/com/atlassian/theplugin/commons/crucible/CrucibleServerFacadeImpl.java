@@ -51,6 +51,7 @@ import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,7 +140,7 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	}
 
 	public Review createReviewFromUpload(@NotNull final CrucibleServerCfg server, @NotNull final Review review,
-			@NotNull final UploadItem[] uploadItems)
+			@NotNull final Collection<UploadItem> uploadItems)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.createReviewFromUpload(review, uploadItems);
@@ -244,12 +245,14 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		return review;
 	}
 
-//	public CrucibleFileInfo addItemToReview(CrucibleServerCfg server, Review review, NewReviewItem newItem)
-//			throws RemoteApiException, ServerPasswordNotProvidedException {
-//		CrucibleSession session = getSession(server);
-//		return session.addItemToReview(review, newItem);
-//	}
-
+	public Review addItemsToReview(
+			CrucibleServerCfg server,
+			PermId permId,
+			Collection<UploadItem> items) throws RemoteApiException, ServerPasswordNotProvidedException {
+		CrucibleSession session = getSession(server);
+		session.addItemsToReview(permId, items);
+		return session.getReview(permId, true);
+	}
 
 	public void addReviewers(
 			CrucibleServerCfg server,

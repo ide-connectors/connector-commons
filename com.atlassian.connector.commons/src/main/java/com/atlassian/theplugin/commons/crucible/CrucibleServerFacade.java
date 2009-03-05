@@ -40,6 +40,7 @@ import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -188,9 +189,14 @@ public interface CrucibleServerFacade extends ProductServerFacade {
 	boolean checkContentUrlAvailable(CrucibleServerCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	Review createReviewFromUpload(CrucibleServerCfg server, Review review,
-			UploadItem[] uploadItems) throws RemoteApiException, ServerPasswordNotProvidedException;
+			Collection<UploadItem> uploadItems) throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	String getFileContent(@NotNull CrucibleServerCfg server, @NotNull CrucibleFileInfo file,
 			@NotNull ReviewItemContentType type)
 			throws RemoteApiException, ServerPasswordNotProvidedException;
+
+	Review addItemsToReview(
+			CrucibleServerCfg server,
+			PermId permId,
+			Collection<UploadItem> items) throws RemoteApiException, ServerPasswordNotProvidedException;
 }

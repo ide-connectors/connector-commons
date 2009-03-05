@@ -71,6 +71,7 @@ import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1216,7 +1217,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	public Review createReviewFromUpload(Review review, UploadItem[] uploadItems) throws RemoteApiException {
+	public Review createReviewFromUpload(Review review, Collection<UploadItem> uploadItems) throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
@@ -1400,6 +1401,33 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 				return CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), elements.iterator().next());
 			}
 			return null;
+		} catch (IOException e) {
+			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+		} catch (JDOMException e) {
+			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
+		}
+	}
+
+	public void addItemsToReview(PermId permId, Collection<UploadItem> uploadItems) throws RemoteApiException {
+		if (!isLoggedIn()) {
+			throw new IllegalStateException("Calling method without calling login() first");
+		}
+
+		try {
+			String urlString = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + ADD_FILE;
+			for (UploadItem uploadItem : uploadItems) {
+				ByteArrayPartSource targetOldFile = new ByteArrayPartSource(uploadItem.getFileName(),
+						uploadItem.getOldContent().getBytes());
+				ByteArrayPartSource targetNewFile = new ByteArrayPartSource(uploadItem.getFileName(),
+						uploadItem.getNewContent().getBytes());
+
+				Part[] parts = {
+						new FilePart("file", targetNewFile),
+						new FilePart("diffFile", targetOldFile)
+				};
+
+				retrievePostResponse(urlString, parts, true);
+			}
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {

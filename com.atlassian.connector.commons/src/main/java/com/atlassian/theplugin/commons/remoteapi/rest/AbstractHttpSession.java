@@ -303,7 +303,7 @@ public abstract class AbstractHttpSession {
 				throw new RemoteApiException("Connection error to [" + urlString + "]", e);
 			} catch (IOException e) {
 				throw new RemoteApiException(IOException.class.getSimpleName() + " encountered while posting data to ["
-						+ urlString +"]: " + e.getMessage(), e);
+						+ urlString + "]: " + e.getMessage(), e);
 			} finally {
 				method.releaseConnection();
 			}
@@ -362,7 +362,7 @@ public abstract class AbstractHttpSession {
 				throw new RemoteApiException("Connection error to [" + urlString + "]", e);
 			} catch (IOException e) {
 				throw new RemoteApiException(IOException.class.getSimpleName() + " encountered while posting data to ["
-						+ urlString +"]: " + e.getMessage(), e);
+						+ urlString + "]: " + e.getMessage(), e);
 			} finally {
 				method.releaseConnection();
 			}

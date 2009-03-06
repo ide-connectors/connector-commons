@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.remoteapi.rest;
 
 import com.atlassian.theplugin.commons.cfg.Server;
 import com.atlassian.theplugin.commons.exception.HttpProxySettingsException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.util.UrlUtil;
@@ -238,28 +239,32 @@ public abstract class AbstractHttpSession {
 	}
 
 	protected Document retrievePostResponse(String urlString, Document request)
-			throws IOException, JDOMException, RemoteApiSessionExpiredException {
+			throws IOException, JDOMException, RemoteApiException {
 		return retrievePostResponse(urlString, request, true);
 	}
 
 	protected Document retrievePostResponse(String urlString, Document request, boolean expectResponse)
-			throws IOException, JDOMException, RemoteApiSessionExpiredException {
+			throws JDOMException, RemoteApiException {
 		XMLOutputter serializer = new XMLOutputter(Format.getPrettyFormat());
 		String requestString = serializer.outputString(request);
 		return retrievePostResponse(urlString, requestString, expectResponse);
 	}
 
 	protected Document retrievePostResponse(String urlString, String request, boolean expectResponse)
-			throws IOException, JDOMException, RemoteApiSessionExpiredException {
-		UrlUtil.validateUrl(urlString);
-		setUrl(urlString);
+			throws JDOMException, RemoteApiException {
+		try {
+			UrlUtil.validateUrl(urlString);
+			setUrl(urlString);
+		} catch (MalformedURLException e) {
+			throw new RemoteApiException(e.getMessage(), e);
+		}
 		Document doc = null;
 		synchronized (clientLock) {
 			if (client == null) {
 				try {
 					client = callback.getHttpClient(server);
 				} catch (HttpProxySettingsException e) {
-					throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
+					throw new RemoteApiException("Connection error. Please set up HTTP Proxy settings", e);
 				}
 			}
 
@@ -286,8 +291,7 @@ public abstract class AbstractHttpSession {
 					Document document;
 					SAXBuilder builder = new SAXBuilder();
 					document = builder.build(method.getResponseBodyAsStream());
-
-					throw new IOException(buildExceptionText(method.getStatusCode(), document));
+					throw buildExceptionText(method.getStatusCode(), document);
 				}
 
 				if (expectResponse) {
@@ -296,7 +300,10 @@ public abstract class AbstractHttpSession {
 					preprocessResult(doc);
 				}
 			} catch (NullPointerException e) {
-				throw createIOException("Connection error", e);
+				throw new RemoteApiException("Connection error to [" + urlString + "]", e);
+			} catch (IOException e) {
+				throw new RemoteApiException(IOException.class.getSimpleName() + " encountered while posting data to ["
+						+ urlString +"]: " + e.getMessage(), e);
 			} finally {
 				method.releaseConnection();
 			}
@@ -309,7 +316,7 @@ public abstract class AbstractHttpSession {
 	 * You must set Query first, which is the contents of your XML file
 	 */
 	protected Document retrievePostResponse(String urlString, Part[] parts, boolean expectResponse)
-			throws IOException, JDOMException, RemoteApiSessionExpiredException {
+			throws JDOMException, RemoteApiException {
 		Document doc = null;
 
 		synchronized (clientLock) {
@@ -317,7 +324,8 @@ public abstract class AbstractHttpSession {
 				try {
 					client = callback.getHttpClient(server);
 				} catch (HttpProxySettingsException e) {
-					throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
+					throw new RemoteApiException("Connection error to ["
+							+ urlString + "]. Please set up HTTP Proxy settings", e);
 				}
 			}
 
@@ -330,9 +338,7 @@ public abstract class AbstractHttpSession {
 						true);
 
 				//Create the multi-part request
-				method.setRequestEntity(
-						new MultipartRequestEntity(parts, method.getParams())
-				);
+				method.setRequestEntity(new MultipartRequestEntity(parts, method.getParams()));
 
 				client.executeMethod(method);
 				final int httpStatus = method.getStatusCode();
@@ -344,8 +350,7 @@ public abstract class AbstractHttpSession {
 					Document document;
 					SAXBuilder builder = new SAXBuilder();
 					document = builder.build(method.getResponseBodyAsStream());
-
-					throw new IOException(buildExceptionText(method.getStatusCode(), document));
+					throw buildExceptionText(method.getStatusCode(), document);
 				}
 
 				if (expectResponse) {
@@ -354,7 +359,10 @@ public abstract class AbstractHttpSession {
 					preprocessResult(doc);
 				}
 			} catch (NullPointerException e) {
-				throw createIOException("Connection error", e);
+				throw new RemoteApiException("Connection error to [" + urlString + "]", e);
+			} catch (IOException e) {
+				throw new RemoteApiException(IOException.class.getSimpleName() + " encountered while posting data to ["
+						+ urlString +"]: " + e.getMessage(), e);
 			} finally {
 				method.releaseConnection();
 			}
@@ -362,32 +370,40 @@ public abstract class AbstractHttpSession {
 		return doc;
 	}
 
-	private String buildExceptionText(final int statusCode, final Document document) throws JDOMException {
-		String text = "Server returned HTTP " + statusCode + " (" + HttpStatus.getStatusText(statusCode) + ")\n"
-				+ "Reason: ";
+	private RemoteApiException buildExceptionText(final int statusCode, final Document document) throws JDOMException {
+		StringBuilder textBuilder = new StringBuilder().append("Server returned HTTP ").append(statusCode).append(" (")
+				.append(HttpStatus.getStatusText(statusCode)).append(")\n").append("Reason: ");
 
-		XPath xpath = XPath.newInstance("error/code");
-		@SuppressWarnings("unchecked")
-		final List<Element> nodes = xpath.selectNodes(document);
-		if (nodes != null && !nodes.isEmpty()) {
-			text += nodes.get(0).getValue() + " ";
+		{
+			XPath xpath = XPath.newInstance("error/code");
+			@SuppressWarnings("unchecked")
+			final List<Element> nodes = xpath.selectNodes(document);
+			if (nodes != null && !nodes.isEmpty()) {
+				textBuilder.append(nodes.get(0).getValue()).append(" ");
+			}
 		}
 
-		xpath = XPath.newInstance("error/message");
-		@SuppressWarnings("unchecked")
-		final List<Element> messages = xpath.selectNodes(document);
-		if (messages != null && !messages.isEmpty()) {
-			text += "\nMessage: " + messages.get(0).getValue();
+		{
+			XPath xpath = XPath.newInstance("error/message");
+			@SuppressWarnings("unchecked")
+			final List<Element> messages = xpath.selectNodes(document);
+			if (messages != null && !messages.isEmpty()) {
+				textBuilder.append("\nMessage: ").append(messages.get(0).getValue());
+			}
 		}
 
+		String serverStackTrace = null;
+		{
+			XPath xpath = XPath.newInstance("error/stacktrace");
+			@SuppressWarnings("unchecked")
+			final List<Element> nodes = xpath.selectNodes(document);
+			if (nodes != null && !nodes.isEmpty()) {
+				serverStackTrace = "\nStacktrace from the server:\n";
+				serverStackTrace += nodes.get(0).getValue();
+			}
+		}
 
-//		xpath = XPath.newInstance("error/stacktrace");
-//		nodes = xpath.selectNodes(document);
-//		if (nodes != null && !nodes.isEmpty()) {
-////			System.out.println(nodes.get(0).getValue());
-//		}
-
-		return text;
+		return new RemoteApiException(textBuilder.toString(), serverStackTrace);
 	}
 
 

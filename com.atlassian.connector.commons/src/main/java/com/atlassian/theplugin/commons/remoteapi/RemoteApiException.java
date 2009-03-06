@@ -16,20 +16,37 @@
 
 package com.atlassian.theplugin.commons.remoteapi;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Bamboo excepton related to session expired event process.
  */
 public class RemoteApiException extends Exception {
 
+	@Nullable
+	public String getServerStackTrace() {
+		return serverStackTrace;
+	}
+
+	private final String serverStackTrace;
+
 	public RemoteApiException(String message) {
 		super(message);
+		serverStackTrace = null;
+	}
+
+	public RemoteApiException(String message, @Nullable String serverStackTrace) {
+		super(message);
+		this.serverStackTrace = serverStackTrace;
 	}
 
 	public RemoteApiException(Throwable throwable) {
 		super(throwable);
+		serverStackTrace = null;
 	}
 
 	public RemoteApiException(String message, Throwable throwable) {
 		super(message, throwable);
+		serverStackTrace = null;
 	}
 }

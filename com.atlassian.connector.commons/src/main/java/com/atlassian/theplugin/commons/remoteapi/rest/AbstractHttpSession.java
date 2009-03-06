@@ -184,7 +184,7 @@ public abstract class AbstractHttpSession {
 			try {
 				method = new GetMethod(urlString);
 			} catch (IllegalArgumentException e) {
-				throw new IOException("Invalid url " + urlString, e);
+				throw new IOException("Invalid url " + urlString);
 			}
 
 			CacheRecord cacheRecord = cache.get(urlString);

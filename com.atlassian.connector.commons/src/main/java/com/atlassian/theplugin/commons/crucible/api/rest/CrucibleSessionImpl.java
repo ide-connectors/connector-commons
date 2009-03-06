@@ -1297,7 +1297,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		try {
 			return doConditionalGet(requestUrl);
 		} catch (IOException e) {
-			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+			throw new RemoteApiException(requestUrl + ": " + e.getMessage(), e);
 		}
 	}
 

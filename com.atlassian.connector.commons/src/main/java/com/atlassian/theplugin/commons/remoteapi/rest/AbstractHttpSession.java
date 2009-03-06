@@ -179,7 +179,13 @@ public abstract class AbstractHttpSession {
 				}
 			}
 
-			final GetMethod method = new GetMethod(urlString);
+			GetMethod method = null;
+
+			try {
+				method = new GetMethod(urlString);
+			} catch (IllegalArgumentException e) {
+				throw new IOException("Invalid url " + urlString, e);
+			}
 
 			CacheRecord cacheRecord = cache.get(urlString);
 			if (cacheRecord != null) {

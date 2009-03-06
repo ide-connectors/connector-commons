@@ -25,15 +25,14 @@ import com.atlassian.theplugin.commons.crucible.api.model.notification.CrucibleN
 import com.atlassian.theplugin.commons.crucible.api.model.notification.ReviewDifferenceProducer;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.EnumSet;
-
-import org.jetbrains.annotations.NotNull;
 
 public class ReviewAdapter {
 	private Review review;
@@ -179,14 +178,14 @@ public class ReviewAdapter {
 		ReviewAdapter that = (ReviewAdapter) o;
 
 		return !(review != null ? !review.equals(that.review) : that.review != null)
-				&& !(server != null ? !server.equals(that.server) : that.server != null);
+				&& !(server != null ? !server.getServerId().equals(that.server.getServerId()) : that.server != null);
 	}
 
 	@Override
 	public int hashCode() {
 		int result;
 		result = (review != null ? review.hashCode() : 0);
-		result = HASHCODE_MAGIC * result + (server != null ? server.hashCode() : 0);
+		result = HASHCODE_MAGIC * result + (server != null ? server.getServerId().hashCode() : 0);
 		return result;
 	}
 

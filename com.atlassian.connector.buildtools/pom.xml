@@ -7,7 +7,7 @@
     <packaging>jar</packaging>
     <inceptionYear>2008</inceptionYear>
     <name>BuildTools</name>
-    <description>Library of build tools used by all other module</description>
+    <description>Library of build tools used by all other modules</description>
     <parent>
         <groupId>com.atlassian.connector</groupId>
 		<artifactId>atlassian-connector-parent-pom</artifactId>

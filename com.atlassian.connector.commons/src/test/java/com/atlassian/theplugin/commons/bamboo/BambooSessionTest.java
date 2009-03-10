@@ -204,8 +204,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 		assertEquals(30, build.getTestsPassed());
 		assertEquals(10, build.getTestsFailed());
 		final DateTime expectedDate = new DateTime(2008, 1, 29, 14, 49, 36, 0).plusHours(timezoneOffset);
-		assertEquals(expectedDate.toDate(), build.getBuildCompletedDate());
-		assertEquals(expectedDate.toDate(), build.getBuildStartedDate());
+		assertEquals(expectedDate.toDate(), build.getCompletionDate());
+		assertEquals(expectedDate.toDate(), build.getStartDate());
 
 		mockServer.verify();
 	}
@@ -235,22 +235,22 @@ public class BambooSessionTest extends AbstractSessionTest {
 		assertEquals(BuildStatus.UNKNOWN, build.getStatus());
 		TestUtil.assertThrows(UnsupportedOperationException.class, new IAction() {
 			public void run() throws Throwable {
-				build.getBuildNumber();
+				build.getNumber();
 			}
 		});
-		assertNull(build.getBuildStartedDate());
-		assertNull(build.getBuildCompletedDate());
+		assertNull(build.getStartDate());
+		assertNull(build.getCompletionDate());
 		TestUtil.assertHasOnlyElements(build.getCommiters());
-		assertNull(build.getBuildDurationDescription());
+		assertNull(build.getDurationDescription());
 		assertEquals(mockBaseUrl + "/browse/TP-DEF", build.getBuildUrl());
-		assertNull(build.getBuildTestSummary());
+		assertNull(build.getTestSummary());
 		assertEquals(bambooServerCfg, build.getServer());
 		assertTrue(build.getEnabled());
 		assertNull(build.getProjectName());
 		assertTrue(build.getPollingTime().getTime() >= now.getTime()
 				&& build.getPollingTime().getTime() <= new Date().getTime());
 		assertNull(build.getErrorMessage());
-		assertEquals("Never built", build.getBuildReason());
+		assertEquals("Never built", build.getReason());
 	}
 
 	public void testGetLatestBuildForPlanBamboo2x1x5() throws RemoteApiException {
@@ -271,22 +271,22 @@ public class BambooSessionTest extends AbstractSessionTest {
 		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF");
 		apiHandler.logout();
 
-		Assert.assertEquals("ACC-TST", build.getBuildKey());
-		Assert.assertEquals(193, build.getBuildNumber());
+		Assert.assertEquals("ACC-TST", build.getPlanKey());
+		Assert.assertEquals(193, build.getNumber());
 		assertEquals(BuildStatus.SUCCESS, build.getStatus());
 		Assert.assertTrue(build.getPollingTime().getTime() - System.currentTimeMillis() < 5000);
 		Assert.assertEquals(mockBaseUrl, build.getServerUrl());
-		Assert.assertEquals(mockBaseUrl + "/browse/ACC-TST-193", build.getBuildResultUrl());
+		Assert.assertEquals(mockBaseUrl + "/browse/ACC-TST-193", build.getResultUrl());
 		Assert.assertEquals(mockBaseUrl + "/browse/ACC-TST", build.getBuildUrl());
 		assertEquals("Atlassian Connector Commons", build.getProjectName());
 		assertEquals(267, build.getTestsPassed());
 		assertEquals(0, build.getTestsFailed());
-		assertEquals("Code has changed", build.getBuildReason());
-		assertEquals("267 passed", build.getBuildTestSummary());
-		assertEquals("3 minutes ago", build.getBuildRelativeBuildDate());
-		assertEquals("28 seconds", build.getBuildDurationDescription());
+		assertEquals("Code has changed", build.getReason());
+		assertEquals("267 passed", build.getTestSummary());
+		assertEquals("3 minutes ago", build.getRelativeBuildDate());
+		assertEquals("28 seconds", build.getDurationDescription());
 		assertEquals(new DateTime(2009, 2, 9, 7, 38, 36, 0, DateTimeZone.forOffsetHours(-6)).toDate(),
-				build.getBuildCompletedDate());
+				build.getCompletionDate());
 		TestUtil.assertHasOnlyElements(build.getCommiters(), "wseliga", "mwent");
 		mockServer.verify();
 	}
@@ -826,11 +826,11 @@ public class BambooSessionTest extends AbstractSessionTest {
 		session.login(USER_NAME, PASSWORD.toCharArray());
 
 		BambooBuild bbi1 = session.getLatestBuildForPlan("PO-TP");
-		assertEquals(123, bbi1.getBuildNumber());
+		assertEquals(123, bbi1.getNumber());
 		assertTrue(bbi1.getEnabled());
 
 		BambooBuild bbi2 = session.getLatestBuildForPlan("PT-TOP");
-		assertEquals(45, bbi2.getBuildNumber());
+		assertEquals(45, bbi2.getNumber());
 		assertFalse(bbi2.getEnabled());
 		session.logout();
 

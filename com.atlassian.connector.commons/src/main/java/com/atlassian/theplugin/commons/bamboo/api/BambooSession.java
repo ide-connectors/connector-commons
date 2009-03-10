@@ -81,7 +81,7 @@ public interface BambooSession extends ProductSession {
 	 */
 	void addCommentToBuild(@NotNull String planKey, int buildNumber, String buildComment) throws RemoteApiException;
 
-	void executeBuild(@NotNull String buildKey) throws RemoteApiException;
+	void executeBuild(@NotNull String planKey) throws RemoteApiException;
 
 	String getBuildLogs(@NotNull String planKey, int buildNumber) throws RemoteApiException;
 

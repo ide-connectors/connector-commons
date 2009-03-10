@@ -36,10 +36,10 @@ public interface BambooBuild {
 
 	String getBuildUrl();
 
-    String getBuildName();
+    String getPlanName();
 
 	@NotNull
-	String getBuildKey();
+	String getPlanKey();
 
 	boolean getEnabled();
 
@@ -49,9 +49,9 @@ public interface BambooBuild {
 	 * @return build number
 	 * @throws UnsupportedOperationException in case this object represents invalid build
 	 */
-	int getBuildNumber() throws UnsupportedOperationException;
+	int getNumber() throws UnsupportedOperationException;
 
-    String getBuildResultUrl();
+    String getResultUrl();
 
 	@NotNull
 	BuildStatus getStatus();
@@ -63,32 +63,36 @@ public interface BambooBuild {
 	 * @return human readable info about unit tests like "267 passed"
 	 */
 	@Nullable
-	String getBuildTestSummary();
+	String getTestSummary();
 
 	int getTestsPassed();
 
 	int getTestsFailed();
 
-	String getBuildReason();
+	@Nullable
+	String getReason();
 
 	/**
 	 * @return human readable info about the time taken by given build - e.g. "3 minutes"
 	 */
-	String getBuildDurationDescription();
+	@Nullable
+	String getDurationDescription();
 
-	Date getBuildStartedDate();
+	@Nullable
+	Date getStartDate();
 
-	Date getBuildCompletedDate();
+	@Nullable
+	Date getCompletionDate();
 
 	/**
 	 * Relative build completion date on Bamboo server. Unfortunately it does not respect calling client timezone,
-	 * so in most cases it's useless. Instead it's preferable to use {@link #getBuildCompletedDate()} and then use
+	 * so in most cases it's useless. Instead it's preferable to use {@link #getCompletionDate()} and then use
 	 * some utility method like {@link com.atlassian.theplugin.commons.util.DateUtil#getRelativeBuildTime(java.util.Date)}
 	 * to transform Date to relative string describing relative date.
 	 *
 	 * @return human readable string like "2 months ago"
 	 */
-	String getBuildRelativeBuildDate();
+	String getRelativeBuildDate();
 
 	boolean isMyBuild();
 

@@ -79,7 +79,7 @@ public class BambooStatusTooltipListener implements BambooStatusListener {
 								if (prevBuild.getStatus() == BuildStatus.SUCCESS
 										|| (prevBuild.getStatus() == BuildStatus.FAILURE
 										&& currentBuild.isValid() && prevBuild.isValid()
-										&& prevBuild.getBuildNumber() != currentBuild.getBuildNumber()
+										&& prevBuild.getNumber() != currentBuild.getNumber()
 										&& bambooTooltipOption == BambooTooltipOption.ALL_FAULIRES_AND_FIRST_SUCCESS)) {
 
 									// build has changed status from SUCCEED to FAILED
@@ -131,7 +131,7 @@ public class BambooStatusTooltipListener implements BambooStatusListener {
 		if (build.getServer() != null) {
 			serverId = build.getServer().getServerId().toString();
 		}
-		return serverId + build.getBuildKey();
+		return serverId + build.getPlanKey();
 	}
 
 	public void resetState() {

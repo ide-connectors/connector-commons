@@ -63,20 +63,20 @@ public class BambooBuildAdapter {
 		return build.getBuildUrl() == null ? "" : build.getBuildUrl();
 	}
 
-	public String getBuildName() {
-		return build.getBuildName() == null ? "" : build.getBuildName();
+	public String getPlanName() {
+		return build.getPlanName() == null ? "" : build.getPlanName();
 	}
 
-	public String getBuildKey() {
-		return build.getBuildKey() == null ? "" : build.getBuildKey();
+	public String getPlanKey() {
+		return build.getPlanKey() == null ? "" : build.getPlanKey();
 	}
 
 	public boolean isEnabled() {
 		return build.getEnabled();
 	}
 
-	public int getBuildNumber() throws UnsupportedOperationException {
-		return build.getBuildNumber();
+	public int getNumber() throws UnsupportedOperationException {
+		return build.getNumber();
 	}
 
 	public boolean isValid() {
@@ -88,11 +88,11 @@ public class BambooBuildAdapter {
 	 * @return build number as string (base 10) or empty string when this object does not represent successfully fetched build 
 	 */
 	public String getBuildNumberAsString() {
-		return build.isValid() ? Integer.toString(build.getBuildNumber()) : "";
+		return build.isValid() ? Integer.toString(build.getNumber()) : "";
 	}
 
-	public String getBuildResultUrl() {
-		return build.getBuildResultUrl() == null ? "" : build.getBuildResultUrl();
+	public String getResultUrl() {
+		return build.getResultUrl() == null ? "" : build.getResultUrl();
 	}
 
 	public BuildStatus getStatus() {
@@ -119,16 +119,16 @@ public class BambooBuildAdapter {
 		}
 	}
 
-	public Date getBuildCompletedDate() {
-		return build.getBuildCompletedDate();
+	public Date getCompletionDate() {
+		return build.getCompletionDate();
 	}
 
 	public Date getPollingTime() {
 		return build.getPollingTime();
 	}
 
-	public String getBuildReason() {
-		return build.getBuildReason() == null ? "" : build.getBuildReason();
+	public String getReason() {
+		return build.getReason() == null ? "" : build.getReason();
 	}
 
 	public BambooBuild getBuild() {

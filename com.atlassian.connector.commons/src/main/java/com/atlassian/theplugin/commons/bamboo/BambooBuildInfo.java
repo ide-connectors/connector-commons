@@ -36,28 +36,31 @@ public final class BambooBuildInfo implements BambooBuild {
 	private final String planKey;
 	private final boolean enabled;
 	@NotNull
-	private final BuildStatus buildState;
-	private final Integer buildNumber;
-	private final String buildReason;
-	private final String buildRelativeBuildDate;
-	private final String buildDurationDescription;
-	private final String buildTestSummary;
+	private final BuildStatus status;
+	private final Integer number;
+	@Nullable
+	private final String reason;
+	private final String relativeBuildDate;
+	@Nullable
+	private final String durationDescription;
+	private final String testSummary;
 	private final String commitComment;
 	private final int testsPassedCount;
 	private final int testsFailedCount;
 	private final String message;
 
-	private final Date buildTime;
-	private final Date buildCompletedDate;
+	@Nullable
+	private final Date startDate;
+	private final Date completionDate;
 	private final Set<String> commiters;
 
 
 	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerCfg bambooServerCfg,
-			@NotNull Date pollingTime, @Nullable String projectName, boolean isEnabled, @Nullable Integer buildNumber,
-			@NotNull BuildStatus buildState, @Nullable String buildReason, @Nullable Date startTime,
-			@Nullable String buildTestSummary, @Nullable String commitComment, final int testsPassedCount,
-			final int testsFailedCount, @Nullable Date completedDate, @Nullable String message,
-			@Nullable String relativeBuildDate, @Nullable String buildDurationDescription,
+			@NotNull Date pollingTime, @Nullable String projectName, boolean isEnabled, @Nullable Integer number,
+			@NotNull BuildStatus status, @Nullable String reason, @Nullable Date startDate,
+			@Nullable String testSummary, @Nullable String commitComment, final int testsPassedCount,
+			final int testsFailedCount, @Nullable Date completionDate, @Nullable String message,
+			@Nullable String relativeBuildDate, @Nullable String durationDescription,
 			@Nullable Collection<String> commiters) {
 		this.pollingTime = new Date(pollingTime.getTime());
 		this.planKey = planKey;
@@ -65,18 +68,18 @@ public final class BambooBuildInfo implements BambooBuild {
 		this.server = bambooServerCfg;
 		this.projectName = projectName;
 		this.enabled = isEnabled;
-		this.buildNumber = buildNumber;
-		this.buildState = buildState;
-		this.buildReason = buildReason;
-		this.buildTestSummary = buildTestSummary;
+		this.number = number;
+		this.status = status;
+		this.reason = reason;
+		this.testSummary = testSummary;
 		this.commitComment = commitComment;
 		this.testsPassedCount = testsPassedCount;
 		this.testsFailedCount = testsFailedCount;
 		this.message = message;
-		this.buildRelativeBuildDate = relativeBuildDate;
-		this.buildDurationDescription = buildDurationDescription;
-		this.buildTime = (startTime != null) ? new Date(startTime.getTime()) : null;
-		this.buildCompletedDate = (completedDate != null) ? new Date(completedDate.getTime()) : null;
+		this.relativeBuildDate = relativeBuildDate;
+		this.durationDescription = durationDescription;
+		this.startDate = (startDate != null) ? new Date(startDate.getTime()) : null;
+		this.completionDate = (completionDate != null) ? new Date(completionDate.getTime()) : null;
 		if (commiters != null) {
 			this.commiters = new TreeSet<String>(commiters);
 		} else {
@@ -88,8 +91,9 @@ public final class BambooBuildInfo implements BambooBuild {
 		return server;
 	}
 
-	public Date getBuildCompletedDate() {
-		return buildCompletedDate == null ? null : new Date(buildCompletedDate.getTime());
+	@Nullable
+	public Date getCompletionDate() {
+		return completionDate == null ? null : new Date(completionDate.getTime());
 	}
 
 	public String getServerUrl() {
@@ -100,10 +104,10 @@ public final class BambooBuildInfo implements BambooBuild {
 		return getServerUrl() + "/browse/" + this.planKey;
 	}
 
-	public String getBuildResultUrl() {
+	public String getResultUrl() {
 		String url = getServerUrl() + "/browse/" + this.planKey;
-		if (this.getStatus() != BuildStatus.UNKNOWN || this.buildNumber != null) {
-			url += "-" + this.buildNumber;
+		if (this.getStatus() != BuildStatus.UNKNOWN || this.number != null) {
+			url += "-" + this.number;
 		}
 
 		return url;
@@ -113,12 +117,12 @@ public final class BambooBuildInfo implements BambooBuild {
 		return projectName;
 	}
 
-	public String getBuildName() {
+	public String getPlanName() {
 		return planName;
 	}
 
 	@NotNull
-	public String getBuildKey() {
+	public String getPlanKey() {
 		return planKey;
 	}
 
@@ -127,34 +131,36 @@ public final class BambooBuildInfo implements BambooBuild {
 	}
 
 	public boolean isValid() {
-		return buildNumber != null;
+		return number != null;
 	}
 
 	/**
 	 * @return build number
 	 * @throws UnsupportedOperationException in case this object represents invalid build
 	 */
-	public int getBuildNumber() throws UnsupportedOperationException {
-		if (buildNumber == null) {
+	public int getNumber() throws UnsupportedOperationException {
+		if (number == null) {
 			throw new UnsupportedOperationException("This build has no number information");
 		}
-		return buildNumber;
+		return number;
 	}
 
-	public String getBuildReason() {
-		return buildReason;
+	@Nullable
+	public String getReason() {
+		return reason;
 	}
 
-	public String getBuildRelativeBuildDate() {
-		return buildRelativeBuildDate;
+	public String getRelativeBuildDate() {
+		return relativeBuildDate;
 	}
 
-	public String getBuildDurationDescription() {
-		return buildDurationDescription;
+	@Nullable
+	public String getDurationDescription() {
+		return durationDescription;
 	}
 
-	public String getBuildTestSummary() {
-		return buildTestSummary;
+	public String getTestSummary() {
+		return testSummary;
 	}
 
 	public String getCommitComment() {
@@ -163,7 +169,7 @@ public final class BambooBuildInfo implements BambooBuild {
 
 	@NotNull
 	public BuildStatus getStatus() {
-		return buildState;
+		return status;
 	}
 
 	public String getErrorMessage() {
@@ -178,8 +184,9 @@ public final class BambooBuildInfo implements BambooBuild {
 		return this.testsFailedCount;
 	}
 
-	public Date getBuildStartedDate() {
-		return buildTime != null ? new Date(this.buildTime.getTime()) : null;
+	@Nullable
+	public Date getStartDate() {
+		return startDate != null ? new Date(this.startDate.getTime()) : null;
 	}
 
 	@Override
@@ -187,11 +194,11 @@ public final class BambooBuildInfo implements BambooBuild {
 		return projectName
 				+ " " + planName
 				+ " " + planKey
-				+ " " + buildState
-				+ " " + buildReason
-				+ " " + buildTime
-				+ " " + buildDurationDescription
-				+ " " + buildTestSummary
+				+ " " + status
+				+ " " + reason
+				+ " " + startDate
+				+ " " + durationDescription
+				+ " " + testSummary
 				+ " " + commitComment;
 	}
 

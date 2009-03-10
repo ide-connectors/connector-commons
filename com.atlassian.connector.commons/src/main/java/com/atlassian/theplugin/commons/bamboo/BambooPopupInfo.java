@@ -48,8 +48,8 @@ public class BambooPopupInfo {
 
 		for (BambooBuild build : bambooBuilds) {
 			htmlContent.append(createHtmlRow(
-					build.getBuildKey(), build.isValid() ? build.getBuildNumber() : null,
-					build.getBuildResultUrl(),
+					build.getPlanKey(), build.isValid() ? build.getNumber() : null,
+					build.getResultUrl(),
 					build.getStatus()));
 		}
 

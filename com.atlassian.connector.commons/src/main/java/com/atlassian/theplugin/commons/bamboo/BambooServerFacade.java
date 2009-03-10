@@ -52,9 +52,37 @@ public interface BambooServerFacade extends ProductServerFacade {
 
 	void setCallback(HttpSessionCallback callback);
 
-	Collection<BambooBuild> getRecentBuildsForPlans(BambooServerCfg bambooServer, String buildKey)
+	/**
+	 * List build history for provided plan.
+	 * <p/>
+	 * Returns last X builds on provided plan including information about failed attempt.
+	 * X may differ depending on build frequence in selected plan.
+	 * <p/>
+	 * Throws ServerPasswordNotProvidedException when invoked for Server that has not had the password set, when the server
+	 * returns a meaningful exception response.
+	 *
+	 * @param bambooServer Bamboo server information
+	 * @param planKey	 key of the plan to query
+	 * @return last X builds for selected plan
+	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException
+	 *          when invoked for Server that has not had the password set yet
+	 */
+	Collection<BambooBuild> getRecentBuildsForPlans(BambooServerCfg bambooServer, String planKey)
 			throws ServerPasswordNotProvidedException;
 
+	/**
+	 * List build history for current user.<p>
+	 * <p/>
+	 * Returns last builds for selected user including information about failed attempt.<p>
+	 * <p/>
+	 * Throws ServerPasswordNotProvidedException when invoked for Server that has not had the password set, when the server
+	 * returns a meaningful exception response.
+	 *
+	 * @param bambooServer Bamboo server information
+	 * @return last builds for the user (as configred in <code>bambooServer</code>)
+	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException
+	 *          when invoked for Server that has not had the password set yet
+	 */
 	Collection<BambooBuild> getRecentBuildsForUser(BambooServerCfg bambooServer)
 			throws ServerPasswordNotProvidedException;
 }

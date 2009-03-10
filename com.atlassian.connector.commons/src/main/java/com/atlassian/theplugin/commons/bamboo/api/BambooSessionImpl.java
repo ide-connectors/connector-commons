@@ -361,9 +361,10 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		return getBuildsCollection(buildResultUrl, getUsername());
 	}
 
-	private Collection<BambooBuild> getBuildsCollection(@NotNull final String url, @NotNull final String key)
+	private Collection<BambooBuild> getBuildsCollection(@NotNull final String url, @NotNull final String planKey)
 			throws RemoteApiException {
 
+		final Date pollingTime = new Date();
 		final List<BambooBuild> builds = new ArrayList<BambooBuild>();
 		try {
 			Document doc = retrieveGetResponse(url);
@@ -380,15 +381,15 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 			} else {
 				for (Element element : elements) {
 					final Set<String> commiters = constructBuildCommiters(element);
-					builds.add(constructBuildItem(element, new Date(), key, true, commiters));
+					builds.add(constructBuildItem(element, pollingTime, planKey, true, commiters));
 				}
 			}
 		} catch (IOException e) {
-			builds.add(constructBuildErrorInfo(key, e.getMessage(), new Date()));
+			builds.add(constructBuildErrorInfo(planKey, e.getMessage(), pollingTime));
 		} catch (JDOMException e) {
-			builds.add(constructBuildErrorInfo(key, "Server returned malformed response", new Date()));
+			builds.add(constructBuildErrorInfo(planKey, "Server returned malformed response", pollingTime));
 		} catch (RemoteApiException e) {
-			builds.add(constructBuildErrorInfo(key, e.getMessage(), new Date()));
+			builds.add(constructBuildErrorInfo(planKey, e.getMessage(), pollingTime));
 		}
 		return builds;
 	}
@@ -582,11 +583,11 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 	}
 
-	public void executeBuild(@NotNull String buildKey) throws RemoteApiException {
+	public void executeBuild(@NotNull String planKey) throws RemoteApiException {
 		String buildResultUrl;
 
 		buildResultUrl = getBaseUrl() + EXECUTE_BUILD_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
-				+ "&buildKey=" + UrlUtil.encodeUrl(buildKey);
+				+ "&buildKey=" + UrlUtil.encodeUrl(planKey);
 
 
 		try {

@@ -614,9 +614,17 @@ public final class CrucibleRestXmlHelper {
 		commentBean.setDefectApproved(Boolean.parseBoolean(getChildText(reviewCommentNode, "defectApproved")));
 		commentBean.setDeleted(Boolean.parseBoolean(getChildText(reviewCommentNode, "deleted")));
 		commentBean.setCreateDate(parseDateTime(getChildText(reviewCommentNode, "createDate")));
-		PermIdBean permId = new PermIdBean(getChildText(reviewCommentNode, "permaIdAsString"));
-		commentBean.setPermId(permId);
 
+		PermIdBean permId = null;
+		if (reviewCommentNode.getChild("permaId") != null) {
+			permId = new PermIdBean(reviewCommentNode.getChild("permaId").getChild("id").getText());
+			commentBean.setPermId(permId);
+		}
+		// try old way
+		if (commentBean.getPermId() == null) {
+			permId = new PermIdBean(getChildText(reviewCommentNode, "permaIdAsString"));
+			commentBean.setPermId(permId);
+		}
 
 		List<Element> metrics = getChildElements(reviewCommentNode, "metrics");
 		if (metrics != null) {

@@ -30,6 +30,7 @@ public class ProjectConfiguration {
 	private ServerId defaultFishEyeServerId;
 	private String defaultFishEyeRepo;
 	private String fishEyeProjectPath;
+	private ServerId defaultJiraServerId;
 	private static final int HASHCODE_MAGIC = 31;
 
 
@@ -41,6 +42,7 @@ public class ProjectConfiguration {
 		defaultCrucibleRepo = other.defaultCrucibleRepo;
 		defaultFishEyeRepo = other.defaultFishEyeRepo;
 		fishEyeProjectPath = other.fishEyeProjectPath;
+		defaultJiraServerId = other.defaultJiraServerId;
 	}
 
 	public static Collection<ServerCfg> cloneArrayList(final Collection<ServerCfg> collection) {
@@ -104,6 +106,12 @@ public class ProjectConfiguration {
 				: that.fishEyeProjectPath != null) {
 			return false;
 		}
+		if (defaultJiraServerId != null
+				? !defaultJiraServerId.equals(that.defaultJiraServerId)
+				: that.defaultJiraServerId != null) {
+			return false;
+		}
+
 
 		//noinspection RedundantIfStatement
 		if (!servers.equals(that.servers)) {
@@ -122,6 +130,7 @@ public class ProjectConfiguration {
 		result = HASHCODE_MAGIC * result + (defaultCrucibleProject != null ? defaultCrucibleProject.hashCode() : 0);
 		result = HASHCODE_MAGIC * result + (defaultCrucibleRepo != null ? defaultCrucibleRepo.hashCode() : 0);
 		result = HASHCODE_MAGIC * result + (fishEyeProjectPath != null ? fishEyeProjectPath.hashCode() : 0);
+		result = HASHCODE_MAGIC * result + (defaultJiraServerId != null ? defaultJiraServerId.hashCode() : 0);
 		return result;
 	}
 
@@ -205,6 +214,30 @@ public class ProjectConfiguration {
 		}
 	}
 
+	public ServerId getDefaultJiraServerId() {
+		return defaultJiraServerId;
+	}
+
+	public JiraServerCfg getDefaultJiraServer() {
+		if (defaultJiraServerId == null) {
+			return null;
+		}
+
+		ServerCfg serverCfg = getServerCfg(defaultJiraServerId);
+
+		// no additional check - let IDE handle such error in a standard way (error dialog)
+		// in unlikely event of some fuck-up
+		final JiraServerCfg jiraServerCfg = (JiraServerCfg) serverCfg;
+		if (!jiraServerCfg.isEnabled()) {
+			return null;
+		}
+		return jiraServerCfg;
+	}
+
+	public void setDefaultJiraServerId(final ServerId defaultJiraServerId) {
+		this.defaultJiraServerId = defaultJiraServerId;
+	}
+
 	public String getDefaultCrucibleProject() {
 		return defaultCrucibleProject;
 	}
@@ -236,7 +269,7 @@ public class ProjectConfiguration {
 	public void setDefaultFishEyeRepo(final String defaultFishEyeRepo) {
 		this.defaultFishEyeRepo = defaultFishEyeRepo;
 	}
-	
+
 	public boolean isDefaultFishEyeServerValid() {
 		if (defaultFishEyeServerId == null) {
 			return true;
@@ -251,8 +284,6 @@ public class ProjectConfiguration {
 		return fishEye != null && fishEye.isEnabled();
 	}
 
-
-
 	public boolean isDefaultCrucibleServerValid() {
 		if (defaultCrucibleServerId == null) {
 			return true;
@@ -264,6 +295,19 @@ public class ProjectConfiguration {
 		// in unlikely event of some fuck-up
 		final CrucibleServerCfg crucible = (CrucibleServerCfg) serverCfg;
 		return crucible != null && crucible.isEnabled();
+	}
+
+	public boolean isDefaultJiraServerValid() {
+		if (defaultJiraServerId == null) {
+			return true;
+		}
+
+		ServerCfg serverCfg = getServerCfg(defaultJiraServerId);
+
+		// no additional check - let IDE handle such error in a standard way (error dialog)
+		// in unlikely event of some fuck-up
+		final JiraServerCfg jiraServerCfg = (JiraServerCfg) serverCfg;
+		return jiraServerCfg != null && jiraServerCfg.isEnabled();
 	}
 
 	public Collection<JiraServerCfg> getAllJIRAServers() {

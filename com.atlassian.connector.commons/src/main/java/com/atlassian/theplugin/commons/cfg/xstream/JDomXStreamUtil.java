@@ -63,7 +63,7 @@ public final class JDomXStreamUtil {
 		xStream.aliasField("use-favourites", ServerCfg.class, "isUseFavourites");
 		xStream.aliasField("bamboo2", ServerCfg.class, "isBamboo2");
 
-		
+
 		xStream.alias("project-configuration", ProjectConfiguration.class);
 		xStream.aliasField("default-crucible-server", ProjectConfiguration.class, "defaultCrucibleServerId");
 		xStream.aliasField("default-crucible-project", ProjectConfiguration.class, "defaultCrucibleProject");
@@ -71,6 +71,7 @@ public final class JDomXStreamUtil {
 		xStream.aliasField("default-fisheye-server", ProjectConfiguration.class, "defaultFishEyeServerId");
 		xStream.aliasField("default-fisheye-repo", ProjectConfiguration.class, "defaultFishEyeRepo");
 		xStream.aliasField("fisheye-project-path", ProjectConfiguration.class, "fishEyeProjectPath");
+		xStream.aliasField("default-jira-server", ProjectConfiguration.class, "defaultJiraServerId");
 
 		xStream.alias("private-server-cfg", PrivateServerCfgInfo.class);
 		xStream.alias("private-bamboo-server-cfg", PrivateBambooServerCfgInfo.class);

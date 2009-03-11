@@ -191,7 +191,7 @@ public interface CrucibleServerFacade extends ProductServerFacade {
 	Review createReviewFromUpload(CrucibleServerCfg server, Review review,
 			Collection<UploadItem> uploadItems) throws RemoteApiException, ServerPasswordNotProvidedException;
 
-	String getFileContent(@NotNull CrucibleServerCfg server, @NotNull CrucibleFileInfo file,
+	byte[] getFileContent(@NotNull CrucibleServerCfg server, @NotNull CrucibleFileInfo file,
 			@NotNull ReviewItemContentType type)
 			throws RemoteApiException, ServerPasswordNotProvidedException;
 

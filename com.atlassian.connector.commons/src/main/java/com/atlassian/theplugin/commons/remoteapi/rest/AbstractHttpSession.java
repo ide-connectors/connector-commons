@@ -42,8 +42,8 @@ import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -84,11 +84,11 @@ public abstract class AbstractHttpSession {
 	 * modification time and Etag.
 	 */
 	private final class CacheRecord {
-		private final String document;
+		private final byte[] document;
 		private final String lastModified;
 		private final String etag;
 
-		private CacheRecord(String document, String lastModified, String etag) {
+		private CacheRecord(byte[] document, String lastModified, String etag) {
 			if (document == null || lastModified == null || etag == null) {
 				throw new IllegalArgumentException("null");
 			} else {
@@ -98,7 +98,7 @@ public abstract class AbstractHttpSession {
 			}
 		}
 
-		public String getDocument() {
+		public byte[] getDocument() {
 			return document;
 		}
 
@@ -151,22 +151,73 @@ public abstract class AbstractHttpSession {
 			throws IOException, JDOMException, RemoteApiSessionExpiredException {
 
 		final SAXBuilder builder = new SAXBuilder();
-		final Document doc = builder.build(new StringReader(doConditionalGet(urlString)));
+		final Document doc = builder.build(new ByteArrayInputStream(doConditionalGet(urlString)));
 //		XmlUtil.printXml(doc);
 		preprocessResult(doc);
 		return doc;
 	}
 
 	/**
-	 * Use it only for retrieving text information (like XML or text files)
-	 * This method could be refactored into one part returning GetMethod and another
-	 * using such method to operate on strings.
+	 * This method should be use to fetch standard non-XML text resources (like Bamboo build logs), when there is no intention
+	 * to parse them by XML and you want to respect HTTP encoding standards (e.g. ISO-8859-1 if there is no charset info
+	 * set in the response header.
+	 * This method does not cache results, nor it supports conditional get.
+	 * @param urlString URL
+	 * @return response encoded as String. Encoding respects content type sent by the server in the response headers
+	 * @throws IOException in case of any problem or bad URL
+	 */
+	protected String doUnconditionalGetForTextNonXmlResource(final String urlString) throws IOException {
+		UrlUtil.validateUrl(urlString);
+		setUrl(urlString);
+		synchronized (clientLock) {
+			if (client == null) {
+				try {
+					client = callback.getHttpClient(server);
+				} catch (HttpProxySettingsException e) {
+					throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
+				}
+			}
+
+			GetMethod method;
+
+			try {
+				method = new GetMethod(urlString);
+			} catch (IllegalArgumentException e) {
+				throw new IOException("Invalid url " + urlString);
+			}
+
+			try {
+				method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
+				method.getParams().setSoTimeout(client.getParams().getSoTimeout());
+				callback.configureHttpMethod(this, method);
+				client.executeMethod(method);
+
+				if (method.getStatusCode() != HttpStatus.SC_OK) {
+					throw new IOException("HTTP " + method.getStatusCode() + " ("
+							+ HttpStatus.getStatusText(method.getStatusCode()) + ")\n" + method.getStatusText());
+				} else {
+					return method.getResponseBodyAsString();
+				}
+			} catch (NullPointerException e) {
+				throw createIOException("Connection error", e);
+			} finally {
+				method.releaseConnection();
+			}
+		}
+	}
+
+
+
+	/**
+	 * Use it only for retrieving XML information, as it will ignored content-type charset in response header (if such
+	 * present)
 	 *
 	 * @param urlString URL to retrieve data from
-	 * @return response encoded as String (following charset information send by remote party in HTTP header)
+	 * @return response as raw bytes (ignoring charset info in response headers). This is OK for XML parser, as
+	 * servers supported by us use either encoding info in XML header or use UFT-8
 	 * @throws IOException in case of IO problem
 	 */
-	protected String doConditionalGet(String urlString) throws IOException {
+	protected byte[] doConditionalGet(String urlString) throws IOException {
 
 		UrlUtil.validateUrl(urlString);
 		setUrl(urlString);
@@ -179,7 +230,7 @@ public abstract class AbstractHttpSession {
 				}
 			}
 
-			GetMethod method = null;
+			GetMethod method;
 
 			try {
 				method = new GetMethod(urlString);
@@ -205,11 +256,10 @@ public abstract class AbstractHttpSession {
 //					System.out.println("Cache record valid, using cached value: " + new String(cacheRecord.getDocument()));
 					return cacheRecord.getDocument();
 				} else if (method.getStatusCode() != HttpStatus.SC_OK) {
-					throw new IOException(
-							"HTTP " + method.getStatusCode() + " (" + HttpStatus.getStatusText(method.getStatusCode())
-									+ ")\n" + method.getStatusText());
+					throw new IOException("HTTP " + method.getStatusCode() + " ("
+							+ HttpStatus.getStatusText(method.getStatusCode()) + ")\n" + method.getStatusText());
 				} else {
-					final String result = method.getResponseBodyAsString();
+					final byte[] result = method.getResponseBody();
 					final String lastModified = method.getResponseHeader("Last-Modified") == null ? null
 							: method.getResponseHeader("Last-Modified").getValue();
 					final String eTag = method.getResponseHeader("Etag") == null ? null

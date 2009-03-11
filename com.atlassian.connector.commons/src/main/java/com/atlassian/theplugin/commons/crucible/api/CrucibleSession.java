@@ -145,7 +145,7 @@ public interface CrucibleSession {
 
 	Review createReviewFromUpload(Review review, Collection<UploadItem> uploadItems) throws RemoteApiException;
 
-	String getFileContent(CrucibleFileInfo file, ReviewItemContentType type) throws RemoteApiException;
+	byte[] getFileContent(CrucibleFileInfo file, ReviewItemContentType type) throws RemoteApiException;
 
 	boolean checkContentUrlAvailable();
 

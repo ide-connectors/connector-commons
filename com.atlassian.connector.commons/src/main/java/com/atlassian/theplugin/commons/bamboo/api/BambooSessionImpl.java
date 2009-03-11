@@ -743,7 +743,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 				.append(buildNumber).append(".log").toString();
 
 		try {
-			return doConditionalGet(buildResultUrl);
+			return doUnconditionalGetForTextNonXmlResource(buildResultUrl);
 		} catch (IOException e) {
 			throw new RemoteApiException(e.getMessage(), e);
 		}

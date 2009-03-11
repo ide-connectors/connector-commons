@@ -1265,7 +1265,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	public String getFileContent(CrucibleFileInfo file, ReviewItemContentType type) throws RemoteApiException {
+	public byte[] getFileContent(CrucibleFileInfo file, ReviewItemContentType type) throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
@@ -1285,7 +1285,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			throw new RemoteApiException(getBaseUrl() + ": Content not accessible");
 		}
 
-		String requestUrl = getBaseUrl() + contentUrl;
+		final String requestUrl = getBaseUrl() + contentUrl;
 		try {
 			return doConditionalGet(requestUrl);
 		} catch (IOException e) {

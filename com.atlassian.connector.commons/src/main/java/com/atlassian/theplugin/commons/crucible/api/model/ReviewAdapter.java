@@ -39,6 +39,8 @@ public class ReviewAdapter {
 
 	private CrucibleServerCfg server;
 
+	private List<CustomFieldDef> metricDefinitions;
+
 	private static final int HASHCODE_MAGIC = 31;
 
 	private CrucibleServerFacade facade;
@@ -54,6 +56,16 @@ public class ReviewAdapter {
 		this.server = server;
 
 		facade = CrucibleServerFacadeImpl.getInstance();
+
+		try {
+			metricDefinitions = facade.getMetrics(server, review.getMetricsVersion());
+		} catch (RemoteApiException e) {
+			// not critical error, exception can be swallowed
+			// metrics definitions are cached anyway in session, so should be accessible wihtout calling the server
+		} catch (ServerPasswordNotProvidedException e) {
+			// not critical error, exception can be swallowed
+			// metrics definitions are cached anyway in session, so should be accessible wihtout calling the server			
+		}
 	}
 
 	public ReviewAdapter(ReviewAdapter reviewAdapter) {
@@ -525,6 +537,10 @@ public class ReviewAdapter {
 
 	public int getNumberOfVersionedCommentsDrafts(final String userName) throws ValueNotYetInitialized {
 		return review.getNumberOfVersionedCommentsDrafts(userName);
+	}
+
+	public List<CustomFieldDef> getMetricDefinitions() {
+		return metricDefinitions;
 	}
 
 	@Override

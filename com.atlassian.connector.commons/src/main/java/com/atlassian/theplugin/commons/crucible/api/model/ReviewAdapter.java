@@ -57,14 +57,16 @@ public class ReviewAdapter {
 
 		facade = CrucibleServerFacadeImpl.getInstance();
 
-		try {
-			metricDefinitions = facade.getMetrics(server, review.getMetricsVersion());
-		} catch (RemoteApiException e) {
-			// not critical error, exception can be swallowed
-			// metrics definitions are cached anyway in session, so should be accessible wihtout calling the server
-		} catch (ServerPasswordNotProvidedException e) {
-			// not critical error, exception can be swallowed
-			// metrics definitions are cached anyway in session, so should be accessible wihtout calling the server			
+		if (server != null && review != null) {
+			try {
+				metricDefinitions = facade.getMetrics(server, review.getMetricsVersion());
+			} catch (RemoteApiException e) {
+				// not critical error, exception can be swallowed
+				// metrics definitions are cached anyway in session, so should be accessible wihtout calling the server
+			} catch (ServerPasswordNotProvidedException e) {
+				// not critical error, exception can be swallowed
+				// metrics definitions are cached anyway in session, so should be accessible wihtout calling the server
+			}
 		}
 	}
 

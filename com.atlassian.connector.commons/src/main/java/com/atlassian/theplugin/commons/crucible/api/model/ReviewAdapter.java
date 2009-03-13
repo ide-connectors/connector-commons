@@ -16,11 +16,15 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
 import com.atlassian.theplugin.commons.crucible.CrucibleReviewListener;
 import com.atlassian.theplugin.commons.crucible.CrucibleServerFacade;
 import com.atlassian.theplugin.commons.crucible.CrucibleServerFacadeImpl;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
+import com.atlassian.theplugin.commons.crucible.api.content.ReviewFileContent;
+import com.atlassian.theplugin.commons.crucible.api.content.ReviewFileContentException;
+import com.atlassian.theplugin.commons.crucible.api.content.ReviewFileContentProvider;
 import com.atlassian.theplugin.commons.crucible.api.model.notification.CrucibleNotification;
 import com.atlassian.theplugin.commons.crucible.api.model.notification.ReviewDifferenceProducer;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
@@ -28,10 +32,13 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class ReviewAdapter {
@@ -40,6 +47,16 @@ public class ReviewAdapter {
 	private CrucibleServerCfg server;
 
 	private List<CustomFieldDef> metricDefinitions;
+
+	private static final Map<String, ReviewFileContent> FETCHED_FILES_CACHE
+			= Collections.<String, ReviewFileContent>synchronizedMap(new LinkedHashMap() {
+		@Override
+		protected boolean removeEldestEntry(final Map.Entry eldest) {
+			return (size() > 100);
+		}
+	});
+
+	private ReviewFileContentProvider contentProvider;
 
 	private static final int HASHCODE_MAGIC = 31;
 
@@ -548,5 +565,31 @@ public class ReviewAdapter {
 	@Override
 	public String toString() {
 		return review.getPermId().getId() + ": " + review.getName() + " (" + server.getName() + ')';
+	}
+
+	public ReviewFileContentProvider getContentProvider() {
+		return contentProvider;
+	}
+
+	public void setContentProvider(final ReviewFileContentProvider contentProvider) {
+		this.contentProvider = contentProvider;
+	}
+
+	public ReviewFileContent getFileContent(VersionedVirtualFile fileInfo) throws ReviewFileContentException {
+		String key = getFileCacheKey(fileInfo);
+		if (FETCHED_FILES_CACHE.containsKey(key)) {
+			return FETCHED_FILES_CACHE.get(key);
+		}
+		ReviewFileContent content = contentProvider.getContent(this, fileInfo);
+		FETCHED_FILES_CACHE.put(key, content);
+		return content;
+	}
+
+	public void clearContentCache() {
+		FETCHED_FILES_CACHE.clear();
+	}
+
+	private static String getFileCacheKey(VersionedVirtualFile virtualFile) {
+		return virtualFile.getRevision() + ":" + virtualFile.getUrl();
 	}
 }

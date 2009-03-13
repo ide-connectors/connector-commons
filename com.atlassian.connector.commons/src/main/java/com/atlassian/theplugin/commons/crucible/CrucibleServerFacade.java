@@ -28,7 +28,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
-import com.atlassian.theplugin.commons.crucible.api.model.ReviewItemContentType;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
 import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
@@ -191,8 +190,7 @@ public interface CrucibleServerFacade extends ProductServerFacade {
 	Review createReviewFromUpload(CrucibleServerCfg server, Review review,
 			Collection<UploadItem> uploadItems) throws RemoteApiException, ServerPasswordNotProvidedException;
 
-	byte[] getFileContent(@NotNull CrucibleServerCfg server, @NotNull CrucibleFileInfo file,
-			@NotNull ReviewItemContentType type)
+	byte[] getFileContent(@NotNull CrucibleServerCfg server, final String contentUrl)
 			throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	Review addItemsToReview(

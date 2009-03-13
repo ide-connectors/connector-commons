@@ -36,7 +36,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewBean;
-import com.atlassian.theplugin.commons.crucible.api.model.ReviewItemContentType;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
 import com.atlassian.theplugin.commons.crucible.api.model.State;
 import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
@@ -1265,22 +1264,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	public byte[] getFileContent(CrucibleFileInfo file, ReviewItemContentType type) throws RemoteApiException {
+	public byte[] getFileContent(String contentUrl) throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
 
-		String contentUrl = "";
-		switch (type) {
-			case OldContent:
-				contentUrl = file.getOldFileDescriptor().getContentUrl();
-				break;
-			case NewContent:
-				contentUrl = file.getFileDescriptor().getContentUrl();
-				break;
-			default:
-				break;
-		}
 		if (StringUtils.isBlank(contentUrl)) {
 			throw new RemoteApiException(getBaseUrl() + ": Content not accessible");
 		}

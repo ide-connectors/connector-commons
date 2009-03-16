@@ -1,6 +1,7 @@
 package com.atlassian.theplugin.commons.crucible.api.content;
 
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
 
 /**
@@ -13,4 +14,6 @@ public interface ReviewFileContentProvider {
 	ReviewFileContent getContent(final ReviewAdapter review,
 			final VersionedVirtualFile fileInfo)
 			throws ReviewFileContentException;
+
+	CrucibleFileInfo getFileInfo();
 }

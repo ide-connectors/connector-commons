@@ -29,12 +29,14 @@ import com.atlassian.theplugin.commons.crucible.api.model.notification.CrucibleN
 import com.atlassian.theplugin.commons.crucible.api.model.notification.ReviewDifferenceProducer;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,7 +50,7 @@ public class ReviewAdapter {
 
 	private List<CustomFieldDef> metricDefinitions;
 
-	private static final Map<String, ReviewFileContent> FETCHED_FILES_CACHE
+	private final Map<String, ReviewFileContent> FETCHED_FILES_CACHE
 			= Collections.<String, ReviewFileContent>synchronizedMap(new LinkedHashMap() {
 		@Override
 		protected boolean removeEldestEntry(final Map.Entry eldest) {
@@ -56,7 +58,8 @@ public class ReviewAdapter {
 		}
 	});
 
-	private ReviewFileContentProvider contentProvider;
+	private final Map<String, ReviewFileContentProvider> CONTENT_PROVIDERS
+			= Collections.synchronizedMap(new HashMap<String, ReviewFileContentProvider>());
 
 	private static final int HASHCODE_MAGIC = 31;
 
@@ -567,29 +570,42 @@ public class ReviewAdapter {
 		return review.getPermId().getId() + ": " + review.getName() + " (" + server.getName() + ')';
 	}
 
-	public ReviewFileContentProvider getContentProvider() {
-		return contentProvider;
+	public void addContentProvider(final ReviewFileContentProvider contentProvider) {
+		String key = getFileCacheKey(contentProvider.getFileInfo().getFileDescriptor());
+		String key2 = getFileCacheKey(contentProvider.getFileInfo().getOldFileDescriptor());
+		if (!"".equals(key)) {
+			CONTENT_PROVIDERS.put(key, contentProvider);
+		}
+		if (!"".equals(key2)) {
+			CONTENT_PROVIDERS.put(key2, contentProvider);
+		}
 	}
 
-	public void setContentProvider(final ReviewFileContentProvider contentProvider) {
-		this.contentProvider = contentProvider;
-	}
-
-	public ReviewFileContent getFileContent(VersionedVirtualFile fileInfo) throws ReviewFileContentException {
+	public ReviewFileContent getFileContent(VersionedVirtualFile fileInfo)
+			throws ReviewFileContentException {
 		String key = getFileCacheKey(fileInfo);
 		if (FETCHED_FILES_CACHE.containsKey(key)) {
 			return FETCHED_FILES_CACHE.get(key);
 		}
-		ReviewFileContent content = contentProvider.getContent(this, fileInfo);
-		FETCHED_FILES_CACHE.put(key, content);
-		return content;
+		ReviewFileContentProvider provider = CONTENT_PROVIDERS.get(key);
+		if (provider != null) {
+			ReviewFileContent content = provider.getContent(this, fileInfo);
+			FETCHED_FILES_CACHE.put(key, content);
+			CONTENT_PROVIDERS.remove(key);
+			return content;
+		}
+		return null;
 	}
 
 	public void clearContentCache() {
 		FETCHED_FILES_CACHE.clear();
+		CONTENT_PROVIDERS.clear();
 	}
 
 	private static String getFileCacheKey(VersionedVirtualFile virtualFile) {
+		if (StringUtils.isBlank(virtualFile.getRevision()) && StringUtils.isBlank(virtualFile.getUrl())) {
+			return "";
+		}
 		return virtualFile.getRevision() + ":" + virtualFile.getUrl();
 	}
 }

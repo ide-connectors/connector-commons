@@ -162,6 +162,7 @@ public abstract class AbstractHttpSession {
 	 * to parse them by XML and you want to respect HTTP encoding standards (e.g. ISO-8859-1 if there is no charset info
 	 * set in the response header.
 	 * This method does not cache results, nor it supports conditional get.
+	 *
 	 * @param urlString URL
 	 * @return response encoded as String. Encoding respects content type sent by the server in the response headers
 	 * @throws IOException in case of any problem or bad URL
@@ -207,14 +208,13 @@ public abstract class AbstractHttpSession {
 	}
 
 
-
 	/**
 	 * Use it only for retrieving XML information, as it will ignored content-type charset in response header (if such
 	 * present)
 	 *
 	 * @param urlString URL to retrieve data from
 	 * @return response as raw bytes (ignoring charset info in response headers). This is OK for XML parser, as
-	 * servers supported by us use either encoding info in XML header or use UFT-8
+	 *         servers supported by us use either encoding info in XML header or use UFT-8
 	 * @throws IOException in case of IO problem
 	 */
 	protected byte[] doConditionalGet(String urlString) throws IOException {
@@ -255,9 +255,13 @@ public abstract class AbstractHttpSession {
 				if (method.getStatusCode() == HttpStatus.SC_NOT_MODIFIED && cacheRecord != null) {
 //					System.out.println("Cache record valid, using cached value: " + new String(cacheRecord.getDocument()));
 					return cacheRecord.getDocument();
+				} else if (method.getStatusCode() == HttpStatus.SC_BAD_REQUEST) {
+					throw createIOException("HTTP " + method.getStatusCode() + " ("
+							+ HttpStatus.getStatusText(method.getStatusCode()) + ") \n" + method.getStatusText(),
+							new Exception(method.getResponseBodyAsString()));
 				} else if (method.getStatusCode() != HttpStatus.SC_OK) {
 					throw new IOException("HTTP " + method.getStatusCode() + " ("
-							+ HttpStatus.getStatusText(method.getStatusCode()) + ")\n" + method.getStatusText());
+							+ HttpStatus.getStatusText(method.getStatusCode()) + ") \n" + method.getStatusText());
 				} else {
 					final byte[] result = method.getResponseBody();
 					final String lastModified = method.getResponseHeader("Last-Modified") == null ? null
@@ -279,7 +283,6 @@ public abstract class AbstractHttpSession {
 			}
 		}
 	}
-
 
 	/**
 	 * Helper method needed because IOException in Java 1.5 does not have constructor taking "cause"

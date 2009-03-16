@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,10 +38,10 @@ public class ErrorResponse implements JettyMockServer.Callback {
 	}
 
 	public String getErrorMessage() {
-		return ERROR_PREFIX + errorCode + " (" + errorDescription + ")" + "\n" + ERROR_MESSAGE;
+		return ERROR_PREFIX + errorCode + " (" + errorDescription + ")" + " \n" + ERROR_MESSAGE;
 	}
 
 	public static String getStaticErrorMessage(int error, String errorDesc) {
-		return ERROR_PREFIX + error + " (" + errorDesc + ")\n" + ERROR_MESSAGE;
+		return ERROR_PREFIX + error + " (" + errorDesc + ") \n" + ERROR_MESSAGE;
 	}
 }

@@ -45,7 +45,11 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 			setToStartLine(bean.getToStartLine());
 			setToEndLine(bean.getToEndLine());
 		}
-		setReplies(bean.getReplies());
+		if (bean.getReplies() != null) {
+			for (VersionedComment reply : bean.getReplies()) {
+				replies.add(new VersionedCommentBean(reply));
+			}
+		}
 	}
 
 	public VersionedCommentBean() {
@@ -91,7 +95,7 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 	public void setToLineRanges(IntRanges toLineRanges) {
 		this.toLineRanges = toLineRanges;
 	}
-	
+
 	public void setReplies(List<VersionedComment> replies) {
 		this.replies = replies;
 	}

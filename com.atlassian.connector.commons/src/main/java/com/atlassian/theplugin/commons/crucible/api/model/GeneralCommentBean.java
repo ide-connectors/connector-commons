@@ -23,6 +23,19 @@ public class GeneralCommentBean extends CommentBean implements GeneralComment {
 	private List<GeneralComment> replies = new ArrayList<GeneralComment>();
 	private static final int HASH_INT = 31;
 
+	public GeneralCommentBean() {
+		super();
+	}
+
+	public GeneralCommentBean(final GeneralComment bean) {
+		super(bean);
+		if (bean.getReplies() != null) {
+			for (GeneralComment reply : bean.getReplies()) {
+				replies.add(new GeneralCommentBean(reply));
+			}
+		}
+	}
+
 	public List<GeneralComment> getReplies() {
 		return replies;
 	}

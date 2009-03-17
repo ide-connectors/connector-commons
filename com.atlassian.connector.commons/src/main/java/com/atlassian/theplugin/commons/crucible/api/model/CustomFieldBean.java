@@ -21,6 +21,14 @@ public class CustomFieldBean implements CustomField {
 	private String value;
 	private static final int HASHCODE_MAGIC = 31;
 
+	public CustomFieldBean() {
+	}
+
+	public CustomFieldBean(final CustomField field) {
+		this.configVersion = field.getConfigVersion();
+		this.value = field.getValue();
+	}
+
 	public int getConfigVersion() {
 		return configVersion;
 	}

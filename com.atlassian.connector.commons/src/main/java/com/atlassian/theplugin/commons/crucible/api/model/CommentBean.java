@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,11 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by IntelliJ IDEA.
  * User: lguminski
  * Date: Jul 16, 2008
  * Time: 11:42:30 PM
- * To change this template use File | Settings | File Templates.
  */
 public abstract class CommentBean implements Comment {
 	private PermId permId;
@@ -49,7 +47,7 @@ public abstract class CommentBean implements Comment {
 	}
 
 	public CommentBean(Comment bean) {
-		super();
+		this();
 		setPermId(bean.getPermId());
 		setMessage(bean.getMessage());
 		setDraft(bean.isDraft());
@@ -60,6 +58,12 @@ public abstract class CommentBean implements Comment {
 		setAuthor(bean.getAuthor());
 		setAuthor(bean.getAuthor());
 		setReply(bean.isReply());
+
+		if (bean.getCustomFields() != null) {
+			for (Map.Entry<String, CustomField> entry : bean.getCustomFields().entrySet()) {
+				getCustomFields().put(entry.getKey(), new CustomFieldBean(entry.getValue()));
+			}
+		}
 	}
 
 	public PermId getPermId() {
@@ -140,7 +144,7 @@ public abstract class CommentBean implements Comment {
 		return customFields;
 	}
 
-    @Override
+	@Override
 	public String toString() {
 		return getMessage();
 	}

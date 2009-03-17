@@ -50,15 +50,15 @@ public class ReviewAdapter {
 
 	private List<CustomFieldDef> metricDefinitions;
 
-	private final Map<String, ReviewFileContent> FETCHED_FILES_CACHE
-			= Collections.<String, ReviewFileContent>synchronizedMap(new LinkedHashMap() {
+	private final Map<String, ReviewFileContent> fetchedFilesCache
+			= Collections.synchronizedMap(new LinkedHashMap<String, ReviewFileContent>() {
 		@Override
 		protected boolean removeEldestEntry(final Map.Entry eldest) {
 			return (size() > 100);
 		}
 	});
 
-	private final Map<String, ReviewFileContentProvider> CONTENT_PROVIDERS
+	private final Map<String, ReviewFileContentProvider> contentProviders
 			= Collections.synchronizedMap(new HashMap<String, ReviewFileContentProvider>());
 
 	private static final int HASHCODE_MAGIC = 31;
@@ -254,7 +254,6 @@ public class ReviewAdapter {
 
 	public void addGeneralCommentReply(final GeneralComment parentComment, final GeneralCommentBean replyComment)
 			throws RemoteApiException, ServerPasswordNotProvidedException, ValueNotYetInitialized {
-
 		GeneralComment newReply = facade.addGeneralCommentReply(
 				getServer(), getPermId(), parentComment.getPermId(), replyComment);
 
@@ -301,7 +300,6 @@ public class ReviewAdapter {
 
 	public void addVersionedComment(final CrucibleFileInfo file, final VersionedCommentBean newComment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
-
 		VersionedComment newVersionedComment = facade.addVersionedComment(getServer(), getPermId(),
 				file.getPermId(), newComment);
 		if (newVersionedComment != null) {
@@ -325,7 +323,6 @@ public class ReviewAdapter {
 	public void addVersionedCommentReply(final CrucibleFileInfo file, final VersionedComment parentComment,
 			final VersionedCommentBean nComment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
-
 		VersionedComment newComment = facade.addVersionedCommentReply(
 				getServer(), getPermId(), parentComment.getPermId(), nComment);
 
@@ -354,7 +351,6 @@ public class ReviewAdapter {
 	 */
 	public void removeVersionedComment(final VersionedComment versionedComment, final CrucibleFileInfo file)
 			throws RemoteApiException, ServerPasswordNotProvidedException, ValueNotYetInitialized {
-
 		// remove comment from the server
 		facade.removeComment(getServer(), review.getPermId(), versionedComment);
 
@@ -367,9 +363,19 @@ public class ReviewAdapter {
 		}
 	}
 
-	public void editGeneralComment(final GeneralComment comment) throws RemoteApiException, ServerPasswordNotProvidedException {
-
+	public void editGeneralComment(final GeneralComment comment)
+			throws RemoteApiException, ServerPasswordNotProvidedException {
 		facade.updateComment(getServer(), getPermId(), comment);
+		try {
+			for (int i = 0; i < getGeneralComments().size(); i++) {
+				if (comment.getPermId().equals(getGeneralComments().get(i).getPermId())) {
+					getGeneralComments().set(i, new GeneralCommentBean(comment));
+					break;
+				}
+			}
+		} catch (ValueNotYetInitialized valueNotYetInitialized) {
+			throw new RuntimeException(valueNotYetInitialized);
+		}
 		// notify listeners
 		for (CrucibleReviewListener listener : getListeners()) {
 			listener.createdOrEditedGeneralComment(this, comment);
@@ -379,7 +385,18 @@ public class ReviewAdapter {
 	public void editVersionedComment(final CrucibleFileInfo file, final VersionedComment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		facade.updateComment(getServer(), getPermId(), comment);
-
+		try {
+			for (CrucibleFileInfo fileInfo : getFiles()) {
+				for (int i = 0; i < fileInfo.getVersionedComments().size(); i++) {
+					if (comment.getPermId().equals(fileInfo.getVersionedComments().get(i).getPermId())) {
+						fileInfo.getVersionedComments().set(i, new VersionedCommentBean(comment));
+						break;
+					}
+				}
+			}
+		} catch (ValueNotYetInitialized valueNotYetInitialized) {
+			throw new RuntimeException(valueNotYetInitialized);
+		}
 		// notify listeners
 		for (CrucibleReviewListener listener : getListeners()) {
 			listener.createdOrEditedVersionedComment(this, file.getPermId(), comment);
@@ -574,32 +591,32 @@ public class ReviewAdapter {
 		String key = getFileCacheKey(contentProvider.getFileInfo().getFileDescriptor());
 		String key2 = getFileCacheKey(contentProvider.getFileInfo().getOldFileDescriptor());
 		if (!"".equals(key)) {
-			CONTENT_PROVIDERS.put(key, contentProvider);
+			contentProviders.put(key, contentProvider);
 		}
 		if (!"".equals(key2)) {
-			CONTENT_PROVIDERS.put(key2, contentProvider);
+			contentProviders.put(key2, contentProvider);
 		}
 	}
 
 	public ReviewFileContent getFileContent(VersionedVirtualFile fileInfo)
 			throws ReviewFileContentException {
 		String key = getFileCacheKey(fileInfo);
-		if (FETCHED_FILES_CACHE.containsKey(key)) {
-			return FETCHED_FILES_CACHE.get(key);
+		if (fetchedFilesCache.containsKey(key)) {
+			return fetchedFilesCache.get(key);
 		}
-		ReviewFileContentProvider provider = CONTENT_PROVIDERS.get(key);
+		ReviewFileContentProvider provider = contentProviders.get(key);
 		if (provider != null) {
 			ReviewFileContent content = provider.getContent(this, fileInfo);
-			FETCHED_FILES_CACHE.put(key, content);
-			CONTENT_PROVIDERS.remove(key);
+			fetchedFilesCache.put(key, content);
+			contentProviders.remove(key);
 			return content;
 		}
 		return null;
 	}
 
 	public void clearContentCache() {
-		FETCHED_FILES_CACHE.clear();
-		CONTENT_PROVIDERS.clear();
+		fetchedFilesCache.clear();
+		contentProviders.clear();
 	}
 
 	private static String getFileCacheKey(VersionedVirtualFile virtualFile) {

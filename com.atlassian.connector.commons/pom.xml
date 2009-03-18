@@ -107,5 +107,12 @@
 			<classifier>7590</classifier>
 		</dependency>
 
-	</dependencies>
+</dependencies>
+ <repositories>
+         <repository>
+                 <id>atlassian-public-repository</id>
+                 <url>https://maven.atlassian.com/public</url>
+         </repository>
+ </repositories>
+
 </project>

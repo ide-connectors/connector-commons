@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.crucible;
 
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilterBean;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.RecentlyOpenReviewsFilter;
 
 import java.util.Arrays;
 
@@ -25,6 +26,8 @@ public class CrucibleFiltersBean {
 	private Boolean[] predefinedFilters = new Boolean[PredefinedFilter.values().length];
 	//    private HashMap<String, CustomFilterBean> manualFilter = new HashMap<String, CustomFilterBean>();
 	private CustomFilterBean manualFilter = new CustomFilterBean();
+	private RecentlyOpenReviewsFilter recenltyOpenFilter = new RecentlyOpenReviewsFilter();
+
 	private Boolean readStored;
 
 	public CrucibleFiltersBean() {
@@ -61,5 +64,13 @@ public class CrucibleFiltersBean {
 
 	public void setReadStored(final Boolean readStored) {
 		this.readStored = readStored;
+	}
+
+	public RecentlyOpenReviewsFilter getRecenltyOpenFilter() {
+		return recenltyOpenFilter;
+	}
+
+	public void setRecenltyOpenFilter(final RecentlyOpenReviewsFilter recenltyOpenFilter) {
+		this.recenltyOpenFilter = recenltyOpenFilter;
 	}
 }

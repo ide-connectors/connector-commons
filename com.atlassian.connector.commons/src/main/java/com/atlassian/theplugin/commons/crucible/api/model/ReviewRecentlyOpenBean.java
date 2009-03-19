@@ -54,12 +54,12 @@ public class ReviewRecentlyOpenBean {
 			return false;
 		}
 
-		final ReviewRecentlyOpenBean pair = (ReviewRecentlyOpenBean) o;
+		final ReviewRecentlyOpenBean that = (ReviewRecentlyOpenBean) o;
 
-		if (serverId != null ? !serverId.equals(pair.serverId) : pair.serverId != null) {
+		if (reviewId != null ? !reviewId.equals(that.reviewId) : that.reviewId != null) {
 			return false;
 		}
-		if (reviewId != null ? !reviewId.equals(pair.reviewId) : pair.reviewId != null) {
+		if (serverId != null ? !serverId.equals(that.serverId) : that.serverId != null) {
 			return false;
 		}
 
@@ -72,4 +72,5 @@ public class ReviewRecentlyOpenBean {
 		result = 31 * result + (reviewId != null ? reviewId.hashCode() : 0);
 		return result;
 	}
+
 }

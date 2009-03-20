@@ -98,6 +98,10 @@ public class ReviewAdapter {
 		return review.isCompleted();
 	}
 
+	public CrucibleServerFacade getFacade() {
+		return facade;
+	}
+
 	public void setFacade(CrucibleServerFacade newFacade) {
 		facade = newFacade;
 	}

@@ -17,6 +17,7 @@ package com.atlassian.theplugin.commons.util;
 
 import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.Nullable;
+import org.joda.time.Period;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -103,5 +104,31 @@ public final class StringUtil {
 		}
 
 		return text;
+	}
+
+	public static String generateJiraLogTimeString(Period period) {
+		StringBuilder timeLog = new StringBuilder();
+		if (period.getYears() > 0) {
+			timeLog.append(period.getYears() + "y ");
+		}
+
+		if (period.getMonths() > 0) {
+			timeLog.append(period.getMonths() + "M ");
+		}
+
+		if (period.getHours() > 0) {
+			timeLog.append(period.getHours() + "h ");
+
+		}
+
+		if (period.getMinutes() > 0) {
+			timeLog.append(period.getMinutes() + "m ");
+		}
+
+		if (period.getSeconds() > 0) {
+			timeLog.append(period.getSeconds() + "s");
+		}
+
+		return timeLog.toString();
 	}
 }

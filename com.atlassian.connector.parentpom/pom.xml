@@ -304,7 +304,7 @@
 						**/thirdparty/**/*.*,
 						**/JIRAIssueFilterPanel.java,
 						**/JIRAButtonPanel.java,
-						**/WorkLogCreate.java
+						**/WorkLogCreateAndMaybeDeactivate.java
 					</excludes>
 					<includeTestSourceDirectory>false</includeTestSourceDirectory>
 					<!--<failsOnError>true</failsOnError>-->

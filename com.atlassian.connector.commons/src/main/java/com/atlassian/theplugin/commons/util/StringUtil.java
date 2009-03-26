@@ -108,17 +108,12 @@ public final class StringUtil {
 
 	public static String generateJiraLogTimeString(Period period) {
 		StringBuilder timeLog = new StringBuilder();
-		if (period.getYears() > 0) {
-			timeLog.append(period.getYears() + "y ");
-		}
-
-		if (period.getMonths() > 0) {
-			timeLog.append(period.getMonths() + "M ");
+		if (period.getDays() > 0) {
+			timeLog.append(period.getDays() + "M ");
 		}
 
 		if (period.getHours() > 0) {
 			timeLog.append(period.getHours() + "h ");
-
 		}
 
 		if (period.getMinutes() > 0) {

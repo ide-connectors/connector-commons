@@ -17,6 +17,7 @@ package com.atlassian.theplugin.commons.util;
 
 import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.Nullable;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.Period;
 
 import java.io.IOException;
@@ -108,6 +109,13 @@ public final class StringUtil {
 
 	public static String generateJiraLogTimeString(Period period) {
 		StringBuilder timeLog = new StringBuilder();
+		int totalSeconds = period.getSeconds();
+		int weeks = totalSeconds / DateTimeConstants.SECONDS_PER_WEEK;
+		int days = (totalSeconds % DateTimeConstants.SECONDS_PER_WEEK) / DateTimeConstants.SECONDS_PER_DAY;
+		//int hours = totalSeconds - days * ;
+		int minutes = 0;
+
+
 		if (period.getDays() > 0) {
 			timeLog.append(period.getDays() + "M ");
 		}

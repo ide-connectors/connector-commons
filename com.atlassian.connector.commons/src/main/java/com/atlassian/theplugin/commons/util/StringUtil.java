@@ -110,26 +110,30 @@ public final class StringUtil {
 	public static String generateJiraLogTimeString(Period period) {
 		StringBuilder timeLog = new StringBuilder();
 		int totalSeconds = period.getSeconds();
+		int remainingTime = 0;
 		int weeks = totalSeconds / DateTimeConstants.SECONDS_PER_WEEK;
-		int days = (totalSeconds % DateTimeConstants.SECONDS_PER_WEEK) / DateTimeConstants.SECONDS_PER_DAY;
-		//int hours = totalSeconds - days * ;
-		int minutes = 0;
+		remainingTime = totalSeconds - weeks * DateTimeConstants.SECONDS_PER_WEEK;
+		int days = remainingTime / DateTimeConstants.SECONDS_PER_DAY;
+		remainingTime = remainingTime - days * DateTimeConstants.SECONDS_PER_DAY;
+		int hours = remainingTime / DateTimeConstants.SECONDS_PER_HOUR;
+		remainingTime = remainingTime - hours * DateTimeConstants.SECONDS_PER_HOUR;
+		int minutes = remainingTime / DateTimeConstants.SECONDS_PER_MINUTE;
 
 
-		if (period.getDays() > 0) {
-			timeLog.append(period.getDays() + "M ");
+		if (weeks > 0) {
+			timeLog.append(weeks + "w ");
 		}
 
-		if (period.getHours() > 0) {
-			timeLog.append(period.getHours() + "h ");
+		if (days > 0) {
+			timeLog.append(days + "d ");
 		}
 
-		if (period.getMinutes() > 0) {
-			timeLog.append(period.getMinutes() + "m ");
+		if (hours > 0) {
+			timeLog.append(hours + "h ");
 		}
 
-		if (period.getSeconds() > 0) {
-			timeLog.append(period.getSeconds() + "s");
+		if (minutes > 0) {
+			timeLog.append(minutes + "m ");
 		}
 
 		return timeLog.toString();

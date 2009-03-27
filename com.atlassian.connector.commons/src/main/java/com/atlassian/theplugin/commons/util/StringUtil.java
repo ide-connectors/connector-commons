@@ -120,19 +120,19 @@ public final class StringUtil {
 
 
 		if (weeks > 0) {
-			timeLog.append(weeks + "w ");
+			timeLog.append(" ").append(weeks).append("w");
 		}
 
 		if (days > 0) {
-			timeLog.append(days + "d ");
+			timeLog.append(" ").append(days).append("d");
 		}
 
 		if (hours > 0) {
-			timeLog.append(hours + "h ");
+			timeLog.append(" ").append(hours).append("h");
 		}
 
 		if (minutes > 0) {
-			timeLog.append(minutes + "m ");
+			timeLog.append(" ").append(minutes).append("m");
 		}
 
 		return timeLog.toString();

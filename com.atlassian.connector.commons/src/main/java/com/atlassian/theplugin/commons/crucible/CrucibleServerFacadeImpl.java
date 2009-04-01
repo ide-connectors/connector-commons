@@ -17,7 +17,6 @@
 package com.atlassian.theplugin.commons.crucible;
 
 import com.atlassian.theplugin.commons.ServerType;
-import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
@@ -48,6 +47,7 @@ import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedExcept
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
+import com.atlassian.theplugin.commons.util.MiscUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +56,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
 
 public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	private Map<String, CrucibleSession> sessions = new HashMap<String, CrucibleSession>();

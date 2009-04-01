@@ -71,6 +71,26 @@ public interface CrucibleServerFacade extends ProductServerFacade {
 	void removeReviewer(CrucibleServerCfg server, PermId permId, String userName)
 			throws RemoteApiException, ServerPasswordNotProvidedException;
 
+
+	/**
+	 * Convenience method for setting reviewers for a review.
+	 * Please keep in mind that it involves at least 3 remote calls to Crucible server:
+	 * getReview(), addReviewers() and N times removeReviewer().
+	 * This method is not atomic, so it may fail and leave reviewers in partially updated state
+	 * After this method is complete, reviewers for selected review will be equal to this
+	 * as given by <code>usernames</code>.
+	 * Reviewers which are in <code>usernames</code> and are also present in the review itself are left intact
+	 * - i.e. the method does gurantee to leave them intact even if some problems occur during execution.
+	 *
+	 * @param server Crucible server to connect to
+	 * @param permId id of review
+	 * @param usernames usernames of reviewers
+	 * @throws RemoteApiException in case of some connection problems or malformed responses
+	 * @throws ServerPasswordNotProvidedException when password was not provided
+	 */
+	void setReviewers(CrucibleServerCfg server, PermId permId, Collection<String> usernames)
+			throws RemoteApiException, ServerPasswordNotProvidedException;
+
 	Review approveReview(CrucibleServerCfg server, PermId permId)
 			throws RemoteApiException, ServerPasswordNotProvidedException;
 

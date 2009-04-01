@@ -17,6 +17,7 @@
 package com.atlassian.theplugin.commons.crucible;
 
 import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
@@ -55,15 +56,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 
-public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
+public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	private Map<String, CrucibleSession> sessions = new HashMap<String, CrucibleSession>();
 
 	private static CrucibleServerFacadeImpl instance;
 	private CrucibleUserCache userCache;
 	private HttpSessionCallback callback;
 
-	private CrucibleServerFacadeImpl(CrucibleUserCache userCache) {
+	protected CrucibleServerFacadeImpl(CrucibleUserCache userCache) {
 		this.userCache = userCache;
 		this.callback = new HttpSessionCallbackImpl();
 	}
@@ -83,7 +85,7 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		return ServerType.CRUCIBLE_SERVER;
 	}
 
-	private synchronized CrucibleSession getSession(CrucibleServerCfg server)
+	protected synchronized CrucibleSession getSession(CrucibleServerCfg server)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		String key = server.getUrl() + server.getUsername() + server.getPassword();
 		CrucibleSession session = sessions.get(key);
@@ -154,8 +156,6 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	/**
 	 * For testing Only
 	 *
-	 * @see com.atlassian.theplugin.commons.remoteapi.ProductServerFacade#testServerConnection(java.lang.String,
-	 *	  java.lang.String, java.lang.String)
 	 */
 	public void testServerConnection(String url, String userName, String password) throws RemoteApiException {
 		CrucibleServerCfg serverCfg = new CrucibleServerCfg(url, new ServerId());
@@ -265,6 +265,50 @@ public final class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 			String userName) throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		session.removeReviewer(permId, userName);
+	}
+
+	private boolean contains(Set<Reviewer> reviewers, String username) {
+		for (Reviewer reviewer : reviewers) {
+			if (reviewer.getUserName().equals(username)) {
+				return true;
+			}
+		}
+		return false;	
+	}
+
+	public void setReviewers(final CrucibleServerCfg server, final PermId permId, final Collection<String> aUsernames)
+			throws RemoteApiException, ServerPasswordNotProvidedException {
+		final Set<String> reviewersForAdd = MiscUtil.buildHashSet();
+		final Set<String> reviewersForRemove = MiscUtil.buildHashSet();
+		final Review review = getReview(server, permId);
+		// removing potential duplicates
+		final Set<String> usernames = MiscUtil.buildHashSet(aUsernames);
+
+		try {
+			for (String username : usernames) {
+				if (!contains(review.getReviewers(), username)) {
+					reviewersForAdd.add(username);
+				}
+			}
+
+			for (Reviewer reviewer : review.getReviewers()) {
+				if (!usernames.contains(reviewer.getUserName())) {
+					reviewersForRemove.add(reviewer.getUserName());
+				}
+			}
+
+
+			if (!reviewersForAdd.isEmpty()) {
+				addReviewers(server, permId, reviewersForAdd);
+			}
+			if (!reviewersForRemove.isEmpty()) {
+				for (String reviewer : reviewersForRemove) {
+					removeReviewer(server, permId, reviewer);
+				}
+			}
+		} catch (ValueNotYetInitialized e) {
+			throw new RemoteApiException(e);
+		}
 	}
 
 	public Review approveReview(

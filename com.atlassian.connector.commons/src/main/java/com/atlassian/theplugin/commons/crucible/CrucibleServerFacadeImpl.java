@@ -276,8 +276,8 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		return false;	
 	}
 
-	public void setReviewers(final CrucibleServerCfg server, final PermId permId, final Collection<String> aUsernames)
-			throws RemoteApiException, ServerPasswordNotProvidedException {
+	public void setReviewers(@NotNull final CrucibleServerCfg server, @NotNull final PermId permId,
+			@NotNull final Collection<String> aUsernames) throws RemoteApiException, ServerPasswordNotProvidedException {
 		final Set<String> reviewersForAdd = MiscUtil.buildHashSet();
 		final Set<String> reviewersForRemove = MiscUtil.buildHashSet();
 		final Review review = getReview(server, permId);

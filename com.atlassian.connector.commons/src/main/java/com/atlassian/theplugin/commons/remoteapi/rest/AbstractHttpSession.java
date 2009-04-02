@@ -60,8 +60,14 @@ public abstract class AbstractHttpSession {
 	protected HttpClient client;
 	@NotNull
 	private final HttpSessionCallback callback;
+
 	@NotNull
 	private final Server server;
+
+	@NotNull
+	protected Server getServer() {
+		return server;
+	}
 
 	protected String getUsername() {
 		return server.getUsername();

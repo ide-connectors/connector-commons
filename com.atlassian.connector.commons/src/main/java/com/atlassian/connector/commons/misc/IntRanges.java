@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Collections;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 
 /**
  * This class is immutable
@@ -54,7 +55,6 @@ public class IntRanges {
 		this.ranges = new ArrayList<IntRange>(Arrays.asList(ranges));
 		Collections.sort(this.ranges, COMPARATOR);
 	}
-
 
 	public int getTotalMin() {
 		return ranges.get(0).getMin();
@@ -95,6 +95,17 @@ public class IntRanges {
 
 	@Override
 	public String toString() {
-		return StringUtils.join(ranges, ',');
+		return "[" + StringUtils.join(ranges, ',') + "]";
+	}
+
+	public String toNiceString() {
+		final StringBuilder sb = new StringBuilder();
+		for (Iterator<IntRange> it = ranges.iterator(); it.hasNext();) {
+			sb.append(it.next().toNiceString());
+			if (it.hasNext()) {
+				sb.append(", ");
+			}
+		}
+		return sb.toString();
 	}
 }

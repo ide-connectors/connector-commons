@@ -16,7 +16,6 @@
 
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
-import com.atlassian.connector.commons.misc.IntRanges;
 import com.atlassian.connector.commons.misc.IntRangesParser;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.CrucibleVersion;
@@ -83,7 +82,6 @@ public final class CrucibleRestXmlHelper {
 		}
 		return "";
 	}
-
 
 	@SuppressWarnings("unchecked")
 	public static List<Element> getChildElements(Element node, String childName) {
@@ -710,12 +708,7 @@ public final class CrucibleRestXmlHelper {
 
 	///CHECKSTYLE:OFF
 	public static VersionedCommentBean parseVersionedCommentNodeWithHints(String myUserName, Element reviewCommentNode,
-			boolean fromLineInfo,
-			int fromStartLine,
-			int toStartLine,
-			boolean toLineInfo,
-			int fromEndLine,
-			int toEndLine) {
+			boolean fromLineInfo, int fromStartLine, int toStartLine, boolean toLineInfo, int fromEndLine, int toEndLine) {
 		VersionedCommentBean result = parseVersionedCommentNode(myUserName, reviewCommentNode);
 		if (result == null) {
 			return null;
@@ -732,6 +725,7 @@ public final class CrucibleRestXmlHelper {
 		}
 		return result;
 	}
+
 	///CHECKSTYLE:ON
 
 	public static VersionedCommentBean parseVersionedCommentNode(String myUserName, Element reviewCommentNode) {
@@ -750,12 +744,7 @@ public final class CrucibleRestXmlHelper {
 			final String fromLineRange = getChildText(reviewCommentNode, "fromLineRange");
 			if (fromLineRange.trim().length() > 0) {
 				try {
-					final IntRanges intRanges = IntRangesParser.parse(fromLineRange);
-					comment.setFromLineRanges(intRanges);
-					comment.setFromLineInfo(true);
-					comment.setFromStartLine(intRanges.getTotalMin());
-					comment.setFromEndLine(intRanges.getTotalMax());
-
+					comment.setFromLineRanges(IntRangesParser.parse(fromLineRange));
 				} catch (NumberFormatException e) {
 					// @todo add some logging here at least
 				}
@@ -766,12 +755,7 @@ public final class CrucibleRestXmlHelper {
 			final String toLineRange = getChildText(reviewCommentNode, "toLineRange");
 			if (toLineRange.trim().length() > 0) {
 				try {
-					final IntRanges intRanges = IntRangesParser.parse(toLineRange);
-					comment.setToLineRanges(intRanges);
-					comment.setToLineInfo(true);
-					comment.setToStartLine(intRanges.getTotalMin());
-					comment.setToEndLine(intRanges.getTotalMax());
-
+					comment.setToLineRanges(IntRangesParser.parse(toLineRange));
 				} catch (NumberFormatException e) {
 					// @todo add some logging here at least
 				}

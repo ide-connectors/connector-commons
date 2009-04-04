@@ -50,7 +50,7 @@ public final class IntRange {
 		if (isSingleNumber()) {
 			return "[" + min + "]";
 		} else {
-			return "[" + min + "," + max + "]"; 
+			return "[" + min + "-" + max + "]";
 		}
 	}
 
@@ -81,5 +81,13 @@ public final class IntRange {
 		int result = min;
 		result = MAGIC * result + max;
 		return result;
+	}
+
+	public String toNiceString() {
+		if (isSingleNumber()) {
+			return String.valueOf(min);
+		} else {
+			return min + " - " + max;
+		}
 	}
 }

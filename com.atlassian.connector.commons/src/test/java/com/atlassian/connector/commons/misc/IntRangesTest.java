@@ -28,7 +28,7 @@ public class IntRangesTest extends TestCase {
 	public static final IntRange IR_M25_56 = new IntRange(-25, 56);
 	public static final IntRange IR_3_89 = new IntRange(3, 89);
 	public static final IntRange IR_1_2 = new IntRange(1, 2);
-	
+
 	public void testRanges() {
 		TestUtil.assertThrows(IllegalArgumentException.class, new IAction() {
 			public void run() throws Throwable {
@@ -44,6 +44,12 @@ public class IntRangesTest extends TestCase {
 	public void testEquals() {
 		TestUtil.assertEqualsSymmetrical(new IntRanges(IR_M123), new IntRanges(IR_M123));
 		TestUtil.assertNotEquals(new IntRanges(IR_M123), new IntRanges(IR_123));
-		TestUtil.assertEqualsSymmetrical(new IntRanges(IR_M123, IR_1_2), new IntRanges(IR_1_2, IR_M123));		
+		TestUtil.assertEqualsSymmetrical(new IntRanges(IR_M123, IR_1_2), new IntRanges(IR_1_2, IR_M123));
+	}
+
+	public void testToNiceString() {
+		assertEquals("123", IR_123.toNiceString());
+		assertEquals("3 - 89", IR_3_89.toNiceString());
+		assertEquals("-123, 3 - 89, 123", new IntRanges(IR_M123, IR_3_89, IR_123).toNiceString());
 	}
 }

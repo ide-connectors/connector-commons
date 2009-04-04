@@ -23,14 +23,23 @@ import java.util.List;
 
 public class VersionedCommentBean extends CommentBean implements VersionedComment {
 	private PermId reviewItemId;
+
 	private int fromStartLine;
+
 	private int fromEndLine;
+
 	private boolean fromLineInfo;
+
 	private int toStartLine;
+
 	private int toEndLine;
+
 	private boolean toLineInfo;
+
 	private IntRanges toLineRanges;
+
 	private List<VersionedComment> replies = new ArrayList<VersionedComment>();
+
 	private IntRanges fromLineRanges;
 
 	public VersionedCommentBean(VersionedComment bean) {
@@ -54,7 +63,6 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 
 	public VersionedCommentBean() {
 	}
-
 
 	public PermId getReviewItemId() {
 		return reviewItemId;
@@ -86,6 +94,9 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 
 	public void setFromLineRanges(final IntRanges fromLineRanges) {
 		this.fromLineRanges = fromLineRanges;
+		setFromLineInfo(true);
+		setFromStartLine(fromLineRanges.getTotalMin());
+		setFromEndLine(fromLineRanges.getTotalMax());
 	}
 
 	public IntRanges getToLineRanges() {
@@ -94,6 +105,9 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 
 	public void setToLineRanges(IntRanges toLineRanges) {
 		this.toLineRanges = toLineRanges;
+		setToLineInfo(true);
+		setToStartLine(toLineRanges.getTotalMin());
+		setToEndLine(toLineRanges.getTotalMax());
 	}
 
 	public void setReplies(List<VersionedComment> replies) {
@@ -140,7 +154,6 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		this.toLineInfo = toLineInfo;
 	}
 
-
 	public boolean deepEquals(Object o) {
 		if (this == o) {
 			return true;
@@ -186,8 +199,7 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		for (VersionedComment vc : replies) {
 			boolean found = false;
 			for (VersionedComment tvc : that.getReplies()) {
-				if (vc.getPermId() == tvc.getPermId()
-						&& ((VersionedCommentBean) vc).deepEquals(vc)) {
+				if (vc.getPermId() == tvc.getPermId() && ((VersionedCommentBean) vc).deepEquals(vc)) {
 					found = true;
 					break;
 				}

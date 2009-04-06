@@ -37,12 +37,12 @@ public final class UserCfg implements User {
 		return userName;
 	}
 
-	public User setPassword(String password) {
-		return new UserCfg(this.userName, password, passwordStored);
+	public User setPassword(String aNewPassword) {
+		return new UserCfg(this.userName, aNewPassword, this.passwordStored);
 	}
 
-	public User setPasswordStored(final boolean passwordStored) {
-		return new UserCfg(this.userName, this.password, passwordStored);
+	public User setPasswordStored(final boolean newPasswordStored) {
+		return new UserCfg(this.userName, this.password, newPasswordStored);
 
 	}
 

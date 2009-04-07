@@ -357,7 +357,7 @@ public class BambooSessionTest extends AbstractSessionTest
 
         mockServer.verify();
 
-        assertNull(build);
+        assertNotNull(build);
         assertEquals("13928", build.getVcsRevisionKey());
         // commit
         assertEquals(1, build.getCommitInfo().size());

@@ -62,7 +62,7 @@ public class BambooSessionTest extends AbstractSessionTest
             mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
             apiHandler.login(usernames[i], passwords[i].toCharArray());
-            assertFalse(apiHandler.isLoggedIn());
+            assertTrue(apiHandler.isLoggedIn());
             apiHandler.logout();
             assertFalse(apiHandler.isLoggedIn());
         }
@@ -357,7 +357,7 @@ public class BambooSessionTest extends AbstractSessionTest
 
         mockServer.verify();
 
-        assertNotNull(build);
+        assertNull(build);
         assertEquals("13928", build.getVcsRevisionKey());
         // commit
         assertEquals(1, build.getCommitInfo().size());

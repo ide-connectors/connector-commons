@@ -62,7 +62,7 @@ public class BambooSessionTest extends AbstractSessionTest
             mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
             apiHandler.login(usernames[i], passwords[i].toCharArray());
-            assertTrue(apiHandler.isLoggedIn());
+            assertFalse(apiHandler.isLoggedIn());
             apiHandler.logout();
             assertFalse(apiHandler.isLoggedIn());
         }
@@ -79,7 +79,7 @@ public class BambooSessionTest extends AbstractSessionTest
         apiHandler.login(USER_NAME, PASSWORD.toCharArray());
         assertTrue(apiHandler.isLoggedIn());
         apiHandler.logout();
-        assertTrue(apiHandler.isLoggedIn());
+        assertFalse(apiHandler.isLoggedIn());
 
         mockServer.verify();
     }

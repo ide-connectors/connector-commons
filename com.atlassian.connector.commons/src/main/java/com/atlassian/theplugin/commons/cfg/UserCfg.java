@@ -18,10 +18,10 @@ package com.atlassian.theplugin.commons.cfg;
 /**
  * User: pmaruszak
  */
-public final class UserCfg implements User {
+public class UserCfg implements User {
 	private String userName = "";
 	private String password = "";
-	private final boolean passwordStored;
+	private boolean passwordStored;
 
 	public UserCfg(String userName, String password, final boolean passwordStored) {
 		this.userName = userName;
@@ -33,21 +33,29 @@ public final class UserCfg implements User {
 		this(userName, password, false);
 	}
 
+	public UserCfg() {
+	}
+
 	public String getUserName() {
 		return userName;
 	}
 
-	public User setPassword(String aNewPassword) {
-		return new UserCfg(this.userName, aNewPassword, this.passwordStored);
+	public void setUserName(final String userName) {
+		this.userName = userName;
 	}
 
-	public User setPasswordStored(final boolean newPasswordStored) {
-		return new UserCfg(this.userName, this.password, newPasswordStored);
-
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getPassword() {
 		return password;
+	}
+
+
+	public void setPasswordStored(final boolean passwordStored) {
+		this.passwordStored = passwordStored;
+
 	}
 
 	public boolean isPasswordStored() {

@@ -33,6 +33,10 @@ public interface CfgManager extends BambooCfgManager {
 
 	Collection<ServerCfg> getAllEnabledServers(ProjectId projectId, ServerType serverType);
 
+	Collection<ServerCfg> getAllServersWithDefaultCredentials(ProjectId projectId, ServerType serverType);
+
+	Collection<ServerCfg> getAllServersWithDefaultCredentials(ProjectId projectId);
+
 	void updateProjectConfiguration(ProjectId projectId, ProjectConfiguration projectConfiguration);
 
 	void updateGlobalConfiguration(GlobalConfiguration globalConfiguration);

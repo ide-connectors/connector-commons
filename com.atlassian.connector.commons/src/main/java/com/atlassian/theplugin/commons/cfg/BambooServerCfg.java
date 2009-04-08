@@ -85,7 +85,7 @@ public class BambooServerCfg extends ServerCfg {
 		if (super.equals(o) == false) {
 			return false;
 		}
-		
+
 		if (this == o) {
 			return true;
 		}
@@ -156,8 +156,8 @@ public class BambooServerCfg extends ServerCfg {
 
 	@Override
 	public PrivateServerCfgInfo createPrivateProjectConfiguration() {
-		return new PrivateBambooServerCfgInfo(getServerId(), isEnabled(), getUsername(),
-				isPasswordStored() ? getPassword() : null, getTimezoneOffset());
+		return new PrivateBambooServerCfgInfo(getServerId(), isEnabled(), isUseDefaultCredentials(),
+				getCurrentUsername(), isPasswordStored() ? getCurrentPassword() : null, getTimezoneOffset());
 	}
 
 	@Override

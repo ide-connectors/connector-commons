@@ -35,7 +35,7 @@ public class CfgManagerImpl implements CfgManager {
 			projectListener.projectUnregistered();
 		}
 	};
-	
+
 	public CfgManagerImpl() {
 		// TODO wseliga remove it later on and handle properly null values
 		update(new GlobalConfiguration());
@@ -48,10 +48,10 @@ public class CfgManagerImpl implements CfgManager {
 	}
 
 	public Collection<ServerCfg> getAllServers(final ProjectId projectId) {
-        Collection<ServerCfg> tmp = new ArrayList<ServerCfg>(getProjectSpecificServers(projectId));
-        tmp.addAll(globalServers);
-        return tmp;
-    }
+		Collection<ServerCfg> tmp = new ArrayList<ServerCfg>(getProjectSpecificServers(projectId));
+		tmp.addAll(globalServers);
+		return tmp;
+	}
 
 	public Collection<CrucibleServerCfg> getAllCrucibleServers(ProjectId projectId) {
 
@@ -69,30 +69,30 @@ public class CfgManagerImpl implements CfgManager {
 	public Collection<ServerCfg> getProjectSpecificServers(final ProjectId projectId) {
 		verifyProjectId(projectId);
 		ProjectConfiguration res = projectConfigurations.get(projectId);
-        if (res == null) {
-            return Collections.emptyList();
-        }
-        return MiscUtil.buildArrayList(res.getServers());
-    }
+		if (res == null) {
+			return Collections.emptyList();
+		}
+		return MiscUtil.buildArrayList(res.getServers());
+	}
 
 	public Collection<ServerCfg> getGlobalServers() {
-        return new ArrayList<ServerCfg>(globalServers);
-    }
+		return new ArrayList<ServerCfg>(globalServers);
+	}
 
 	public Collection<ServerCfg> getAllEnabledServers(final ProjectId projectId) {
-        Collection<ServerCfg> tmp = new ArrayList<ServerCfg>();
-        for (ServerCfg serverCfg : getAllServers(projectId)) {
-            if (serverCfg.isEnabled()) {
-                tmp.add(serverCfg);
-            }
-        }
-        return tmp;
-    }
+		Collection<ServerCfg> tmp = new ArrayList<ServerCfg>();
+		for (ServerCfg serverCfg : getAllServers(projectId)) {
+			if (serverCfg.isEnabled()) {
+				tmp.add(serverCfg);
+			}
+		}
+		return tmp;
+	}
 
 
 	public BambooCfg getGlobalBambooCfg() {
 		return bambooCfg;
-    }
+	}
 
 	public void updateProjectConfiguration(final ProjectId projectId, final ProjectConfiguration projectConfiguration) {
 		verifyProjectId(projectId);
@@ -116,8 +116,8 @@ public class CfgManagerImpl implements CfgManager {
 	}
 
 	private void notifyListeners(ProjectId projectId,
-								 ProjectConfiguration newConfiguration,
-								 ProjectConfiguration oldConfiguration) {
+			ProjectConfiguration newConfiguration,
+			ProjectConfiguration oldConfiguration) {
 
 		ProjectListenerAction[] actions = {
 				new UpdateConfigurationListenerAction(newConfiguration),
@@ -158,7 +158,7 @@ public class CfgManagerImpl implements CfgManager {
 	}
 
 	public boolean removeProjectConfigurationListener(final ProjectId projectId,
-													  final ConfigurationListener configurationListener) {
+			final ConfigurationListener configurationListener) {
 		if (configurationListener == null) {
 			throw new IllegalArgumentException(ProjectId.class.getSimpleName() + " cannot be null");
 		}
@@ -183,10 +183,10 @@ public class CfgManagerImpl implements CfgManager {
 
 		ProjectConfiguration projectCfg = getProjectConfiguration(projectId);
 
-        if (projectCfg == null) {
-            projectCfg = new ProjectConfiguration();
-            projectConfigurations.put(projectId, projectCfg);
-        }
+		if (projectCfg == null) {
+			projectCfg = new ProjectConfiguration();
+			projectConfigurations.put(projectId, projectCfg);
+		}
 		if (!projectCfg.getServers().contains(serverCfg)) {
 			projectCfg.getServers().add(serverCfg);
 		}
@@ -194,8 +194,8 @@ public class CfgManagerImpl implements CfgManager {
 	}
 
 	public void addGlobalServer(final ServerCfg serverCfg) {
-        globalServers.add(serverCfg);
-    }
+		globalServers.add(serverCfg);
+	}
 
 	public ProjectConfiguration removeProject(final ProjectId projectId) {
 		final ProjectConfiguration res = projectConfigurations.remove(projectId);
@@ -209,7 +209,7 @@ public class CfgManagerImpl implements CfgManager {
 	public ServerCfg removeGlobalServer(final ServerId serverId) {
 		verifyServerId(serverId);
 		return removeServer(serverId, globalServers);
-    }
+	}
 
 	private void verifyServerId(final ServerId serverId) {
 		if (serverId == null) {
@@ -298,17 +298,40 @@ public class CfgManagerImpl implements CfgManager {
 		return res;
 	}
 
+	public Collection<ServerCfg> getAllServersWithDefaultCredentials(final ProjectId projectId, final ServerType serverType) {
+		Collection<ServerCfg> tmp = getAllEnabledServers(projectId);
+		Collection<ServerCfg> res = MiscUtil.buildArrayList();
+		for (ServerCfg serverCfg : tmp) {
+			if (serverCfg.isUseDefaultCredentials() && serverCfg.isEnabled()
+					&& serverCfg.getServerType() == serverType) {
+				res.add(serverCfg);
+			}
+		}
+		return res;
+	}
+
+	public Collection<ServerCfg> getAllServersWithDefaultCredentials(final ProjectId projectId) {
+		Collection<ServerCfg> tmp = getAllEnabledServers(projectId);
+		Collection<ServerCfg> res = MiscUtil.buildArrayList();
+		for (ServerCfg serverCfg : tmp) {
+			if (serverCfg.isUseDefaultCredentials() && serverCfg.isEnabled()) {
+				res.add(serverCfg);
+			}
+		}
+		return res;
+	}
+
 	private ServerCfg removeServer(final ServerId serverId, final Collection<ServerCfg> servers) {
-        Iterator<ServerCfg> it = servers.iterator();
-        while (it.hasNext()) {
-            ServerCfg serverCfg = it.next();
-            if (serverCfg.getServerId().equals(serverId)) {
-                it.remove();
-                return serverCfg;
-            }
-        }
-        return null;
-    }
+		Iterator<ServerCfg> it = servers.iterator();
+		while (it.hasNext()) {
+			ServerCfg serverCfg = it.next();
+			if (serverCfg.getServerId().equals(serverId)) {
+				it.remove();
+				return serverCfg;
+			}
+		}
+		return null;
+	}
 
 
 	public void update(GlobalConfiguration globalConfiguration) {
@@ -384,8 +407,8 @@ public class CfgManagerImpl implements CfgManager {
 				return false;
 			}
 
-			return !oldServer.getUsername().equals(newServer.getUsername())
-					|| !oldServer.getPassword().equals(newServer.getPassword());
+			return !oldServer.getCurrentUsername().equals(newServer.getCurrentUsername())
+					|| !oldServer.getCurrentPassword().equals(newServer.getCurrentPassword());
 
 		}
 

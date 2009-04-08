@@ -15,18 +15,7 @@
  */
 package com.atlassian.theplugin.commons.cfg.xstream;
 
-import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
-import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
-import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;
-import com.atlassian.theplugin.commons.cfg.PrivateConfigurationDao;
-import com.atlassian.theplugin.commons.cfg.PrivateServerCfgInfo;
-import com.atlassian.theplugin.commons.cfg.ProjectConfiguration;
-import com.atlassian.theplugin.commons.cfg.ProjectConfigurationDao;
-import com.atlassian.theplugin.commons.cfg.ProjectConfigurationDaoTest;
-import com.atlassian.theplugin.commons.cfg.ServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerCfgFactoryException;
-import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.*;
 import static com.atlassian.theplugin.commons.cfg.xstream.JDomProjectConfigurationDao.createPrivateProjectConfiguration;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.StringUtil;
@@ -54,11 +43,16 @@ import java.util.Map;
  * @author wseliga
  */
 public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest {
-	private final BambooServerCfg bamboo1 = new BambooServerCfg("mybamboo1", new ServerId("141d662c-e744-4690-a5f8-6e127c0bc84f"));
-	private final BambooServerCfg bamboo2 = new BambooServerCfg("mybamboo2", new ServerId("241d662c-e744-4690-a5f8-6e127c0bc84f"));
-	private final CrucibleServerCfg crucible1 = new CrucibleServerCfg("mycrucible1", new ServerId("341d662c-e744-4690-a5f8-6e127c0bc84f"));
-	private final CrucibleServerCfg crucible2 = new CrucibleServerCfg("mycrucible2", new ServerId("341d662c-e744-4690-a5f8-6e127c0bc84e"));
-	private final FishEyeServerCfg fisheye1 = new FishEyeServerCfg("myfisheye1", new ServerId("341d662c-e744-4690-a5f8-6e127c0bc84d"));
+	private final BambooServerCfg bamboo1 = new BambooServerCfg("mybamboo1",
+			new ServerId("141d662c-e744-4690-a5f8-6e127c0bc84f"));
+	private final BambooServerCfg bamboo2 = new BambooServerCfg("mybamboo2",
+			new ServerId("241d662c-e744-4690-a5f8-6e127c0bc84f"));
+	private final CrucibleServerCfg crucible1 = new CrucibleServerCfg("mycrucible1",
+			new ServerId("341d662c-e744-4690-a5f8-6e127c0bc84f"));
+	private final CrucibleServerCfg crucible2 = new CrucibleServerCfg("mycrucible2",
+			new ServerId("341d662c-e744-4690-a5f8-6e127c0bc84e"));
+	private final FishEyeServerCfg fisheye1 = new FishEyeServerCfg("myfisheye1",
+			new ServerId("341d662c-e744-4690-a5f8-6e127c0bc84d"));
 	private final PrivateConfigurationDao PRIVATE_CFG_FACTORY = new MemoryPrivateConfigurationDao();
 
 
@@ -88,7 +82,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 	}
 
 	public void testJDomSaveLoadGlobalConfiguration() throws IOException, ServerCfgFactoryException {
-		
+
 		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY);
 		factory.save(projectCfg);
 
@@ -101,7 +95,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 	}
 
 
-	public void testLoadOldSaveNew() {		
+	public void testLoadOldSaveNew() {
 		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY);
 		factory.save(projectCfg);
 	}
@@ -116,13 +110,13 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		new XMLOutputter(Format.getPrettyFormat()).output(element, writer);
 		assertTrue(writer.toString().indexOf(bamboo1.getName()) != -1);
 		// password should be hashed
-		assertEquals(-1, writer.toString().indexOf(bamboo1.getPassword()));
+		assertEquals(-1, writer.toString().indexOf(bamboo1.getCurrentPassword()));
 
 		final StringWriter privateWriter = new StringWriter();
 		new XMLOutputter(Format.getPrettyFormat()).output(pcf.documentMap.get(bamboo1.getServerId()), privateWriter);
 		assertTrue(privateWriter.toString().indexOf(bamboo1.getServerId().getUuid().toString()) != -1);
 		// password should be hashed - so it should not be found in resulting xml stream
-		assertEquals(-1, privateWriter.toString().indexOf(bamboo1.getPassword()));
+		assertEquals(-1, privateWriter.toString().indexOf(bamboo1.getCurrentPassword()));
 	}
 
 
@@ -151,7 +145,8 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 
 		// and also vice-versa
 		Document doc = new SAXBuilder(false).build(getClass().getResourceAsStream(EXPECTED_OUTPUT_XML));
-		final JDomProjectConfigurationDao loadFactory = new JDomProjectConfigurationDao(doc.getRootElement(), PRIVATE_CFG_FACTORY);
+		final JDomProjectConfigurationDao loadFactory = new JDomProjectConfigurationDao(doc.getRootElement(),
+				PRIVATE_CFG_FACTORY);
 		final ProjectConfiguration readCfg = loadFactory.load();
 		assertEquals(projectCfg, readCfg);
 	}
@@ -177,14 +172,14 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		final ProjectConfiguration readCfg = loadFactory.load();
 		assertEquals(2, readCfg.getServers().size());
 		final ServerCfg readServer = readCfg.getServerCfg(bamboo1.getServerId());
-		assertEquals("", readServer.getPassword());
-		assertEquals("", readServer.getUsername());
+		assertEquals("", readServer.getCurrentPassword());
+		assertEquals("", readServer.getCurrentUsername());
 		assertEquals(bamboo1.getUrl(), readServer.getUrl());
 		assertEquals(bamboo1.getName(), readServer.getName());
 
 		final ServerCfg fishServer = readCfg.getServerCfg(fisheye1.getServerId());
-		assertEquals("", fishServer.getPassword());
-		assertEquals("", fishServer.getUsername());
+		assertEquals("", fishServer.getCurrentPassword());
+		assertEquals("", fishServer.getCurrentUsername());
 		assertEquals(fisheye1.getUrl(), fishServer.getUrl());
 		assertEquals(fisheye1.getName(), fishServer.getName());
 	}
@@ -272,12 +267,12 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		bamboo2.setPasswordStored(false);
 		bamboo2.setEnabled(false);
 		final PrivateServerCfgInfo privateCfg = createPrivateProjectConfiguration(bamboo1);
-		assertEquals(bamboo1.getUsername(), privateCfg.getUsername());
-		assertEquals(bamboo1.getPassword(), privateCfg.getPassword());
+		assertEquals(bamboo1.getCurrentUsername(), privateCfg.getUsername());
+		assertEquals(bamboo1.getCurrentPassword(), privateCfg.getPassword());
 		assertEquals(bamboo1.getServerId(), privateCfg.getServerId());
 
 		final PrivateServerCfgInfo privateCfg2 = createPrivateProjectConfiguration(bamboo2);
-		assertEquals(bamboo2.getUsername(), privateCfg2.getUsername());
+		assertEquals(bamboo2.getCurrentUsername(), privateCfg2.getUsername());
 		assertEquals(null, privateCfg2.getPassword());
 		assertEquals(bamboo2.getServerId(), privateCfg2.getServerId());
 		assertEquals(bamboo2.isEnabled(), privateCfg2.isEnabled());
@@ -286,7 +281,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		bamboo2.setPasswordStored(true);
 		bamboo2.setUsername("");
 		final PrivateServerCfgInfo privateCfg3 = createPrivateProjectConfiguration(bamboo2);
-		assertEquals(bamboo2.getUsername(), privateCfg3.getUsername());
+		assertEquals(bamboo2.getCurrentUsername(), privateCfg3.getUsername());
 		assertEquals("", privateCfg3.getPassword());
 		assertEquals(bamboo2.getServerId(), privateCfg3.getServerId());
 		assertEquals(bamboo2.isEnabled(), privateCfg3.isEnabled());
@@ -332,7 +327,8 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 
 
 	public void testInvalidJDomElement() {
-		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(new Element("element"), PRIVATE_CFG_FACTORY);
+		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(new Element("element"),
+				PRIVATE_CFG_FACTORY);
 		TestUtil.assertThrows(ServerCfgFactoryException.class, new IAction() {
 
 			public void run() throws Throwable {
@@ -362,14 +358,14 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		serverId.setText(new ServerId().getUuid().toString());
 		add(element, serverId);
 		final JDomProjectConfigurationDao factory2 = new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY);
-		TestUtil.assertThrowsAndMsgContainsRe(ServerCfgFactoryException.class, 
+		TestUtil.assertThrowsAndMsgContainsRe(ServerCfgFactoryException.class,
 				"Cannot load ProjectConfiguration.*ClassCastException",
 				new IAction() {
 
-			public void run() throws Throwable {
-				factory2.load();
-			}
-		});
+					public void run() throws Throwable {
+						factory2.load();
+					}
+				});
 
 	}
 
@@ -398,7 +394,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 
 	public void testMissingPrivateCfg() throws ServerCfgFactoryException {
 		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, new PrivateConfigurationDao() {
-			public PrivateServerCfgInfo load(final ServerId id)  {
+			public PrivateServerCfgInfo load(final ServerId id) {
 				return null;
 			}
 

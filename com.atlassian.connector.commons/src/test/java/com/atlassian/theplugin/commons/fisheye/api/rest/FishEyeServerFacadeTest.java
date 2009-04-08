@@ -1,15 +1,5 @@
 package com.atlassian.theplugin.commons.fisheye.api.rest;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
-
-import java.util.Arrays;
-import java.util.Collection;
-
-import junit.framework.TestCase;
-
-import org.easymock.EasyMock;
-
 import com.atlassian.theplugin.commons.cfg.FishEyeServer;
 import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
@@ -21,6 +11,13 @@ import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.crucible.api.rest.CharArrayEquals;
+import junit.framework.TestCase;
+import org.easymock.EasyMock;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * User: pmaruszak
@@ -37,17 +34,17 @@ public class FishEyeServerFacadeTest extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		  ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
+		ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
 
-        fishEyeSessionMock = createMock(FishEyeSession.class);
+		fishEyeSessionMock = createMock(FishEyeSession.class);
 
-        facade = new FishEyeServerFacadeImpl(){
+		facade = new FishEyeServerFacadeImpl() {
 
 			@Override
 			public FishEyeSession getSession(final String url) throws RemoteApiMalformedUrlException {
 				return fishEyeSessionMock;
 			}
-			
+
 			@Override
 			public FishEyeSession getSession(FishEyeServer server)
 					throws RemoteApiMalformedUrlException {
@@ -57,26 +54,24 @@ public class FishEyeServerFacadeTest extends TestCase {
 	}
 
 
-	
 	public static Throwable eqException(char[] in) {
 		EasyMock.reportMatcher(new CharArrayEquals(in));
 		return null;
 	}
 
-	public static char[] charArrayContains(char[] expectedCharArray)
-	{
-	  EasyMock.reportMatcher(new CharArrayEquals(expectedCharArray));
-	  return null;
+	public static char[] charArrayContains(char[] expectedCharArray) {
+		EasyMock.reportMatcher(new CharArrayEquals(expectedCharArray));
+		return null;
 	}
 
 	public void testGetRepositories() throws ServerPasswordNotProvidedException, RemoteApiException {
 		FishEyeServer server = prepareServerBean();
 
 		facade.getSession(URL);
-		//fishEyeSessionMock.login(server.getUsername(), PASSWORD.toCharArray());
-		fishEyeSessionMock.login(EasyMock.eq(server.getUsername()), charArrayContains(PASSWORD.toCharArray()));
+		//fishEyeSessionMock.login(server.getCurrentUsername(), PASSWORD.toCharArray());
+		fishEyeSessionMock.login(EasyMock.eq(server.getCurrentUsername()), charArrayContains(PASSWORD.toCharArray()));
 
-		
+
 		fishEyeSessionMock.getRepositories();
 		EasyMock.expectLastCall().andReturn(Arrays.asList(prepareRepositoryData(0), prepareRepositoryData(1)));
 		fishEyeSessionMock.logout();
@@ -87,25 +82,25 @@ public class FishEyeServerFacadeTest extends TestCase {
 		Collection<String> ret = facade.getRepositories(server);
 		assertEquals(2, ret.size());
 
-		int i=0;
-		for (String repoName: ret){
+		int i = 0;
+		for (String repoName : ret) {
 			assertEquals("RepoName" + i++, repoName);
-		}		
+		}
 		EasyMock.verify(fishEyeSessionMock);
 	}
 
 
-	private String prepareRepositoryData(final int i) {        
+	private String prepareRepositoryData(final int i) {
 		return "RepoName" + i;
 
 	}
 
-	 private FishEyeServer prepareServerBean() {
-        FishEyeServerCfg server = new FishEyeServerCfg("myname", new ServerId());
-        server.setUrl(URL);
-        server.setUsername(USER_NAME);
-        server.setPassword(PASSWORD);
+	private FishEyeServer prepareServerBean() {
+		FishEyeServerCfg server = new FishEyeServerCfg("myname", new ServerId());
+		server.setUrl(URL);
+		server.setUsername(USER_NAME);
+		server.setPassword(PASSWORD);
 		server.setPasswordStored(false);
-        return server;
-    }
+		return server;
+	}
 }

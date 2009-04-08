@@ -23,25 +23,7 @@ import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleLoginException;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
-import com.atlassian.theplugin.commons.crucible.api.model.Comment;
-import com.atlassian.theplugin.commons.crucible.api.model.CommentBean;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCache;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCacheImpl;
-import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
-import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
-import com.atlassian.theplugin.commons.crucible.api.model.PermId;
-import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.Repository;
-import com.atlassian.theplugin.commons.crucible.api.model.Review;
-import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
-import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
-import com.atlassian.theplugin.commons.crucible.api.model.User;
-import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
-import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.*;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
@@ -51,11 +33,7 @@ import com.atlassian.theplugin.commons.util.MiscUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	private Map<String, CrucibleSession> sessions = new HashMap<String, CrucibleSession>();
@@ -86,14 +64,14 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 
 	protected synchronized CrucibleSession getSession(CrucibleServerCfg server)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
-		String key = server.getUrl() + server.getUsername() + server.getPassword();
+		String key = server.getUrl() + server.getCurrentUsername() + server.getCurrentPassword();
 		CrucibleSession session = sessions.get(key);
 		if (session == null) {
 			try {
 				session = new CrucibleSessionImpl(server, callback);
 				sessions.put(key, session);
 			} catch (RemoteApiException e) {
-				if (server.getPassword().length() > 0) {
+				if (server.getCurrentPassword().length() > 0) {
 					throw e;
 				} else {
 					throw new ServerPasswordNotProvidedException();
@@ -154,7 +132,6 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 
 	/**
 	 * For testing Only
-	 *
 	 */
 	public void testServerConnection(String url, String userName, String password) throws RemoteApiException {
 		CrucibleServerCfg serverCfg = new CrucibleServerCfg(url, new ServerId());
@@ -272,7 +249,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 				return true;
 			}
 		}
-		return false;	
+		return false;
 	}
 
 	public void setReviewers(@NotNull final CrucibleServerCfg server, @NotNull final PermId permId,

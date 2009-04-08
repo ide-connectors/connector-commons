@@ -20,19 +20,19 @@ import java.util.Collection;
 public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
 	private static FishEyeServerFacadeImpl instance;
 	private HttpSessionCallback callback;
-	
+
 	protected FishEyeServerFacadeImpl() {
 		this.callback = new HttpSessionCallbackImpl();
 	}
-		
+
 	public void testServerConnection(ServerCfg serverCfg) throws RemoteApiException {
 		assert serverCfg instanceof FishEyeServerCfg;
 		FishEyeSession fishEyeSession = getSession((FishEyeServerCfg) serverCfg);
-		fishEyeSession.login(serverCfg.getUsername(), serverCfg.getPassword().toCharArray());
+		fishEyeSession.login(serverCfg.getCurrentUsername(), serverCfg.getCurrentPassword().toCharArray());
 
 		// well, we need to call _something_ to see if it worked, in case of anonymous access
 		fishEyeSession.getRepositories();
-		
+
 		fishEyeSession.logout();
 	}
 
@@ -50,7 +50,7 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
 
 	/**
 	 * For testing Only
-	 * 
+	 *
 	 * @param url
 	 * @return
 	 * @throws RemoteApiMalformedUrlException
@@ -61,7 +61,7 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
 		return new FishEyeRestSession(serverCfg, callback);
 
 	}
-	
+
 	public FishEyeSession getSession(FishEyeServer server) throws RemoteApiMalformedUrlException {
 		return new FishEyeRestSession(server, callback);
 
@@ -70,13 +70,13 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
 	public Collection<String> getRepositories(final FishEyeServer server) throws RemoteApiException {
 		FishEyeSession fishEyeSession = getSession(server);
 		Collection<String> repositories;
-		
-		fishEyeSession.login(server.getUsername(), server.getPassword().toCharArray());
+
+		fishEyeSession.login(server.getCurrentUsername(), server.getCurrentPassword().toCharArray());
 		repositories = fishEyeSession.getRepositories();
 		fishEyeSession.logout();
 		return repositories;
 	}
-	
+
 	public void setCallback(HttpSessionCallback callback) {
 		this.callback = callback;
 	}

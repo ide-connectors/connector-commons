@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,15 +17,10 @@
 package com.atlassian.theplugin.commons.bamboo;
 
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-
-import java.util.Date;
-import java.util.Set;
-import java.util.Collection;
-import java.util.TreeSet;
-import java.util.HashSet;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 
 public final class BambooBuildInfo implements BambooBuild {
 	private final Date pollingTime;
@@ -206,7 +201,7 @@ public final class BambooBuildInfo implements BambooBuild {
 	 * @return wheather I'm one of the commiters to that build or not
 	 */
 	public boolean isMyBuild() {
-		return commiters.contains(server.getUsername());
+		return commiters.contains(server.getCurrentUsername());
 	}
 
 	/**
@@ -334,7 +329,7 @@ public final class BambooBuildInfo implements BambooBuild {
 
 
 		public BambooBuildInfo build() {
-			return new BambooBuildInfo(planKey, planName, bambooServerCfg, pollingTime, projectName, 
+			return new BambooBuildInfo(planKey, planName, bambooServerCfg, pollingTime, projectName,
 					isEnabled, buildNumber, buildState, buildReason, startTime, testSummary, commitComment, testsPassedCount,
 					testsFailedCount, completionTime, message, relativeBuildDate, durationDescription, commiters);
 		}

@@ -85,7 +85,7 @@ public class CfgManagerNotificationSecondTest extends TestCase {
 		// test
 		EasyMock.replay(listener);
 		cfgManager.updateProjectConfiguration(PROJECT_ID, newConf);
-		
+
 		EasyMock.verify(listener);
 	}
 
@@ -206,9 +206,9 @@ public class CfgManagerNotificationSecondTest extends TestCase {
 	public void testServerConnectionDataChanged() {
 
 		newConf.getServerCfg(bamboo1.getServerId()).setUrl(bamboo1.getUrl() + SUFFIX);
-		newConf.getServerCfg(crucible1.getServerId()).setUsername(crucible1.getUsername() + SUFFIX);
-		newConf.getServerCfg(jira1.getServerId()).setPassword(jira1.getPassword() + SUFFIX);
-		newConf.getServerCfg(fisheye1.getServerId()).setPassword(fisheye1.getPassword() + SUFFIX);
+		newConf.getServerCfg(crucible1.getServerId()).setUsername(crucible1.getCurrentUsername() + SUFFIX);
+		newConf.getServerCfg(jira1.getServerId()).setPassword(jira1.getCurrentPassword() + SUFFIX);
+		newConf.getServerCfg(fisheye1.getServerId()).setPassword(fisheye1.getCurrentPassword() + SUFFIX);
 
 		// record
 		listener.configurationUpdated(newConf);

@@ -24,11 +24,13 @@ public interface Server {
 
 	String getUrl();
 
-	String getUsername();
-
-	String getPassword();
-
 //	void setPassword(final String password);
 
 	boolean isEnabled();
+
+	boolean isUseDefaultCredentials();
+
+	String getCurrentUsername();
+
+	String getCurrentPassword();
 }

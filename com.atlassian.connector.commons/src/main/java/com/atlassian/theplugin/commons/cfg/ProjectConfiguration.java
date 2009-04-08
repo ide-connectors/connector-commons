@@ -31,7 +31,7 @@ public class ProjectConfiguration {
 	private String defaultFishEyeRepo;
 	private String fishEyeProjectPath;
 	private ServerId defaultJiraServerId;
-	private UserCfg defaultUser;
+	private UserCfg defaultUser = new UserCfg();
 
 	private static final int HASHCODE_MAGIC = 31;
 

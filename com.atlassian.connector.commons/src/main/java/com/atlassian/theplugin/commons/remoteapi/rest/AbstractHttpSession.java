@@ -70,11 +70,11 @@ public abstract class AbstractHttpSession {
 	}
 
 	protected String getUsername() {
-		return server.getUsername();
+		return server.getCurrentUsername();
 	}
 
 	protected String getPassword() {
-		return server.getPassword();
+		return server.getCurrentPassword();
 	}
 
 	private final Object clientLock = new Object();

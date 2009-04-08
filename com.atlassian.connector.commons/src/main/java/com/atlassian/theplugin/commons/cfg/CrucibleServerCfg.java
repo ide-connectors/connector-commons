@@ -23,7 +23,7 @@ public class CrucibleServerCfg extends ServerCfg {
 
 	// below line does not work as that object is created magically
 	// so initialization was moved to the private getter
-//	private FishEyeServer fishEyeView = new FishEyeServer() {...
+	//	private FishEyeServer fishEyeView = new FishEyeServer() {...
 	private FishEyeServer fishEyeView;
 
 	private FishEyeServer getFishEyeView() {
@@ -33,16 +33,16 @@ public class CrucibleServerCfg extends ServerCfg {
 					return CrucibleServerCfg.this.getServerId();
 				}
 
-				public String getPassword() {
-					return CrucibleServerCfg.this.getPassword();
+				public String getCurrentPassword() {
+					return CrucibleServerCfg.this.getCurrentPassword();
 				}
 
 				public String getName() {
 					return CrucibleServerCfg.this.getName();
 				}
 
-				public String getUsername() {
-					return CrucibleServerCfg.this.getUsername();
+				public String getCurrentUsername() {
+					return CrucibleServerCfg.this.getCurrentUsername();
 				}
 
 				public String getUrl() {
@@ -52,13 +52,17 @@ public class CrucibleServerCfg extends ServerCfg {
 				public boolean isEnabled() {
 					return CrucibleServerCfg.this.isEnabled();
 				}
+
+				public boolean isUseDefaultCredentials() {
+					return CrucibleServerCfg.this.isUseDefaultCredentials();
+				}
 			};
 		}
 		return fishEyeView;
 	}
 
 	public CrucibleServerCfg(final String name, final ServerId serverId) {
-        super(true, name, serverId);
+		super(true, name, serverId);
 	}
 
 	public CrucibleServerCfg(final CrucibleServerCfg other) {
@@ -68,8 +72,8 @@ public class CrucibleServerCfg extends ServerCfg {
 
 	@Override
 	public ServerType getServerType() {
-        return ServerType.CRUCIBLE_SERVER;
-    }
+		return ServerType.CRUCIBLE_SERVER;
+	}
 
 	@Override
 	public boolean equals(final Object o) {

@@ -15,9 +15,9 @@
  */
 package com.atlassian.theplugin.commons.cfg;
 
-import junit.framework.TestCase;
-import static com.spartez.util.junit3.TestUtil.assertNotEquals;
 import com.spartez.util.junit3.TestUtil;
+import static com.spartez.util.junit3.TestUtil.assertNotEquals;
+import junit.framework.TestCase;
 
 /**
  * BambooServerCfg Tester.
@@ -34,12 +34,12 @@ public class BambooServerCfgTest extends TestCase {
 			"mypassword", false, true);
 
 	public BambooServerCfgTest(String name) {
-        super(name);
-    }
+		super(name);
+	}
 
-    @Override
+	@Override
 	public void setUp() throws Exception {
-        super.setUp();
+		super.setUp();
 	}
 
 	private static BambooServerCfg createBambooServerCfg(ServerId serverId, String name, String url, String username,
@@ -55,8 +55,8 @@ public class BambooServerCfgTest extends TestCase {
 
 	@Override
 	public void tearDown() throws Exception {
-        super.tearDown();
-    }
+		super.tearDown();
+	}
 
 	public void testEquals() {
 		assertEquals(bamboo1, bamboo1);
@@ -81,12 +81,12 @@ public class BambooServerCfgTest extends TestCase {
 
 		bamboo1sameId.setUsername("somenewusername");
 		assertNotEquals(bamboo1, bamboo1sameId);
-		bamboo1sameId.setUsername(bamboo1.getUsername());
+		bamboo1sameId.setUsername(bamboo1.getCurrentUsername());
 		assertEquals(bamboo1, bamboo1sameId);
 
 		bamboo1sameId.setPassword("somenewpassword");
 		assertNotEquals(bamboo1, bamboo1sameId);
-		bamboo1sameId.setPassword(bamboo1.getPassword());
+		bamboo1sameId.setPassword(bamboo1.getCurrentPassword());
 		assertEquals(bamboo1, bamboo1sameId);
 
 		bamboo1sameId.setPasswordStored(!bamboo1sameId.isPasswordStored());

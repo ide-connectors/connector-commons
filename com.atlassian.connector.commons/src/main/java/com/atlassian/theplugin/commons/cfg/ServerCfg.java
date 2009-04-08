@@ -17,6 +17,8 @@ package com.atlassian.theplugin.commons.cfg;
 
 import com.atlassian.theplugin.commons.ServerType;
 
+import javax.persistence.Transient;
+
 public abstract class ServerCfg implements Server {
 	private static final int HASHCODE_MAGIC = 31;
 
@@ -25,29 +27,41 @@ public abstract class ServerCfg implements Server {
 	}
 
 	public ServerCfg(final boolean enabled, final String name, final String url, final ServerId serverId) {
-        isEnabled = enabled;
-        this.name = name;
-        this.serverId = serverId;
+		isEnabled = enabled;
+		this.name = name;
+		this.serverId = serverId;
 		this.url = url;
-    }
+	}
 
-	//    private boolean isShared;
+	//    private boolean isShargetPassed;
 	private ServerId serverId;
-    private boolean isEnabled;
-    private String name;
-    private String url = "";
-    private String username = "";
-    private String password = "";
+	private boolean isEnabled;
+	private String name;
+	private String url = "";
+	private String username = "";
+	private String password = "";
 	private boolean isPasswordStored;
+	private boolean useDefaultCredentials;
+	private UserCfg defaultUser;
 
 	protected ServerCfg(final ServerCfg other) {
 		serverId = other.getServerId(); // shallow copy here as it's immutable
 		isEnabled = other.isEnabled();
 		name = other.getName();
 		url = other.getUrl();
-		username = other.getUsername();
-		password = other.getPassword();
+		username = other.getCurrentUsername();
+		password = other.getCurrentPassword();
 		isPasswordStored = other.isPasswordStored();
+		useDefaultCredentials = other.useDefaultCredentials;
+		defaultUser = other.defaultUser;
+	}
+
+	public boolean isUseDefaultCredentials() {
+		return useDefaultCredentials;
+	}
+
+	public void setUseDefaultCredentials(final boolean useDefaultCredentials) {
+		this.useDefaultCredentials = useDefaultCredentials;
 	}
 
 	// this method is used by XStream - do not remove!!!
@@ -55,7 +69,6 @@ public abstract class ServerCfg implements Server {
 		if (username == null) {
 			username = "";
 		}
-
 		if (password == null) {
 			password = "";
 		}
@@ -63,63 +76,88 @@ public abstract class ServerCfg implements Server {
 	}
 
 
+	public void setDefaultUser(final UserCfg defaultUser) {
+		this.defaultUser = defaultUser;
+	}
+
+	public UserCfg getDefaultUser() {
+		return defaultUser;
+	}
+
+	@Transient
+	public String getCurrentPassword() {
+		if (useDefaultCredentials && defaultUser != null) {
+			return defaultUser.getPassword();
+		}
+
+		return password;
+	}
+
+	@Transient
+	public String getCurrentUsername() {
+		if (useDefaultCredentials && defaultUser != null) {
+			return defaultUser.getUserName();
+		}
+		return username;
+	}
+
 	public void setEnabled(final boolean enabled) {
-        isEnabled = enabled;
-    }
+		isEnabled = enabled;
+	}
 
-    public void setName(final String name) {
-        this.name = name;
-    }
+	public void setName(final String name) {
+		this.name = name;
+	}
 
-    public void setServerId(final ServerId serverId) {
-        this.serverId = serverId;
-    }
+	public void setServerId(final ServerId serverId) {
+		this.serverId = serverId;
+	}
 
-    public void setUrl(final String url) {
-        this.url = url;
-    }
+	public void setUrl(final String url) {
+		this.url = url;
+	}
 
-    public void setUsername(final String username) {
-        this.username = username;
-    }
+	public void setUsername(final String username) {
+		this.username = username;
+	}
 
-    public void setPassword(final String password) {
-        this.password = password;
-    }
+	public void setPassword(final String password) {
+		this.password = password;
+	}
 
-    public void setPasswordStored(final boolean passwordStored) {
-        isPasswordStored = passwordStored;
-    }
+	public void setPasswordStored(final boolean passwordStored) {
+		isPasswordStored = passwordStored;
+	}
 
-    public abstract ServerType getServerType();
+	public abstract ServerType getServerType();
 
-    public boolean isEnabled() {
-        return isEnabled;
-    }
+	public boolean isEnabled() {
+		return isEnabled;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public ServerId getServerId() {
-        return serverId;
-    }
+	public ServerId getServerId() {
+		return serverId;
+	}
 
-    public String getUrl() {
-        return url;
-    }
+	public String getUrl() {
+		return url;
+	}
 
-    public String getUsername() {
-        return username;
-    }
+	public String getUsername() {
+		return username;
+	}
 
-    public String getPassword() {
-        return password;
-    }
+	public String getPassword() {
+		return password;
+	}
 
-    public boolean isPasswordStored() {
-        return isPasswordStored;
-    }
+	public boolean isPasswordStored() {
+		return isPasswordStored;
+	}
 
 	@Override
 	public boolean equals(final Object o) {
@@ -136,6 +174,10 @@ public abstract class ServerCfg implements Server {
 			return false;
 		}
 		if (isPasswordStored != serverCfg.isPasswordStored) {
+			return false;
+		}
+
+		if (useDefaultCredentials != serverCfg.useDefaultCredentials) {
 			return false;
 		}
 		if (name != null ? !name.equals(serverCfg.name) : serverCfg.name != null) {
@@ -167,6 +209,7 @@ public abstract class ServerCfg implements Server {
 		result = HASHCODE_MAGIC * result + (username != null ? username.hashCode() : 0);
 		result = HASHCODE_MAGIC * result + (password != null ? password.hashCode() : 0);
 		result = HASHCODE_MAGIC * result + (isPasswordStored ? 1 : 0);
+		result = HASHCODE_MAGIC * result + (useDefaultCredentials ? 1 : 0);
 		return result;
 	}
 
@@ -179,7 +222,7 @@ public abstract class ServerCfg implements Server {
 	public abstract ServerCfg getClone();
 
 	public boolean isComplete() {
-		return getPassword() != null && getPassword().length() != 0; 
+		return getCurrentPassword() != null && getCurrentPassword().length() != 0;
 	}
 
 	@Override
@@ -193,14 +236,15 @@ public abstract class ServerCfg implements Server {
 	}
 
 	public PrivateServerCfgInfo createPrivateProjectConfiguration() {
-		return new PrivateServerCfgInfo(getServerId(), isEnabled(), getUsername(),
-				isPasswordStored() ? getPassword() : null);
+		return new PrivateServerCfgInfo(getServerId(), isEnabled(), isUseDefaultCredentials(),
+				getCurrentUsername(), isPasswordStored() ? getCurrentPassword() : null);
 	}
 
 	public void mergePrivateConfiguration(PrivateServerCfgInfo psci) {
 		if (psci != null) {
 			setUsername(psci.getUsername());
 			setEnabled(psci.isEnabled());
+			setUseDefaultCredentials(psci.isUseDefaultCredentials());
 			final String pwd = psci.getPassword();
 			if (pwd != null) {
 				setPassword(pwd);

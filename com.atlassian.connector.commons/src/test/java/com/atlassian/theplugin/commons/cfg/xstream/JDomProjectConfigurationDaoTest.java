@@ -133,6 +133,9 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		projectCfg.setFishEyeProjectPath("FishEye/Path/To");
 		projectCfg.setDefaultFishEyeRepo("FishRepo");
 
+		UserCfg defaultUser = new UserCfg("john", "kovalsky");
+		projectCfg.setDefaultUser(defaultUser);
+
 		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY);
 		factory.save(projectCfg);
 

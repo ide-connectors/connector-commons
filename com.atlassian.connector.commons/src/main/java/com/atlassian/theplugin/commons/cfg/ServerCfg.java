@@ -16,7 +16,6 @@
 package com.atlassian.theplugin.commons.cfg;
 
 import com.atlassian.theplugin.commons.ServerType;
-import com.intellij.util.xmlb.annotations.Transient;
 
 public abstract class ServerCfg implements Server {
 	private static final int HASHCODE_MAGIC = 31;
@@ -83,7 +82,6 @@ public abstract class ServerCfg implements Server {
 		return defaultUser;
 	}
 
-	@Transient
 	public String getCurrentPassword() {
 		if (useDefaultCredentials && defaultUser != null) {
 			return defaultUser.getPassword();
@@ -92,7 +90,7 @@ public abstract class ServerCfg implements Server {
 		return password;
 	}
 
-	@Transient
+
 	public String getCurrentUsername() {
 		if (useDefaultCredentials && defaultUser != null) {
 			return defaultUser.getUserName();

@@ -16,8 +16,7 @@
 package com.atlassian.theplugin.commons.cfg;
 
 import com.atlassian.theplugin.commons.ServerType;
-
-import javax.persistence.Transient;
+import com.intellij.util.xmlb.annotations.Transient;
 
 public abstract class ServerCfg implements Server {
 	private static final int HASHCODE_MAGIC = 31;

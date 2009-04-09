@@ -376,4 +376,13 @@ public class ProjectConfiguration {
 		return fisheyeServers;
 	}
 
+	public Collection<ServerCfg> getAllServersWithDefaultCredentials() {
+		Collection<ServerCfg> defServers = MiscUtil.buildArrayList();
+		for (ServerCfg server : servers) {
+			if (server.isUseDefaultCredentials()) {
+				defServers.add(server);
+			}
+		}
+		return defServers;
+	}
 }

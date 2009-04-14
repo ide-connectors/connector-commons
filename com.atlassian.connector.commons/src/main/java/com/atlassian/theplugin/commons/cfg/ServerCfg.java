@@ -47,8 +47,8 @@ public abstract class ServerCfg implements Server {
 		isEnabled = other.isEnabled();
 		name = other.getName();
 		url = other.getUrl();
-		username = other.getCurrentUsername();
-		password = other.getCurrentPassword();
+		username = other.getUsername();
+		password = other.getPassword();
 		isPasswordStored = other.isPasswordStored();
 		useDefaultCredentials = other.useDefaultCredentials;
 		defaultUser = other.defaultUser;

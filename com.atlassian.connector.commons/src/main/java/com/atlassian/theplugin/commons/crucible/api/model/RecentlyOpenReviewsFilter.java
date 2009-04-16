@@ -42,7 +42,7 @@ public class RecentlyOpenReviewsFilter implements CrucibleFilter {
 	}
 
 	public String getFilterName() {
-		return "Recently Open Reviews";
+		return "Recently Viewed Reviews";
 	}
 
 	public String getFilterUrl() {

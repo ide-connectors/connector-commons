@@ -75,7 +75,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 			}
 
 		} catch (RemoteApiException e) {
-
+			//not important
 		}
 		return false;
 	}

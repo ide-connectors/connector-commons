@@ -15,21 +15,17 @@
  */
 package com.atlassian.theplugin.commons.bamboo;
 
+import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.gargoylesoftware.htmlunit.html.HtmlTableCell;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
-import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerId;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.easymock.EasyMock;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  * StausIconBambooListener Tester.
@@ -47,10 +43,11 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	private static final int DEFAULT_BUILD_NO = 777;
 	private static final String DEFAULT_PLAN_NAME = "Default Plan";
 	private static final String DEFAULT_ERROR_MESSAGE = "default error message";
-    private static final String DEFAULT_SERVER_URL = "http://test.atlassian.com/bamboo";
-    private static final String DEFAULT_PROJECT_NAME = "ThePlugin";
+	private static final String DEFAULT_SERVER_URL = "http://test.atlassian.com/bamboo";
+	private static final String DEFAULT_PROJECT_NAME = "ThePlugin";
 	private static final String DEFAULT_PLAN_KEY_2 = "PLAN2-ID";
-	private static final BambooServerCfg BAMBOO = new BambooServerCfg("mybamboo", DEFAULT_SERVER_URL, new ServerId());
+	private static final ServerData BAMBOO = new ServerData("mybamboo", (new ServerId()).toString(),
+			"username", "password", DEFAULT_SERVER_URL);
 
 
 	@Override
@@ -65,7 +62,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		super.setUp();
 
 		output = new StatusListenerResultCatcher();
-        testedListener = new StatusIconBambooListener(output);
+		testedListener = new StatusIconBambooListener(output);
 	}
 
 	public void testUpdateDisplay() {
@@ -174,7 +171,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		buildInfo.add(generateBuildInfo(BuildStatus.SUCCESS));
 		testedListener.updateBuildStatuses(buildInfo);
 
-        assertSame(BuildStatus.SUCCESS, output.buildStatus);
+		assertSame(BuildStatus.SUCCESS, output.buildStatus);
 
 ////		HtmlTable table = output.response.getTheTable();
 ////		assertEquals(2, table.getRowCount());
@@ -245,7 +242,8 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		List<HtmlTableCell> cells = tableRow.getCells();
 		assertEquals(3, cells.size());
 
-        assertEquals("<td width=\"1%\"><a href=\"" + DEFAULT_SERVER_URL + "/browse/PLAN-ID\"/></td>", trimWhitespace(cells.get(0).asXml()));
+		assertEquals("<td width=\"1%\"><a href=\"" + DEFAULT_SERVER_URL + "/browse/PLAN-ID\"/></td>",
+				trimWhitespace(cells.get(0).asXml()));
 		assertEquals(DEFAULT_PROJECT_NAME + " " + DEFAULT_PLAN_NAME + " > PLAN-ID-777", cells.get(1).asText());
 
 		String buildTime = cells.get(2).asText().trim();
@@ -258,7 +256,8 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		List<HtmlTableCell> cells = tableRow.getCells();
 		assertEquals(3, cells.size());
 
-        assertEquals("<td width=\"1%\"><a href=\"" + DEFAULT_SERVER_URL + "/browse/PLAN-ID\"/></td>", trimWhitespace(cells.get(0).asXml()));
+		assertEquals("<td width=\"1%\"><a href=\"" + DEFAULT_SERVER_URL + "/browse/PLAN-ID\"/></td>",
+				trimWhitespace(cells.get(0).asXml()));
 		assertEquals(DEFAULT_PROJECT_NAME + " " + DEFAULT_PLAN_NAME + " > Disabled", cells.get(1).asText());
 
 		String buildTime = cells.get(2).asText().trim();
@@ -267,31 +266,33 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	private static String trimWhitespace(String s) {
-        StringBuffer result = new StringBuffer("");
-        for (StringTokenizer stringTokenizer = new StringTokenizer(s, "\n"); stringTokenizer.hasMoreTokens();) {
-            result.append(stringTokenizer.nextToken().trim());
-        }
-        return result.toString();
-    }
+		StringBuffer result = new StringBuffer("");
+		for (StringTokenizer stringTokenizer = new StringTokenizer(s, "\n"); stringTokenizer.hasMoreTokens();) {
+			result.append(stringTokenizer.nextToken().trim());
+		}
+		return result.toString();
+	}
 
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	private static void testFailedRow(HtmlTableRow tableRow) throws Exception {
 		List<HtmlTableCell> cells = tableRow.getCells();
 		assertEquals(3, cells.size());
 
-        assertEquals("<td width=\"1%\"><a href=\"" + DEFAULT_SERVER_URL + "/browse/PLAN-ID\"/></td>", trimWhitespace(cells.get(0).asXml()));
+		assertEquals("<td width=\"1%\"><a href=\"" + DEFAULT_SERVER_URL + "/browse/PLAN-ID\"/></td>",
+				trimWhitespace(cells.get(0).asXml()));
 		assertEquals(DEFAULT_PROJECT_NAME + " " + DEFAULT_PLAN_NAME + " > PLAN-ID-777", cells.get(1).asText());
 
 		String buildTime = cells.get(2).asText().trim();
 		assertFalse("&nbsp;".equals(buildTime));
 	}
 
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	private static void testDisabledFailedRow(HtmlTableRow tableRow) throws Exception {
 		List<HtmlTableCell> cells = tableRow.getCells();
 		assertEquals(3, cells.size());
 
-        assertEquals("<td width=\"1%\"><a href=\"" + DEFAULT_SERVER_URL + "/browse/PLAN-ID\"/></td>", trimWhitespace(cells.get(0).asXml()));
+		assertEquals("<td width=\"1%\"><a href=\"" + DEFAULT_SERVER_URL + "/browse/PLAN-ID\"/></td>",
+				trimWhitespace(cells.get(0).asXml()));
 		assertEquals(DEFAULT_PROJECT_NAME + " " + DEFAULT_PLAN_NAME + " > Disabled", cells.get(1).asText());
 
 		String buildTime = cells.get(2).asText().trim();
@@ -303,9 +304,11 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		List<HtmlTableCell> cells = tableRow.getCells();
 		assertEquals(3, cells.size());
 
-        assertEquals("<td width=\"1%\"><a href=\"" + DEFAULT_SERVER_URL + "/browse/PLAN-ID\"/></td>", trimWhitespace(cells.get(0).asXml()));
+		assertEquals("<td width=\"1%\"><a href=\"" + DEFAULT_SERVER_URL + "/browse/PLAN-ID\"/></td>",
+				trimWhitespace(cells.get(0).asXml()));
 		assertEquals(DEFAULT_ERROR_MESSAGE, cells.get(1).asText());
-        assertEquals("<td width=\"100%\"><font color=\"#999999\">" + DEFAULT_ERROR_MESSAGE + "</font></td>", trimWhitespace(cells.get(1).asXml()));
+		assertEquals("<td width=\"100%\"><font color=\"#999999\">" + DEFAULT_ERROR_MESSAGE + "</font></td>",
+				trimWhitespace(cells.get(1).asXml()));
 
 		assertEquals("", cells.get(2).asText().trim());
 	}
@@ -354,7 +357,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY_2, DEFAULT_PLAN_NAME, BAMBOO,
 				DEFAULT_PROJECT_NAME, DEFAULT_BUILD_NO, status).pollingTime(new Date());
 
-        switch (status) {
+		switch (status) {
 			case UNKNOWN:
 				builder.errorMessage(DEFAULT_ERROR_MESSAGE);
 				break;

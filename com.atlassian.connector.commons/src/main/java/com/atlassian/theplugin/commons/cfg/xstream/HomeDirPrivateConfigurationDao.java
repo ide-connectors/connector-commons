@@ -42,6 +42,7 @@ public class HomeDirPrivateConfigurationDao implements PrivateConfigurationDao {
 	private static final String ATLASSIAN_DIR_NAME = ".atlassian";
 	private static final String ATLASSIAN_IDE_CONNECTOR_DIR_NAME = "ide-connector";
 	private static final String ROOT_ELEMENT_NAME = "single-server-private-cfg";
+	private static final String USE_DEFAULT_CREDENTIALS_NAME = "use-default-credentials";
 
 
 	public PrivateServerCfgInfo load(final ServerId id) throws ServerCfgFactoryException {
@@ -72,7 +73,7 @@ public class HomeDirPrivateConfigurationDao implements PrivateConfigurationDao {
 			}
 
 		} else {
-			throw new ServerCfgFactoryException("Cannot read private configuration stored in directory [" 
+			throw new ServerCfgFactoryException("Cannot read private configuration stored in directory ["
 					+ atlassianDir.getAbsolutePath() + "]. Directory does not exist or is not accessible");
 		}
 

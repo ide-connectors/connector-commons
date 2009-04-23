@@ -33,16 +33,16 @@ public class CrucibleServerCfg extends ServerCfg {
 					return CrucibleServerCfg.this.getServerId();
 				}
 
-				public String getCurrentPassword() {
-					return CrucibleServerCfg.this.getCurrentPassword();
+				public String getPassword() {
+					return CrucibleServerCfg.this.getPassword();
 				}
 
 				public String getName() {
 					return CrucibleServerCfg.this.getName();
 				}
 
-				public String getCurrentUsername() {
-					return CrucibleServerCfg.this.getCurrentUsername();
+				public String getUserName() {
+					return CrucibleServerCfg.this.getUserName();
 				}
 
 				public String getUrl() {

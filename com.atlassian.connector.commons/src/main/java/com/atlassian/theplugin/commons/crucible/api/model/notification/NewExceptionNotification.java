@@ -16,8 +16,8 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
-import com.atlassian.theplugin.commons.cfg.Server;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -25,9 +25,9 @@ public class NewExceptionNotification implements CrucibleNotification {
 	private static final int HASHCODE_MAGIC = 31;
 
 	private Exception exception;
-	private Server server;
+	private ServerData server;
 
-	public NewExceptionNotification(final Exception exception, final Server server) {
+	public NewExceptionNotification(final Exception exception, final ServerData server) {
 		this.exception = exception;
 		this.server = server;
 	}
@@ -57,11 +57,11 @@ public class NewExceptionNotification implements CrucibleNotification {
 		this.exception = exception;
 	}
 
-	public Server getServer() {
+	public ServerData getServer() {
 		return server;
 	}
 
-	public void setServer(final Server server) {
+	public void setServer(final ServerData server) {
 		this.server = server;
 	}
 

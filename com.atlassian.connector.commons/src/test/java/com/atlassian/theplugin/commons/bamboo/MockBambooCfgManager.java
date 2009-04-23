@@ -15,16 +15,13 @@
  */
 package com.atlassian.theplugin.commons.bamboo;
 
-import com.atlassian.theplugin.commons.cfg.BambooCfg;
-import com.atlassian.theplugin.commons.cfg.BambooCfgManager;
-import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.cfg.ProjectId;
-import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.*;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 
 import java.util.Collection;
 
-public class MockBambooCfgManager implements  BambooCfgManager {
+public class MockBambooCfgManager extends AbstractCfgManager {
 
 	private final BambooCfg bambooCfg = new BambooCfg();
 
@@ -52,5 +49,15 @@ public class MockBambooCfgManager implements  BambooCfgManager {
 
 	void addServer(BambooServerCfg bambooServerCfg) {
 		bambooServers.add(bambooServerCfg);
+	}
+
+	public ServerData getServerData(final Server serverCfg) {
+
+		return new ServerData(serverCfg.getName(),
+				serverCfg.getServerId().toString(),
+				serverCfg.getUserName(),
+				serverCfg.getPassword(),
+				serverCfg.getUrl());
+
 	}
 }

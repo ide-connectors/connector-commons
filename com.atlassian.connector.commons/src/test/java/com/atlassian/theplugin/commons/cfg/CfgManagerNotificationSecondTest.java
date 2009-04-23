@@ -15,6 +15,7 @@
  */
 package com.atlassian.theplugin.commons.cfg;
 
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
 
@@ -31,7 +32,16 @@ public class CfgManagerNotificationSecondTest extends TestCase {
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		cfgManager = new CfgManagerImpl();
+		cfgManager = new AbstractCfgManager() {
+
+			public ServerData getServerData(final Server serverCfg) {
+				return null;
+			}
+
+			public ServerData getServerData(final ProjectId projectId, final ServerId serverId) {
+				return null;
+			}
+		};
 		listener = EasyMock.createMock(ConfigurationListener.class);
 		cfgManager.addProjectConfigurationListener(PROJECT_ID, listener);
 
@@ -206,9 +216,9 @@ public class CfgManagerNotificationSecondTest extends TestCase {
 	public void testServerConnectionDataChanged() {
 
 		newConf.getServerCfg(bamboo1.getServerId()).setUrl(bamboo1.getUrl() + SUFFIX);
-		newConf.getServerCfg(crucible1.getServerId()).setUsername(crucible1.getCurrentUsername() + SUFFIX);
-		newConf.getServerCfg(jira1.getServerId()).setPassword(jira1.getCurrentPassword() + SUFFIX);
-		newConf.getServerCfg(fisheye1.getServerId()).setPassword(fisheye1.getCurrentPassword() + SUFFIX);
+		newConf.getServerCfg(crucible1.getServerId()).setUsername(crucible1.getUserName() + SUFFIX);
+		newConf.getServerCfg(jira1.getServerId()).setPassword(jira1.getPassword() + SUFFIX);
+		newConf.getServerCfg(fisheye1.getServerId()).setPassword(fisheye1.getPassword() + SUFFIX);
 
 		// record
 		listener.configurationUpdated(newConf);

@@ -82,7 +82,7 @@ public abstract class ServerCfg implements Server {
 		return defaultUser;
 	}
 
-	public String getCurrentPassword() {
+	public String getPassword() {
 		if (useDefaultCredentials && defaultUser != null) {
 			return defaultUser.getPassword();
 		}
@@ -91,7 +91,7 @@ public abstract class ServerCfg implements Server {
 	}
 
 
-	public String getCurrentUsername() {
+	public String getUserName() {
 		if (useDefaultCredentials && defaultUser != null) {
 			return defaultUser.getUserName();
 		}
@@ -146,10 +146,6 @@ public abstract class ServerCfg implements Server {
 
 	public String getUsername() {
 		return username;
-	}
-
-	public String getPassword() {
-		return password;
 	}
 
 	public boolean isPasswordStored() {
@@ -219,7 +215,7 @@ public abstract class ServerCfg implements Server {
 	public abstract ServerCfg getClone();
 
 	public boolean isComplete() {
-		return getCurrentPassword() != null && getCurrentPassword().length() != 0;
+		return getPassword() != null && getPassword().length() != 0;
 	}
 
 	@Override
@@ -234,7 +230,7 @@ public abstract class ServerCfg implements Server {
 
 	public PrivateServerCfgInfo createPrivateProjectConfiguration() {
 		return new PrivateServerCfgInfo(getServerId(), isEnabled(), isUseDefaultCredentials(),
-				getCurrentUsername(), isPasswordStored() ? getCurrentPassword() : null);
+				getUserName(), isPasswordStored() ? getPassword() : null);
 	}
 
 	public void mergePrivateConfiguration(PrivateServerCfgInfo psci) {

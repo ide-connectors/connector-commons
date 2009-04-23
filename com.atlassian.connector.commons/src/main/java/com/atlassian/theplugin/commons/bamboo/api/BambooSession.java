@@ -50,7 +50,7 @@ public interface BambooSession extends ProductSession {
 	 * the plan may be disabled now it has nothing to do with the build for this plan which was executed before that!</li>
 	 * </ul>
 	 * <p/>
-	 * Avoid calling this method, use rather {@link #getLatestBuildForPlan(String, boolean)}. In the future the whole
+	 * Avoid calling this method, use rather {@link #getLatestBuildForPlan(String, boolean, int)}. In the future the whole
 	 * concept may be probably rethought.
 	 *
 	 * @param planKey id of the plan
@@ -58,10 +58,11 @@ public interface BambooSession extends ProductSession {
 	 * @throws RemoteApiException in case of some communication problem or malformed response
 	 */
 	@NotNull
-	BambooBuild getLatestBuildForPlan(@NotNull String planKey) throws RemoteApiException;
+	BambooBuild getLatestBuildForPlan(@NotNull String planKey, final int timezoneOffset) throws RemoteApiException;
 
 	@NotNull
-	BambooBuild getLatestBuildForPlan(@NotNull String planKey, boolean isPlanEnabled) throws RemoteApiException;
+	BambooBuild getLatestBuildForPlan(@NotNull String planKey, boolean isPlanEnabled, final int timezoneOffset)
+			throws RemoteApiException;
 
 	@NotNull
 	List<String> getFavouriteUserPlans() throws RemoteApiException;
@@ -85,7 +86,7 @@ public interface BambooSession extends ProductSession {
 
 	String getBuildLogs(@NotNull String planKey, int buildNumber) throws RemoteApiException;
 
-	Collection<BambooBuild> getRecentBuildsForPlan(@NotNull String planKey) throws RemoteApiException;
+	Collection<BambooBuild> getRecentBuildsForPlan(@NotNull String planKey, int timezoneOffset) throws RemoteApiException;
 
-	Collection<BambooBuild> getRecentBuildsForUser() throws RemoteApiException;
+	Collection<BambooBuild> getRecentBuildsForUser(final int timezoneOffset) throws RemoteApiException;
 }

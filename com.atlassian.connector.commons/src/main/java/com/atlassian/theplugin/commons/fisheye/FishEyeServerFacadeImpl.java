@@ -1,14 +1,12 @@
 package com.atlassian.theplugin.commons.fisheye;
 
 import com.atlassian.theplugin.commons.ServerType;
-import com.atlassian.theplugin.commons.cfg.FishEyeServer;
-import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
 import com.atlassian.theplugin.commons.fisheye.api.rest.FishEyeRestSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 
@@ -25,10 +23,9 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
 		this.callback = new HttpSessionCallbackImpl();
 	}
 
-	public void testServerConnection(ServerCfg serverCfg) throws RemoteApiException {
-		assert serverCfg instanceof FishEyeServerCfg;
-		FishEyeSession fishEyeSession = getSession((FishEyeServerCfg) serverCfg);
-		fishEyeSession.login(serverCfg.getCurrentUsername(), serverCfg.getCurrentPassword().toCharArray());
+	public void testServerConnection(ServerData serverCfg) throws RemoteApiException {
+		FishEyeSession fishEyeSession = getSession(serverCfg);
+		fishEyeSession.login(serverCfg.getUserName(), serverCfg.getPassword().toCharArray());
 
 		// well, we need to call _something_ to see if it worked, in case of anonymous access
 		fishEyeSession.getRepositories();
@@ -56,22 +53,21 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
 	 * @throws RemoteApiMalformedUrlException
 	 */
 	public FishEyeSession getSession(String url) throws RemoteApiMalformedUrlException {
-		FishEyeServerCfg serverCfg = new FishEyeServerCfg(url, new ServerId());
-		serverCfg.setUrl(url);
+		ServerData serverCfg = new ServerData((new ServerId()).toString(), "", "", "", url);
 		return new FishEyeRestSession(serverCfg, callback);
 
 	}
 
-	public FishEyeSession getSession(FishEyeServer server) throws RemoteApiMalformedUrlException {
+	public FishEyeSession getSession(ServerData server) throws RemoteApiMalformedUrlException {
 		return new FishEyeRestSession(server, callback);
 
 	}
 
-	public Collection<String> getRepositories(final FishEyeServer server) throws RemoteApiException {
+	public Collection<String> getRepositories(final ServerData server) throws RemoteApiException {
 		FishEyeSession fishEyeSession = getSession(server);
 		Collection<String> repositories;
 
-		fishEyeSession.login(server.getCurrentUsername(), server.getCurrentPassword().toCharArray());
+		fishEyeSession.login(server.getUserName(), server.getPassword().toCharArray());
 		repositories = fishEyeSession.getRepositories();
 		fishEyeSession.logout();
 		return repositories;

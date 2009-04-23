@@ -20,10 +20,10 @@ import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
-import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +35,7 @@ public class AutoRenewBambooSession implements BambooSession {
 	private String userName;
 	private char[] password;
 
-	public AutoRenewBambooSession(BambooServerCfg serverCfg, HttpSessionCallback callback) throws RemoteApiException {
+	public AutoRenewBambooSession(ServerData serverCfg, HttpSessionCallback callback) throws RemoteApiException {
 		this.delegate = new BambooSessionImpl(serverCfg, callback);
 	}
 
@@ -91,23 +91,24 @@ public class AutoRenewBambooSession implements BambooSession {
 	}
 
 	@NotNull
-	public BambooBuild getLatestBuildForPlan(@NotNull final String planKey, final boolean isPlanEnabled)
+	public BambooBuild getLatestBuildForPlan(@NotNull final String planKey, final boolean isPlanEnabled,
+			final int timezoneOffset)
 			throws RemoteApiException {
 		try {
-			return delegate.getLatestBuildForPlan(planKey, isPlanEnabled);
+			return delegate.getLatestBuildForPlan(planKey, isPlanEnabled, timezoneOffset);
 		} catch (RemoteApiSessionExpiredException e) {
 			delegate.login(userName, password);
-			return delegate.getLatestBuildForPlan(planKey, isPlanEnabled);
+			return delegate.getLatestBuildForPlan(planKey, isPlanEnabled, timezoneOffset);
 		}
 	}
 
 	@NotNull
-	public BambooBuild getLatestBuildForPlan(@NotNull String planKey) throws RemoteApiException {
+	public BambooBuild getLatestBuildForPlan(@NotNull String planKey, final int timezoneOffset) throws RemoteApiException {
 		try {
-			return delegate.getLatestBuildForPlan(planKey);
+			return delegate.getLatestBuildForPlan(planKey, timezoneOffset);
 		} catch (RemoteApiSessionExpiredException e) {
 			delegate.login(userName, password);
-			return delegate.getLatestBuildForPlan(planKey);
+			return delegate.getLatestBuildForPlan(planKey, timezoneOffset);
 		}
 	}
 
@@ -124,22 +125,23 @@ public class AutoRenewBambooSession implements BambooSession {
 		}
 	}
 
-	public Collection<BambooBuild> getRecentBuildsForPlan(@NotNull final String planKey) throws RemoteApiException {
+	public Collection<BambooBuild> getRecentBuildsForPlan(@NotNull final String planKey, final int timezoneOffset)
+			throws RemoteApiException {
 		try {
-			return delegate.getRecentBuildsForPlan(planKey);
+			return delegate.getRecentBuildsForPlan(planKey, timezoneOffset);
 		} catch (RemoteApiSessionExpiredException e) {
 			delegate.login(userName, password);
-			return delegate.getRecentBuildsForPlan(planKey);
+			return delegate.getRecentBuildsForPlan(planKey, timezoneOffset);
 		}
 	}
 
-	public Collection<BambooBuild> getRecentBuildsForUser()
+	public Collection<BambooBuild> getRecentBuildsForUser(final int timezoneOffset)
 			throws RemoteApiException {
 		try {
-			return delegate.getRecentBuildsForUser();
+			return delegate.getRecentBuildsForUser(timezoneOffset);
 		} catch (RemoteApiSessionExpiredException e) {
 			delegate.login(userName, password);
-			return delegate.getRecentBuildsForUser();
+			return delegate.getRecentBuildsForUser(timezoneOffset);
 		}
 	}
 

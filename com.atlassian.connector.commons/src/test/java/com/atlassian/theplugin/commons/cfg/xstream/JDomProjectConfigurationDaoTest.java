@@ -110,13 +110,13 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		new XMLOutputter(Format.getPrettyFormat()).output(element, writer);
 		assertTrue(writer.toString().indexOf(bamboo1.getName()) != -1);
 		// password should be hashed
-		assertEquals(-1, writer.toString().indexOf(bamboo1.getCurrentPassword()));
+		assertEquals(-1, writer.toString().indexOf(bamboo1.getPassword()));
 
 		final StringWriter privateWriter = new StringWriter();
 		new XMLOutputter(Format.getPrettyFormat()).output(pcf.documentMap.get(bamboo1.getServerId()), privateWriter);
 		assertTrue(privateWriter.toString().indexOf(bamboo1.getServerId().getUuid().toString()) != -1);
 		// password should be hashed - so it should not be found in resulting xml stream
-		assertEquals(-1, privateWriter.toString().indexOf(bamboo1.getCurrentPassword()));
+		assertEquals(-1, privateWriter.toString().indexOf(bamboo1.getPassword()));
 	}
 
 
@@ -175,14 +175,14 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		final ProjectConfiguration readCfg = loadFactory.load();
 		assertEquals(2, readCfg.getServers().size());
 		final ServerCfg readServer = readCfg.getServerCfg(bamboo1.getServerId());
-		assertEquals("", readServer.getCurrentPassword());
-		assertEquals("", readServer.getCurrentUsername());
+		assertEquals("", readServer.getPassword());
+		assertEquals("", readServer.getUserName());
 		assertEquals(bamboo1.getUrl(), readServer.getUrl());
 		assertEquals(bamboo1.getName(), readServer.getName());
 
 		final ServerCfg fishServer = readCfg.getServerCfg(fisheye1.getServerId());
-		assertEquals("", fishServer.getCurrentPassword());
-		assertEquals("", fishServer.getCurrentUsername());
+		assertEquals("", fishServer.getPassword());
+		assertEquals("", fishServer.getUserName());
 		assertEquals(fisheye1.getUrl(), fishServer.getUrl());
 		assertEquals(fisheye1.getName(), fishServer.getName());
 	}
@@ -270,12 +270,12 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		bamboo2.setPasswordStored(false);
 		bamboo2.setEnabled(false);
 		final PrivateServerCfgInfo privateCfg = createPrivateProjectConfiguration(bamboo1);
-		assertEquals(bamboo1.getCurrentUsername(), privateCfg.getUsername());
-		assertEquals(bamboo1.getCurrentPassword(), privateCfg.getPassword());
+		assertEquals(bamboo1.getUserName(), privateCfg.getUsername());
+		assertEquals(bamboo1.getPassword(), privateCfg.getPassword());
 		assertEquals(bamboo1.getServerId(), privateCfg.getServerId());
 
 		final PrivateServerCfgInfo privateCfg2 = createPrivateProjectConfiguration(bamboo2);
-		assertEquals(bamboo2.getCurrentUsername(), privateCfg2.getUsername());
+		assertEquals(bamboo2.getUserName(), privateCfg2.getUsername());
 		assertEquals(null, privateCfg2.getPassword());
 		assertEquals(bamboo2.getServerId(), privateCfg2.getServerId());
 		assertEquals(bamboo2.isEnabled(), privateCfg2.isEnabled());
@@ -284,7 +284,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		bamboo2.setPasswordStored(true);
 		bamboo2.setUsername("");
 		final PrivateServerCfgInfo privateCfg3 = createPrivateProjectConfiguration(bamboo2);
-		assertEquals(bamboo2.getCurrentUsername(), privateCfg3.getUsername());
+		assertEquals(bamboo2.getUserName(), privateCfg3.getUsername());
 		assertEquals("", privateCfg3.getPassword());
 		assertEquals(bamboo2.getServerId(), privateCfg3.getServerId());
 		assertEquals(bamboo2.isEnabled(), privateCfg3.isEnabled());

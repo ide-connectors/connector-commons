@@ -20,12 +20,11 @@ import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.bamboo.api.AutoRenewBambooSession;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSessionImpl;
-import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.Logger;
@@ -67,26 +66,42 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 		return ServerType.BAMBOO_SERVER;
 	}
 
-	private synchronized BambooSession getSession(BambooServerCfg server) throws RemoteApiException {
+	public boolean isBamboo2(final ServerData serverData) {
+		BambooSession session = null;
+		try {
+			session = getSession(serverData);
+			if (session != null && session.getBamboBuildNumber() > 0) {
+				return true;
+			}
+
+		} catch (RemoteApiException e) {
+
+		}
+		return false;
+	}
+
+	private synchronized BambooSession getSession(ServerData server) throws RemoteApiException {
 		// @todo old server will stay on map - remove them !!!
-		String key = server.getCurrentUsername() + server.getUrl() + server.getCurrentPassword();
+		String key = server.getUserName() + server.getUrl() + server.getPassword();
 		BambooSession session = sessions.get(key);
 		if (session == null) {
 			session = bambooSessionFactory.createSession(server, callback);
 			sessions.put(key, session);
 		}
 		if (!session.isLoggedIn()) {
-			session.login(server.getCurrentUsername(), server.getCurrentPassword().toCharArray());
-			try {
-				if (session.getBamboBuildNumber() > 0) {
-					server.setIsBamboo2(true);
-				} else {
-					server.setIsBamboo2(false);
-				}
-			} catch (RemoteApiException e) {
-				// can not validate as Bamboo 2
-				server.setIsBamboo2(false);
-			}
+			session.login(server.getUserName(), server.getPassword().toCharArray());
+//			try {
+//				//todo: set in other place or provide separate
+//				if (session.getBamboBuildNumber() > 0) {
+//					server.setIsBamboo2(true);
+//				} else {
+//					server.setIsBamboo2(false);
+//				}
+//			} catch (RemoteApiException e) {
+//				// can not validate as Bamboo 2
+//				//todo : set in other place
+//				//server.setIsBamboo2(false);
+//			}
 		}
 		return session;
 	}
@@ -94,14 +109,13 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 	/**
 	 * Test connection to Bamboo server.
 	 *
-	 * @param serverCfg The configuration for the server that we want to test the connectio for
+	 * @param serverData The configuration for the server that we want to test the connectio for
 	 * @throws RemoteApiException on failed login
 	 * @see RemoteApiLoginFailedException
 	 */
-	public void testServerConnection(ServerCfg serverCfg) throws RemoteApiException {
-		assert serverCfg instanceof BambooServerCfg;
-		BambooSession apiHandler = bambooSessionFactory.createSession((BambooServerCfg) serverCfg, callback);
-		apiHandler.login(serverCfg.getCurrentUsername(), serverCfg.getCurrentPassword().toCharArray());
+	public void testServerConnection(ServerData serverData) throws RemoteApiException {
+		BambooSession apiHandler = bambooSessionFactory.createSession(serverData, callback);
+		apiHandler.login(serverData.getUserName(), serverData.getPassword().toCharArray());
 		apiHandler.logout();
 	}
 
@@ -113,7 +127,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 	 * @throws ServerPasswordNotProvidedException
 	 *          when invoked for Server that has not had the password set yet
 	 */
-	public Collection<BambooProject> getProjectList(BambooServerCfg bambooServer) throws ServerPasswordNotProvidedException
+	public Collection<BambooProject> getProjectList(ServerData bambooServer) throws ServerPasswordNotProvidedException
 			, RemoteApiException {
 		try {
 			return getSession(bambooServer).listProjectNames();
@@ -131,7 +145,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException
 	 *          when invoked for Server that has not had the password set yet
 	 */
-	public Collection<BambooPlan> getPlanList(BambooServerCfg bambooServer)
+	public Collection<BambooPlan> getPlanList(ServerData bambooServer)
 			throws ServerPasswordNotProvidedException, RemoteApiException {
 		BambooSession api = getSession(bambooServer);
 		List<BambooPlan> plans = api.listPlanNames();
@@ -166,7 +180,8 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 	 *          when invoked for Server that has not had the password set yet
 	 * @see com.atlassian.theplugin.commons.bamboo.api.BambooSessionImpl#login(String, char[])
 	 */
-	public Collection<BambooBuild> getSubscribedPlansResults(BambooServerCfg bambooServer)
+	public Collection<BambooBuild> getSubscribedPlansResults(ServerData bambooServer, final Collection<SubscribedPlan> plans,
+			boolean isUseFavourities, int timezoneOffset)
 			throws ServerPasswordNotProvidedException {
 		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
 
@@ -177,7 +192,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 			connectionErrorMessage = "";
 		} catch (RemoteApiLoginFailedException e) {
 			// TODO wseliga used to be bambooServer.getIsConfigInitialized() here
-			if (bambooServer.getCurrentPassword().length() > 0) {
+			if (bambooServer.getPassword().length() > 0) {
 				loger.error("Bamboo login exception: " + e.getMessage());
 				connectionErrorMessage = e.getMessage();
 			} else {
@@ -195,14 +210,14 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 			// can go further, no disabled info will be available
 		}
 
-		if (bambooServer.isUseFavourites()) {
+		if (isUseFavourities) {
 			if (plansForServer != null) {
 				for (BambooPlan bambooPlan : plansForServer) {
 					if (bambooPlan.isFavourite()) {
 						if (api != null && api.isLoggedIn()) {
 							try {
 								BambooBuild buildInfo = api.getLatestBuildForPlan(bambooPlan.getPlanKey(),
-										bambooPlan.isEnabled());
+										bambooPlan.isEnabled(), timezoneOffset);
 								builds.add(buildInfo);
 							} catch (RemoteApiException e) {
 								// go ahead, there are other builds
@@ -215,13 +230,13 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 				}
 			}
 		} else {
-			for (SubscribedPlan plan : bambooServer.getSubscribedPlans()) {
+			for (SubscribedPlan plan : plans) {
 				if (api != null && api.isLoggedIn()) {
 					try {
 						final Boolean isEnabled = plansForServer != null
 								? BambooSessionImpl.isPlanEnabled(plansForServer, plan.getKey()) : null;
 						BambooBuild buildInfo = api.getLatestBuildForPlan(plan.getKey(),
-								isEnabled != null ? isEnabled : true);
+								isEnabled != null ? isEnabled : true, timezoneOffset);
 						builds.add(buildInfo);
 					} catch (RemoteApiException e) {
 						// go ahead, there are other builds
@@ -245,14 +260,15 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 	 * Throws ServerPasswordNotProvidedException when invoked for Server that has not had the password set, when the server
 	 * returns a meaningful exception response.
 	 *
-	 * @param bambooServer Bamboo server information
-	 * @param planKey	  key of the plan to query
+	 * @param bambooServer   Bamboo server information
+	 * @param planKey		key of the plan to query
+	 * @param timezoneOffset
 	 * @return results on history for plan
 	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException
 	 *          when invoked for Server that has not had the password set yet
 	 * @see com.atlassian.theplugin.commons.bamboo.api.BambooSessionImpl#login(String, char[])
 	 */
-	public Collection<BambooBuild> getRecentBuildsForPlans(BambooServerCfg bambooServer, String planKey)
+	public Collection<BambooBuild> getRecentBuildsForPlans(ServerData bambooServer, String planKey, final int timezoneOffset)
 			throws ServerPasswordNotProvidedException {
 		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
 
@@ -261,7 +277,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 			api = getSession(bambooServer);
 		} catch (RemoteApiLoginFailedException e) {
 			// TODO wseliga used to be bambooServer.getIsConfigInitialized() here
-			if (bambooServer.getCurrentPassword().length() > 0) {
+			if (bambooServer.getPassword().length() > 0) {
 				loger.error("Bamboo login exception: " + e.getMessage());
 				builds.add(constructBuildErrorInfo(bambooServer, planKey, null, e.getMessage()));
 				return builds;
@@ -275,7 +291,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 		}
 
 		try {
-			builds.addAll(api.getRecentBuildsForPlan(planKey));
+			builds.addAll(api.getRecentBuildsForPlan(planKey, timezoneOffset));
 		} catch (RemoteApiException e) {
 			loger.error("Bamboo exception: " + e.getMessage());
 			builds.add(constructBuildErrorInfo(bambooServer, planKey, null, e.getMessage()));
@@ -298,7 +314,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 	 *          when invoked for Server that has not had the password set yet
 	 * @see com.atlassian.theplugin.commons.bamboo.api.BambooSessionImpl#login(String, char[])
 	 */
-	public Collection<BambooBuild> getRecentBuildsForUser(BambooServerCfg bambooServer)
+	public Collection<BambooBuild> getRecentBuildsForUser(ServerData bambooServer, final int timezoneOffset)
 			throws ServerPasswordNotProvidedException {
 		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
 
@@ -307,7 +323,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 			api = getSession(bambooServer);
 		} catch (RemoteApiLoginFailedException e) {
 			// TODO wseliga used to be bambooServer.getIsConfigInitialized() here
-			if (bambooServer.getCurrentPassword().length() > 0) {
+			if (bambooServer.getPassword().length() > 0) {
 				loger.error("Bamboo login exception: " + e.getMessage());
 				builds.add(constructBuildErrorInfo(
 						bambooServer, "", null, e.getMessage()));
@@ -323,7 +339,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 		}
 
 		try {
-			builds.addAll(api.getRecentBuildsForUser());
+			builds.addAll(api.getRecentBuildsForUser(timezoneOffset));
 		} catch (RemoteApiException e) {
 			loger.error("Bamboo exception: " + e.getMessage());
 			builds.add(constructBuildErrorInfo(
@@ -342,7 +358,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 	 *
 	 * @throws RemoteApiException
 	 */
-	public BuildDetails getBuildDetails(BambooServerCfg bambooServer, @NotNull String planKey, int buildNumber)
+	public BuildDetails getBuildDetails(ServerData bambooServer, @NotNull String planKey, int buildNumber)
 			throws ServerPasswordNotProvidedException, RemoteApiException {
 		try {
 			BambooSession api = getSession(bambooServer);
@@ -362,7 +378,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 	 *
 	 * @throws RemoteApiException
 	 */
-	public void addLabelToBuild(BambooServerCfg bambooServer, @NotNull String planKey, int buildNumber, String buildLabel)
+	public void addLabelToBuild(ServerData bambooServer, @NotNull String planKey, int buildNumber, String buildLabel)
 			throws ServerPasswordNotProvidedException, RemoteApiException {
 		try {
 			BambooSession api = getSession(bambooServer);
@@ -382,7 +398,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 	 *
 	 * @throws RemoteApiException
 	 */
-	public void addCommentToBuild(BambooServerCfg bambooServer, @NotNull String planKey, int buildNumber, String buildComment)
+	public void addCommentToBuild(ServerData bambooServer, @NotNull String planKey, int buildNumber, String buildComment)
 			throws ServerPasswordNotProvidedException, RemoteApiException {
 		try {
 			BambooSession api = getSession(bambooServer);
@@ -402,7 +418,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 	 *
 	 * @throws RemoteApiException
 	 */
-	public void executeBuild(BambooServerCfg bambooServer, @NotNull String buildKey)
+	public void executeBuild(ServerData bambooServer, @NotNull String buildKey)
 			throws ServerPasswordNotProvidedException, RemoteApiException {
 		try {
 			BambooSession api = getSession(bambooServer);
@@ -413,7 +429,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 		}
 	}
 
-	public String getBuildLogs(BambooServerCfg bambooServer, @NotNull String planKey, int buildNumber)
+	public String getBuildLogs(ServerData bambooServer, @NotNull String planKey, int buildNumber)
 			throws ServerPasswordNotProvidedException, RemoteApiException {
 		try {
 			BambooSession api = getSession(bambooServer);
@@ -434,7 +450,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiException
 	 *          in case of some IO or similar problem
 	 */
-	public Collection<String> getFavouritePlans(BambooServerCfg bambooServer)
+	public Collection<String> getFavouritePlans(ServerData bambooServer)
 			throws ServerPasswordNotProvidedException, RemoteApiException {
 		try {
 			return getSession(bambooServer).getFavouriteUserPlans();
@@ -445,7 +461,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 	}
 
 
-	private BambooBuild constructBuildErrorInfo(BambooServerCfg server, @NotNull String planKey,
+	private BambooBuild constructBuildErrorInfo(ServerData server, @NotNull String planKey,
 			String planName, String message) {
 		return new BambooBuildInfo.Builder(planKey, null, server, planName, null, BuildStatus.UNKNOWN)
 				.errorMessage(message)
@@ -460,9 +476,9 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 
 	private static class SimpleBambooSessionFactory implements BambooSessionFactory {
 
-		public BambooSession createSession(final BambooServerCfg serverCfg, final HttpSessionCallback callback)
+		public BambooSession createSession(final ServerData serverData, final HttpSessionCallback callback)
 				throws RemoteApiException {
-			return new AutoRenewBambooSession(serverCfg, callback);
+			return new AutoRenewBambooSession(serverData, callback);
 		}
 	}
 }

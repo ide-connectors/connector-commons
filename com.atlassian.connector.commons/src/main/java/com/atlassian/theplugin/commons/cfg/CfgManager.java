@@ -17,6 +17,7 @@
 package com.atlassian.theplugin.commons.cfg;
 
 import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 
 import java.util.Collection;
 
@@ -74,4 +75,11 @@ public interface CfgManager extends BambooCfgManager {
 	boolean hasProject(ProjectId projectId);
 
 	Collection<CrucibleServerCfg> getAllCrucibleServers(ProjectId projectId);
+
+	ServerCfg getServer(ProjectId projectId, ServerData serverData);
+
+	ServerData getServerData(Server serverCfg);
+
+	ServerData getServerData(ProjectId projectId, ServerId serverId);
+
 }

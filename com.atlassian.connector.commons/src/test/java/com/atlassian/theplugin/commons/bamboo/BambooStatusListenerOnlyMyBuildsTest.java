@@ -15,19 +15,18 @@
  */
 package com.atlassian.theplugin.commons.bamboo;
 
-import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.configuration.BambooConfigurationBean;
 import com.atlassian.theplugin.commons.configuration.BambooTooltipOption;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import static org.easymock.EasyMock.createStrictMock;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.UUID;
 import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * @author Jacek Jaroczynski
@@ -127,8 +126,8 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 	}
 
 	public static BambooBuildInfo generateBuildInfo(BuildStatus status, int buildNumber, String loggedUser) {
-		BambooServerCfg server = new BambooServerCfg("name", new ServerId(ServerID));
-		server.setUsername(loggedUser);
+		ServerData server = new ServerData("name", ServerID, loggedUser, "", "");
+
 		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_BUILD_NAME, server,
 				DEFAULT_PROJECT_NAME, buildNumber, status).enabled(true).commiters(COMMITERS);
 

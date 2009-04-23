@@ -15,6 +15,7 @@
  */
 package com.atlassian.theplugin.commons.cfg;
 
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
@@ -30,15 +31,23 @@ public class CfgManagerNotificationTest extends TestCase {
 
 	@Override
 	public void setUp() throws Exception {
-        super.setUp();
-        cfgManager = new CfgManagerImpl();
+		super.setUp();
+		cfgManager = new AbstractCfgManager() {
+			public ServerData getServerData(final Server serverCfg) {
+				return null;
+			}
+
+			public ServerData getServerData(final ProjectId projectId, final ServerId serverId) {
+				return null;
+			}
+		};
 		populateServerCfgs();
 	}
 
-    @Override
+	@Override
 	public void tearDown() throws Exception {
-        super.tearDown();
-    }
+		super.tearDown();
+	}
 
 	private static final ProjectId PROJECT_ID_1 = new ProjectId();
 	private static final ProjectId PROJECT_ID_2 = new ProjectId();
@@ -132,5 +141,5 @@ public class CfgManagerNotificationTest extends TestCase {
 		});
 
 	}
-	
+
 }

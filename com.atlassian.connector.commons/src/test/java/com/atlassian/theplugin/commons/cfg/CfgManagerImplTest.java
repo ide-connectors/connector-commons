@@ -15,9 +15,19 @@
  */
 package com.atlassian.theplugin.commons.cfg;
 
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
+
 public class CfgManagerImplTest extends AbstractCfgManagerTest {
 	@Override
-	protected CfgManagerImpl createCfgManager() {
-		return new CfgManagerImpl();
+	protected AbstractCfgManager createCfgManager() {
+		return new AbstractCfgManager() {
+			public ServerData getServerData(final Server serverCfg) {
+				return null;
+			}
+
+			public ServerData getServerData(final ProjectId projectId, final ServerId serverId) {
+				return null;
+			}
+		};
 	}
 }

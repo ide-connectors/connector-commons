@@ -16,7 +16,7 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
-import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +24,7 @@ import java.util.*;
 
 public final class BambooBuildInfo implements BambooBuild {
 	private final Date pollingTime;
-	private final BambooServerCfg server;
+	private final ServerData server;
 	private final String projectName;
 	private final String planName;
 	@NotNull
@@ -50,7 +50,7 @@ public final class BambooBuildInfo implements BambooBuild {
 	private final Set<String> commiters;
 
 
-	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerCfg bambooServerCfg,
+	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull ServerData serverData,
 			@NotNull Date pollingTime, @Nullable String projectName, boolean isEnabled, @Nullable Integer number,
 			@NotNull BuildStatus status, @Nullable String reason, @Nullable Date startDate,
 			@Nullable String testSummary, @Nullable String commitComment, final int testsPassedCount,
@@ -60,7 +60,7 @@ public final class BambooBuildInfo implements BambooBuild {
 		this.pollingTime = new Date(pollingTime.getTime());
 		this.planKey = planKey;
 		this.planName = planName;
-		this.server = bambooServerCfg;
+		this.server = serverData;
 		this.projectName = projectName;
 		this.enabled = isEnabled;
 		this.number = number;
@@ -82,7 +82,7 @@ public final class BambooBuildInfo implements BambooBuild {
 		}
 	}
 
-	public BambooServerCfg getServer() {
+	public ServerData getServer() {
 		return server;
 	}
 
@@ -201,7 +201,7 @@ public final class BambooBuildInfo implements BambooBuild {
 	 * @return wheather I'm one of the commiters to that build or not
 	 */
 	public boolean isMyBuild() {
-		return commiters.contains(server.getCurrentUsername());
+		return commiters.contains(server.getUserName());
 	}
 
 	/**
@@ -219,7 +219,7 @@ public final class BambooBuildInfo implements BambooBuild {
 	public static class Builder {
 		private final String planKey;
 		private final String planName;
-		private final BambooServerCfg bambooServerCfg;
+		private final ServerData serverData;
 		private final String projectName;
 		private final Integer buildNumber;
 		@NotNull
@@ -242,20 +242,20 @@ public final class BambooBuildInfo implements BambooBuild {
 		@Nullable
 		private String durationDescription;
 
-		public Builder(@NotNull String planKey, @NotNull BambooServerCfg bambooServerCfg, @NotNull BuildStatus state) {
+		public Builder(@NotNull String planKey, @NotNull ServerData serverData, @NotNull BuildStatus state) {
 			this.planKey = planKey;
-			this.bambooServerCfg = bambooServerCfg;
+			this.serverData = serverData;
 			this.buildState = state;
 			planName = null;
 			projectName = null;
 			buildNumber = null;
 		}
 
-		public Builder(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerCfg bambooServerCfg,
+		public Builder(@NotNull String planKey, @Nullable String planName, @NotNull ServerData serverData,
 				@Nullable String projectName, @Nullable Integer buildNumber, @NotNull BuildStatus state) {
 			this.planKey = planKey;
 			this.planName = planName;
-			this.bambooServerCfg = bambooServerCfg;
+			this.serverData = serverData;
 			this.projectName = projectName;
 			this.buildNumber = buildNumber;
 			this.buildState = state;
@@ -329,7 +329,7 @@ public final class BambooBuildInfo implements BambooBuild {
 
 
 		public BambooBuildInfo build() {
-			return new BambooBuildInfo(planKey, planName, bambooServerCfg, pollingTime, projectName,
+			return new BambooBuildInfo(planKey, planName, serverData, pollingTime, projectName,
 					isEnabled, buildNumber, buildState, buildReason, startTime, testSummary, commitComment, testsPassedCount,
 					testsFailedCount, completionTime, message, relativeBuildDate, durationDescription, commiters);
 		}

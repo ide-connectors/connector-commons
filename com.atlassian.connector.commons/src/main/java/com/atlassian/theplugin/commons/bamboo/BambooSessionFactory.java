@@ -16,10 +16,10 @@
 package com.atlassian.theplugin.commons.bamboo;
 
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
-import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 
 public interface BambooSessionFactory {
-	BambooSession createSession(BambooServerCfg serverCfg, HttpSessionCallback callback) throws RemoteApiException;
+	BambooSession createSession(ServerData serverData, HttpSessionCallback callback) throws RemoteApiException;
 }

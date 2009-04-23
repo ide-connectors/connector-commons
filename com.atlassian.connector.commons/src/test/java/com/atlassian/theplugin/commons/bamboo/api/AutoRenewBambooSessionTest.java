@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,18 +16,11 @@
 
 package com.atlassian.theplugin.commons.bamboo.api;
 
-import com.atlassian.theplugin.commons.bamboo.BambooBuild;
-import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
-import com.atlassian.theplugin.commons.bamboo.BambooChangeSet;
-import com.atlassian.theplugin.commons.bamboo.BambooProject;
-import com.atlassian.theplugin.commons.bamboo.BuildDetails;
-import com.atlassian.theplugin.commons.bamboo.TestDetails;
-import com.atlassian.theplugin.commons.bamboo.BambooPlan;
-import com.atlassian.theplugin.commons.bamboo.BuildStatus;
+import com.atlassian.theplugin.commons.bamboo.*;
+import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
-import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
 
@@ -44,7 +37,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 
 	@Override
 	public void setUp() throws Exception {
-        super.setUp();
+		super.setUp();
 
 		mockDelegate = EasyMock.createStrictMock(BambooSession.class);
 		testedSession = new AutoRenewBambooSession(mockDelegate);
@@ -134,7 +127,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
 		mockDelegate.listPlanNames();
-		EasyMock.expectLastCall().andReturn(Arrays.asList(new BambooPlan("planName1", "planKey", false, false) ,
+		EasyMock.expectLastCall().andReturn(Arrays.asList(new BambooPlan("planName1", "planKey", false, false),
 				new BambooPlan("planName2", "planKey2", false, false)));
 
 		EasyMock.replay(mockDelegate);
@@ -150,20 +143,20 @@ public class AutoRenewBambooSessionTest extends TestCase {
 	public void testGetLatestBuildForPlan() throws Exception {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
-		mockDelegate.getLatestBuildForPlan("planKey");
+		mockDelegate.getLatestBuildForPlan("planKey", 0);
 		EasyMock.expectLastCall().andThrow(new RemoteApiSessionExpiredException(""));
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
-		EasyMock.expect(mockDelegate.getLatestBuildForPlan("planKey")).andReturn(
-				new BambooBuildInfo.Builder("planKey", null, new BambooServerCfg("mybamboo", new ServerId()), null, 123,
-						BuildStatus.SUCCESS)
+		EasyMock.expect(mockDelegate.getLatestBuildForPlan("planKey", 0)).andReturn(
+				new BambooBuildInfo.Builder("planKey", null,
+						new ServerData("mybamboo", (new ServerId()).toString(), "", "", ""), null, 123, BuildStatus.SUCCESS)
 						.build());
 
 
 		EasyMock.replay(mockDelegate);
 
 		testedSession.login(LOGIN, A_PASSWORD);
-		BambooBuild build = testedSession.getLatestBuildForPlan("planKey");
+		BambooBuild build = testedSession.getLatestBuildForPlan("planKey", 0);
 		assertNotNull(build);
 
 		EasyMock.verify(mockDelegate);
@@ -209,7 +202,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 			}
 
 			public List<TestDetails> getFailedTestDetails() {
-				return null;  
+				return null;
 			}
 
 			public List<BambooChangeSet> getCommitInfo() {
@@ -278,7 +271,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		testedSession.executeBuild("buildKey");
 
 		EasyMock.verify(mockDelegate);
-	}	
+	}
 
 	public void testGetBambooBuildNumber() throws Exception {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));

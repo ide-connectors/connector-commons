@@ -16,13 +16,14 @@
 package com.atlassian.theplugin.commons.cfg;
 
 import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import static com.atlassian.theplugin.commons.util.MiscUtil.buildConcurrentHashMap;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class CfgManagerImpl implements CfgManager {
+public abstract class AbstractCfgManager implements CfgManager {
 	private final Map<ProjectId, ProjectConfiguration> projectConfigurations = buildConcurrentHashMap(INITIAL_CAPACITY);
 	private Collection<ServerCfg> globalServers = MiscUtil.buildArrayList();
 	private final Map<ProjectId, Collection<ConfigurationListener>> listeners = buildConcurrentHashMap(100);
@@ -31,16 +32,15 @@ public class CfgManagerImpl implements CfgManager {
 
 	private static final ProjectListenerAction PROJECT_UNREGISTERED_LISTENER_ACTION = new ProjectListenerAction() {
 		public void run(final ConfigurationListener projectListener, final ProjectId projectId,
-				final CfgManagerImpl cfgManager) {
+				final AbstractCfgManager cfgManager) {
 			projectListener.projectUnregistered();
 		}
 	};
 
-	public CfgManagerImpl() {
+	public AbstractCfgManager() {
 		// TODO wseliga remove it later on and handle properly null values
 		update(new GlobalConfiguration());
 	}
-
 
 	public ProjectConfiguration getProjectConfiguration(final ProjectId projectId) {
 		verifyProjectId(projectId);
@@ -64,6 +64,15 @@ public class CfgManagerImpl implements CfgManager {
 		}
 		return res;
 
+	}
+
+	public ServerCfg getServer(final ProjectId projectId, final ServerData serverData) {
+		for (ServerCfg server : getAllServers(projectId)) {
+			if (serverData != null && server.getServerId().toString().equals(serverData.getServerId())) {
+				return server;
+			}
+		}
+		return null;
 	}
 
 	public Collection<ServerCfg> getProjectSpecificServers(final ProjectId projectId) {
@@ -339,7 +348,7 @@ public class CfgManagerImpl implements CfgManager {
 	}
 
 	private interface ProjectListenerAction {
-		void run(final ConfigurationListener projectListener, final ProjectId projectId, final CfgManagerImpl cfgManager);
+		void run(final ConfigurationListener projectListener, final ProjectId projectId, final AbstractCfgManager cfgManager);
 	}
 
 
@@ -361,7 +370,7 @@ public class CfgManagerImpl implements CfgManager {
 		}
 
 		public void run(final ConfigurationListener projectListener, final ProjectId projectId,
-				final CfgManagerImpl cfgManager) {
+				final AbstractCfgManager cfgManager) {
 			projectListener.configurationUpdated(projectConfiguration);
 		}
 	}
@@ -375,7 +384,7 @@ public class CfgManagerImpl implements CfgManager {
 			this.oldConfiguration = oldConfiguration;
 		}
 
-		public void run(ConfigurationListener projectListener, ProjectId projectId, CfgManagerImpl cfgManager) {
+		public void run(ConfigurationListener projectListener, ProjectId projectId, AbstractCfgManager cfgManager) {
 			if (oldConfiguration == null || newConfiguration == null) {
 				return;
 			}
@@ -407,8 +416,8 @@ public class CfgManagerImpl implements CfgManager {
 				return false;
 			}
 
-			return !oldServer.getCurrentUsername().equals(newServer.getCurrentUsername())
-					|| !oldServer.getCurrentPassword().equals(newServer.getCurrentPassword());
+			return !oldServer.getUserName().equals(newServer.getUserName())
+					|| !oldServer.getPassword().equals(newServer.getPassword());
 
 		}
 
@@ -429,7 +438,7 @@ public class CfgManagerImpl implements CfgManager {
 			this.oldConfiguration = oldConfiguration;
 		}
 
-		public void run(ConfigurationListener projectListener, ProjectId projectId, CfgManagerImpl cfgManager) {
+		public void run(ConfigurationListener projectListener, ProjectId projectId, AbstractCfgManager cfgManager) {
 			if (oldConfiguration == null || newConfiguration == null) {
 				return;
 			}
@@ -451,7 +460,7 @@ public class CfgManagerImpl implements CfgManager {
 			this.oldConfiguration = oldConfiguration;
 		}
 
-		public void run(ConfigurationListener projectListener, ProjectId projectId, CfgManagerImpl cfgManager) {
+		public void run(ConfigurationListener projectListener, ProjectId projectId, AbstractCfgManager cfgManager) {
 			if (oldConfiguration == null || newConfiguration == null) {
 				return;
 			}
@@ -474,7 +483,7 @@ public class CfgManagerImpl implements CfgManager {
 			this.oldConfiguration = oldConfiguration;
 		}
 
-		public void run(ConfigurationListener projectListener, ProjectId projectId, CfgManagerImpl cfgManager) {
+		public void run(ConfigurationListener projectListener, ProjectId projectId, AbstractCfgManager cfgManager) {
 			if (oldConfiguration == null || newConfiguration == null) {
 				return;
 			}
@@ -503,7 +512,7 @@ public class CfgManagerImpl implements CfgManager {
 			this.oldConfiguration = oldConfiguration;
 		}
 
-		public void run(ConfigurationListener projectListener, ProjectId projectId, CfgManagerImpl cfgManager) {
+		public void run(ConfigurationListener projectListener, ProjectId projectId, AbstractCfgManager cfgManager) {
 			if (oldConfiguration == null || newConfiguration == null) {
 				return;
 			}
@@ -541,5 +550,9 @@ public class CfgManagerImpl implements CfgManager {
 				projectListener.fisheyeServersChanged(newConfiguration);
 			}
 		}
+	}
+
+	public ServerData getServerData(final ProjectId projectId, final ServerId serverId) {
+		return getServerData(getServer(projectId, serverId));
 	}
 }

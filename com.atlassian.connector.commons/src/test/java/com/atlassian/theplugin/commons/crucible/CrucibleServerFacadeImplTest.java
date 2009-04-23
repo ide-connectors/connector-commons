@@ -15,16 +15,12 @@
  */
 package com.atlassian.theplugin.commons.crucible;
 
-import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
-import com.atlassian.theplugin.commons.crucible.api.model.PermIdBean;
-import com.atlassian.theplugin.commons.crucible.api.model.Review;
-import com.atlassian.theplugin.commons.crucible.api.model.ReviewBean;
-import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
-import com.atlassian.theplugin.commons.crucible.api.model.ReviewerBean;
+import com.atlassian.theplugin.commons.crucible.api.model.*;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
@@ -33,18 +29,18 @@ import java.util.ArrayList;
 
 public class CrucibleServerFacadeImplTest extends TestCase {
 
-	private static final CrucibleServerCfg CRUCIBLE = new CrucibleServerCfg("crucible", new ServerId());
+	private static final ServerData SERVER_DATA = new ServerData("crucible", (new ServerId()).toString(), "", "", "");
 
 	public void testSetReviewers() throws RemoteApiException, ServerPasswordNotProvidedException {
 		final CrucibleSession mock = EasyMock.createNiceMock(CrucibleSession.class);
 		final CrucibleServerFacadeImpl crucibleServerFacade = new CrucibleServerFacadeImpl(null) {
 			@Override
-			protected CrucibleSession getSession(final CrucibleServerCfg server)
+			protected CrucibleSession getSession(final ServerData server)
 					throws RemoteApiException, ServerPasswordNotProvidedException {
 				return mock;
 			}
 		};
-		Review review = new ReviewBean(CRUCIBLE.getUrl());
+		Review review = new ReviewBean(SERVER_DATA.getUrl());
 		review.setPermId(new PermIdBean("CR-123"));
 		review.setReviewers(MiscUtil.<Reviewer>buildHashSet());
 		final ArrayList<String> newReviewers = MiscUtil.buildArrayList("wseliga", "mwent");
@@ -52,7 +48,7 @@ public class CrucibleServerFacadeImplTest extends TestCase {
 		mock.addReviewers(review.getPermId(), MiscUtil.buildHashSet(newReviewers));
 
 		EasyMock.replay(mock);
-		crucibleServerFacade.setReviewers(CRUCIBLE, review.getPermId(), newReviewers);
+		crucibleServerFacade.setReviewers(SERVER_DATA, review.getPermId(), newReviewers);
 		EasyMock.verify(mock);
 
 		EasyMock.reset(mock);
@@ -67,7 +63,7 @@ public class CrucibleServerFacadeImplTest extends TestCase {
 		mock.removeReviewer(review.getPermId(), "wseliga");
 		EasyMock.expectLastCall().once();
 		EasyMock.replay(mock);
-		crucibleServerFacade.setReviewers(CRUCIBLE, review.getPermId(), newReviewers2);
+		crucibleServerFacade.setReviewers(SERVER_DATA, review.getPermId(), newReviewers2);
 		EasyMock.verify(mock);
 	}
 }

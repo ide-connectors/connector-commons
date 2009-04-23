@@ -1,7 +1,5 @@
 package com.atlassian.theplugin.commons.fisheye.api.rest;
 
-import com.atlassian.theplugin.commons.cfg.FishEyeServer;
-import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
@@ -10,6 +8,7 @@ import com.atlassian.theplugin.commons.fisheye.FishEyeServerFacadeImpl;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.crucible.api.rest.CharArrayEquals;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
@@ -46,7 +45,7 @@ public class FishEyeServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public FishEyeSession getSession(FishEyeServer server)
+			public FishEyeSession getSession(ServerData server)
 					throws RemoteApiMalformedUrlException {
 				return fishEyeSessionMock;
 			}
@@ -65,11 +64,11 @@ public class FishEyeServerFacadeTest extends TestCase {
 	}
 
 	public void testGetRepositories() throws ServerPasswordNotProvidedException, RemoteApiException {
-		FishEyeServer server = prepareServerBean();
+		ServerData server = prepareServerBean();
 
 		facade.getSession(URL);
-		//fishEyeSessionMock.login(server.getCurrentUsername(), PASSWORD.toCharArray());
-		fishEyeSessionMock.login(EasyMock.eq(server.getCurrentUsername()), charArrayContains(PASSWORD.toCharArray()));
+		//fishEyeSessionMock.login(server.getUserName(), PASSWORD.toCharArray());
+		fishEyeSessionMock.login(EasyMock.eq(server.getUserName()), charArrayContains(PASSWORD.toCharArray()));
 
 
 		fishEyeSessionMock.getRepositories();
@@ -95,12 +94,8 @@ public class FishEyeServerFacadeTest extends TestCase {
 
 	}
 
-	private FishEyeServer prepareServerBean() {
-		FishEyeServerCfg server = new FishEyeServerCfg("myname", new ServerId());
-		server.setUrl(URL);
-		server.setUsername(USER_NAME);
-		server.setPassword(PASSWORD);
-		server.setPasswordStored(false);
-		return server;
+	private ServerData prepareServerBean() {
+		return new ServerData("myname", (new ServerId()).toString(), USER_NAME, PASSWORD, URL);
+
 	}
 }

@@ -16,11 +16,11 @@
 
 package com.atlassian.theplugin.commons.remoteapi.rest;
 
-import com.atlassian.theplugin.commons.cfg.Server;
 import com.atlassian.theplugin.commons.exception.HttpProxySettingsException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -62,19 +62,19 @@ public abstract class AbstractHttpSession {
 	private final HttpSessionCallback callback;
 
 	@NotNull
-	private final Server server;
+	private final ServerData server;
 
 	@NotNull
-	protected Server getServer() {
+	protected ServerData getServer() {
 		return server;
 	}
 
 	protected String getUsername() {
-		return server.getCurrentUsername();
+		return server.getUserName();
 	}
 
 	protected String getPassword() {
-		return server.getCurrentPassword();
+		return server.getPassword();
 	}
 
 	private final Object clientLock = new Object();
@@ -141,7 +141,7 @@ public abstract class AbstractHttpSession {
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
 	 *          for malformed url
 	 */
-	public AbstractHttpSession(@NotNull Server server, @NotNull HttpSessionCallback callback)
+	public AbstractHttpSession(@NotNull ServerData server, @NotNull HttpSessionCallback callback)
 			throws RemoteApiMalformedUrlException {
 		this.server = server;
 		this.callback = callback;

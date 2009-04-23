@@ -30,7 +30,7 @@ public interface Server {
 
 	boolean isUseDefaultCredentials();
 
-	String getCurrentUsername();
+	String getUserName();
 
-	String getCurrentPassword();
+	String getPassword();
 }

@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,10 @@
 
 package com.atlassian.theplugin.crucible.api.rest;
 
+import com.atlassian.connector.commons.misc.IntRange;
+import com.atlassian.connector.commons.misc.IntRanges;
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
@@ -25,11 +28,10 @@ import com.atlassian.theplugin.commons.crucible.api.model.*;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.*;
 import com.atlassian.theplugin.remoteapi.ErrorResponse;
-import com.atlassian.connector.commons.misc.IntRanges;
-import com.atlassian.connector.commons.misc.IntRange;
 import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.mortbay.jetty.Server;
@@ -58,9 +60,9 @@ public class CrucibleSessionTest extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-        ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
+		ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
 
-        server = new Server(0);
+		server = new Server(0);
 		server.start();
 
 		mockBaseUrl = "http://localhost:" + server.getConnectors()[0].getLocalPort();
@@ -79,8 +81,8 @@ public class CrucibleSessionTest extends TestCase {
 	public void testSuccessCrucibleLogin() throws Exception {
 
 
-		String[] usernames = { "user", "+-=&;<>", "", "a;&username=other", "!@#$%^&*()_-+=T " };
-		String[] passwords = { "password", "+-=&;<>", "", "&password=other", ",./';[]\t\\ |}{\":><?" };
+		String[] usernames = {"user", "+-=&;<>", "", "a;&username=other", "!@#$%^&*()_-+=T "};
+		String[] passwords = {"password", "+-=&;<>", "", "&password=other", ",./';[]\t\\ |}{\":><?"};
 
 		for (int i = 0; i < usernames.length; ++i) {
 			mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(usernames[i], passwords[i]));
@@ -758,10 +760,10 @@ public class CrucibleSessionTest extends TestCase {
 
 	private ReviewBean createReviewRequest() {
 		ReviewBean review = new ReviewBean(mockBaseUrl);
-		review.setAuthor(new UserBean("autor",""));
-		review.setCreator(new UserBean("creator",""));
+		review.setAuthor(new UserBean("autor", ""));
+		review.setCreator(new UserBean("creator", ""));
 		review.setDescription("description");
-		review.setModerator(new UserBean("moderator",""));
+		review.setModerator(new UserBean("moderator", ""));
 		review.setName("name");
 		review.setProjectKey("PR");
 		return review;
@@ -771,7 +773,7 @@ public class CrucibleSessionTest extends TestCase {
 	private CrucibleSessionImpl createCrucibleSession(String url) throws RemoteApiException {
 		CrucibleServerCfg serverCfg = new CrucibleServerCfg(url, new ServerId());
 		serverCfg.setUrl(url);
-		return new CrucibleSessionImpl(serverCfg, new HttpSessionCallbackImpl());
+		return new CrucibleSessionImpl(createServerData(serverCfg), new HttpSessionCallbackImpl());
 	}
 
 	private CrucibleSessionImpl createCrucibleSession(String url, String username, String password) throws RemoteApiException {
@@ -779,7 +781,7 @@ public class CrucibleSessionTest extends TestCase {
 		serverCfg.setUrl(url);
 		serverCfg.setUsername(username);
 		serverCfg.setPassword(password);
-		return new CrucibleSessionImpl(serverCfg, new HttpSessionCallbackImpl());
+		return new CrucibleSessionImpl(createServerData(serverCfg), new HttpSessionCallbackImpl());
 	}
 
 	public void testGetReviewDetailsWithAddedFile() throws Exception {
@@ -877,7 +879,8 @@ public class CrucibleSessionTest extends TestCase {
 		final int size = 4;
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/" + permId.getId() + "/details", new JettyMockServer.Callback() {
-			public void onExpectedRequest(final String target, final HttpServletRequest request, final HttpServletResponse response)
+			public void onExpectedRequest(final String target, final HttpServletRequest request,
+					final HttpServletResponse response)
 					throws Exception {
 				Util.copyResource(response.getOutputStream(), resource);
 				response.getOutputStream().flush();
@@ -893,6 +896,11 @@ public class CrucibleSessionTest extends TestCase {
 		final Review review = apiHandler.getReview(permId, true);
 		mockServer.verify();
 		return review;
+	}
+
+	private ServerData createServerData(ServerCfg serverCfg) {
+		return new ServerData(serverCfg.getName(), serverCfg.getServerId().toString(), serverCfg.getUsername(),
+				serverCfg.getPassword(), serverCfg.getUrl());
 	}
 
 }

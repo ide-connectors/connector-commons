@@ -16,7 +16,7 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
-import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -33,12 +33,12 @@ public class BambooBuildAdapter {
 		this.build = build;
 	}
 
-	public BambooServerCfg getServer() {
+	public ServerData getServer() {
 		return build.getServer();
 	}
 
 	public String getServerName() {
-		final BambooServerCfg server = build.getServer();
+		final ServerData server = build.getServer();
 		if (server != null) {
 			return server.getName() == null ? "" : server.getName();
 		} else {
@@ -47,8 +47,10 @@ public class BambooBuildAdapter {
 	}
 
 	public boolean isBamboo2() {
-		final BambooServerCfg server = build.getServer();
-		return server != null && server.isBamboo2();
+//		final BambooServerCfg server = build.getServer();
+//		return server != null && server.isBamboo2();
+		//todo: implement
+		return true;
 	}
 
 	public Collection<String> getCommiters() {
@@ -84,8 +86,7 @@ public class BambooBuildAdapter {
 	}
 
 	/**
-	 *
-	 * @return build number as string (base 10) or empty string when this object does not represent successfully fetched build 
+	 * @return build number as string (base 10) or empty string when this object does not represent successfully fetched build
 	 */
 	public String getBuildNumberAsString() {
 		return build.isValid() ? Integer.toString(build.getNumber()) : "";

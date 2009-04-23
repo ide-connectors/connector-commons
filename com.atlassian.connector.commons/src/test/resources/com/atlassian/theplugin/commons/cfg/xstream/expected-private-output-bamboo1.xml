@@ -1,10 +1,10 @@
 <single-server-private-cfg>
-	<private-bamboo-server-cfg>
-		<server-id>141d662c-e744-4690-a5f8-6e127c0bc84f</server-id>
-		<enabled>true</enabled>
-		<username>mytestuser</username>
-		<password>bXlwYXNzd29yZDE=</password>
-		<used-default-credentials>false</used-default-credentials>
-		<timezone-offset>0</timezone-offset>
-	</private-bamboo-server-cfg>
+  <private-bamboo-server-cfg>
+    <server-id>141d662c-e744-4690-a5f8-6e127c0bc84f</server-id>
+    <enabled>true</enabled>
+    <username>mytestuser</username>
+    <password>bXlwYXNzd29yZDE=</password>
+    <used-default-credentials>false</used-default-credentials>
+    <timezone-offset>0</timezone-offset>
+  </private-bamboo-server-cfg>
 </single-server-private-cfg>

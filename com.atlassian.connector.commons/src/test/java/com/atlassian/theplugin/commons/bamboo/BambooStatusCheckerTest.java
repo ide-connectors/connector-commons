@@ -16,14 +16,15 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
-import com.atlassian.theplugin.bamboo.api.bamboomock.*;
+import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
 import com.atlassian.theplugin.commons.UIActionScheduler;
-import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.cfg.ProjectId;
-import com.atlassian.theplugin.commons.cfg.ServerId;
-import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
+import com.atlassian.theplugin.commons.cfg.*;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.Logger;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -43,6 +44,7 @@ public class BambooStatusCheckerTest extends TestCase {
 	private static final String PASSWORD = "somePassword";
 	private static final String PLAN_ID = "TP-DEF"; // always the same - mock does the logic
 	private Logger logger;
+	private CfgManager cfgManager;
 
 	public BambooStatusCheckerTest(String name) {
 		super(name);
@@ -53,6 +55,13 @@ public class BambooStatusCheckerTest extends TestCase {
 	protected void setUp() throws Exception {
 		logger = EasyMock.createMock(Logger.class);
 		ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
+		cfgManager = new AbstractCfgManager() {
+
+			public ServerData getServerData(final Server serverCfg) {
+				return new ServerData(serverCfg.getName(), serverCfg.getServerId().toString(), serverCfg.getUserName(),
+						serverCfg.getPassword(), serverCfg.getUrl());
+			}
+		};
 	}
 
 	public void testGetInterval() throws Exception {
@@ -78,7 +87,7 @@ public class BambooStatusCheckerTest extends TestCase {
 		MockBambooCfgManager config = MockBambooCfgManager.createEmptyBambooTestConfiguration();
 
 		EasyInvoker invoker = new EasyInvoker();
-		BambooStatusChecker checker = new BambooStatusChecker(new ProjectId(), null, null, null, null, logger);
+		BambooStatusChecker checker = new BambooStatusChecker(new ProjectId(), null, cfgManager, null, null, logger);
 
 		checker.setActionScheduler(invoker);
 		checker.updateConfiguration(config);
@@ -129,7 +138,7 @@ public class BambooStatusCheckerTest extends TestCase {
 		assertTrue(checker.canSchedule()); // config not empty
 
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
+		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());

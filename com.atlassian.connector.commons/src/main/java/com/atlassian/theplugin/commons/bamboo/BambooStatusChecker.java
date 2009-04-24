@@ -105,7 +105,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 					LoggerImpl.getInstance().debug(sb.toString());
 
 					newServerBuildsStatus.addAll(bambooServerFacade.getSubscribedPlansResults(
-							cfgManager.getServerData(server), server.getPlans(), server.isUseFavourites(),
+							cfgManager.getServerData(projectId, server), server.getPlans(), server.isUseFavourites(),
 							server.getTimezoneOffset()));
 					lastActionRun = newRun;
 

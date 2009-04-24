@@ -41,7 +41,7 @@ public abstract class ServerCfg implements Server {
 	private String password = "";
 	private boolean isPasswordStored;
 	private boolean useDefaultCredentials;
-	private UserCfg defaultUser;
+
 
 	protected ServerCfg(final ServerCfg other) {
 		serverId = other.getServerId(); // shallow copy here as it's immutable
@@ -52,7 +52,6 @@ public abstract class ServerCfg implements Server {
 		password = other.getPassword();
 		isPasswordStored = other.isPasswordStored();
 		useDefaultCredentials = other.useDefaultCredentials;
-		defaultUser = other.defaultUser;
 	}
 
 	public boolean isUseDefaultCredentials() {
@@ -75,27 +74,13 @@ public abstract class ServerCfg implements Server {
 	}
 
 
-	public void setDefaultUser(final UserCfg defaultUser) {
-		this.defaultUser = defaultUser;
-	}
-
-	public UserCfg getDefaultUser() {
-		return defaultUser;
-	}
-
 	public String getPassword() {
-		if (useDefaultCredentials && defaultUser != null) {
-			return defaultUser.getPassword();
-		}
 
 		return password;
 	}
 
 
-	public String getUserName() {
-		if (useDefaultCredentials && defaultUser != null) {
-			return defaultUser.getUserName();
-		}
+	public String getUserName() {	
 		return username;
 	}
 

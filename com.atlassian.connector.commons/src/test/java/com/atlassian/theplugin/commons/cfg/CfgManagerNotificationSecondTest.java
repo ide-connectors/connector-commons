@@ -34,7 +34,7 @@ public class CfgManagerNotificationSecondTest extends TestCase {
 		super.setUp();
 		cfgManager = new AbstractCfgManager() {
 
-			public ServerData getServerData(final Server serverCfg) {
+			public ServerData getServerData(final ProjectId projectId, final Server serverCfg) {
 				return null;
 			}
 

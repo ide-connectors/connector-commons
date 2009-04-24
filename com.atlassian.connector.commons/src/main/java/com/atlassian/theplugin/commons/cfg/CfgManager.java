@@ -76,10 +76,10 @@ public interface CfgManager extends BambooCfgManager {
 
 	Collection<CrucibleServerCfg> getAllCrucibleServers(ProjectId projectId);
 
-	ServerCfg getServer(ProjectId projectId, ServerData serverData);
-
-	ServerData getServerData(Server serverCfg);
+	ServerCfg getServer(ProjectId projectId, ServerData serverData);	
 
 	ServerData getServerData(ProjectId projectId, ServerId serverId);
+
+	ServerData getServerData(ProjectId projectId, Server server);
 
 }

@@ -51,7 +51,7 @@ public class MockBambooCfgManager extends AbstractCfgManager {
 		bambooServers.add(bambooServerCfg);
 	}
 
-	public ServerData getServerData(final Server serverCfg) {
+	public ServerData getServerData(final ProjectId projectId, final Server serverCfg) {
 
 		return new ServerData(serverCfg.getName(),
 				serverCfg.getServerId().toString(),

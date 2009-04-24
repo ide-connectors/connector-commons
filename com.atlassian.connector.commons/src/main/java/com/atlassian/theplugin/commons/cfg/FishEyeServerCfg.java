@@ -44,4 +44,8 @@ public class FishEyeServerCfg extends ServerCfg implements FishEyeServer {
 	public FishEyeServer asFishEyeServer() {
 		return this;
 	}
+
+	public ProjectId getProjectId() {
+		return null;  //To change body of implemented methods use File | Settings | File Templates.
+	}
 }

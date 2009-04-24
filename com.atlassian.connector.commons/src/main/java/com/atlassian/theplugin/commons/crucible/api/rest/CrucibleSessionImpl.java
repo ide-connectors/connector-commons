@@ -103,13 +103,13 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	/**
 	 * Public constructor for CrucibleSessionImpl.
 	 *
-	 * @param serverCfg The server fisheye configuration for this session
+	 * @param serverData The server fisheye configuration for this session
 	 * @param callback  The callback needed for preparing HttpClient calls
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
 	 *          when serverCfg configuration is invalid
 	 */
-	public CrucibleSessionImpl(ServerData serverCfg, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
-		super(serverCfg, callback);
+	public CrucibleSessionImpl(ServerData serverData, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
+		super(serverData, callback);
 
 		projectCache = new ProjectCache(this);
 

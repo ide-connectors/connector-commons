@@ -28,7 +28,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
 import junit.framework.TestCase;
@@ -75,20 +74,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 			throw new RuntimeException(e);
 		}
 
-		cfgManager = new AbstractCfgManager() {
-
-			public ServerData getServerData(final com.atlassian.theplugin.commons.cfg.Server serverCfg) {
-				return new ServerData(serverCfg.getName(),
-						serverCfg.getServerId().toString(),
-						serverCfg.getUserName(),
-						serverCfg.getPassword(),
-						serverCfg.getUrl());
-			}
-
-			public ServerData getServerData(final ProjectId projectId, final ServerId serverId) {
-				return null;
-			}
-		};
+		cfgManager = new AbstractCfgManager();
 	}
 
 	public void testConnectionTestFailedBadPassword() throws Exception {
@@ -102,7 +88,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 				new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD, LoginCallback.ALWAYS_FAIL));
 
 		try {
-			facade.testServerConnection(cfgManager.getServerData(crucibleServerCfg));
+			facade.testServerConnection(cfgManager.getServerData(new ProjectId(), crucibleServerCfg));
 			fail("testServerConnection failed");
 		} catch (RemoteApiException e) {
 			//
@@ -123,7 +109,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(false));
 
 		try {
-			facade.testServerConnection(cfgManager.getServerData(crucibleServerCfg));
+			facade.testServerConnection(cfgManager.getServerData(new ProjectId(), crucibleServerCfg));
 			fail("testServerConnection failed");
 		} catch (RemoteApiException e) {
 		}
@@ -143,7 +129,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 
 		try {
-			facade.testServerConnection(cfgManager.getServerData(crucibleServerCfg));
+			facade.testServerConnection(cfgManager.getServerData(new ProjectId(), crucibleServerCfg));
 		} catch (RemoteApiException e) {
 			fail("testServerConnection failed");
 		}
@@ -206,7 +192,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		replay(crucibleSessionMock);
 
 		CrucibleServerCfg server = prepareServerBean();
-		List<Review> ret = facade.getAllReviews(cfgManager.getServerData(server));
+		List<Review> ret = facade.getAllReviews(cfgManager.getServerData(new ProjectId(), server));
 		assertEquals(2, ret.size());
 		assertEquals(permId.getId(), ret.get(0).getPermId().getId());
 		assertEquals("name", ret.get(0).getName());
@@ -221,7 +207,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		server.setUsername(validLogin2.getUserName());
 		server.setPassword(validPassword2);
-		ret = facade.getAllReviews(cfgManager.getServerData(server));
+		ret = facade.getAllReviews(cfgManager.getServerData(new ProjectId(), server));
 		assertEquals(1, ret.size());
 		assertEquals(permId.getId(), ret.get(0).getPermId().getId());
 		assertEquals("name", ret.get(0).getName());
@@ -257,7 +243,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		Review review = prepareReviewData("name", State.DRAFT);
 
 		// test call
-		Review ret = facade.createReview(cfgManager.getServerData(server), review);
+		Review ret = facade.createReview(cfgManager.getServerData(new ProjectId(), server), review);
 		assertSame(response, ret);
 
 		EasyMock.verify(crucibleSessionMock);
@@ -285,7 +271,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		try {
 			// test call
-			facade.createReview(cfgManager.getServerData(server), review);
+			facade.createReview(cfgManager.getServerData(new ProjectId(), server), review);
 			fail("creating review with invalid key should throw an CrucibleException()");
 		} catch (RemoteApiException e) {
 
@@ -316,7 +302,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		String patch = "some patch";
 
 		// test call
-		Review ret = facade.createReviewFromPatch(cfgManager.getServerData(server), review, patch);
+		Review ret = facade.createReviewFromPatch(cfgManager.getServerData(new ProjectId(), server), review, patch);
 		assertSame(response, ret);
 
 		EasyMock.verify(crucibleSessionMock);
@@ -342,7 +328,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		String patch = "some patch";
 
 		try {
-			facade.createReviewFromPatch(cfgManager.getServerData(server), review, patch);
+			facade.createReviewFromPatch(cfgManager.getServerData(new ProjectId(), server), review, patch);
 			fail("creating review with patch with invalid key should throw an RemoteApiException()");
 		} catch (RemoteApiException e) {
 			// ignored by design
@@ -375,7 +361,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		CrucibleServerCfg server = prepareServerBean();
 		// test call
-		List<Review> ret = facade.getAllReviews(cfgManager.getServerData(server));
+		List<Review> ret = facade.getAllReviews(cfgManager.getServerData(new ProjectId(), server));
 		assertEquals(2, ret.size());
 		assertEquals(permId.getId(), ret.get(0).getPermId().getId());
 		assertEquals("name", ret.get(0).getName());
@@ -405,7 +391,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		CrucibleServerCfg server = prepareServerBean();
 		// test call
-		List<CrucibleProject> ret = facade.getProjects(cfgManager.getServerData(server));
+		List<CrucibleProject> ret = facade.getProjects(cfgManager.getServerData(new ProjectId(), server));
 		assertEquals(2, ret.size());
 		for (int i = 0; i < 2; i++) {
 			String id = Integer.toString(i);
@@ -430,7 +416,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		CrucibleServerCfg server = prepareServerBean();
 		// test call
-		List<Repository> ret = facade.getRepositories(cfgManager.getServerData(server));
+		List<Repository> ret = facade.getRepositories(cfgManager.getServerData(new ProjectId(), server));
 		assertEquals(2, ret.size());
 		for (int i = 0; i < 2; i++) {
 			String id = Integer.toString(i);
@@ -797,7 +783,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		Review ret;
 
 		try {
-			ret = facade.createReview(cfgManager.getServerData(server), review);
+			ret = facade.createReview(cfgManager.getServerData(new ProjectId(), server), review);
 			assertNotNull(ret);
 			assertNotNull(ret.getPermId());
 			assertNotNull(ret.getPermId().getId());
@@ -821,7 +807,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		final CrucibleServerCfg server = prepareCrucibleServerCfg();
 
 		try {
-			List<Review> list = facade.getAllReviews(cfgManager.getServerData(server));
+			List<Review> list = facade.getAllReviews(cfgManager.getServerData(new ProjectId(), server));
 			assertNotNull(list);
 			assertTrue(list.size() > 0);
 		} catch (RemoteApiException e) {

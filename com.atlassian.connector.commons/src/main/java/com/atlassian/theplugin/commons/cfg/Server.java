@@ -32,5 +32,5 @@ public interface Server {
 
 	String getUserName();
 
-	String getPassword();
+	String getPassword();	
 }

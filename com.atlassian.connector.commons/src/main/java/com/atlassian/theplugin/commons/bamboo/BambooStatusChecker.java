@@ -18,7 +18,6 @@ package com.atlassian.theplugin.commons.bamboo;
 
 import com.atlassian.theplugin.commons.SchedulableChecker;
 import com.atlassian.theplugin.commons.UIActionScheduler;
-import com.atlassian.theplugin.commons.cfg.BambooCfgManager;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.cfg.CfgManager;
 import com.atlassian.theplugin.commons.cfg.ProjectId;
@@ -50,9 +49,9 @@ public final class BambooStatusChecker implements SchedulableChecker {
 	private static StringBuffer sb = new StringBuffer();
 	private static final String NAME = "Atlassian Bamboo checker";
 
-	private BambooCfgManager bambooCfgManager;
+//	private BambooCfgManager bambooCfgManager;
 	private final BambooServerFacade bambooServerFacade;
-	private final CfgManager cfgManager;
+	private CfgManager cfgManager;
 	private final PluginConfiguration pluginConfiguration;
 	private Runnable missingPasswordHandler;
 	private final ProjectId projectId;
@@ -93,7 +92,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 
 			// collect build info from each server
 			final Collection<BambooBuild> newServerBuildsStatus = new ArrayList<BambooBuild>();
-			for (BambooServerCfg server : bambooCfgManager.getAllEnabledBambooServers(projectId)) {
+			for (BambooServerCfg server : cfgManager.getAllEnabledBambooServers(projectId)) {
 				try {
 
 					Date newRun = new Date();
@@ -146,7 +145,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 	}
 
 	public boolean canSchedule() {
-		return bambooCfgManager != null && !bambooCfgManager.getAllEnabledBambooServers(projectId).isEmpty();
+		return cfgManager != null && !cfgManager.getAllEnabledBambooServers(projectId).isEmpty();
 	}
 
 	public long getInterval() {
@@ -169,8 +168,8 @@ public final class BambooStatusChecker implements SchedulableChecker {
 	}
 
 	// only for unit tests
-	void updateConfiguration(BambooCfgManager theCfgManager) {
-		bambooCfgManager = theCfgManager;
+	void updateConfiguration(CfgManager theCfgManager) {
+		cfgManager = theCfgManager;
 	}
 
 }

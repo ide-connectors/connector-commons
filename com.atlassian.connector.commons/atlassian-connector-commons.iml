@@ -23,7 +23,7 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="jdk" jdkName="IDEA 9164" jdkType="IDEA JDK" />
+    <orderEntry type="jdk" jdkName="IDEA 9732" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
       <library name="joda-time">
@@ -130,7 +130,7 @@
     <orderEntry type="module-library">
       <library name="jetty">
         <CLASSES>
-          <root url="jar://$MAVEN_REPOSITORY$/org/mortbay/jetty/jetty/6.1.14/jetty-6.1.14.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/mortbay/jetty/jetty/6.1.16/jetty-6.1.16.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
@@ -141,22 +141,11 @@
     <orderEntry type="module-library">
       <library name="jetty-util">
         <CLASSES>
-          <root url="jar://$MAVEN_REPOSITORY$/org/mortbay/jetty/jetty-util/6.1.14/jetty-util-6.1.14.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/org/mortbay/jetty/jetty-util/6.1.16/jetty-util-6.1.16.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
           <root url="jar://$MAVEN_REPOSITORY$/org/mortbay/jetty/jetty-util/6.1.14/jetty-util-6.1.14-sources.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="servlet-api-2.5">
-        <CLASSES>
-          <root url="jar://$MAVEN_REPOSITORY$/org/mortbay/jetty/servlet-api-2.5/6.1.14/servlet-api-2.5-6.1.14.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MAVEN_REPOSITORY$/org/mortbay/jetty/servlet-api-2.5/6.1.14/servlet-api-2.5-6.1.14-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -249,6 +238,37 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="servlet-api">
+        <CLASSES>
+          <root url="jar://$MAVEN_REPOSITORY$/org/mortbay/jetty/servlet-api/2.5-20081211/servlet-api-2.5-20081211.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="velocity">
+        <CLASSES>
+          <root url="jar://$MAVEN_REPOSITORY$/org/apache/velocity/velocity/1.6.1/velocity-1.6.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MAVEN_REPOSITORY$/org/apache/velocity/velocity/1.6.1/velocity-1.6.1-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="oro">
+        <CLASSES>
+          <root url="jar://$MAVEN_REPOSITORY$/oro/oro/2.0.8/oro-2.0.8.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MAVEN_REPOSITORY$/oro/oro/2.0.8/oro-2.0.8-sources.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
   </component>

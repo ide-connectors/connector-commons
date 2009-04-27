@@ -16,7 +16,7 @@
 package com.atlassian.theplugin.commons.remoteapi;
 
 /**
- * User: pmaruszak
+ * @author pmaruszak
  */
 public final class ServerData {
 	private final String name;
@@ -54,6 +54,7 @@ public final class ServerData {
 		return name;
 	}
 
+	@Override
 	public boolean equals(final Object o) {
 		if (this == o) {
 			return true;
@@ -74,6 +75,7 @@ public final class ServerData {
 		return true;
 	}
 
+	@Override
 	public int hashCode() {
 		int result;
 		result = (name != null ? name.hashCode() : 0);
@@ -82,5 +84,9 @@ public final class ServerData {
 		result = 31 * result + (password != null ? password.hashCode() : 0);
 		result = 31 * result + (url != null ? url.hashCode() : 0);
 		return result;
+	}
+
+	public ServerData withCredentials(String newUsername, String newPassword) {
+		return new ServerData(name, serverId, newUsername, newPassword, url);
 	}
 }

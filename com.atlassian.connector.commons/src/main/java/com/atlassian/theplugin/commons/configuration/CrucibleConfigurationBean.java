@@ -22,6 +22,9 @@ public class CrucibleConfigurationBean {
 	private static final int DEFAULT_POLLING_INTERVAL_MIN = 10;
     private int pollTime = DEFAULT_POLLING_INTERVAL_MIN;
 	private static final int HASHCODE_MAGIC = 31;
+    private static final int DEFAULT_REVIEW_CREATION_TIMEOUT = 5;
+    private static final int MIN_REVIEW_CREATION_TIMEOUT = 1;
+    private int reviewCreationTimeout = DEFAULT_REVIEW_CREATION_TIMEOUT;
 
 	public CrucibleConfigurationBean() {
     }
@@ -29,6 +32,7 @@ public class CrucibleConfigurationBean {
 	public CrucibleConfigurationBean(CrucibleConfigurationBean cfg) {
         crucibleTooltipOption = (cfg).getCrucibleTooltipOption();
 		pollTime = cfg.getPollTime();
+        reviewCreationTimeout = cfg.getReviewCreationTimeout();
     }
 
 	public int getPollTime() {
@@ -39,7 +43,16 @@ public class CrucibleConfigurationBean {
 		this.pollTime = pollTime > MIN_SCHEDULE_TIME_MINUTES ? pollTime : MIN_SCHEDULE_TIME_MINUTES;
 	}
 
-	public CrucibleTooltipOption getCrucibleTooltipOption() {
+    public int getReviewCreationTimeout() {
+        return reviewCreationTimeout;
+    }
+
+    public void setReviewCreationTimeout(int reviewCreationTimeout) {
+        this.reviewCreationTimeout = reviewCreationTimeout > MIN_REVIEW_CREATION_TIMEOUT
+                ? reviewCreationTimeout : MIN_REVIEW_CREATION_TIMEOUT;
+    }
+
+    public CrucibleTooltipOption getCrucibleTooltipOption() {
 		return crucibleTooltipOption;
 	}
 
@@ -61,6 +74,9 @@ public class CrucibleConfigurationBean {
 		if (pollTime != that.pollTime) {
 			return false;
 		}
+        if (reviewCreationTimeout != that.reviewCreationTimeout) {
+            return false;
+        }
 		if (crucibleTooltipOption != that.crucibleTooltipOption) {
 			return false;
 		}
@@ -73,6 +89,7 @@ public class CrucibleConfigurationBean {
 		int result;
 		result = (crucibleTooltipOption != null ? crucibleTooltipOption.hashCode() : 0);
 		result = HASHCODE_MAGIC * result + pollTime;
+        result = HASHCODE_MAGIC * result + reviewCreationTimeout;
 		return result;
 	}
 }

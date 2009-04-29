@@ -22,6 +22,8 @@ import com.atlassian.connector.cfg.ProjectCfgManager;
 
 import java.util.Collection;
 
+import org.jetbrains.annotations.NotNull;
+
 public class MockBambooCfgManager implements ProjectCfgManager {
 
 	private final BambooCfg bambooCfg = new BambooCfg();
@@ -52,7 +54,8 @@ public class MockBambooCfgManager implements ProjectCfgManager {
 		bambooServers.add(bambooServerCfg);
 	}
 
-	public ServerData getServerData(final Server serverCfg) {
+	@NotNull
+	public ServerData getServerData(@NotNull final Server serverCfg) {
 		return new ServerData(serverCfg.getName(),
 				serverCfg.getServerId().toString(),
 				serverCfg.getUserName(),

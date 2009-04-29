@@ -22,8 +22,11 @@ import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 
 import java.util.Collection;
 
+import org.jetbrains.annotations.NotNull;
+
 public interface ProjectCfgManager {
-	ServerData getServerData(Server serverCfg);
+	@NotNull
+	ServerData getServerData(@NotNull Server serverCfg);
 
 	Collection<BambooServerCfg> getAllEnabledBambooServers();
 }

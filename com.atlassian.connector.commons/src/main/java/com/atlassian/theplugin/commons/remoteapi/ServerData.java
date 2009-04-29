@@ -15,6 +15,11 @@
  */
 package com.atlassian.theplugin.commons.remoteapi;
 
+import com.atlassian.theplugin.commons.cfg.Server;
+import com.atlassian.theplugin.commons.cfg.UserCfg;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * @author pmaruszak
  */
@@ -88,5 +93,22 @@ public final class ServerData {
 
 	public ServerData withCredentials(String newUsername, String newPassword) {
 		return new ServerData(name, serverId, newUsername, newPassword, url);
+	}
+
+
+	public static ServerData create(@NotNull Server server, @NotNull UserCfg defaultCredentials) {
+		final String userName;
+		final String password;
+
+		if (server.isUseDefaultCredentials()) {
+			userName = defaultCredentials.getUserName();
+			password = defaultCredentials.getPassword();
+		} else {
+			userName = server.getUserName();
+			password = server.getPassword();
+		}
+		return new ServerData(server.getName(), server.getServerId().toString(), userName,
+				password, server.getUrl());
+
 	}
 }

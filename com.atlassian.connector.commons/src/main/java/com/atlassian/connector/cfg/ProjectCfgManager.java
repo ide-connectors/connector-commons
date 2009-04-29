@@ -22,7 +22,7 @@ import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 
 import java.util.Collection;
 
-public interface ProjectCfgManager2 {
+public interface ProjectCfgManager {
 	ServerData getServerData(Server serverCfg);
 
 	Collection<BambooServerCfg> getAllEnabledBambooServers();

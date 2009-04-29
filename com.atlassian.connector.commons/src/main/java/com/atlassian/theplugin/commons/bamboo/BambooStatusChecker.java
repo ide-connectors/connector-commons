@@ -16,7 +16,7 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
-import com.atlassian.connector.cfg.ProjectCfgManager2;
+import com.atlassian.connector.cfg.ProjectCfgManager;
 import com.atlassian.theplugin.commons.SchedulableChecker;
 import com.atlassian.theplugin.commons.UIActionScheduler;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
@@ -54,7 +54,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 
 //	private BambooCfgManager bambooCfgManager;
 	private final BambooServerFacade bambooServerFacade;
-	private ProjectCfgManager2 cfgManager;
+	private ProjectCfgManager cfgManager;
 	private final PluginConfiguration pluginConfiguration;
 	private Runnable missingPasswordHandler;
 
@@ -63,7 +63,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 	}
 
 	public BambooStatusChecker(UIActionScheduler actionScheduler,
-			ProjectCfgManager2 cfgManager, final PluginConfiguration pluginConfiguration,
+			ProjectCfgManager cfgManager, final PluginConfiguration pluginConfiguration,
 			Runnable missingPasswordHandler, Logger logger) {
 		this.actionScheduler = actionScheduler;
 		this.cfgManager = cfgManager;
@@ -169,7 +169,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 	}
 
 	// only for unit tests
-	void updateConfiguration(ProjectCfgManager2 theCfgManager) {
+	void updateConfiguration(ProjectCfgManager theCfgManager) {
 		cfgManager = theCfgManager;
 	}
 

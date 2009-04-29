@@ -18,11 +18,11 @@ package com.atlassian.theplugin.commons.bamboo;
 import com.atlassian.theplugin.commons.cfg.*;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.MiscUtil;
-import com.atlassian.connector.cfg.ProjectCfgManager2;
+import com.atlassian.connector.cfg.ProjectCfgManager;
 
 import java.util.Collection;
 
-public class MockBambooCfgManager implements ProjectCfgManager2 {
+public class MockBambooCfgManager implements ProjectCfgManager {
 
 	private final BambooCfg bambooCfg = new BambooCfg();
 

@@ -18,7 +18,6 @@ package com.atlassian.theplugin.commons.remoteapi;
 import com.atlassian.theplugin.commons.cfg.Server;
 import com.atlassian.theplugin.commons.cfg.UserCfg;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * @author pmaruszak
@@ -96,6 +95,7 @@ public final class ServerData {
 	}
 
 
+	@NotNull
 	public static ServerData create(@NotNull Server server, @NotNull UserCfg defaultCredentials) {
 		final String userName;
 		final String password;

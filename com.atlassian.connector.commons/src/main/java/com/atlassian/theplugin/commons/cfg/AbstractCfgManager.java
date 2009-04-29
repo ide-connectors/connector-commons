@@ -552,36 +552,4 @@ public class AbstractCfgManager implements CfgManager {
 		}
 	}
 
-	public ServerData getServerData(final ProjectId projectId, final ServerId serverId) {
-		ServerCfg serverCfg = getServer(projectId, serverId);
-		ProjectConfiguration projectConfiguration = getProjectConfiguration(projectId);
-		UserCfg defaultCredentials = projectConfiguration != null ? getProjectConfiguration(projectId).getDefaultUser() : null;
-
-		if (serverCfg != null) {
-			String userName = "";
-			String password = "";
-
-			if (serverCfg.isUseDefaultCredentials()) {
-				if (defaultCredentials != null) {
-					userName = defaultCredentials.getUserName();
-					password = defaultCredentials.getPassword();
-				}
-			} else {
-				userName = serverCfg.getUserName();
-				password = serverCfg.getPassword();
-			}
-			return new ServerData(serverCfg.getName(), serverCfg.getServerId().toString(), userName,
-					password, serverCfg.getUrl());
-		}
-
-		return null;	
-	}
-
-	public ServerData getServerData(final ProjectId projectId, final Server server) {
-		if (server != null) {
-			return getServerData(projectId, server.getServerId());
-		}
-
-		return null;
-	}
 }

@@ -46,6 +46,8 @@ public final class JDomXStreamUtil {
 		xStream.omitField(ServerCfg.class, "username");
 		xStream.omitField(ServerCfg.class, "password");
 		xStream.omitField(ServerCfg.class, "isPasswordStored");
+		xStream.omitField(ServerCfg.class, "useDefaultCredentials");
+		
 		xStream.omitField(BambooServerCfg.class, "timezoneOffset");
 		xStream.omitField(CrucibleServerCfg.class, "fishEyeView");
 		xStream.aliasField("server-id", ServerCfg.class, "serverId");

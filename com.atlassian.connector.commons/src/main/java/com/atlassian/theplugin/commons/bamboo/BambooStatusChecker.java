@@ -16,11 +16,10 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
+import com.atlassian.connector.cfg.ProjectCfgManager2;
 import com.atlassian.theplugin.commons.SchedulableChecker;
 import com.atlassian.theplugin.commons.UIActionScheduler;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.cfg.CfgManager;
-import com.atlassian.theplugin.commons.cfg.ProjectId;
 import com.atlassian.theplugin.commons.configuration.PluginConfiguration;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.util.DateUtil;
@@ -28,7 +27,11 @@ import com.atlassian.theplugin.commons.util.Logger;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.TimerTask;
 
 
 /**
@@ -51,19 +54,17 @@ public final class BambooStatusChecker implements SchedulableChecker {
 
 //	private BambooCfgManager bambooCfgManager;
 	private final BambooServerFacade bambooServerFacade;
-	private CfgManager cfgManager;
+	private ProjectCfgManager2 cfgManager;
 	private final PluginConfiguration pluginConfiguration;
 	private Runnable missingPasswordHandler;
-	private final ProjectId projectId;
 
 	public void setActionScheduler(UIActionScheduler actionScheduler) {
 		this.actionScheduler = actionScheduler;
 	}
 
-	public BambooStatusChecker(final ProjectId projectId, UIActionScheduler actionScheduler,
-			CfgManager cfgManager, final PluginConfiguration pluginConfiguration,
+	public BambooStatusChecker(UIActionScheduler actionScheduler,
+			ProjectCfgManager2 cfgManager, final PluginConfiguration pluginConfiguration,
 			Runnable missingPasswordHandler, Logger logger) {
-		this.projectId = projectId;
 		this.actionScheduler = actionScheduler;
 		this.cfgManager = cfgManager;
 		this.pluginConfiguration = pluginConfiguration;
@@ -92,7 +93,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 
 			// collect build info from each server
 			final Collection<BambooBuild> newServerBuildsStatus = new ArrayList<BambooBuild>();
-			for (BambooServerCfg server : cfgManager.getAllEnabledBambooServers(projectId)) {
+			for (BambooServerCfg server : cfgManager.getAllEnabledBambooServers()) {
 				try {
 
 					Date newRun = new Date();
@@ -105,7 +106,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 					LoggerImpl.getInstance().debug(sb.toString());
 
 					newServerBuildsStatus.addAll(bambooServerFacade.getSubscribedPlansResults(
-							cfgManager.getServerData(projectId, server), server.getPlans(), server.isUseFavourites(),
+							cfgManager.getServerData(server), server.getPlans(), server.isUseFavourites(),
 							server.getTimezoneOffset()));
 					lastActionRun = newRun;
 
@@ -145,7 +146,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 	}
 
 	public boolean canSchedule() {
-		return cfgManager != null && !cfgManager.getAllEnabledBambooServers(projectId).isEmpty();
+		return cfgManager != null && !cfgManager.getAllEnabledBambooServers().isEmpty();
 	}
 
 	public long getInterval() {
@@ -168,7 +169,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 	}
 
 	// only for unit tests
-	void updateConfiguration(CfgManager theCfgManager) {
+	void updateConfiguration(ProjectCfgManager2 theCfgManager) {
 		cfgManager = theCfgManager;
 	}
 

@@ -36,6 +36,10 @@ public class UserCfg implements User {
 	public UserCfg() {
 	}
 
+	public UserCfg getClone() {
+		return new UserCfg(userName, password, passwordStored);
+	}
+
 	public String getUserName() {
 		return userName;
 	}
@@ -62,6 +66,7 @@ public class UserCfg implements User {
 		return passwordStored;
 	}
 
+	@Override
 	public boolean equals(final Object o) {
 		if (this == o) {
 			return true;
@@ -85,6 +90,7 @@ public class UserCfg implements User {
 		return true;
 	}
 
+	@Override
 	public int hashCode() {
 		int result;
 		result = userName.hashCode();

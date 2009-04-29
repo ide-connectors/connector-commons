@@ -21,7 +21,18 @@ import com.atlassian.theplugin.commons.remoteapi.ServerData;
 
 import java.util.Collection;
 
+import org.jetbrains.annotations.Nullable;
+
 public interface CfgManager extends BambooCfgManager {
+    /**
+     * @param projectId id of the project
+     * @return project configuration of selected project or null if no such project is registered
+
+     * ProjectCfgManager should be used for this purpose (instead of this method).
+     * Otherwise we are facing various nasty race conditions while closing/initializaing project
+     */
+    @Deprecated
+	@Nullable
 	ProjectConfiguration getProjectConfiguration(ProjectId projectId);
 
 	Collection<ServerCfg> getAllServers(ProjectId projectId);
@@ -64,22 +75,9 @@ public interface CfgManager extends BambooCfgManager {
 
 	Collection<ServerCfg> getAllUniqueServers();
 
-//	void addConfigurationCredentialsListener(ProjectId projectId,
-//			ConfigurationCredentialsListener listener);
-//
-//	void removeAllConfigurationCredentialListeners(final ProjectId projectId);
-//
-//	boolean removeConfigurationCredentialsListener(ProjectId projectId,
-//			ConfigurationCredentialsListener listener);
-
 	boolean hasProject(ProjectId projectId);
 
 	Collection<CrucibleServerCfg> getAllCrucibleServers(ProjectId projectId);
 
 	ServerCfg getServer(ProjectId projectId, ServerData serverData);	
-
-	ServerData getServerData(ProjectId projectId, ServerId serverId);
-
-	ServerData getServerData(ProjectId projectId, Server server);
-
 }

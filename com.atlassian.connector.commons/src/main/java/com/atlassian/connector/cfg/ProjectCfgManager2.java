@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.atlassian.theplugin.commons.cfg;
 
-public class CfgManagerImplTest extends AbstractCfgManagerTest {
-	@Override
-	protected AbstractCfgManager createCfgManager() {
-		return new AbstractCfgManager() {
+package com.atlassian.connector.cfg;
 
-		};
-	}
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
+import com.atlassian.theplugin.commons.cfg.Server;
+import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+
+import java.util.Collection;
+
+public interface ProjectCfgManager2 {
+	ServerData getServerData(Server serverCfg);
+
+	Collection<BambooServerCfg> getAllEnabledBambooServers();
 }

@@ -24,7 +24,6 @@ import com.atlassian.theplugin.commons.UIActionScheduler;
 import com.atlassian.theplugin.commons.cfg.*;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.Logger;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -44,7 +43,6 @@ public class BambooStatusCheckerTest extends TestCase {
 	private static final String PASSWORD = "somePassword";
 	private static final String PLAN_ID = "TP-DEF"; // always the same - mock does the logic
 	private Logger logger;
-	private CfgManager cfgManager;
 
 	public BambooStatusCheckerTest(String name) {
 		super(name);
@@ -55,25 +53,18 @@ public class BambooStatusCheckerTest extends TestCase {
 	protected void setUp() throws Exception {
 		logger = EasyMock.createMock(Logger.class);
 		ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
-		cfgManager = new AbstractCfgManager() {
-
-			public ServerData getServerData(final Server serverCfg) {
-				return new ServerData(serverCfg.getName(), serverCfg.getServerId().toString(), serverCfg.getUserName(),
-						serverCfg.getPassword(), serverCfg.getUrl());
-			}
-		};
 	}
 
 	public void testGetInterval() throws Exception {
 
 		BambooStatusChecker checker = new BambooStatusChecker(
-				new ProjectId(), null, MockBambooCfgManager.createBambooTestConfiguration(),
+				null, MockBambooCfgManager.createBambooTestConfiguration(),
 				new PluginConfigurationBean(), null, logger);
 		assertEquals(1000 * 60 * 10, checker.getInterval());
 	}
 
 	public void testNewTimerTask() {
-		BambooStatusChecker checker = new BambooStatusChecker(new ProjectId(), null, null, null, null, logger);
+		BambooStatusChecker checker = new BambooStatusChecker(null, null, null, null, logger);
 		TimerTask t1 = checker.newTimerTask();
 		TimerTask t2 = checker.newTimerTask();
 
@@ -87,7 +78,7 @@ public class BambooStatusCheckerTest extends TestCase {
 		MockBambooCfgManager config = MockBambooCfgManager.createEmptyBambooTestConfiguration();
 
 		EasyInvoker invoker = new EasyInvoker();
-		BambooStatusChecker checker = new BambooStatusChecker(new ProjectId(), null, cfgManager, null, null, logger);
+		BambooStatusChecker checker = new BambooStatusChecker(null, config, null, null, logger);
 
 		checker.setActionScheduler(invoker);
 		checker.updateConfiguration(config);
@@ -190,7 +181,6 @@ public class BambooStatusCheckerTest extends TestCase {
 		}
 
 		public void resetState() {
-			//To change body of implemented methods use File | Settings | File Templates.
 		}
 	}
 

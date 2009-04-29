@@ -31,7 +31,6 @@ public class ProjectConfiguration {
 	private String defaultFishEyeRepo;
 	private String fishEyeProjectPath;
 	private ServerId defaultJiraServerId;
-	private UserCfg defaultUser = new UserCfg();
 
 	private static final int HASHCODE_MAGIC = 31;
 
@@ -45,7 +44,6 @@ public class ProjectConfiguration {
 		defaultFishEyeRepo = other.defaultFishEyeRepo;
 		fishEyeProjectPath = other.fishEyeProjectPath;
 		defaultJiraServerId = other.defaultJiraServerId;
-		defaultUser = other.defaultUser;
 	}
 
 	public static Collection<ServerCfg> cloneArrayList(final Collection<ServerCfg> collection) {
@@ -115,12 +113,6 @@ public class ProjectConfiguration {
 			return false;
 		}
 
-		if (defaultUser != null
-				? !defaultUser.equals(that.defaultUser)
-				: that.defaultUser != null) {
-			return false;
-		}
-
 		//noinspection RedundantIfStatement
 		if (!servers.equals(that.servers)) {
 			return false;
@@ -139,20 +131,12 @@ public class ProjectConfiguration {
 		result = HASHCODE_MAGIC * result + (defaultCrucibleRepo != null ? defaultCrucibleRepo.hashCode() : 0);
 		result = HASHCODE_MAGIC * result + (fishEyeProjectPath != null ? fishEyeProjectPath.hashCode() : 0);
 		result = HASHCODE_MAGIC * result + (defaultJiraServerId != null ? defaultJiraServerId.hashCode() : 0);
-		result = HASHCODE_MAGIC * result + (defaultUser != null ? defaultUser.hashCode() : 0);
+//		result = HASHCODE_MAGIC * result + (defaultUser != null ? defaultUser.hashCode() : 0);
 		return result;
 	}
 
 	public Collection<ServerCfg> getServers() {
 		return servers;
-	}
-
-	public UserCfg getDefaultUser() {
-		return defaultUser;
-	}
-
-	public void setDefaultUser(final UserCfg defaultUser) {
-		this.defaultUser = defaultUser;
 	}
 
 	public ServerCfg getServerCfg(ServerId serverId) {

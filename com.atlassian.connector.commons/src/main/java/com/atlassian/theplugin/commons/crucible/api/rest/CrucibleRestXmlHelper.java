@@ -529,7 +529,7 @@ public final class CrucibleRestXmlHelper {
 		}
 		List<Element> replies = getChildElements(reviewCommentNode, "replies");
 		if (replies != null) {
-			List<GeneralComment> rep = new ArrayList<GeneralComment>();
+			List<Comment> rep = new ArrayList<Comment>();
 			for (Element repliesNode : replies) {
 				List<Element> entries = getChildElements(repliesNode, "generalCommentData");
 				for (Element replyNode : entries) {
@@ -569,7 +569,7 @@ public final class CrucibleRestXmlHelper {
 
 		List<Element> replies = getChildElements(reviewCommentNode, "replies");
 		if (replies != null) {
-			List<VersionedComment> rep = new ArrayList<VersionedComment>();
+			List<Comment> rep = new ArrayList<Comment>();
 			for (Element repliesNode : replies) {
 				List<Element> entries = getChildElements(repliesNode, "generalCommentData");
 				for (Element replyNode : entries) {

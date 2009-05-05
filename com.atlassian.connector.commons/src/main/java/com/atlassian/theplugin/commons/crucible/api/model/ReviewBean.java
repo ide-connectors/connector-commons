@@ -494,7 +494,7 @@ public class ReviewBean implements Review {
 			if (comment.getAuthor().getUserName().equals(userName)) {
 				++num;
 			}
-			for (GeneralComment reply : comment.getReplies()) {
+			for (Comment reply : comment.getReplies()) {
 				if (reply.getAuthor().getUserName().equals(userName)) {
 					++num;
 				}
@@ -545,7 +545,7 @@ public class ReviewBean implements Review {
 			if (comment.isDraft()) {
 				++num;
 			}
-			for (GeneralComment reply : comment.getReplies()) {
+			for (Comment reply : comment.getReplies()) {
 				if (reply.isDraft()) {
 					++num;
 				}
@@ -560,7 +560,7 @@ public class ReviewBean implements Review {
 			if (comment.isDraft() && comment.getAuthor().getUserName().equals(userName)) {
 				++num;
 			}
-			for (GeneralComment reply : comment.getReplies()) {
+			for (Comment reply : comment.getReplies()) {
 				if (reply.isDraft() && reply.getAuthor().getUserName().equals(userName)) {
 					++num;
 				}
@@ -575,7 +575,7 @@ public class ReviewBean implements Review {
 			if (comment.isDefectRaised()) {
 				++num;
 			}
-			for (GeneralComment reply : comment.getReplies()) {
+			for (Comment reply : comment.getReplies()) {
 				if (reply.isDefectRaised()) {
 					++num;
 				}
@@ -590,7 +590,7 @@ public class ReviewBean implements Review {
 			if (comment.isDefectRaised() && comment.getAuthor().getUserName().equals(userName)) {
 				++num;
 			}
-			for (GeneralComment reply : comment.getReplies()) {
+			for (Comment reply : comment.getReplies()) {
 				if (reply.isDefectRaised() && reply.getAuthor().getUserName().equals(userName)) {
 					++num;
 				}

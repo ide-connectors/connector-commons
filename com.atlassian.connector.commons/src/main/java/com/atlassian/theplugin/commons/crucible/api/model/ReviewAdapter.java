@@ -229,7 +229,7 @@ public class ReviewAdapter {
 		review.setGeneralComments(generalComments);
 	}
 
-	public void addGeneralComment(final GeneralCommentBean comment)
+	public void addGeneralComment(final GeneralComment comment)
 			throws ValueNotYetInitialized, RemoteApiException, ServerPasswordNotProvidedException {
 
 		GeneralComment newComment = facade.addGeneralComment(getServerData(), review.getPermId(), comment);
@@ -290,7 +290,7 @@ public class ReviewAdapter {
 	}
 
 
-	public void addVersionedComment(final CrucibleFileInfo file, final VersionedCommentBean newComment)
+	public void addVersionedComment(final CrucibleFileInfo file, final VersionedComment newComment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		VersionedComment newVersionedComment = facade.addVersionedComment(getServerData(),
 				getPermId(), file.getPermId(), newComment);
@@ -413,7 +413,7 @@ public class ReviewAdapter {
 		}
 	}
 
-	public void publisVersionedComment(final CrucibleFileInfo file, final VersionedComment comment)
+	public void publishVersionedComment(final CrucibleFileInfo file, final VersionedComment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		facade.publishComment(getServerData(), getPermId(), comment.getPermId());
 		//dirty hack - probably remote api should return new comment info

@@ -16,9 +16,7 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: lguminski
@@ -35,6 +33,7 @@ public abstract class CommentBean implements Comment {
 	private User author = null;
 	private Date createDate = new Date();
 
+    private List<Comment> replies = new ArrayList<Comment>();
 
 	private boolean isReply = false;
 
@@ -64,9 +63,17 @@ public abstract class CommentBean implements Comment {
 				getCustomFields().put(entry.getKey(), new CustomFieldBean(entry.getValue()));
 			}
 		}
+
+        if (bean.getReplies() != null) {
+            for (Comment reply : bean.getReplies()) {
+                replies.add(createReplyBean(reply));
+            }
+        }
 	}
 
-	public PermId getPermId() {
+    protected abstract Comment createReplyBean(Comment reply);
+
+    public PermId getPermId() {
 		return permId;
 	}
 
@@ -111,12 +118,24 @@ public abstract class CommentBean implements Comment {
 	}
 
 	public boolean isReply() {
-		return isReply;  //To change body of implemented methods use File | Settings | File Templates.
+		return isReply;
 	}
 
 	public void setReply(boolean reply) {
 		isReply = reply;
 	}
+
+    public void setReplies(List<Comment> replies) {
+        this.replies = replies;
+    }
+
+    public void addReply(Comment comment) {
+        replies.add(comment);
+    }
+
+    public List<Comment> getReplies() {
+        return replies;
+    }
 
 	public void setDefectApproved(boolean defectApproved) {
 		this.defectApproved = defectApproved;

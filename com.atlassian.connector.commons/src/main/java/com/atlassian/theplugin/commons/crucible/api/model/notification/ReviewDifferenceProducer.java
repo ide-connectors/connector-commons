@@ -247,12 +247,12 @@ public class ReviewDifferenceProducer {
 
 	private int checkGeneralReplies(ReviewAdapter review, GeneralComment oldComment, GeneralComment newComment) {
 		int replyChanges = 0;
-		for (GeneralComment reply : newComment.getReplies()) {
+		for (Comment reply : newComment.getReplies()) {
 			GeneralComment existingReply = null;
 			if (oldComment != null) {
-				for (GeneralComment oldReply : oldComment.getReplies()) {
+				for (Comment oldReply : oldComment.getReplies()) {
 					if (reply.getPermId().getId().equals(oldReply.getPermId().getId())) {
-						existingReply = oldReply;
+						existingReply = (GeneralComment) oldReply;
 						break;
 					}
 				}
@@ -273,9 +273,9 @@ public class ReviewDifferenceProducer {
 		}
 
 		if (oldComment != null) {
-			List<GeneralComment> deletedGen = getDeletedComments(
+			List<Comment> deletedGen = getDeletedComments(
 					oldComment.getReplies(), newComment.getReplies());
-			for (GeneralComment gc : deletedGen) {
+			for (Comment gc : deletedGen) {
 				replyChanges++;
 				notifications.add(new RemovedReplyCommentNotification(review, gc, gc.getAuthor(), gc.isDraft()));
 			}
@@ -285,12 +285,12 @@ public class ReviewDifferenceProducer {
 
 	private int checkVersionedReplies(ReviewAdapter review, VersionedComment oldComment, VersionedComment newComment) {
 		int replyChanges = 0;
-		for (VersionedComment reply : newComment.getReplies()) {
+		for (Comment reply : newComment.getReplies()) {
 			VersionedComment existingReply = null;
 			if (oldComment != null) {
-				for (VersionedComment oldReply : oldComment.getReplies()) {
+				for (Comment oldReply : oldComment.getReplies()) {
 					if (reply.getPermId().getId().equals(oldReply.getPermId().getId())) {
-						existingReply = oldReply;
+						existingReply = (VersionedComment) oldReply;
 						break;
 					}
 				}
@@ -312,9 +312,8 @@ public class ReviewDifferenceProducer {
 		}
 
 		if (oldComment != null) {
-			List<VersionedComment> deletedVcs = getDeletedComments(
-					oldComment.getReplies(), newComment.getReplies());
-			for (VersionedComment vc : deletedVcs) {
+			List<Comment> deletedVcs = getDeletedComments(oldComment.getReplies(), newComment.getReplies());
+			for (Comment vc : deletedVcs) {
 				replyChanges++;
 				notifications.add(new RemovedReplyCommentNotification(review, vc, vc.getAuthor(), vc.isDraft()));
 			}

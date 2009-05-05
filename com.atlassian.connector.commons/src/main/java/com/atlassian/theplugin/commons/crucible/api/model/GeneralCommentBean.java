@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GeneralCommentBean extends CommentBean implements GeneralComment {
-	private List<GeneralComment> replies = new ArrayList<GeneralComment>();
 	private static final int HASH_INT = 31;
 
 	public GeneralCommentBean() {
@@ -29,26 +28,13 @@ public class GeneralCommentBean extends CommentBean implements GeneralComment {
 
 	public GeneralCommentBean(final GeneralComment bean) {
 		super(bean);
-		if (bean.getReplies() != null) {
-			for (GeneralComment reply : bean.getReplies()) {
-				replies.add(new GeneralCommentBean(reply));
-			}
-		}
 	}
 
-	public List<GeneralComment> getReplies() {
-		return replies;
-	}
+    protected Comment createReplyBean(Comment reply) {
+        return new GeneralCommentBean((GeneralComment) reply);
+    }
 
-	public void setReplies(List<GeneralComment> replies) {
-		this.replies = replies;
-	}
-
-	public void addReply(GeneralComment comment) {
-		replies.add(comment);
-	}
-
-	public boolean equals(Object o) {
+    public boolean equals(Object o) {
 		if (this == o) {
 			return true;
 		}
@@ -61,7 +47,7 @@ public class GeneralCommentBean extends CommentBean implements GeneralComment {
 
 		GeneralCommentBean that = (GeneralCommentBean) o;
 
-		if (replies != null ? !replies.equals(that.replies) : that.replies != null) {
+		if (getReplies() != null ? !getReplies().equals(that.getReplies()) : that.getReplies() != null) {
 			return false;
 		}
 
@@ -70,7 +56,7 @@ public class GeneralCommentBean extends CommentBean implements GeneralComment {
 
 	public int hashCode() {
 		int result = super.hashCode();
-		result = HASH_INT * result + (replies != null ? replies.hashCode() : 0);
+		result = HASH_INT * result + (getReplies() != null ? getReplies().hashCode() : 0);
 		return result;
 	}
 }

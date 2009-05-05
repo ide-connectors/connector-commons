@@ -62,7 +62,7 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 			if (comment.isDefectRaised()) {
 				++counter;
 			}
-			for (VersionedComment reply : comment.getReplies()) {
+			for (Comment reply : comment.getReplies()) {
 				if (reply.isDefectRaised()) {
 					++counter;
 				}
@@ -81,7 +81,7 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 			if (comment.isDefectRaised() && comment.getAuthor().getUserName().equals(userName)) {
 				++counter;
 			}
-			for (VersionedComment reply : comment.getReplies()) {
+			for (Comment reply : comment.getReplies()) {
 				if (reply.isDefectRaised() && reply.getAuthor().getUserName().equals(userName)) {
 					++counter;
 				}
@@ -100,7 +100,7 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 			if (comment.isDraft()) {
 				++counter;
 			}
-			for (VersionedComment reply : comment.getReplies()) {
+			for (Comment reply : comment.getReplies()) {
 				if (reply.isDraft()) {
 					++counter;
 				}
@@ -119,7 +119,7 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 			if (comment.isDraft() && comment.getAuthor().getUserName().equals(userName)) {
 				++counter;
 			}
-			for (VersionedComment reply : comment.getReplies()) {
+			for (Comment reply : comment.getReplies()) {
 				if (reply.isDraft() && reply.getAuthor().getUserName().equals(userName)) {
 					++counter;
 				}
@@ -154,7 +154,7 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 			if (comment.getAuthor().getUserName().equals(userName)) {
 				++counter;
 			}
-			for (VersionedComment reply : comment.getReplies()) {
+			for (Comment reply : comment.getReplies()) {
 				if (reply.getAuthor().getUserName().equals(userName)) {
 					++counter;
 				}

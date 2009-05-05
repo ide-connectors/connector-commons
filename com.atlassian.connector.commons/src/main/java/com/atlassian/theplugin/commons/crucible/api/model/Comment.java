@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.List;
 
 public interface Comment {
 	PermId getPermId();
@@ -33,6 +34,8 @@ public interface Comment {
 	boolean isDefectApproved();
 
 	boolean isReply();
+
+    List<Comment> getReplies();
 
 	User getAuthor();
 

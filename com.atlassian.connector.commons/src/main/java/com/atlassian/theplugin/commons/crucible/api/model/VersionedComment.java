@@ -39,8 +39,6 @@ public interface VersionedComment extends Comment {
 
 	int getFromEndLine();
 
-    List<VersionedComment> getReplies();
-
 	/**
 	 * @return precise information about lines this comment references in "from" revision 
 	 */

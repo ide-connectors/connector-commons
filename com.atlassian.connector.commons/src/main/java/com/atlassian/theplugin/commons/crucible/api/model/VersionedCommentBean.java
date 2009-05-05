@@ -38,8 +38,6 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 
 	private IntRanges toLineRanges;
 
-	private List<VersionedComment> replies = new ArrayList<VersionedComment>();
-
 	private IntRanges fromLineRanges;
 
 	public VersionedCommentBean(VersionedComment bean) {
@@ -53,11 +51,6 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 			setToLineInfo(true);
 			setToStartLine(bean.getToStartLine());
 			setToEndLine(bean.getToEndLine());
-		}
-		if (bean.getReplies() != null) {
-			for (VersionedComment reply : bean.getReplies()) {
-				replies.add(new VersionedCommentBean(reply));
-			}
 		}
 	}
 
@@ -84,15 +77,15 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		return fromEndLine;
 	}
 
-	public List<VersionedComment> getReplies() {
-		return replies;
-	}
-
 	public IntRanges getFromLineRanges() {
 		return fromLineRanges;
 	}
 
-	public void setFromLineRanges(final IntRanges fromLineRanges) {
+    protected Comment createReplyBean(Comment reply) {
+        return new VersionedCommentBean((VersionedComment) reply);
+    }
+
+    public void setFromLineRanges(final IntRanges fromLineRanges) {
 		this.fromLineRanges = fromLineRanges;
 		setFromLineInfo(true);
 		setFromStartLine(fromLineRanges.getTotalMin());
@@ -108,14 +101,6 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		setToLineInfo(true);
 		setToStartLine(toLineRanges.getTotalMin());
 		setToEndLine(toLineRanges.getTotalMax());
-	}
-
-	public void setReplies(List<VersionedComment> replies) {
-		this.replies = replies;
-	}
-
-	public void addReply(VersionedComment comment) {
-		replies.add(comment);
 	}
 
 	public void setFromEndLine(int endLine) {
@@ -185,20 +170,20 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		if (toStartLine != that.toStartLine) {
 			return false;
 		}
-		if (replies != null ? !replies.equals(that.replies) : that.replies != null) {
+		if (getReplies() != null ? !getReplies().equals(that.getReplies()) : that.getReplies() != null) {
 			return false;
 		}
 		if (!reviewItemId.equals(that.reviewItemId)) {
 			return false;
 		}
 
-		if (replies.size() != that.getReplies().size()) {
+		if (getReplies().size() != that.getReplies().size()) {
 			return false;
 		}
 
-		for (VersionedComment vc : replies) {
+		for (Comment vc : getReplies()) {
 			boolean found = false;
-			for (VersionedComment tvc : that.getReplies()) {
+			for (Comment tvc : that.getReplies()) {
 				if (vc.getPermId() == tvc.getPermId() && ((VersionedCommentBean) vc).deepEquals(vc)) {
 					found = true;
 					break;

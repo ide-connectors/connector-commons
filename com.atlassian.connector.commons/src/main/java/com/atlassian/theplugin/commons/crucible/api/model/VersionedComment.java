@@ -18,8 +18,6 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.connector.commons.misc.IntRanges;
 
-import java.util.List;
-
 import org.jetbrains.annotations.Nullable;
 
 public interface VersionedComment extends Comment {

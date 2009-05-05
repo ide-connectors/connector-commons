@@ -18,9 +18,6 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.connector.commons.misc.IntRanges;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class VersionedCommentBean extends CommentBean implements VersionedComment {
 	private PermId reviewItemId;
 

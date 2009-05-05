@@ -16,8 +16,6 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import java.util.List;
-
 /**
  * Created by IntelliJ IDEA.
  * User: lguminski

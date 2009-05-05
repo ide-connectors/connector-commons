@@ -16,9 +16,6 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class GeneralCommentBean extends CommentBean implements GeneralComment {
 	private static final int HASH_INT = 31;
 

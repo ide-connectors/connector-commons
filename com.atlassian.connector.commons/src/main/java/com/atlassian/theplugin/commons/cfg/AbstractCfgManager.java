@@ -417,7 +417,8 @@ public class AbstractCfgManager implements CfgManager {
 			}
 
 			return !oldServer.getUserName().equals(newServer.getUserName())
-					|| !oldServer.getPassword().equals(newServer.getPassword());
+					|| !oldServer.getPassword().equals(newServer.getPassword())
+					|| oldServer.isUseDefaultCredentials() != newServer.isUseDefaultCredentials();
 
 		}
 

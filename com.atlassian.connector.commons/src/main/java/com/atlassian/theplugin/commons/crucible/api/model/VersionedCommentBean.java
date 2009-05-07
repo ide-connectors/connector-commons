@@ -18,6 +18,8 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.connector.commons.misc.IntRanges;
 
+import java.util.List;
+
 public class VersionedCommentBean extends CommentBean implements VersionedComment {
 	private PermId reviewItemId;
 
@@ -78,11 +80,12 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		return fromLineRanges;
 	}
 
-    protected Comment createReplyBean(Comment reply) {
-        return new VersionedCommentBean((VersionedComment) reply);
-    }
+	@Override
+	protected Comment createReplyBean(Comment reply) {
+		return new VersionedCommentBean((VersionedComment) reply);
+	}
 
-    public void setFromLineRanges(final IntRanges fromLineRanges) {
+	public void setFromLineRanges(final IntRanges fromLineRanges) {
 		this.fromLineRanges = fromLineRanges;
 		setFromLineInfo(true);
 		setFromStartLine(fromLineRanges.getTotalMin());
@@ -193,4 +196,15 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 
 		return true;
 	}
+
+	@SuppressWarnings("unchecked")
+	@Deprecated
+	public List<VersionedComment> getReplies2() {
+		// wseliga: I don't know how to make it compilable with these casts.
+		// We are somewhat guaranteed that all replies will be here really of VersionedComment type, so I dare cast 
+		//noinspection RedundantCast
+		return (List<VersionedComment>) (List<?>) getReplies();
+	}
+
+
 }

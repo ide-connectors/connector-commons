@@ -15,7 +15,17 @@
  */
 package com.atlassian.theplugin.commons.cfg.xstream;
 
-import com.atlassian.theplugin.commons.cfg.*;
+import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
+import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;
+import com.atlassian.theplugin.commons.cfg.JiraServerCfg;
+import com.atlassian.theplugin.commons.cfg.PrivateBambooServerCfgInfo;
+import com.atlassian.theplugin.commons.cfg.PrivateProjectConfiguration;
+import com.atlassian.theplugin.commons.cfg.PrivateServerCfgInfo;
+import com.atlassian.theplugin.commons.cfg.ProjectConfiguration;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -47,7 +57,7 @@ public final class JDomXStreamUtil {
 		xStream.omitField(ServerCfg.class, "password");
 		xStream.omitField(ServerCfg.class, "isPasswordStored");
 		xStream.omitField(ServerCfg.class, "useDefaultCredentials");
-		
+
 		xStream.omitField(BambooServerCfg.class, "timezoneOffset");
 		xStream.omitField(CrucibleServerCfg.class, "fishEyeView");
 		xStream.aliasField("server-id", ServerCfg.class, "serverId");
@@ -120,7 +130,7 @@ public final class JDomXStreamUtil {
 				return new SubscribedPlan(reader.getAttribute(PLAN_KEY));
 			}
 
-			@SuppressWarnings({"RawUseOfParameterizedType"})
+			@SuppressWarnings( { "RawUseOfParameterizedType", "unchecked" })
 			public boolean canConvert(final Class aClass) {
 				return SubscribedPlan.class.isAssignableFrom(aClass);
 			}
@@ -136,7 +146,7 @@ public final class JDomXStreamUtil {
 				return new ServerId(reader.getValue());
 			}
 
-			@SuppressWarnings({"RawUseOfParameterizedType"})
+			@SuppressWarnings( { "RawUseOfParameterizedType", "unchecked" })
 			public boolean canConvert(final Class type) {
 				return type.equals(ServerId.class);
 			}

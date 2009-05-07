@@ -16,12 +16,19 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import java.util.List;
+
 /**
- * Created by IntelliJ IDEA.
- * User: lguminski
- * Date: Jul 16, 2008
- * Time: 11:38:08 PM
- * To change this template use File | Settings | File Templates.
+ * @author lguminski
  */
 public interface GeneralComment extends Comment {
+	/**
+	 * 
+	 * @return list of replies for this comment
+	 * @deprecated this method is left to make Eclipse Connector compile. In the future it will be eliminated as all
+	 *             replies (regardless of which type of comment they belong to) are just generic comments (they don't
+	 *             have line number, file revision, etc.)
+	 */
+	@Deprecated
+	List<GeneralComment> getReplies2();
 }

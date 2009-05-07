@@ -15,15 +15,16 @@
  */
 package com.atlassian.theplugin.commons.cfg.xstream;
 
+import com.atlassian.theplugin.commons.util.StringUtil;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import com.atlassian.theplugin.commons.util.StringUtil;
 
 public class EncodedStringConverter implements Converter {
 
+	@SuppressWarnings("unchecked")
 	public boolean canConvert(Class clazz) {
 		return clazz.equals(String.class);
 	}

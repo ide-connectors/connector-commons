@@ -21,7 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class ResourceUtil {
-	public static void copyResource(final OutputStream outputStream, final Class clazz, final String resource) {
+	public static void copyResource(final OutputStream outputStream, final Class<?> clazz, final String resource) {
 		InputStream inputStream = clazz.getResourceAsStream(resource);
 		if (inputStream == null) {
 			throw new NullPointerException();

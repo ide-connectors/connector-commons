@@ -16,6 +16,8 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import java.util.List;
+
 public class GeneralCommentBean extends CommentBean implements GeneralComment {
 	private static final int HASH_INT = 31;
 
@@ -27,11 +29,13 @@ public class GeneralCommentBean extends CommentBean implements GeneralComment {
 		super(bean);
 	}
 
-    protected Comment createReplyBean(Comment reply) {
-        return new GeneralCommentBean((GeneralComment) reply);
-    }
+	@Override
+	protected Comment createReplyBean(Comment reply) {
+		return new GeneralCommentBean((GeneralComment) reply);
+	}
 
-    public boolean equals(Object o) {
+	@Override
+	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
 		}
@@ -51,9 +55,20 @@ public class GeneralCommentBean extends CommentBean implements GeneralComment {
 		return true;
 	}
 
+	@Override
 	public int hashCode() {
 		int result = super.hashCode();
 		result = HASH_INT * result + (getReplies() != null ? getReplies().hashCode() : 0);
 		return result;
 	}
+
+	@SuppressWarnings("unchecked")
+	@Deprecated
+	public List<GeneralComment> getReplies2() {
+		// wseliga: I don't know how to make it compilable with these casts.
+		// We are somewhat guaranteed that all replies will be here really of VersionedComment type, so I dare cast
+		//noinspection RedundantCast
+		return (List<GeneralComment>) (List<?>) getReplies();
+	}
+
 }

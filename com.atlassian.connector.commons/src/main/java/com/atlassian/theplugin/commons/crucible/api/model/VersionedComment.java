@@ -20,6 +20,8 @@ import com.atlassian.connector.commons.misc.IntRanges;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public interface VersionedComment extends Comment {
 	PermId getPermId();
 
@@ -31,14 +33,14 @@ public interface VersionedComment extends Comment {
 
 	int getToEndLine();
 
-	boolean isFromLineInfo();	
+	boolean isFromLineInfo();
 
 	int getFromStartLine();
 
 	int getFromEndLine();
 
 	/**
-	 * @return precise information about lines this comment references in "from" revision 
+	 * @return precise information about lines this comment references in "from" revision
 	 */
 	@Nullable
 	IntRanges getFromLineRanges();
@@ -48,4 +50,15 @@ public interface VersionedComment extends Comment {
 	 */
 	@Nullable
 	IntRanges getToLineRanges();
+
+	/**
+	 * 
+	 * @return list of replies for this comment
+	 * @deprecated this method is left to make Eclipse Connector compile. In the future it will be eliminated as all
+	 *             replies (regardless of which type of comment they belong to) are just generic comments (they don't
+	 *             have line number, file revision, etc.)
+	 */
+	@Deprecated
+	List<VersionedComment> getReplies2();
+
 }

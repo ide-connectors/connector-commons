@@ -130,7 +130,7 @@ public final class JDomXStreamUtil {
 				return new SubscribedPlan(reader.getAttribute(PLAN_KEY));
 			}
 
-			@SuppressWarnings( { "RawUseOfParameterizedType", "unchecked" })
+			@SuppressWarnings({"RawUseOfParameterizedType", "unchecked"})
 			public boolean canConvert(final Class aClass) {
 				return SubscribedPlan.class.isAssignableFrom(aClass);
 			}
@@ -146,7 +146,7 @@ public final class JDomXStreamUtil {
 				return new ServerId(reader.getValue());
 			}
 
-			@SuppressWarnings( { "RawUseOfParameterizedType", "unchecked" })
+			@SuppressWarnings({"RawUseOfParameterizedType", "unchecked"})
 			public boolean canConvert(final Class type) {
 				return type.equals(ServerId.class);
 			}

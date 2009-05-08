@@ -360,10 +360,10 @@ public class ProjectConfiguration {
 		return fisheyeServers;
 	}
 
-	public Collection<ServerCfg> getAllServersWithDefaultCredentials() {
+	public Collection<ServerCfg> getAllEnabledServersWithDefaultCredentials() {
 		Collection<ServerCfg> defServers = MiscUtil.buildArrayList();
 		for (ServerCfg server : servers) {
-			if (server.isUseDefaultCredentials()) {
+			if (server.isUseDefaultCredentials() && server.isEnabled()) {
 				defServers.add(server);
 			}
 		}

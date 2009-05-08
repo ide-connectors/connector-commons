@@ -43,7 +43,7 @@ public class ProjectConfiguration {
 		defaultCrucibleRepo = other.defaultCrucibleRepo;
 		defaultFishEyeRepo = other.defaultFishEyeRepo;
 		fishEyeProjectPath = other.fishEyeProjectPath;
-		defaultJiraServerId = other.defaultJiraServerId;
+		defaultJiraServerId = other.defaultJiraServerId;		
 	}
 
 	public static Collection<ServerCfg> cloneArrayList(final Collection<ServerCfg> collection) {

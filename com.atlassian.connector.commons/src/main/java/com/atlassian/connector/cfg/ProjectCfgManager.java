@@ -16,13 +16,12 @@
 
 package com.atlassian.connector.cfg;
 
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
-import com.atlassian.theplugin.commons.cfg.Server;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+import com.atlassian.theplugin.commons.cfg.Server;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-
-import org.jetbrains.annotations.NotNull;
 
 public interface ProjectCfgManager {
 	@NotNull

@@ -63,7 +63,7 @@ public class ProductVersionUtil implements Serializable {
 		}
 	}
 
-	private static final String PATTERN = "^(\\d+)\\.(\\d+)(\\.(\\d+))?(-.+)?$";
+	private static final String PATTERN = "^(\\d+)\\.(\\d+)(\\.(\\d+))?(.+)?$";
 	private static final int MAJOR_TOKEN_GRP = 1;
 	private static final int MINOR_TOKEN_GRP = 2;
 	private static final int MICRO_TOKEN_GRP = 4;

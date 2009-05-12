@@ -20,17 +20,23 @@ package com.atlassian.theplugin.commons;
  * Represents server types
  */
 public enum ServerType {
-	BAMBOO_SERVER("Bamboo", "http://www.atlassian.com/software/bamboo/"),
-	CRUCIBLE_SERVER("Crucible", "http://www.atlassian.com/software/crucible/"),
-	JIRA_SERVER("JIRA", "http://www.atlassian.com/software/jira/"),
-	FISHEYE_SERVER("FishEye", "http://www.atlassian.com/software/fisheye/");
+	BAMBOO_SERVER("Bamboo Servers", "Bamboo", "http://www.atlassian.com/software/bamboo/"),
+	CRUCIBLE_SERVER("Crucible Servers", "Crucible", "http://www.atlassian.com/software/crucible/"),
+	JIRA_SERVER("JIRA Servers", "JIRA", "http://www.atlassian.com/software/jira/"),
+	FISHEYE_SERVER("FishEye Servers", "FishEye", "http://www.atlassian.com/software/fisheye/");
 
 	private final String name;
+	private String shortName;
 	private final String infoUrl;
 
-	ServerType(final String name, final String infoUrl) {
+	ServerType(final String name, final String shortName, final String infoUrl) {
 		this.name = name;
+		this.shortName = shortName;
 		this.infoUrl = infoUrl;
+	}
+
+	public String getShortName() {
+		return shortName;
 	}
 
 	public String getInfoUrl() {

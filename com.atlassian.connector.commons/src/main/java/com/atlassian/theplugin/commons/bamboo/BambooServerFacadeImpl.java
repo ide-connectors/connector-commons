@@ -196,7 +196,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 				loger.error("Bamboo login exception: " + e.getMessage());
 				connectionErrorMessage = e.getMessage();
 			} else {
-				throw new ServerPasswordNotProvidedException();
+				throw new ServerPasswordNotProvidedException(e);
 			}
 		} catch (RemoteApiException e) {
 			loger.error("Bamboo exception: " + e.getMessage());
@@ -282,7 +282,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 				builds.add(constructBuildErrorInfo(bambooServer, planKey, null, e.getMessage()));
 				return builds;
 			} else {
-				throw new ServerPasswordNotProvidedException();
+				throw new ServerPasswordNotProvidedException(e);
 			}
 		} catch (RemoteApiException e) {
 			loger.error("Bamboo exception: " + e.getMessage());
@@ -329,7 +329,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 						bambooServer, "", null, e.getMessage()));
 				return builds;
 			} else {
-				throw new ServerPasswordNotProvidedException();
+				throw new ServerPasswordNotProvidedException(e);
 			}
 		} catch (RemoteApiException e) {
 			loger.error("Bamboo exception: " + e.getMessage());

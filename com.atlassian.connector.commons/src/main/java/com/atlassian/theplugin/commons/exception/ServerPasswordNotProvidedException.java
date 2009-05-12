@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,7 @@ package com.atlassian.theplugin.commons.exception;
  * Exception thrown when the user has not provided any password for the server and this causes login error.
  */
 public class ServerPasswordNotProvidedException extends Exception {
-	public ServerPasswordNotProvidedException() {
-		super();
+	public ServerPasswordNotProvidedException(Throwable e) {
+		super("Server password not provided", e);
 	}
 }

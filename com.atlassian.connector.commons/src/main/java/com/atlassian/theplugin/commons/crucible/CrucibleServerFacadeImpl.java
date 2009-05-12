@@ -25,10 +25,12 @@ import com.atlassian.theplugin.commons.crucible.api.model.*;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
+import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,11 +71,13 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 			try {
 				session = new CrucibleSessionImpl(server, callback);
 				sessions.put(key, session);
-			} catch (RemoteApiException e) {
-				if (server.getPassword().length() > 0) {
+			} catch (RemoteApiMalformedUrlException e) {
+				if (server.getPassword().length() > 0 || !UrlUtil.isUrlValid(server.getUrl())) {
 					throw e;
 				} else {
-					throw new ServerPasswordNotProvidedException();
+					// this is probably never thrown
+					// todo remove it
+					throw new ServerPasswordNotProvidedException(e);
 				}
 			}
 		}

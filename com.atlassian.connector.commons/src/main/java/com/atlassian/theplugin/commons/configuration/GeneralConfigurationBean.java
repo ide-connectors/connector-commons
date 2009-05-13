@@ -33,7 +33,8 @@ public class GeneralConfigurationBean {
 	private boolean autoUpdateEnabled = true;
 	private Version rejectedUpgrade = Version.NULL_VERSION;
 	private boolean checkUnstableVersionsEnabled;
-	private Boolean anonymousFeedbackEnabled;
+//	private Boolean anonymousFeedbackEnabled;
+    private Boolean anonymousEnhancedFeedbackEnabled;
 	private boolean useIdeaProxySettings = true;
 	private Collection<String> certs = new HashSet<String>();
 	
@@ -47,7 +48,8 @@ public class GeneralConfigurationBean {
 	}
 
 	public GeneralConfigurationBean(GeneralConfigurationBean generalConfigurationData) {
-		this.anonymousFeedbackEnabled = generalConfigurationData.getAnonymousFeedbackEnabled();
+		this.anonymousEnhancedFeedbackEnabled = generalConfigurationData.getAnonymousEnhancedFeedbackEnabled();
+//        this.anonymousFeedbackEnabled = this.anonymousEnhancedFeedbackEnabled;
 		this.rejectedUpgrade = generalConfigurationData.getRejectedUpgrade();
 		this.checkUnstableVersionsEnabled = generalConfigurationData.isCheckUnstableVersionsEnabled();
 		this.autoUpdateEnabled = generalConfigurationData.isAutoUpdateEnabled();
@@ -58,7 +60,7 @@ public class GeneralConfigurationBean {
 	}
 
 	public long getUid() {
-		if (anonymousFeedbackEnabled != null && anonymousFeedbackEnabled) {
+		if (anonymousEnhancedFeedbackEnabled != null && anonymousEnhancedFeedbackEnabled) {
 			if (uid == 0) {
 				// generate if there was no uid yet
 				uid = System.currentTimeMillis() + (long) (Math.random() * ID_DISCRIMINATOR);
@@ -97,12 +99,12 @@ public class GeneralConfigurationBean {
 		return checkUnstableVersionsEnabled;
 	}
 
-	public Boolean getAnonymousFeedbackEnabled() {
-		return anonymousFeedbackEnabled;
+	public Boolean getAnonymousEnhancedFeedbackEnabled() {
+		return anonymousEnhancedFeedbackEnabled;
 	}
 
-	public void setAnonymousFeedbackEnabled(Boolean isAnonymousFeedbackEnabled) {
-		this.anonymousFeedbackEnabled = isAnonymousFeedbackEnabled;
+	public void setAnonymousEnhancedFeedbackEnabled(Boolean isAnonymousEnhancedFeedbackEnabled) {
+		this.anonymousEnhancedFeedbackEnabled = isAnonymousEnhancedFeedbackEnabled;
 	}
 
 	public boolean getUseIdeaProxySettings() {
@@ -153,11 +155,16 @@ public class GeneralConfigurationBean {
 		if (useIdeaProxySettings != that.useIdeaProxySettings) {
 			return false;
 		}
-		if (anonymousFeedbackEnabled != null
-				? !anonymousFeedbackEnabled.equals(that.anonymousFeedbackEnabled)
-				: that.anonymousFeedbackEnabled != null) {
-			return false;
-		}
+//		if (anonymousFeedbackEnabled != null
+//				? !anonymousFeedbackEnabled.equals(that.anonymousFeedbackEnabled)
+//				: that.anonymousFeedbackEnabled != null) {
+//			return false;
+//		}
+        if (anonymousEnhancedFeedbackEnabled != null
+                ? !anonymousEnhancedFeedbackEnabled.equals(that.anonymousEnhancedFeedbackEnabled)
+                : that.anonymousEnhancedFeedbackEnabled != null) {
+            return false;
+        }
 		if (checkNowButtonOption != null
 				? !checkNowButtonOption.equals(that.checkNowButtonOption)
 				: that.checkNowButtonOption != null) {
@@ -183,7 +190,9 @@ public class GeneralConfigurationBean {
 		result = THIRTY_ONE * result + (rejectedUpgrade != null ? rejectedUpgrade.hashCode() : 0);
 		result = THIRTY_ONE * result + (checkUnstableVersionsEnabled ? 1 : 0);
 		result = THIRTY_ONE * result + (useIdeaProxySettings ? 1 : 0);
-		result = THIRTY_ONE * result + (anonymousFeedbackEnabled != null ? anonymousFeedbackEnabled.hashCode() : 0);
+//		result = THIRTY_ONE * result + (anonymousFeedbackEnabled != null ? anonymousFeedbackEnabled.hashCode() : 0);
+        result = THIRTY_ONE * result 
+                + (anonymousEnhancedFeedbackEnabled != null ? anonymousEnhancedFeedbackEnabled.hashCode() : 0);
 		result = THIRTY_ONE * result + (checkNowButtonOption != null ? checkNowButtonOption.hashCode() : 0);
 		result = THIRTY_ONE * result + (int) (uid ^ (uid >>> THIRTY_TWO));
 		result = THIRTY_ONE * result + certs.hashCode();

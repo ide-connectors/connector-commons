@@ -24,7 +24,7 @@ public class BambooServerCfg extends ServerCfg {
 
 	private static final int HASHCODE_MAGIC = 31;
 
-	private boolean isUseFavourites;
+	private boolean isUseFavourites;	
 	private boolean isBamboo2;
 	private Collection<SubscribedPlan> plans = MiscUtil.buildArrayList();
 

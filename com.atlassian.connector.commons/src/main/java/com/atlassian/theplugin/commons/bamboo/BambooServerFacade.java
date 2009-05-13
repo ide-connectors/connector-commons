@@ -88,4 +88,6 @@ public interface BambooServerFacade extends ProductServerFacade {
 	 */
 	Collection<BambooBuild> getRecentBuildsForUser(ServerData bambooServer, final int timezoneOffset)
 			throws ServerPasswordNotProvidedException;
+
+	boolean isBamboo2(ServerData serverData);
 }

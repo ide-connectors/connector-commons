@@ -18,26 +18,25 @@ package com.atlassian.theplugin.commons.configuration;
 
 import com.atlassian.theplugin.commons.util.Version;
 
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
+
+import org.apache.commons.collections.set.SynchronizedSet;
 
 /**
  * Created by IntelliJ IDEA.
  * User: Jacek
  * Date: 2008-04-15
  * Time: 10:11:25
- * To change this template use File | Settings | File Templates.
  */
 public class GeneralConfigurationBean {
 
 	private boolean autoUpdateEnabled = true;
 	private Version rejectedUpgrade = Version.NULL_VERSION;
 	private boolean checkUnstableVersionsEnabled;
-//	private Boolean anonymousFeedbackEnabled;
     private Boolean anonymousEnhancedFeedbackEnabled;
 	private boolean useIdeaProxySettings = true;
 	private Collection<String> certs = new HashSet<String>();
-	
+	private Map<String, Integer> statsCountersMap = Collections.synchronizedMap(new HashMap<String, Integer>());
 	private long uid = 0;
 
 	private static final double ID_DISCRIMINATOR = 1e3d;
@@ -49,13 +48,13 @@ public class GeneralConfigurationBean {
 
 	public GeneralConfigurationBean(GeneralConfigurationBean generalConfigurationData) {
 		this.anonymousEnhancedFeedbackEnabled = generalConfigurationData.getAnonymousEnhancedFeedbackEnabled();
-//        this.anonymousFeedbackEnabled = this.anonymousEnhancedFeedbackEnabled;
 		this.rejectedUpgrade = generalConfigurationData.getRejectedUpgrade();
 		this.checkUnstableVersionsEnabled = generalConfigurationData.isCheckUnstableVersionsEnabled();
 		this.autoUpdateEnabled = generalConfigurationData.isAutoUpdateEnabled();
 		this.uid = generalConfigurationData.getUid();
 		this.useIdeaProxySettings = generalConfigurationData.getUseIdeaProxySettings();
 		this.certs = generalConfigurationData.getCerts();
+        this.statsCountersMap = Collections.synchronizedMap(generalConfigurationData.getStatsCountersMap());
 		this.checkNowButtonOption = generalConfigurationData.getCheckNowButtonOption();
 	}
 
@@ -129,10 +128,35 @@ public class GeneralConfigurationBean {
 
 	public void setCheckNowButtonOption(CheckNowButtonOption checkNowButtonOption) {
 		this.checkNowButtonOption = checkNowButtonOption;
-
 	}
 
-	@Override
+    public Map<String, Integer> getStatsCountersMap() {
+        return statsCountersMap;
+    }
+
+    public void bumpCounter(String counterName) {
+        if (!getAnonymousEnhancedFeedbackEnabled()) {
+            return;
+        }
+        
+        synchronized (getStatsCountersMap()) {
+            if (getStatsCountersMap().containsKey(counterName)) {
+                getStatsCountersMap().put(counterName, getStatsCountersMap().get(counterName) + 1);
+            } else {
+                getStatsCountersMap().put(counterName, 1);
+            }
+        }
+    }
+
+    public void resetCounter(String counterName) {
+        getStatsCountersMap().put(counterName, 0);
+    }
+
+    public void setStatsCountersMap(Map<String, Integer> statsCountersMap) {
+        this.statsCountersMap = Collections.synchronizedMap(statsCountersMap);
+    }
+
+    @Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -155,11 +179,6 @@ public class GeneralConfigurationBean {
 		if (useIdeaProxySettings != that.useIdeaProxySettings) {
 			return false;
 		}
-//		if (anonymousFeedbackEnabled != null
-//				? !anonymousFeedbackEnabled.equals(that.anonymousFeedbackEnabled)
-//				: that.anonymousFeedbackEnabled != null) {
-//			return false;
-//		}
         if (anonymousEnhancedFeedbackEnabled != null
                 ? !anonymousEnhancedFeedbackEnabled.equals(that.anonymousEnhancedFeedbackEnabled)
                 : that.anonymousEnhancedFeedbackEnabled != null) {
@@ -176,6 +195,9 @@ public class GeneralConfigurationBean {
 		if (!certs.equals(that.certs)) {
 			return false;
 		}
+        if (!statsCountersMap.equals(that.statsCountersMap)) {
+            return false;
+        }
 		return true;
 	}
 
@@ -190,12 +212,12 @@ public class GeneralConfigurationBean {
 		result = THIRTY_ONE * result + (rejectedUpgrade != null ? rejectedUpgrade.hashCode() : 0);
 		result = THIRTY_ONE * result + (checkUnstableVersionsEnabled ? 1 : 0);
 		result = THIRTY_ONE * result + (useIdeaProxySettings ? 1 : 0);
-//		result = THIRTY_ONE * result + (anonymousFeedbackEnabled != null ? anonymousFeedbackEnabled.hashCode() : 0);
-        result = THIRTY_ONE * result 
+        result = THIRTY_ONE * result
                 + (anonymousEnhancedFeedbackEnabled != null ? anonymousEnhancedFeedbackEnabled.hashCode() : 0);
 		result = THIRTY_ONE * result + (checkNowButtonOption != null ? checkNowButtonOption.hashCode() : 0);
 		result = THIRTY_ONE * result + (int) (uid ^ (uid >>> THIRTY_TWO));
 		result = THIRTY_ONE * result + certs.hashCode();
+        result = THIRTY_ONE * result + statsCountersMap.hashCode();
 		return result;
 	}
 

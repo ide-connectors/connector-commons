@@ -29,8 +29,13 @@ import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.Logger;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 
 /**
@@ -40,8 +45,8 @@ import java.util.*;
  *         Date: Jan 15, 2008
  */
 public final class BambooServerFacadeImpl implements BambooServerFacade {
-	private Map<String, BambooSession> sessions = new WeakHashMap<String, BambooSession>();
-	private Logger loger;
+	private final Map<String, BambooSession> sessions = new WeakHashMap<String, BambooSession>();
+	private final Logger loger;
 
 	private static BambooServerFacadeImpl instance;
 	private final BambooSessionFactory bambooSessionFactory;
@@ -201,7 +206,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 			plansForServer = getPlanList(bambooServer);
 		} catch (RemoteApiException e) {
 			// can go further, no disabled info will be available
-//			e.printStackTrace();
+			loger.warn("Cannot fetch plan list from Bamboo server [" + bambooServer.getName() + "]");
 		}
 
 		if (isUseFavourities) {
@@ -215,8 +220,8 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 								builds.add(buildInfo);
 							} catch (RemoteApiException e) {
 								// go ahead, there are other builds
-								// todo what about any error message?
-								e.printStackTrace();
+								loger.warn("Cannot fetch latest build for plan [" + bambooPlan.getPlanKey()
+										+ "] from Bamboo server [" + bambooServer.getName() + "]");
 							}
 						} else {
 							builds.add(constructBuildErrorInfo(bambooServer, bambooPlan.getPlanKey(), bambooPlan.getPlanName(),

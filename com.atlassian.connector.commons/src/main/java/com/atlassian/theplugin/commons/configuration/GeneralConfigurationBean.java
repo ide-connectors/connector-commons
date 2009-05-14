@@ -133,7 +133,8 @@ public class GeneralConfigurationBean {
     }
 
     public void bumpCounter(String counterName) {
-        if (!getAnonymousEnhancedFeedbackEnabled()) {
+        Boolean enabled = getAnonymousEnhancedFeedbackEnabled();
+        if (enabled == null || !enabled) {
             return;
         }
         

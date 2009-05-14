@@ -42,8 +42,9 @@ public final class BambooBuildInfo implements BambooBuild {
 	private final String commitComment;
 	private final int testsPassedCount;
 	private final int testsFailedCount;
-	private final String message;
+	private final Throwable exception;
 
+	private final String errorMessage;
 	@Nullable
 	private final Date startDate;
 	private final Date completionDate;
@@ -54,9 +55,10 @@ public final class BambooBuildInfo implements BambooBuild {
 			@NotNull Date pollingTime, @Nullable String projectName, boolean isEnabled, @Nullable Integer number,
 			@NotNull BuildStatus status, @Nullable String reason, @Nullable Date startDate,
 			@Nullable String testSummary, @Nullable String commitComment, final int testsPassedCount,
-			final int testsFailedCount, @Nullable Date completionDate, @Nullable String message,
-			@Nullable String relativeBuildDate, @Nullable String durationDescription,
+			final int testsFailedCount, @Nullable Date completionDate, @Nullable String errorMessage,
+			final Throwable exception, @Nullable String relativeBuildDate, @Nullable String durationDescription,
 			@Nullable Collection<String> commiters) {
+		this.exception = exception;
 		this.pollingTime = new Date(pollingTime.getTime());
 		this.planKey = planKey;
 		this.planName = planName;
@@ -70,7 +72,7 @@ public final class BambooBuildInfo implements BambooBuild {
 		this.commitComment = commitComment;
 		this.testsPassedCount = testsPassedCount;
 		this.testsFailedCount = testsFailedCount;
-		this.message = message;
+		this.errorMessage = errorMessage;
 		this.relativeBuildDate = relativeBuildDate;
 		this.durationDescription = durationDescription;
 		this.startDate = (startDate != null) ? new Date(startDate.getTime()) : null;
@@ -168,7 +170,11 @@ public final class BambooBuildInfo implements BambooBuild {
 	}
 
 	public String getErrorMessage() {
-		return this.message;
+		return this.errorMessage;
+	}
+
+	public Throwable getException() {
+		return exception;
 	}
 
 	public int getTestsPassed() {
@@ -241,6 +247,7 @@ public final class BambooBuildInfo implements BambooBuild {
 		private String relativeBuildDate;
 		@Nullable
 		private String durationDescription;
+		private Throwable exception;
 
 		public Builder(@NotNull String planKey, @NotNull ServerData serverData, @NotNull BuildStatus state) {
 			this.planKey = planKey;
@@ -273,6 +280,12 @@ public final class BambooBuildInfo implements BambooBuild {
 
 		public Builder errorMessage(String aMessage) {
 			this.message = aMessage;
+			return this;
+		}
+
+		public Builder errorMessage(String aMessage, Throwable aException) {
+			this.message = aMessage;
+			this.exception = aException;
 			return this;
 		}
 
@@ -331,7 +344,7 @@ public final class BambooBuildInfo implements BambooBuild {
 		public BambooBuildInfo build() {
 			return new BambooBuildInfo(planKey, planName, serverData, pollingTime, projectName,
 					isEnabled, buildNumber, buildState, buildReason, startTime, testSummary, commitComment, testsPassedCount,
-					testsFailedCount, completionTime, message, relativeBuildDate, durationDescription, commiters);
+					testsFailedCount, completionTime, message, exception, relativeBuildDate, durationDescription, commiters);
 		}
 	}
 }

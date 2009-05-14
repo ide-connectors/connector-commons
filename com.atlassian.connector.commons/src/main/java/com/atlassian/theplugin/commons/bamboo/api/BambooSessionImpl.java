@@ -335,11 +335,11 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 				return constructBuildErrorInfo(planKey, "Malformed server reply: no response element", new Date());
 			}
 		} catch (IOException e) {
-			return constructBuildErrorInfo(planKey, e.getMessage(), new Date());
+			return constructBuildErrorInfo(planKey, e.getMessage(), e, new Date());
 		} catch (JDOMException e) {
-			return constructBuildErrorInfo(planKey, "Server returned malformed response", new Date());
+			return constructBuildErrorInfo(planKey, "Server returned malformed response", e, new Date());
 		} catch (RemoteApiException e) {
-			return constructBuildErrorInfo(planKey, e.getMessage(), new Date());
+			return constructBuildErrorInfo(planKey, e.getMessage(), e, new Date());
 		}
 	}
 
@@ -382,11 +382,11 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 				}
 			}
 		} catch (IOException e) {
-			builds.add(constructBuildErrorInfo(planKey, e.getMessage(), pollingTime));
+			builds.add(constructBuildErrorInfo(planKey, e.getMessage(), e, pollingTime));
 		} catch (JDOMException e) {
-			builds.add(constructBuildErrorInfo(planKey, "Server returned malformed response", pollingTime));
+			builds.add(constructBuildErrorInfo(planKey, "Server returned malformed response", e, pollingTime));
 		} catch (RemoteApiException e) {
-			builds.add(constructBuildErrorInfo(planKey, e.getMessage(), pollingTime));
+			builds.add(constructBuildErrorInfo(planKey, e.getMessage(), e, pollingTime));
 		}
 		return builds;
 	}
@@ -606,6 +606,12 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 				.errorMessage(message).build();
 	}
 
+	BambooBuildInfo constructBuildErrorInfo(String planKey, String message, Throwable exception, Date lastPollingTime) {
+		return new BambooBuildInfo.Builder(planKey, null, serverData, null, null, BuildStatus.UNKNOWN)
+				.pollingTime(lastPollingTime)
+				.errorMessage(message, exception).build();
+	}
+
 	private int parseInt(String number) throws RemoteApiException {
 		try {
 			return Integer.parseInt(number);
@@ -618,7 +624,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 			boolean isEnabled, @Nullable Set<String> commiters, final int timezoneOffset) throws RemoteApiException {
 
 		// for never executed build we actually have no data here (no children)
-		if (buildItemNode.getChildren().iterator().hasNext() == false) {
+		if (!buildItemNode.getChildren().iterator().hasNext()) {
 			return new BambooBuildInfo.Builder(aPlanKey, serverData, BuildStatus.UNKNOWN)
 					.enabled(isEnabled).pollingTime(lastPollingTime)
 					.reason("Never built")

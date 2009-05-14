@@ -173,22 +173,27 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 			throws ServerPasswordNotProvidedException {
 		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
 
-		String connectionErrorMessage;
+//		String connectionErrorMessage;
+		Throwable connectionError;
 		BambooSession api = null;
 		try {
 			api = getSession(bambooServer);
-			connectionErrorMessage = "";
+//			connectionErrorMessage = "";
+			connectionError = null;
 		} catch (RemoteApiLoginFailedException e) {
 			// TODO wseliga used to be bambooServer.getIsConfigInitialized() here
 			if (bambooServer.getPassword().length() > 0) {
 				loger.error("Bamboo login exception: " + e.getMessage());
-				connectionErrorMessage = e.getMessage();
+				// todo if there is a login error we should not proceed and rethrow exception
+//				connectionErrorMessage = e.getMessage();
+				connectionError = e;
 			} else {
 				throw new ServerPasswordNotProvidedException(e);
 			}
 		} catch (RemoteApiException e) {
 			loger.error("Bamboo exception: " + e.getMessage());
-			connectionErrorMessage = e.getMessage();
+//			connectionErrorMessage = e.getMessage();
+			connectionError = e;
 		}
 
 		Collection<BambooPlan> plansForServer = null;
@@ -196,6 +201,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 			plansForServer = getPlanList(bambooServer);
 		} catch (RemoteApiException e) {
 			// can go further, no disabled info will be available
+//			e.printStackTrace();
 		}
 
 		if (isUseFavourities) {
@@ -209,10 +215,12 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 								builds.add(buildInfo);
 							} catch (RemoteApiException e) {
 								// go ahead, there are other builds
+								// todo what about any error message?
+								e.printStackTrace();
 							}
 						} else {
 							builds.add(constructBuildErrorInfo(bambooServer, bambooPlan.getPlanKey(), bambooPlan.getPlanName(),
-									connectionErrorMessage));
+									connectionError == null ? "" : connectionError.getMessage(), connectionError));
 						}
 					}
 				}
@@ -228,10 +236,12 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 						builds.add(buildInfo);
 					} catch (RemoteApiException e) {
 						// go ahead, there are other builds
+						// todo what about any error info
 					}
 				} else {
 					builds.add(constructBuildErrorInfo(
-							bambooServer, plan.getKey(), null, connectionErrorMessage));
+							bambooServer, plan.getKey(), null,
+							connectionError == null ? "" : connectionError.getMessage(), connectionError));
 				}
 			}
 		}
@@ -267,14 +277,14 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 			// TODO wseliga used to be bambooServer.getIsConfigInitialized() here
 			if (bambooServer.getPassword().length() > 0) {
 				loger.error("Bamboo login exception: " + e.getMessage());
-				builds.add(constructBuildErrorInfo(bambooServer, planKey, null, e.getMessage()));
+				builds.add(constructBuildErrorInfo(bambooServer, planKey, null, e.getMessage(), e));
 				return builds;
 			} else {
 				throw new ServerPasswordNotProvidedException(e);
 			}
 		} catch (RemoteApiException e) {
 			loger.error("Bamboo exception: " + e.getMessage());
-			builds.add(constructBuildErrorInfo(bambooServer, planKey, null, e.getMessage()));
+			builds.add(constructBuildErrorInfo(bambooServer, planKey, null, e.getMessage(), e));
 			return builds;
 		}
 
@@ -282,7 +292,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 			builds.addAll(api.getRecentBuildsForPlan(planKey, timezoneOffset));
 		} catch (RemoteApiException e) {
 			loger.error("Bamboo exception: " + e.getMessage());
-			builds.add(constructBuildErrorInfo(bambooServer, planKey, null, e.getMessage()));
+			builds.add(constructBuildErrorInfo(bambooServer, planKey, null, e.getMessage(), e));
 		}
 
 		return builds;
@@ -313,16 +323,14 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 			// TODO wseliga used to be bambooServer.getIsConfigInitialized() here
 			if (bambooServer.getPassword().length() > 0) {
 				loger.error("Bamboo login exception: " + e.getMessage());
-				builds.add(constructBuildErrorInfo(
-						bambooServer, "", null, e.getMessage()));
+				builds.add(constructBuildErrorInfo(bambooServer, "", null, e.getMessage(), e));
 				return builds;
 			} else {
 				throw new ServerPasswordNotProvidedException(e);
 			}
 		} catch (RemoteApiException e) {
 			loger.error("Bamboo exception: " + e.getMessage());
-			builds.add(constructBuildErrorInfo(
-					bambooServer, "", null, e.getMessage()));
+			builds.add(constructBuildErrorInfo(bambooServer, "", null, e.getMessage(), e));
 			return builds;
 		}
 
@@ -330,8 +338,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 			builds.addAll(api.getRecentBuildsForUser(timezoneOffset));
 		} catch (RemoteApiException e) {
 			loger.error("Bamboo exception: " + e.getMessage());
-			builds.add(constructBuildErrorInfo(
-					bambooServer, "", null, e.getMessage()));
+			builds.add(constructBuildErrorInfo(bambooServer, "", null, e.getMessage(), e));
 		}
 
 		return builds;
@@ -453,6 +460,14 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 			String planName, String message) {
 		return new BambooBuildInfo.Builder(planKey, null, server, planName, null, BuildStatus.UNKNOWN)
 				.errorMessage(message)
+				.pollingTime(new Date())
+				.build();
+	}
+
+	private BambooBuild constructBuildErrorInfo(ServerData server, @NotNull String planKey,
+			String planName, String message, Throwable exception) {
+		return new BambooBuildInfo.Builder(planKey, null, server, planName, null, BuildStatus.UNKNOWN)
+				.errorMessage(message, exception)
 				.pollingTime(new Date())
 				.build();
 	}

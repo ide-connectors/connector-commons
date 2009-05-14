@@ -98,4 +98,6 @@ public interface BambooBuild {
 	Set<String> getCommiters();
 
 	Date getPollingTime();
+
+	Throwable getException();
 }

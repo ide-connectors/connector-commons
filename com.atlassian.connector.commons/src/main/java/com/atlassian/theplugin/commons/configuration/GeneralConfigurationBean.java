@@ -20,8 +20,6 @@ import com.atlassian.theplugin.commons.util.Version;
 
 import java.util.*;
 
-import org.apache.commons.collections.set.SynchronizedSet;
-
 /**
  * Created by IntelliJ IDEA.
  * User: Jacek

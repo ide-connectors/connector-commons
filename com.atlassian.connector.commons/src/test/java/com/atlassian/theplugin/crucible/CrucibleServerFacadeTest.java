@@ -173,7 +173,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		Review review = prepareReviewData(VALID_LOGIN, "name", State.DRAFT, permId);
 
-		crucibleSessionMock.getAllReviews(true);
+		crucibleSessionMock.getAllReviews();
 		EasyMock.expectLastCall().andReturn(Arrays.asList(review, review));
 
 		crucibleSessionMock.isLoggedIn();
@@ -185,7 +185,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		}
 
 		Review review2 = prepareReviewData(validLogin2, "name", State.DRAFT, permId);
-		crucibleSessionMock.getAllReviews(true);
+		crucibleSessionMock.getAllReviews();
 		EasyMock.expectLastCall().andReturn(Arrays.asList(review2));
 
 		replay(crucibleSessionMock);
@@ -353,7 +353,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		Review review = prepareReviewData(VALID_LOGIN, "name", State.DRAFT, permId);
 
-		crucibleSessionMock.getAllReviews(true);
+		crucibleSessionMock.getAllReviews();
 		EasyMock.expectLastCall().andReturn(Arrays.asList(review, review));
 
 		replay(crucibleSessionMock);

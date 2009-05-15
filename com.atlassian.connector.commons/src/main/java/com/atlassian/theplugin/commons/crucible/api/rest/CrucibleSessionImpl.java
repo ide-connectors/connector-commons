@@ -204,7 +204,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	public List<Review> getReviewsInStates(List<State> states, boolean details) throws RemoteApiException {
+	public List<Review> getReviewsInStates(List<State> states) throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
@@ -212,9 +212,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		StringBuilder sb = new StringBuilder();
 		sb.append(getBaseUrl());
 		sb.append(REVIEW_SERVICE);
-		if (details) {
-			sb.append(DETAIL_REVIEW_INFO);
-		}
+		sb.append(DETAIL_REVIEW_INFO);
 		if (states != null && states.size() != 0) {
 			sb.append(REVIEWS_IN_STATES);
 			for (Iterator<State> stateIterator = states.iterator(); stateIterator.hasNext();) {
@@ -229,23 +227,15 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		try {
 			Document doc = retrieveGetResponse(sb.toString());
 
-			XPath xpath;
-			if (details) {
-				xpath = XPath.newInstance("/detailedReviews/detailedReviewData");
-			} else {
-				xpath = XPath.newInstance("/reviews/reviewData");
-			}
+			XPath xpath = XPath.newInstance("/detailedReviews/detailedReviewData");
+
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
 			List<Review> reviews = new ArrayList<Review>();
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					if (details) {
-						reviews.add(prepareDetailReview(element));
-					} else {
-						reviews.add(CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), element));
-					}
+					reviews.add(prepareDetailReview(element));
 				}
 			}
 			for (Review review : reviews) {
@@ -259,11 +249,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	public List<Review> getAllReviews(boolean details) throws RemoteApiException {
-		return getReviewsInStates(null, details);
+	public List<Review> getAllReviews() throws RemoteApiException {
+		return getReviewsInStates(null);
 	}
 
-	public List<Review> getReviewsForFilter(PredefinedFilter filter, boolean details) throws RemoteApiException {
+	public List<Review> getReviewsForFilter(PredefinedFilter filter) throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
@@ -272,29 +262,19 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			String url = getBaseUrl()
 					+ REVIEW_SERVICE
 					+ FILTERED_REVIEWS
-					+ "/" + filter.getFilterUrl();
-			if (details) {
-				url += DETAIL_REVIEW_INFO;
-			}
+					+ "/" + filter.getFilterUrl()
+                    + DETAIL_REVIEW_INFO;
 			Document doc = retrieveGetResponse(url);
 
-			XPath xpath;
-			if (details) {
-				xpath = XPath.newInstance("/detailedReviews/detailedReviewData");
-			} else {
-				xpath = XPath.newInstance("/reviews/reviewData");
-			}
+			XPath xpath = XPath.newInstance("/detailedReviews/detailedReviewData");
+
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
 			List<Review> reviews = new ArrayList<Review>();
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					if (details) {
-						reviews.add(prepareDetailReview(element));
-					} else {
-						reviews.add(CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), element));
-					}
+					reviews.add(prepareDetailReview(element));
 				}
 			}
 			for (Review review : reviews) {
@@ -347,7 +327,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 
-	public List<Review> getReviewsForCustomFilter(CustomFilter filter, boolean details) throws RemoteApiException {
+	public List<Review> getReviewsForCustomFilter(CustomFilter filter) throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
@@ -355,28 +335,20 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		try {
 			Document doc;
 			if (checkCustomFiltersAsGet()) {
-				doc = getReviewsForCustomFilterAsGet(filter, details);
+				doc = getReviewsForCustomFilterAsGet(filter);
 			} else {
-				doc = getReviewsForCustomFilterAsPost(filter, details);
+				doc = getReviewsForCustomFilterAsPost(filter);
 			}
 
-			XPath xpath;
-			if (details) {
-				xpath = XPath.newInstance("/detailedReviews/detailedReviewData");
-			} else {
-				xpath = XPath.newInstance("/reviews/reviewData");
-			}
-			@SuppressWarnings("unchecked")
+			XPath xpath = XPath.newInstance("/detailedReviews/detailedReviewData");
+
+            @SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
 			List<Review> reviews = new ArrayList<Review>();
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					if (details) {
-						reviews.add(prepareDetailReview(element));
-					} else {
-						reviews.add(CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), element));
-					}
+					reviews.add(prepareDetailReview(element));
 				}
 			}
 			for (Review review : reviews) {
@@ -388,15 +360,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	private Document getReviewsForCustomFilterAsPost(CustomFilter filter, boolean details) throws RemoteApiException {
+	private Document getReviewsForCustomFilterAsPost(CustomFilter filter) throws RemoteApiException {
 		Document request = CrucibleRestXmlHelper.prepareCustomFilter(filter);
 		try {
-			String url = getBaseUrl() + REVIEW_SERVICE + FILTERED_REVIEWS;
-			if (details) {
-				url += DETAIL_REVIEW_INFO;
-			}
-			Document doc = retrievePostResponse(url, request);
-			return doc;
+			String url = getBaseUrl() + REVIEW_SERVICE + FILTERED_REVIEWS + DETAIL_REVIEW_INFO;
+			return retrievePostResponse(url, request);
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
@@ -404,19 +372,15 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	private Document getReviewsForCustomFilterAsGet(CustomFilter filter, boolean details) throws RemoteApiException {
+	private Document getReviewsForCustomFilterAsGet(CustomFilter filter) throws RemoteApiException {
 		try {
-			String url = getBaseUrl() + REVIEW_SERVICE + FILTERED_REVIEWS;
-			if (details) {
-				url += DETAIL_REVIEW_INFO;
-			}
+			String url = getBaseUrl() + REVIEW_SERVICE + FILTERED_REVIEWS + DETAIL_REVIEW_INFO;
 			String urlFilter = filter.getFilterUrl();
 			if (!StringUtils.isEmpty(urlFilter)) {
 				url += "?" + urlFilter;
 			}
 
-			Document doc = retrieveGetResponse(url);
-			return doc;
+			return retrieveGetResponse(url);
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
@@ -424,7 +388,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	public List<Review> getAllReviewsForFile(String repoName, String path, boolean details) throws RemoteApiException {
+	public List<Review> getAllReviewsForFile(String repoName, String path) throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
@@ -434,32 +398,21 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 					+ REVIEW_SERVICE
 					+ SEARCH_REVIEWS
 					+ "/"
-					+ URLEncoder.encode(repoName, "UTF-8");
-			if (details) {
-				url += DETAIL_REVIEW_INFO;
-			}
-			url = url
+					+ URLEncoder.encode(repoName, "UTF-8")
+                    + DETAIL_REVIEW_INFO
 					+ SEARCH_REVIEWS_QUERY
 					+ URLEncoder.encode(path, "UTF-8");
 			Document doc = retrieveGetResponse(url);
 
-			XPath xpath;
-			if (details) {
-				xpath = XPath.newInstance("/detailedReviews/detailReviewData");
-			} else {
-				xpath = XPath.newInstance("/reviews/reviewData");
-			}
-			@SuppressWarnings("unchecked")
+			XPath xpath = XPath.newInstance("/detailedReviews/detailReviewData");
+
+            @SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
 			List<Review> reviews = new ArrayList<Review>();
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					if (details) {
-						reviews.add(prepareDetailReview(element));
-					} else {
-						reviews.add(CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), element));
-					}
+					reviews.add(prepareDetailReview(element));
 				}
 			}
 			for (Review review : reviews) {
@@ -473,7 +426,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	public Review getReview(PermId permId, boolean details) throws RemoteApiException {
+	public Review getReview(PermId permId) throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
@@ -482,28 +435,18 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			String url = getBaseUrl()
 					+ REVIEW_SERVICE
 					+ "/"
-					+ permId.getId();
-			if (details) {
-				url += DETAIL_REVIEW_INFO;
-			}
+					+ permId.getId()
+                    + DETAIL_REVIEW_INFO;
 			Document doc = retrieveGetResponse(url);
 
-			XPath xpath;
-			if (details) {
-				xpath = XPath.newInstance("/detailedReviewData");
-			} else {
-				xpath = XPath.newInstance("reviewData");
-			}
-			@SuppressWarnings("unchecked")
+			XPath xpath = XPath.newInstance("/detailedReviewData");
+
+            @SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					if (details) {
-						return prepareDetailReview(element);
-					} else {
-						return CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), element);
-					}
+					return prepareDetailReview(element);
 				}
 			}
 			return null;

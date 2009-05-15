@@ -44,7 +44,7 @@ public class CrucibleServerFacadeImplTest extends TestCase {
 		review.setPermId(new PermIdBean("CR-123"));
 		review.setReviewers(MiscUtil.<Reviewer>buildHashSet());
 		final ArrayList<String> newReviewers = MiscUtil.buildArrayList("wseliga", "mwent");
-		EasyMock.expect(mock.getReview(review.getPermId(), true)).andReturn(review);
+		EasyMock.expect(mock.getReview(review.getPermId())).andReturn(review);
 		mock.addReviewers(review.getPermId(), MiscUtil.buildHashSet(newReviewers));
 
 		EasyMock.replay(mock);
@@ -55,7 +55,7 @@ public class CrucibleServerFacadeImplTest extends TestCase {
 		review.setReviewers(MiscUtil.<Reviewer>buildHashSet(
 				new ReviewerBean("wseliga", true), new ReviewerBean("jgorycki", false), new ReviewerBean("sginter", true)));
 		final ArrayList<String> newReviewers2 = MiscUtil.buildArrayList("jgorycki", "mwent", "pmaruszak");
-		EasyMock.expect(mock.getReview(review.getPermId(), true)).andReturn(review);
+		EasyMock.expect(mock.getReview(review.getPermId())).andReturn(review);
 		mock.addReviewers(review.getPermId(), MiscUtil.buildHashSet("mwent", "pmaruszak"));
 		EasyMock.expectLastCall().once();
 		mock.removeReviewer(review.getPermId(), "sginter");

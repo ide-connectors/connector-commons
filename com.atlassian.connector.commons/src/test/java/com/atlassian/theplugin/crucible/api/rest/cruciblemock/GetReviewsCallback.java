@@ -41,7 +41,7 @@ public class GetReviewsCallback implements JettyMockServer.Callback {
 								  HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 
-		assertTrue(request.getPathInfo().endsWith("/rest-service/reviews-v1"));
+		assertTrue(request.getPathInfo().endsWith("/rest-service/reviews-v1/details"));
 
 		Document doc;
 		final String[] statesParam = request.getParameterValues("state");
@@ -64,7 +64,7 @@ public class GetReviewsCallback implements JettyMockServer.Callback {
 	}
 
 	private Document getReviews(List<State> states) {
-		Element root = new Element("reviews");
+		Element root = new Element("detailedReviews");
 		Document doc = new Document(root);
 		for (State state : states) {
 			getContent(root).add(getReviewInState(state));
@@ -73,20 +73,20 @@ public class GetReviewsCallback implements JettyMockServer.Callback {
 	}
 
 	private Element getReviewInState(State state) {
-		Element reviewData = new Element("reviewData");
+		Element reviewData = new Element("detailedReviewData");
 
 		addTag(reviewData, "author", "author");
 		addTag(reviewData, "creator", "creator");
 		addTag(reviewData, "description", "description");
 		addTag(reviewData, "moderator", "moderator");
 		addTag(reviewData, "name", "name");
-		addTag(reviewData, "projectKey", "PR");
+		addTag(reviewData, "projectKey", "CR0");
 		addTag(reviewData, "repoName", "RepoName");
 		addTag(reviewData, "state", state.value());
 
 		Element newPermaId = new Element("permaId");
 		Element newId = new Element("id");
-		newId.addContent("PR-1");
+		newId.addContent("CR0-1");
 		getContent(newPermaId).add(newId);
 		getContent(reviewData).add(newPermaId);
 

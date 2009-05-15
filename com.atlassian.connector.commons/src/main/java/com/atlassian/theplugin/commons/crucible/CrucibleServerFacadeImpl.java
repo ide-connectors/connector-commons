@@ -223,7 +223,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 			Collection<UploadItem> items) throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		session.addItemsToReview(permId, items);
-		return session.getReview(permId, true);
+		return session.getReview(permId);
 	}
 
 	public void addReviewers(
@@ -518,25 +518,25 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	 */
 	public List<Review> getAllReviews(ServerData server) throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		return session.getAllReviews(true);
+		return session.getAllReviews();
 	}
 
 	public List<Review> getReviewsForFilter(ServerData server, PredefinedFilter filter)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		return session.getReviewsForFilter(filter, true);
+		return session.getReviewsForFilter(filter);
 	}
 
 	public List<Review> getReviewsForCustomFilter(ServerData server, CustomFilter filter)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		return session.getReviewsForCustomFilter(filter, true);
+		return session.getReviewsForCustomFilter(filter);
 	}
 
 	public Review getReview(ServerData server, PermId permId)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		return session.getReview(permId, true);
+		return session.getReview(permId);
 	}
 
 	public List<Reviewer> getReviewers(ServerData server, PermId permId)

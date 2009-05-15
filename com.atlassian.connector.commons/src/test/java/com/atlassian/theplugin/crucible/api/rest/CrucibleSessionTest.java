@@ -338,13 +338,13 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession crucibleSession = createCrucibleSession(mockBaseUrl);
 		List<State> states = new ArrayList<State>();
 		try {
-			crucibleSession.getReviewsInStates(states, false);
+			crucibleSession.getReviewsInStates(states);
 			fail();
 		} catch (IllegalStateException e) {
 			//expected
 		}
 		try {
-			crucibleSession.getAllReviews(false);
+			crucibleSession.getAllReviews();
 			fail();
 		} catch (IllegalStateException e) {
 			//expected
@@ -374,11 +374,12 @@ public class CrucibleSessionTest extends TestCase {
 	public void testGetAllTypeReviews() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = Arrays.asList(State.values());
-		mockServer.expect("/rest-service/reviews-v1", new GetReviewsCallback(states));
+		mockServer.expect("/rest-service/reviews-v1/details", new GetReviewsCallback(states));
+        mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(1));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		List<Review> reviews = apiHandler.getAllReviews(false);
+		List<Review> reviews = apiHandler.getAllReviews();
 		assertEquals(states.size(), reviews.size());
 		int i = 0;
 		for (Review review : reviews) {
@@ -390,11 +391,11 @@ public class CrucibleSessionTest extends TestCase {
 	public void testGetEmptyReviews() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = new ArrayList<State>();
-		mockServer.expect("/rest-service/reviews-v1", new GetReviewsCallback(states));
+		mockServer.expect("/rest-service/reviews-v1/details", new GetReviewsCallback(states));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		List<Review> reviews = apiHandler.getAllReviews(false);
+		List<Review> reviews = apiHandler.getAllReviews();
 		assertEquals(states.size(), reviews.size());
 		assertTrue(reviews.isEmpty());
 		mockServer.verify();
@@ -403,11 +404,11 @@ public class CrucibleSessionTest extends TestCase {
 	public void testGetEmptyReviewsForType() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = new ArrayList<State>();
-		mockServer.expect("/rest-service/reviews-v1", new GetReviewsCallback(states));
+		mockServer.expect("/rest-service/reviews-v1/details", new GetReviewsCallback(states));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		List<Review> reviews = apiHandler.getAllReviews(false);
+		List<Review> reviews = apiHandler.getAllReviews();
 		assertEquals(states.size(), reviews.size());
 		assertTrue(reviews.isEmpty());
 		mockServer.verify();
@@ -416,11 +417,12 @@ public class CrucibleSessionTest extends TestCase {
 	public void testGetReviewsInStates() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
-		mockServer.expect("/rest-service/reviews-v1", new GetReviewsCallback(states));
+		mockServer.expect("/rest-service/reviews-v1/details", new GetReviewsCallback(states));
+        mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(1));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		List<Review> reviews = apiHandler.getReviewsInStates(states, false);
+		List<Review> reviews = apiHandler.getReviewsInStates(states);
 		assertEquals(states.size(), reviews.size());
 		assertTrue(!reviews.isEmpty());
 		mockServer.verify();
@@ -429,12 +431,12 @@ public class CrucibleSessionTest extends TestCase {
 	public void testGetMissingReviewsInStates() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
-		mockServer.expect("/rest-service/reviews-v1", new GetReviewsCallback(states));
+		mockServer.expect("/rest-service/reviews-v1/details", new GetReviewsCallback(states));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
 		List<State> req = Arrays.asList(State.CLOSED);
-		List<Review> reviews = apiHandler.getReviewsInStates(req, false);
+		List<Review> reviews = apiHandler.getReviewsInStates(req);
 		assertTrue(reviews.isEmpty());
 		mockServer.verify();
 	}
@@ -442,12 +444,13 @@ public class CrucibleSessionTest extends TestCase {
 	public void testGetEmptyRequestReviewsInStates() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
-		mockServer.expect("/rest-service/reviews-v1", new GetReviewsCallback(states));
+		mockServer.expect("/rest-service/reviews-v1/details", new GetReviewsCallback(states));
+        mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(1));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
 		List<State> req = new ArrayList<State>();
-		List<Review> reviews = apiHandler.getReviewsInStates(req, false);
+		List<Review> reviews = apiHandler.getReviewsInStates(req);
 		assertEquals(states.size(), reviews.size());
 		assertTrue(!reviews.isEmpty());
 		mockServer.verify();
@@ -455,12 +458,12 @@ public class CrucibleSessionTest extends TestCase {
 
 	public void testGetAllReviewsMalformedResponse() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/rest-service/reviews-v1", new MalformedResponseCallback());
+		mockServer.expect("/rest-service/reviews-v1/details", new MalformedResponseCallback());
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
 		try {
-			apiHandler.getAllReviews(false);
+			apiHandler.getAllReviews();
 			fail();
 		} catch (RemoteApiException e) {
 			// expected
@@ -470,13 +473,13 @@ public class CrucibleSessionTest extends TestCase {
 
 	public void testGetReviewsInStatesMalformedResponse() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/rest-service/reviews-v1", new MalformedResponseCallback());
+		mockServer.expect("/rest-service/reviews-v1/details", new MalformedResponseCallback());
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
 		try {
 			List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
-			apiHandler.getReviewsInStates(states, false);
+			apiHandler.getReviewsInStates(states);
 			fail();
 		} catch (RemoteApiException e) {
 			// expected
@@ -893,7 +896,7 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		final Review review = apiHandler.getReview(permId, true);
+		final Review review = apiHandler.getReview(permId);
 		mockServer.verify();
 		return review;
 	}

@@ -26,7 +26,11 @@ public class CrucibleServerCfg extends ServerCfg {
 	//	private FishEyeServer fishEyeView = new FishEyeServer() {...
 	private FishEyeServer fishEyeView;
 
-	private FishEyeServer getFishEyeView() {
+    public CrucibleServerCfg(boolean enabled, String name, ServerId serverId) {
+        super(enabled, name, serverId);
+    }
+
+    private FishEyeServer getFishEyeView() {
 		if (fishEyeView == null) {
 			fishEyeView = new FishEyeServer() {
 				public ServerId getServerId() {

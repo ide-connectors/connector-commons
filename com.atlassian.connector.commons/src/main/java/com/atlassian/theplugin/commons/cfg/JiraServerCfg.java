@@ -26,7 +26,11 @@ public class JiraServerCfg extends ServerCfg {
 		super(other);
 	}
 
-	@Override
+    public JiraServerCfg(boolean enabled, String name, ServerId serverId) {
+        super(enabled, name, serverId);
+    }
+
+    @Override
 	public ServerType getServerType() {
 		return ServerType.JIRA_SERVER;
 	}

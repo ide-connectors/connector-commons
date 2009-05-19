@@ -42,7 +42,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	final Reviewer reviewer4 = prepareReviewer("alice", "Alice", false);
 
 	private ReviewBean prepareReview() {
-		return new ReviewBean("http://bogus");
+		return new ReviewBean("http://bogus", "TEST", reviewer3, reviewer4);
 	}
 
 	private ReviewerBean prepareReviewer(String userName, String displayName, boolean completed) {
@@ -589,10 +589,10 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	private final String[][] stringPairs = {
 			{"abc", "bcde"},
-			{null, "abc"},
-			{"abc", null},
+			{"", "abc"},
+			{"abc", ""},
 			{"abc", "abc"},
-			{null, null},
+			{"", ""},
 	};
 
 	private void testHelper(final CrucibleNotificationType notificationType, MyCallback myCallback) {

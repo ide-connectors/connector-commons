@@ -66,8 +66,6 @@ public class LatestBuildResultVelocityBallback implements JettyMockServer.Callba
 		context.put("buildKey", buildKey);
 		context.put("buildNumber", buildNumber);
 
-		StringWriter w = new StringWriter();
-
 		final OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), "UTF-8");
 		velocityEngine.mergeTemplate("/mock/bamboo/1_2_4/api/rest/latestBuildResultResponse.vm", "UTF-8", context, writer);
 		writer.flush();

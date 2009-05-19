@@ -18,6 +18,7 @@ package com.atlassian.theplugin.crucible;
 
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewBean;
+import com.atlassian.theplugin.commons.crucible.api.model.UserBean;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -51,14 +52,14 @@ public class ReviewDataInfoImplTest extends TestCase {
     }
 
 	public void testNotEquals() throws Exception {
-		ReviewBean r1 = new ReviewBean(null);
+		ReviewBean r1 = new ReviewBean("http://bogus.server", "TEST", new UserBean("author"), new UserBean("moderator"));
         r1.setPermId(new PermId() {
 
             public String getId() {
                 return new String("ID");
             }
         });
-		ReviewBean r2 = new ReviewBean(null);
+		ReviewBean r2 = new ReviewBean("http://bogus.server", "TEST", new UserBean("author"), new UserBean("moderator"));
         r2.setPermId(new PermId() {
 
             public String getId() {

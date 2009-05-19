@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 import java.util.List;
@@ -107,11 +108,23 @@ public class ReviewBean implements Review {
 		this.actions.addAll(actions);
 	}
 
-	public ReviewBean(String serverUrl) {
+	public void setAuthor(@NotNull final User author) {
+		this.author = author;
+	}
+
+	public ReviewBean(@NotNull String serverUrl) {
 		this.serverUrl = serverUrl;
 //		reviewItems = new ArrayList<CrucibleReviewItemInfo>();
 	}
 
+	public ReviewBean(@NotNull String serverUrl, @NotNull String projectKey, @NotNull User author, @NotNull User moderator) {
+		this.serverUrl = serverUrl;
+		this.projectKey = projectKey;
+		this.author = author;
+		this.moderator = moderator;
+	}
+
+	@NotNull
 	public String getServerUrl() {
 		return serverUrl;
 	}
@@ -166,19 +179,9 @@ public class ReviewBean implements Review {
 	 * @return possible object is
 	 *         {@link com.atlassian.theplugin.commons.crucible.api.model.User }
 	 */
-	@Nullable
+	@NotNull
 	public User getAuthor() {
 		return author;
-	}
-
-	/**
-	 * Sets the value of the author property.
-	 *
-	 * @param value allowed object is
-	 *              {@link com.atlassian.theplugin.commons.crucible.api.model.User }
-	 */
-	public void setAuthor(User value) {
-		this.author = value;
 	}
 
 	/**
@@ -227,7 +230,7 @@ public class ReviewBean implements Review {
 	 * @return possible object is
 	 *         {@link com.atlassian.theplugin.commons.crucible.api.model.User }
 	 */
-	@Nullable
+	@NotNull
 	public User getModerator() {
 		return moderator;
 	}
@@ -238,7 +241,7 @@ public class ReviewBean implements Review {
 	 * @param value allowed object is
 	 *              {@link com.atlassian.theplugin.commons.crucible.api.model.User }
 	 */
-	public void setModerator(User value) {
+	public void setModerator(@NotNull User value) {
 		this.moderator = value;
 	}
 
@@ -310,6 +313,7 @@ public class ReviewBean implements Review {
 	 * @return possible object is
 	 *         {@link String }
 	 */
+	@NotNull
 	public String getProjectKey() {
 		return projectKey;
 	}
@@ -320,7 +324,7 @@ public class ReviewBean implements Review {
 	 * @param value allowed object is
 	 *              {@link String }
 	 */
-	public void setProjectKey(String value) {
+	public void setProjectKey(@NotNull String value) {
 		this.projectKey = value;
 	}
 

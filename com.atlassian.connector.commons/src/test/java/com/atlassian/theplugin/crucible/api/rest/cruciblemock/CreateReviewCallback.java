@@ -52,11 +52,11 @@ public class CreateReviewCallback implements JettyMockServer.Callback {
         @SuppressWarnings("unchecked")
         List<Element> elements = xpath.selectNodes(req);
 
-		Review reqReview = CrucibleRestXmlHelper.parseReviewNode(null, elements.get(0));
+		Review reqReview = CrucibleRestXmlHelper.parseReviewNode("http://bogus.server", elements.get(0));
 
         ReviewBean reviewData = null;
         if (elements != null && !elements.isEmpty()) {
-			reviewData = CrucibleRestXmlHelper.parseReviewNode(null, elements.iterator().next());
+			reviewData = CrucibleRestXmlHelper.parseReviewNode("http://bogus.server", elements.iterator().next());
 			reviewData.setState(State.DRAFT);
 			PermIdBean permId = new PermIdBean(PERM_ID);
 			reviewData.setPermId(permId);

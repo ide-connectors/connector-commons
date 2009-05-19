@@ -37,6 +37,7 @@ import org.easymock.EasyMock;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.replay;
 import org.mortbay.jetty.Server;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -425,12 +426,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 	}
 
 	private Review prepareReviewData(final String name, final State state) {
-		return new ReviewBean(null) {
-			@Override
-			public User getAuthor() {
-				return VALID_LOGIN;
-			}
-
+		return new ReviewBean("http://bogus.server", "TEST", VALID_LOGIN, VALID_LOGIN) {
 			@Override
 			public User getCreator() {
 				return VALID_LOGIN;
@@ -439,11 +435,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 			@Override
 			public String getDescription() {
 				return "Test description";
-			}
-
-			@Override
-			public User getModerator() {
-				return VALID_LOGIN;
 			}
 
 			@Override
@@ -463,11 +454,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 						return "permId";
 					}
 				};
-			}
-
-			@Override
-			public String getProjectKey() {
-				return "TEST";
 			}
 
 			@Override
@@ -571,21 +557,11 @@ public class CrucibleServerFacadeTest extends TestCase {
 			public CrucibleFileInfo getFileByPermId(PermId id) {
 				return null;
 			}
-
-			@Override
-			public String getServerUrl() {
-				return null;
-			}
 		};
 	}
 
 	private Review prepareReviewData(final User user, final String name, final State state, final PermId permId) {
-		return new ReviewBean(null) {
-			@Override
-			public User getAuthor() {
-				return user;
-			}
-
+		return new ReviewBean("http://bogus.server", "TEST", user, user) {
 			@Override
 			public User getCreator() {
 				return user;
@@ -594,11 +570,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 			@Override
 			public String getDescription() {
 				return "Test description";
-			}
-
-			@Override
-			public User getModerator() {
-				return user;
 			}
 
 			@Override
@@ -614,11 +585,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 			@Override
 			public PermId getPermId() {
 				return permId;
-			}
-
-			@Override
-			public String getProjectKey() {
-				return "TEST";
 			}
 
 			@Override
@@ -720,11 +686,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 			@Override
 			public CrucibleFileInfo getFileByPermId(PermId id) {
-				return null;
-			}
-
-			@Override
-			public String getServerUrl() {
 				return null;
 			}
 		};

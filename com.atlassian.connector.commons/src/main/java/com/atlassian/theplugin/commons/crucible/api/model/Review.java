@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 import java.util.List;
@@ -29,6 +30,7 @@ public interface Review {
 
 	boolean isCompleted();
 
+	@NotNull
 	User getAuthor();
 
 	User getCreator();
@@ -39,6 +41,7 @@ public interface Review {
 	 */
 	String getDescription();
 
+	@NotNull
 	User getModerator();
 
 	String getName();
@@ -47,6 +50,7 @@ public interface Review {
 
 	PermId getPermId();
 
+	@NotNull
 	String getProjectKey();
 
 	String getRepoName();
@@ -96,13 +100,13 @@ public interface Review {
 
 	void setActions(Set<CrucibleAction> actions);
 
-	void setAuthor(User value);
+	void setAuthor(@NotNull User value);
 
 	void setCreator(User value);
 
 	void setDescription(String value);
 
-	void setModerator(User value);
+	void setModerator(@NotNull User value);
 
 	void setName(String value);
 
@@ -110,7 +114,7 @@ public interface Review {
 
 	void setPermId(PermId value);
 
-	void setProjectKey(String value);
+	void setProjectKey(@NotNull String value);
 
 	void setRepoName(String value);
 
@@ -147,7 +151,6 @@ public interface Review {
 	int getNumberOfGeneralCommentsDrafts(final String userName) throws ValueNotYetInitialized;
 
 	int getNumberOfVersionedCommentsDrafts(final String userName) throws ValueNotYetInitialized;
-
 
 	int getNumberOfVersionedComments(final String userName) throws ValueNotYetInitialized;
 

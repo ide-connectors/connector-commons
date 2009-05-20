@@ -15,17 +15,22 @@
  */
 package com.atlassian.theplugin.commons.fisheye.api.rest;
 
-
 import com.atlassian.theplugin.commons.cfg.FishEyeServer;
 import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
-import com.atlassian.theplugin.commons.remoteapi.*;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.UrlUtil;
+
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
@@ -41,18 +46,23 @@ import java.util.List;
 
 public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSession {
 	static final String REST_BASE_URL = "/api/rest/";
+
 	static final String LOGIN_ACTION = REST_BASE_URL + "login";
+
 	static final String LOGOUT_ACTION = REST_BASE_URL + "logout";
+
 	static final String LIST_REPOSITORIES_ACTION = REST_BASE_URL + "repositories";
+
 	private String authToken;
+
 	private boolean loggedIn;
 
 	/**
 	 * For testing purposes
-	 *
+	 * 
 	 * @param url
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
-	 *
+	 * 
 	 */
 	FishEyeRestSession(String url) throws RemoteApiMalformedUrlException {
 		this(new ServerData("", "", "", "", url), new HttpSessionCallbackImpl());
@@ -66,18 +76,21 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 
 	/**
 	 * Public constructor for AbstractHttpSession
-	 *
-	 * @param server   The server configuration for this session
-	 * @param callback The callback needed for preparing HttpClient calls
+	 * 
+	 * @param server
+	 *            The server configuration for this session
+	 * @param callback
+	 *            The callback needed for preparing HttpClient calls
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
-	 *          for malformed url
+	 *             for malformed url
 	 */
 	public FishEyeRestSession(ServerData server, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
 		super(server, callback);
 	}
 
 	@Override
-	protected void adjustHttpHeader(final HttpMethod method) {
+	public void adjustHttpHeader(final HttpMethod method) {
+		// TODO: may be use the same approach as in CrucibleSessionImpl?
 	}
 
 	@Override
@@ -86,7 +99,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 
 	/**
 	 * Login method - use empty both username and password for anonymous access (see PL-931)
-	 *
+	 * 
 	 * @param name
 	 * @param aPassword
 	 * @throws RemoteApiLoginException
@@ -107,7 +120,6 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 		}
 		loginUrl = getBaseUrl() + LOGIN_ACTION + "?username=" + UrlUtil.encodeUrl(name) + "&password="
 				+ UrlUtil.encodeUrl(String.valueOf(aPassword));
-
 
 		try {
 			Document doc = retrieveGetResponse(loginUrl);

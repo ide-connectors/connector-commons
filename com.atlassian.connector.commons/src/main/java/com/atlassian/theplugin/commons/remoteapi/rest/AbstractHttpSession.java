@@ -22,6 +22,7 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.UrlUtil;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
@@ -51,13 +52,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Communication stub for lightweight XML based APIs.
- * This method should be tread-safe (at least it is used in this manner), however
- * I think there are still some issues with thread-safety here [wseliga].
- * E.g. as Server is not immutable then this may be the cause of races
+ * Communication stub for lightweight XML based APIs. This method should be tread-safe (at least it is used in this
+ * manner), however I think there are still some issues with thread-safety here [wseliga]. E.g. as Server is not
+ * immutable then this may be the cause of races
  */
 public abstract class AbstractHttpSession {
 	protected HttpClient client;
+
 	@NotNull
 	private final HttpSessionCallback callback;
 
@@ -82,16 +83,16 @@ public abstract class AbstractHttpSession {
 	private static ThreadLocal<URL> url = new ThreadLocal<URL>();
 
 	// TODO: replace this with a proper cache to ensure automatic purging. Responses can get quite large.
-	private final Map<String, CacheRecord> cache =
-			new HashMap<String, CacheRecord>();
+	private final Map<String, CacheRecord> cache = new HashMap<String, CacheRecord>();
 
 	/**
-	 * This class holds an HTTP response body, together with its last
-	 * modification time and Etag.
+	 * This class holds an HTTP response body, together with its last modification time and Etag.
 	 */
 	private final class CacheRecord {
 		private final byte[] document;
+
 		private final String lastModified;
+
 		private final String etag;
 
 		private CacheRecord(byte[] document, String lastModified, String etag) {
@@ -135,11 +136,13 @@ public abstract class AbstractHttpSession {
 
 	/**
 	 * Public constructor for AbstractHttpSession
-	 *
-	 * @param server   server params used by this session
-	 * @param callback provider of HttpSession
+	 * 
+	 * @param server
+	 *            server params used by this session
+	 * @param callback
+	 *            provider of HttpSession
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
-	 *          for malformed url
+	 *             for malformed url
 	 */
 	public AbstractHttpSession(@NotNull ServerData server, @NotNull HttpSessionCallback callback)
 			throws RemoteApiMalformedUrlException {
@@ -153,8 +156,8 @@ public abstract class AbstractHttpSession {
 		}
 	}
 
-	protected Document retrieveGetResponse(String urlString)
-			throws IOException, JDOMException, RemoteApiSessionExpiredException {
+	protected Document retrieveGetResponse(String urlString) throws IOException, JDOMException,
+			RemoteApiSessionExpiredException {
 
 		final SAXBuilder builder = new SAXBuilder();
 		final Document doc = builder.build(new ByteArrayInputStream(doConditionalGet(urlString)));
@@ -164,14 +167,15 @@ public abstract class AbstractHttpSession {
 	}
 
 	/**
-	 * This method should be use to fetch standard non-XML text resources (like Bamboo build logs), when there is no intention
-	 * to parse them by XML and you want to respect HTTP encoding standards (e.g. ISO-8859-1 if there is no charset info
-	 * set in the response header.
-	 * This method does not cache results, nor it supports conditional get.
-	 *
-	 * @param urlString URL
+	 * This method should be use to fetch standard non-XML text resources (like Bamboo build logs), when there is no
+	 * intention to parse them by XML and you want to respect HTTP encoding standards (e.g. ISO-8859-1 if there is no
+	 * charset info set in the response header. This method does not cache results, nor it supports conditional get.
+	 * 
+	 * @param urlString
+	 *            URL
 	 * @return response encoded as String. Encoding respects content type sent by the server in the response headers
-	 * @throws IOException in case of any problem or bad URL
+	 * @throws IOException
+	 *             in case of any problem or bad URL
 	 */
 	protected String doUnconditionalGetForTextNonXmlResource(final String urlString) throws IOException {
 		UrlUtil.validateUrl(urlString);
@@ -213,15 +217,16 @@ public abstract class AbstractHttpSession {
 		}
 	}
 
-
 	/**
 	 * Use it only for retrieving XML information, as it will ignored content-type charset in response header (if such
 	 * present)
-	 *
-	 * @param urlString URL to retrieve data from
-	 * @return response as raw bytes (ignoring charset info in response headers). This is OK for XML parser, as
-	 *         servers supported by us use either encoding info in XML header or use UFT-8
-	 * @throws IOException in case of IO problem
+	 * 
+	 * @param urlString
+	 *            URL to retrieve data from
+	 * @return response as raw bytes (ignoring charset info in response headers). This is OK for XML parser, as servers
+	 *         supported by us use either encoding info in XML header or use UFT-8
+	 * @throws IOException
+	 *             in case of IO problem
 	 */
 	protected byte[] doConditionalGet(String urlString) throws IOException {
 
@@ -272,8 +277,8 @@ public abstract class AbstractHttpSession {
 					final byte[] result = method.getResponseBody();
 					final String lastModified = method.getResponseHeader("Last-Modified") == null ? null
 							: method.getResponseHeader("Last-Modified").getValue();
-					final String eTag = method.getResponseHeader("Etag") == null ? null
-							: method.getResponseHeader("Etag").getValue();
+					final String eTag = method.getResponseHeader("Etag") == null ? null : method.getResponseHeader(
+							"Etag").getValue();
 
 					if (lastModified != null && eTag != null) {
 						cacheRecord = new CacheRecord(result, lastModified, eTag);
@@ -292,9 +297,11 @@ public abstract class AbstractHttpSession {
 
 	/**
 	 * Helper method needed because IOException in Java 1.5 does not have constructor taking "cause"
-	 *
-	 * @param message message
-	 * @param cause   chained reason for this exception
+	 * 
+	 * @param message
+	 *            message
+	 * @param cause
+	 *            chained reason for this exception
 	 * @return constructed exception
 	 */
 	private IOException createIOException(String message, Throwable cause) {
@@ -303,8 +310,8 @@ public abstract class AbstractHttpSession {
 		return ioException;
 	}
 
-	protected Document retrievePostResponse(String urlString, Document request)
-			throws IOException, JDOMException, RemoteApiException {
+	protected Document retrievePostResponse(String urlString, Document request) throws IOException, JDOMException,
+			RemoteApiException {
 		return retrievePostResponse(urlString, request, true);
 	}
 
@@ -341,8 +348,7 @@ public abstract class AbstractHttpSession {
 				callback.configureHttpMethod(this, method);
 
 				if (request != null && !"".equals(request)) {
-					method.setRequestEntity(
-							new StringRequestEntity(request, "application/xml", "UTF-8"));
+					method.setRequestEntity(new StringRequestEntity(request, "application/xml", "UTF-8"));
 				}
 
 				client.executeMethod(method);
@@ -350,8 +356,7 @@ public abstract class AbstractHttpSession {
 				final int httpStatus = method.getStatusCode();
 				if (httpStatus == HttpStatus.SC_NO_CONTENT) {
 					return doc;
-				} else if (httpStatus != HttpStatus.SC_OK
-						&& httpStatus != HttpStatus.SC_CREATED) {
+				} else if (httpStatus != HttpStatus.SC_OK && httpStatus != HttpStatus.SC_CREATED) {
 
 					Document document;
 					SAXBuilder builder = new SAXBuilder();
@@ -377,8 +382,8 @@ public abstract class AbstractHttpSession {
 	}
 
 	/**
-	 * This method will connect to server, and return the results of the push
-	 * You must set Query first, which is the contents of your XML file
+	 * This method will connect to server, and return the results of the push You must set Query first, which is the
+	 * contents of your XML file
 	 */
 	protected Document retrievePostResponse(String urlString, Part[] parts, boolean expectResponse)
 			throws JDOMException, RemoteApiException {
@@ -389,8 +394,8 @@ public abstract class AbstractHttpSession {
 				try {
 					client = callback.getHttpClient(server);
 				} catch (HttpProxySettingsException e) {
-					throw new RemoteApiException("Connection error to ["
-							+ urlString + "]. Please set up HTTP Proxy settings", e);
+					throw new RemoteApiException("Connection error to [" + urlString
+							+ "]. Please set up HTTP Proxy settings", e);
 				}
 			}
 
@@ -399,8 +404,7 @@ public abstract class AbstractHttpSession {
 			try {
 				//create new post method, and set parameters
 
-				method.getParams().setBooleanParameter(HttpMethodParams.USE_EXPECT_CONTINUE,
-						true);
+				method.getParams().setBooleanParameter(HttpMethodParams.USE_EXPECT_CONTINUE, true);
 
 				//Create the multi-part request
 				method.setRequestEntity(new MultipartRequestEntity(parts, method.getParams()));
@@ -409,8 +413,7 @@ public abstract class AbstractHttpSession {
 				final int httpStatus = method.getStatusCode();
 				if (httpStatus == HttpStatus.SC_NO_CONTENT) {
 					return doc;
-				} else if (httpStatus != HttpStatus.SC_OK
-						&& httpStatus != HttpStatus.SC_CREATED) {
+				} else if (httpStatus != HttpStatus.SC_OK && httpStatus != HttpStatus.SC_CREATED) {
 
 					Document document;
 					SAXBuilder builder = new SAXBuilder();
@@ -436,8 +439,12 @@ public abstract class AbstractHttpSession {
 	}
 
 	private RemoteApiException buildExceptionText(final int statusCode, final Document document) throws JDOMException {
-		StringBuilder textBuilder = new StringBuilder().append("Server returned HTTP ").append(statusCode).append(" (")
-				.append(HttpStatus.getStatusText(statusCode)).append(")\n").append("Reason: ");
+		StringBuilder textBuilder = new StringBuilder().append("Server returned HTTP ")
+				.append(statusCode)
+				.append(" (")
+				.append(HttpStatus.getStatusText(statusCode))
+				.append(")\n")
+				.append("Reason: ");
 
 		{
 			XPath xpath = XPath.newInstance("error/code");
@@ -471,9 +478,8 @@ public abstract class AbstractHttpSession {
 		return new RemoteApiException(textBuilder.toString(), serverStackTrace);
 	}
 
-
-	protected Document retrieveDeleteResponse(String urlString, boolean expectResponse)
-			throws IOException, JDOMException, RemoteApiSessionExpiredException {
+	protected Document retrieveDeleteResponse(String urlString, boolean expectResponse) throws IOException,
+			JDOMException, RemoteApiSessionExpiredException {
 		UrlUtil.validateUrl(urlString);
 
 		Document doc = null;
@@ -516,8 +522,7 @@ public abstract class AbstractHttpSession {
 		return doc;
 	}
 
-
-	protected abstract void adjustHttpHeader(HttpMethod method);
+	public abstract void adjustHttpHeader(HttpMethod method);
 
 	protected abstract void preprocessResult(Document doc) throws JDOMException, RemoteApiSessionExpiredException;
 

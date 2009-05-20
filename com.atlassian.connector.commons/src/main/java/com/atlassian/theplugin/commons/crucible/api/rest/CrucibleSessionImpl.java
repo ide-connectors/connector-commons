@@ -21,12 +21,38 @@ import com.atlassian.theplugin.commons.crucible.ProjectCache;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewBean;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.State;
+import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.UserBean;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
 import com.atlassian.theplugin.commons.exception.IncorrectVersionException;
-import com.atlassian.theplugin.commons.remoteapi.*;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.ProductVersionUtil;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
@@ -44,71 +70,113 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Communication stub for Crucible REST API.
  */
 public class CrucibleSessionImpl extends AbstractHttpSession implements CrucibleSession {
 	private static final String AUTH_SERVICE = "/rest-service/auth-v1";
+
 	private static final String REVIEW_SERVICE = "/rest-service/reviews-v1";
+
 	private static final String PROJECTS_SERVICE = "/rest-service/projects-v1";
+
 	private static final String REPOSITORIES_SERVICE = "/rest-service/repositories-v1";
+
 	private static final String USER_SERVICE = "/rest-service/users-v1";
 
 	private static final String LOGIN = "/login";
+
 	private static final String REVIEWS_IN_STATES = "?state=";
+
 	private static final String FILTERED_REVIEWS = "/filter";
+
 	private static final String SEARCH_REVIEWS = "/search";
+
 	private static final String SEARCH_REVIEWS_QUERY = "?path=";
+
 	private static final String DETAIL_REVIEW_INFO = "/details";
+
 	private static final String ACTIONS = "/actions";
+
 	private static final String TRANSITIONS = "/transitions";
+
 	private static final String REVIEWERS = "/reviewers";
+
 	private static final String REVIEW_ITEMS = "/reviewitems";
+
 	private static final String METRICS = "/metrics";
+
 	private static final String VERSION = "/versionInfo";
 
 	private static final String COMMENTS = "/comments";
+
 	private static final String GENERAL_COMMENTS = "/comments/general";
+
 	private static final String VERSIONED_COMMENTS = "/comments/versioned";
+
 	private static final String REPLIES = "/replies";
 
 	private static final String APPROVE_ACTION = "action:approveReview";
+
 	private static final String SUBMIT_ACTION = "action:submitReview";
+
 	private static final String SUMMARIZE_ACTION = "action:summarizeReview";
+
 	private static final String ABANDON_ACTION = "action:abandonReview";
+
 	private static final String CLOSE_ACTION = "action:closeReview";
+
 	private static final String RECOVER_ACTION = "action:recoverReview";
+
 	private static final String REOPEN_ACTION = "action:reopenReview";
+
 	private static final String REJECT_ACTION = "action:rejectReview";
+
 	private static final String TRANSITION_ACTION = "/transition?action=";
 
 	private static final String PUBLISH_COMMENTS = "/publish";
+
 	private static final String COMPLETE_ACTION = "/complete";
+
 	private static final String UNCOMPLETE_ACTION = "/uncomplete";
 
 	private static final String ADD_CHANGESET = "/addChangeset";
+
 	private static final String ADD_PATCH = "/addPatch";
+
 	private static final String ADD_FILE = "/addFile";
 
 	private String authToken;
 
-	private Map<String, SvnRepository> repositories = new HashMap<String, SvnRepository>();
-	private Map<String, List<CustomFieldDef>> metricsDefinitions = new HashMap<String, List<CustomFieldDef>>();
-	private ProjectCache projectCache;
+	private final Map<String, SvnRepository> repositories = new HashMap<String, SvnRepository>();
+
+	private final Map<String, List<CustomFieldDef>> metricsDefinitions = new HashMap<String, List<CustomFieldDef>>();
+
+	private final ProjectCache projectCache;
 
 	private CrucibleVersionInfo crucibleVersionInfo;
 
 	/**
 	 * Public constructor for CrucibleSessionImpl.
-	 *
-	 * @param serverData The server fisheye configuration for this session
-	 * @param callback  The callback needed for preparing HttpClient calls
+	 * 
+	 * @param serverData
+	 *            The server fisheye configuration for this session
+	 * @param callback
+	 *            The callback needed for preparing HttpClient calls
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
-	 *          when serverCfg configuration is invalid
+	 *             when serverCfg configuration is invalid
 	 */
-	public CrucibleSessionImpl(ServerData serverData, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
+	public CrucibleSessionImpl(ServerData serverData, HttpSessionCallback callback)
+			throws RemoteApiMalformedUrlException {
 		super(serverData, callback);
 
 		projectCache = new ProjectCache(this);
@@ -122,8 +190,9 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 				if (getUsername() == null || getPassword() == null) {
 					throw new RemoteApiLoginException("Corrupted configuration. Username or Password null");
 				}
-				loginUrl = getBaseUrl() + AUTH_SERVICE + LOGIN + "?userName=" + URLEncoder.encode(getUsername(), "UTF-8")
-						+ "&password=" + URLEncoder.encode(getPassword(), "UTF-8");
+				loginUrl = getBaseUrl() + AUTH_SERVICE + LOGIN + "?userName="
+						+ URLEncoder.encode(getUsername(), "UTF-8") + "&password="
+						+ URLEncoder.encode(getPassword(), "UTF-8");
 			} catch (UnsupportedEncodingException e) {
 				///CLOVER:OFF
 				throw new RuntimeException("URLEncoding problem: " + e.getMessage());
@@ -259,11 +328,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 
 		try {
-			String url = getBaseUrl()
-					+ REVIEW_SERVICE
-					+ FILTERED_REVIEWS
-					+ "/" + filter.getFilterUrl()
-                    + DETAIL_REVIEW_INFO;
+			String url = getBaseUrl() + REVIEW_SERVICE + FILTERED_REVIEWS + "/" + filter.getFilterUrl()
+					+ DETAIL_REVIEW_INFO;
 			Document doc = retrieveGetResponse(url);
 
 			XPath xpath = XPath.newInstance("/detailedReviews/detailedReviewData");
@@ -326,7 +392,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		return false;
 	}
 
-
 	public List<Review> getReviewsForCustomFilter(CustomFilter filter) throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
@@ -342,7 +407,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			XPath xpath = XPath.newInstance("/detailedReviews/detailedReviewData");
 
-            @SuppressWarnings("unchecked")
+			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
 			List<Review> reviews = new ArrayList<Review>();
 
@@ -394,19 +459,13 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 
 		try {
-			String url = getBaseUrl()
-					+ REVIEW_SERVICE
-					+ SEARCH_REVIEWS
-					+ "/"
-					+ URLEncoder.encode(repoName, "UTF-8")
-                    + DETAIL_REVIEW_INFO
-					+ SEARCH_REVIEWS_QUERY
-					+ URLEncoder.encode(path, "UTF-8");
+			String url = getBaseUrl() + REVIEW_SERVICE + SEARCH_REVIEWS + "/" + URLEncoder.encode(repoName, "UTF-8")
+					+ DETAIL_REVIEW_INFO + SEARCH_REVIEWS_QUERY + URLEncoder.encode(path, "UTF-8");
 			Document doc = retrieveGetResponse(url);
 
 			XPath xpath = XPath.newInstance("/detailedReviews/detailReviewData");
 
-            @SuppressWarnings("unchecked")
+			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
 			List<Review> reviews = new ArrayList<Review>();
 
@@ -432,16 +491,12 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 
 		try {
-			String url = getBaseUrl()
-					+ REVIEW_SERVICE
-					+ "/"
-					+ permId.getId()
-                    + DETAIL_REVIEW_INFO;
+			String url = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + DETAIL_REVIEW_INFO;
 			Document doc = retrieveGetResponse(url);
 
 			XPath xpath = XPath.newInstance("/detailedReviewData");
 
-            @SuppressWarnings("unchecked")
+			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
 
 			if (elements != null && !elements.isEmpty()) {
@@ -560,9 +615,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	/**
 	 * Retrieves projects from cache (reduces server calls)
-	 *
+	 * 
 	 * @return list of Crucible Projects
-	 * @throws RemoteApiException thrown in case of connection problems
+	 * @throws RemoteApiException
+	 *             thrown in case of connection problems
 	 */
 	public List<CrucibleProject> getProjectsFromCache() throws RemoteApiException {
 		return projectCache.getProjects();
@@ -570,9 +626,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	/**
 	 * Retrieves projects directly from server ommiting cache
-	 *
+	 * 
 	 * @return list of Crucible projects
-	 * @throws RemoteApiException thrown in case of connection problems
+	 * @throws RemoteApiException
+	 *             thrown in case of connection problems
 	 * @deprecated {@link #getProjectsFromCache()} should be used
 	 */
 	public List<CrucibleProject> getProjects() throws RemoteApiException {
@@ -786,8 +843,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
 
-		final String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId()
-				+ REVIEW_ITEMS + "/" + reviewItemId.getId() + COMMENTS;
+		final String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + REVIEW_ITEMS + "/"
+				+ reviewItemId.getId() + COMMENTS;
 		try {
 			Document doc = retrieveGetResponse(requestUrl);
 
@@ -817,7 +874,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
 
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + COMMENTS + "/" + commentId.getId() + REPLIES;
+		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + COMMENTS + "/" + commentId.getId()
+				+ REPLIES;
 		try {
 			Document doc = retrieveGetResponse(requestUrl);
 
@@ -934,7 +992,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + COMMENTS + "/" + comment.getPermId().getId();
+		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + COMMENTS + "/"
+				+ comment.getPermId().getId();
 		try {
 			retrieveDeleteResponse(requestUrl, false);
 		} catch (IOException e) {
@@ -950,7 +1009,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 
 		Document request = CrucibleRestXmlHelper.prepareGeneralComment(comment);
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + COMMENTS + "/" + comment.getPermId().getId();
+		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + COMMENTS + "/"
+				+ comment.getPermId().getId();
 
 		try {
 			retrievePostResponse(requestUrl, request, false);
@@ -978,14 +1038,15 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	public VersionedComment addVersionedComment(PermId id, PermId riId, VersionedComment comment) throws RemoteApiException {
+	public VersionedComment addVersionedComment(PermId id, PermId riId, VersionedComment comment)
+			throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
 
 		Document request = CrucibleRestXmlHelper.prepareVersionedComment(riId, comment);
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + REVIEW_ITEMS + "/"
-				+ riId.getId() + COMMENTS;
+		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + REVIEW_ITEMS + "/" + riId.getId()
+				+ COMMENTS;
 		try {
 			Document doc = retrievePostResponse(requestUrl, request);
 			XPath xpath = XPath.newInstance("versionedLineCommentData");
@@ -1005,7 +1066,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	public GeneralComment addGeneralCommentReply(PermId id, PermId cId, GeneralComment comment) throws RemoteApiException {
+	public GeneralComment addGeneralCommentReply(PermId id, PermId cId, GeneralComment comment)
+			throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
@@ -1051,7 +1113,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		try {
 			Document doc = retrievePostResponse(requestUrl, request);
 
-			XPath xpath = XPath.newInstance("generalCommentData");  // todo lguminski we should change it to reflect model
+			XPath xpath = XPath.newInstance("generalCommentData"); // todo lguminski we should change it to reflect model
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
 
@@ -1080,8 +1142,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 		Document request = CrucibleRestXmlHelper.prepareGeneralComment(comment);
 
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + COMMENTS + "/"
-				+ cId.getId() + REPLIES + "/" + rId.getId();
+		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + COMMENTS + "/" + cId.getId() + REPLIES
+				+ "/" + rId.getId();
 
 		try {
 			retrievePostResponse(requestUrl, request, false);
@@ -1135,10 +1197,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 				ByteArrayPartSource targetNewFile = new ByteArrayPartSource(uploadItem.getFileName(),
 						uploadItem.getNewContent().getBytes());
 
-				Part[] parts = {
-						new FilePart("file", targetNewFile),
-						new FilePart("diffFile", targetOldFile)
-				};
+				Part[] parts = { new FilePart("file", targetNewFile), new FilePart("diffFile", targetOldFile) };
 
 				retrievePostResponse(urlString, parts, true);
 			}
@@ -1246,7 +1305,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	public Review addRevisionsToReview(PermId permId, String repository, List<String> revisions) throws RemoteApiException {
+	public Review addRevisionsToReview(PermId permId, String repository, List<String> revisions)
+			throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
@@ -1256,7 +1316,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		try {
 			String url = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + ADD_CHANGESET;
 			Document doc = retrievePostResponse(url, request);
-
 
 			XPath xpath = XPath.newInstance("/reviewData");
 			@SuppressWarnings("unchecked")
@@ -1312,10 +1371,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 				ByteArrayPartSource targetNewFile = new ByteArrayPartSource(uploadItem.getFileName(),
 						uploadItem.getNewContent().getBytes());
 
-				Part[] parts = {
-						new FilePart("file", targetNewFile),
-						new FilePart("diffFile", targetOldFile)
-				};
+				Part[] parts = { new FilePart("file", targetNewFile), new FilePart("diffFile", targetOldFile) };
 
 				retrievePostResponse(urlString, parts, true);
 			}
@@ -1444,7 +1500,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 				String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + "/close";
 				doc = retrievePostResponse(requestUrl, request);
 			} else {
-				String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + TRANSITION_ACTION + CLOSE_ACTION;
+				String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + TRANSITION_ACTION
+						+ CLOSE_ACTION;
 				doc = retrievePostResponse(requestUrl, "", true);
 			}
 
@@ -1498,10 +1555,9 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	@Override
-	protected void adjustHttpHeader(HttpMethod method) {
+	public void adjustHttpHeader(HttpMethod method) {
 		method.addRequestHeader(new Header("Authorization", getAuthHeaderValue()));
 	}
-
 
 	@Override
 	protected void preprocessResult(Document doc) throws JDOMException, RemoteApiSessionExpiredException {

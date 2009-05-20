@@ -70,34 +70,50 @@ import java.util.Set;
  */
 public class BambooSessionImpl extends AbstractHttpSession implements BambooSession {
 	private static final String LOGIN_ACTION = "/api/rest/login.action";
+
 	private static final String LOGOUT_ACTION = "/api/rest/logout.action";
+
 	private static final String LIST_PROJECT_ACTION = "/api/rest/listProjectNames.action";
+
 	private static final String LIST_PLAN_ACTION = "/api/rest/listBuildNames.action";
+
 	private static final String LATEST_BUILD_FOR_PLAN_ACTION = "/api/rest/getLatestBuildResults.action";
+
 	private static final String RECENT_BUILDS_FOR_PLAN_ACTION = "/api/rest/getRecentlyCompletedBuildResultsForBuild.action";
+
 	private static final String RECENT_BUILDS_FOR_USER_ACTION = "/api/rest/getLatestBuildsByUser.action";
+
 	private static final String LATEST_USER_BUILDS_ACTION = "/api/rest/getLatestUserBuilds.action";
+
 	private static final String GET_BUILD_DETAILS_ACTION = "/api/rest/getBuildResultsDetails.action";
+
 	private static final String ADD_LABEL_ACTION = "/api/rest/addLabelToBuildResults.action";
+
 	private static final String ADD_COMMENT_ACTION = "/api/rest/addCommentToBuildResults.action";
+
 	private static final String EXECUTE_BUILD_ACTION = "/api/rest/executeBuild.action";
+
 	private static final String GET_BAMBOO_BUILD_NUMBER_ACTION = "/api/rest/getBambooBuildNumber.action";
 
 	private String authToken;
 
 	private static final String AUTHENTICATION_ERROR_MESSAGE = "User not authenticated yet, or session timed out";
-	private static final String BUILD_COMPLETED_DATE_ELEM = "buildCompletedDate";
-	private static final String BUILD_SUCCESSFUL = "Successful";
-	private static final String BUILD_FAILED = "Failed";
 
+	private static final String BUILD_COMPLETED_DATE_ELEM = "buildCompletedDate";
+
+	private static final String BUILD_SUCCESSFUL = "Successful";
+
+	private static final String BUILD_FAILED = "Failed";
 
 	private final ServerData serverData;
 
 	/**
 	 * For testing purposes, shouldn't be public
-	 *
-	 * @param url bamboo server url
-	 * @throws RemoteApiMalformedUrlException malformed url
+	 * 
+	 * @param url
+	 *            bamboo server url
+	 * @throws RemoteApiMalformedUrlException
+	 *             malformed url
 	 */
 	public BambooSessionImpl(String url) throws RemoteApiMalformedUrlException {
 		this(new ServerData("unknown", (new ServerId()).toString(), "", "", url), new HttpSessionCallbackImpl());
@@ -105,31 +121,35 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 	/**
 	 * Public constructor for BambooSessionImpl.
-	 *
-	 * @param serverData The server configuration for this session
-	 * @param callback   The callback needed for preparing HttpClient calls
-	 * @throws RemoteApiMalformedUrlException malformed url
+	 * 
+	 * @param serverData
+	 *            The server configuration for this session
+	 * @param callback
+	 *            The callback needed for preparing HttpClient calls
+	 * @throws RemoteApiMalformedUrlException
+	 *             malformed url
 	 */
 	public BambooSessionImpl(ServerData serverData, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
 		super(serverData, callback);
 		this.serverData = serverData;
 	}
 
-
 	/**
-	 * Connects to Bamboo server instance. On successful login authentication token is returned from
-	 * server and stored in Bamboo session for subsequent calls.
+	 * Connects to Bamboo server instance. On successful login authentication token is returned from server and stored
+	 * in Bamboo session for subsequent calls.
 	 * <p/>
 	 * The exception returned may have the getCause() examined for to get the actual exception reason.<br>
 	 * If the exception is caused by a valid error response from the server (no IOEXception, UnknownHostException,
 	 * MalformedURLException or JDOMException), the
-	 * {@link com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException}
-	 * is actually thrown. This may be used as a hint that the password is invalid.
-	 *
-	 * @param name	  username defined on Bamboo server instance
-	 * @param aPassword for username
+	 * {@link com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException} is actually thrown. This may be
+	 * used as a hint that the password is invalid.
+	 * 
+	 * @param name
+	 *            username defined on Bamboo server instance
+	 * @param aPassword
+	 *            for username
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException
-	 *          on connection or authentication errors
+	 *             on connection or authentication errors
 	 */
 	public void login(String name, char[] aPassword) throws RemoteApiLoginException {
 		String loginUrl;
@@ -139,9 +159,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 		String pass = String.valueOf(aPassword);
 		loginUrl = getBaseUrl() + LOGIN_ACTION + "?username=" + UrlUtil.encodeUrl(name) + "&password="
-				+ UrlUtil.encodeUrl(pass) + "&os_username="
-				+ UrlUtil.encodeUrl(name) + "&os_password=" + UrlUtil.encodeUrl(pass);
-
+				+ UrlUtil.encodeUrl(pass) + "&os_username=" + UrlUtil.encodeUrl(name) + "&os_password="
+				+ UrlUtil.encodeUrl(pass);
 
 		try {
 			Document doc = retrieveGetResponse(loginUrl);
@@ -193,7 +212,6 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		} catch (RemoteApiSessionExpiredException e) {
 			/* ignore errors on logout */
 		}
-
 
 		authToken = null;
 		client = null;
@@ -285,20 +303,22 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	/**
-	 * Returns a {@link com.atlassian.theplugin.commons.bamboo.BambooBuild} information about the latest build in a plan.
+	 * Returns a {@link com.atlassian.theplugin.commons.bamboo.BambooBuild} information about the latest build in a
+	 * plan.
 	 * <p/>
 	 * Returned structure contains either the information about the build or an error message if the connection fails.
-	 *
-	 * @param planKey ID of the plan to get info about
+	 * 
+	 * @param planKey
+	 *            ID of the plan to get info about
 	 * @return Information about the last build or error message
 	 */
 	@NotNull
-	public BambooBuild getLatestBuildForPlan(@NotNull String planKey, final int timezoneOffset) throws RemoteApiException {
+	public BambooBuild getLatestBuildForPlan(@NotNull String planKey, final int timezoneOffset)
+			throws RemoteApiException {
 		final List<BambooPlan> planList = listPlanNames();
 		final Boolean isEnabled = isPlanEnabled(planList, planKey);
 		return getLatestBuildForPlan(planKey, isEnabled != null ? isEnabled : true, timezoneOffset);
 	}
-
 
 	@Nullable
 	public static Boolean isPlanEnabled(@NotNull Collection<BambooPlan> allPlans, @NotNull String planKey) {
@@ -310,11 +330,9 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		return null;
 	}
 
-
 	@NotNull
 	public BambooBuild getLatestBuildForPlan(@NotNull final String planKey, final boolean isPlanEnabled,
-			final int timezoneOffset)
-			throws RemoteApiException {
+			final int timezoneOffset) throws RemoteApiException {
 		String buildResultUrl = getBaseUrl() + LATEST_BUILD_FOR_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
 				+ "&buildKey=" + UrlUtil.encodeUrl(planKey);
 
@@ -350,16 +368,14 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		return getBuildsCollection(buildResultUrl, planKey, timezoneOffset);
 	}
 
-	public Collection<BambooBuild> getRecentBuildsForUser(final int timezoneOffset)
-			throws RemoteApiException {
+	public Collection<BambooBuild> getRecentBuildsForUser(final int timezoneOffset) throws RemoteApiException {
 		String buildResultUrl = getBaseUrl() + RECENT_BUILDS_FOR_USER_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
 				+ "&username=" + UrlUtil.encodeUrl(getUsername());
 		return getBuildsCollection(buildResultUrl, getUsername(), timezoneOffset);
 	}
 
 	private Collection<BambooBuild> getBuildsCollection(@NotNull final String url, @NotNull final String planKey,
-			final int timezoneOffset)
-			throws RemoteApiException {
+			final int timezoneOffset) throws RemoteApiException {
 
 		final Date pollingTime = new Date();
 		final List<BambooBuild> builds = new ArrayList<BambooBuild>();
@@ -471,8 +487,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 					@SuppressWarnings("unchecked")
 					final List<Element> fileElements = filesPath.selectNodes(doc);
 					for (Element file : fileElements) {
-						BambooFileInfo fileInfo = new BambooFileInfoImpl(
-								file.getAttributeValue("name"),
+						BambooFileInfo fileInfo = new BambooFileInfoImpl(file.getAttributeValue("name"),
 								file.getAttributeValue("revision"));
 						cInfo.addCommitFile(fileInfo);
 					}
@@ -481,8 +496,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 			}
 
 			@SuppressWarnings("unchecked")
-			final List<Element> sucTestResElements
-					= XPath.newInstance("/response/successfulTests/testResult").selectNodes(doc);
+			final List<Element> sucTestResElements = XPath.newInstance("/response/successfulTests/testResult")
+					.selectNodes(doc);
 			for (Element element : sucTestResElements) {
 				TestDetailsInfo tInfo = new TestDetailsInfo();
 				tInfo.setTestClassName(element.getAttributeValue("testClass"));
@@ -500,7 +515,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 			}
 
 			@SuppressWarnings("unchecked")
-			final List<Element> failedTestResElements = XPath.newInstance("/response/failedTests/testResult").selectNodes(doc);
+			final List<Element> failedTestResElements = XPath.newInstance("/response/failedTests/testResult")
+					.selectNodes(doc);
 			if (!failedTestResElements.isEmpty()) {
 				int i = 1;
 				for (Element element : failedTestResElements) {
@@ -537,13 +553,13 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	/**
-	 * Currently length of the comment is limited by poor implementation which uses
-	 * GET HTTP method (sic!) to post a new comment and the comment becomes part of URL, which is typically truncated
-	 * by web servers.
+	 * Currently length of the comment is limited by poor implementation which uses GET HTTP method (sic!) to post a new
+	 * comment and the comment becomes part of URL, which is typically truncated by web servers.
 	 */
 	public void addLabelToBuild(@NotNull String planKey, int buildNumber, String buildLabel) throws RemoteApiException {
-		String buildResultUrl = getBaseUrl() + ADD_LABEL_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken) + "&buildKey="
-				+ UrlUtil.encodeUrl(planKey) + "&buildNumber=" + buildNumber + "&label=" + UrlUtil.encodeUrl(buildLabel);
+		String buildResultUrl = getBaseUrl() + ADD_LABEL_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
+				+ "&buildKey=" + UrlUtil.encodeUrl(planKey) + "&buildNumber=" + buildNumber + "&label="
+				+ UrlUtil.encodeUrl(buildLabel);
 
 		try {
 			Document doc = retrieveGetResponse(buildResultUrl);
@@ -559,13 +575,14 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	/**
-	 * Currently length of the comment is limited by poor implementation which uses
-	 * GET HTTP method (sic!) to post a new comment and the comment becomes part of URL, which is typically truncated
-	 * by web servers.
+	 * Currently length of the comment is limited by poor implementation which uses GET HTTP method (sic!) to post a new
+	 * comment and the comment becomes part of URL, which is typically truncated by web servers.
 	 */
-	public void addCommentToBuild(@NotNull String planKey, int buildNumber, String buildComment) throws RemoteApiException {
-		String buildResultUrl = getBaseUrl() + ADD_COMMENT_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken) + "&buildKey="
-				+ UrlUtil.encodeUrl(planKey) + "&buildNumber=" + buildNumber + "&content=" + UrlUtil.encodeUrl(buildComment);
+	public void addCommentToBuild(@NotNull String planKey, int buildNumber, String buildComment)
+			throws RemoteApiException {
+		String buildResultUrl = getBaseUrl() + ADD_COMMENT_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
+				+ "&buildKey=" + UrlUtil.encodeUrl(planKey) + "&buildNumber=" + buildNumber + "&content="
+				+ UrlUtil.encodeUrl(buildComment);
 
 		try {
 			Document doc = retrieveGetResponse(buildResultUrl);
@@ -583,9 +600,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	public void executeBuild(@NotNull String planKey) throws RemoteApiException {
 		String buildResultUrl;
 
-		buildResultUrl = getBaseUrl() + EXECUTE_BUILD_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
-				+ "&buildKey=" + UrlUtil.encodeUrl(planKey);
-
+		buildResultUrl = getBaseUrl() + EXECUTE_BUILD_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken) + "&buildKey="
+				+ UrlUtil.encodeUrl(planKey);
 
 		try {
 			Document doc = retrieveGetResponse(buildResultUrl);
@@ -601,15 +617,13 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	BambooBuildInfo constructBuildErrorInfo(String planKey, String message, Date lastPollingTime) {
-		return new BambooBuildInfo.Builder(planKey, null, serverData, null, null, BuildStatus.UNKNOWN)
-				.pollingTime(lastPollingTime)
-				.errorMessage(message).build();
+		return new BambooBuildInfo.Builder(planKey, null, serverData, null, null, BuildStatus.UNKNOWN).pollingTime(
+				lastPollingTime).errorMessage(message).build();
 	}
 
 	BambooBuildInfo constructBuildErrorInfo(String planKey, String message, Throwable exception, Date lastPollingTime) {
-		return new BambooBuildInfo.Builder(planKey, null, serverData, null, null, BuildStatus.UNKNOWN)
-				.pollingTime(lastPollingTime)
-				.errorMessage(message, exception).build();
+		return new BambooBuildInfo.Builder(planKey, null, serverData, null, null, BuildStatus.UNKNOWN).pollingTime(
+				lastPollingTime).errorMessage(message, exception).build();
 	}
 
 	private int parseInt(String number) throws RemoteApiException {
@@ -625,8 +639,8 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 		// for never executed build we actually have no data here (no children)
 		if (!buildItemNode.getChildren().iterator().hasNext()) {
-			return new BambooBuildInfo.Builder(aPlanKey, serverData, BuildStatus.UNKNOWN)
-					.enabled(isEnabled).pollingTime(lastPollingTime)
+			return new BambooBuildInfo.Builder(aPlanKey, serverData, BuildStatus.UNKNOWN).enabled(isEnabled)
+					.pollingTime(lastPollingTime)
 					.reason("Never built")
 					.build();
 
@@ -647,13 +661,20 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		final String durationDescription = getChildText(buildItemNode, "buildDurationDescription");
 
 		final String stateStr = getChildText(buildItemNode, "buildState");
-		return new BambooBuildInfo.Builder(planKey, buildName, serverData, projectName, buildNumber, getStatus(stateStr))
-				.enabled(isEnabled).pollingTime(lastPollingTime).reason(getChildText(buildItemNode, "buildReason"))
-				.startTime(startTime).testSummary(getChildText(buildItemNode, "buildTestSummary"))
+		return new BambooBuildInfo.Builder(planKey, buildName, serverData, projectName, buildNumber,
+				getStatus(stateStr)).enabled(isEnabled)
+				.pollingTime(lastPollingTime)
+				.reason(getChildText(buildItemNode, "buildReason"))
+				.startTime(startTime)
+				.testSummary(getChildText(buildItemNode, "buildTestSummary"))
 				.commitComment(getChildText(buildItemNode, "buildCommitComment"))
 				.testsPassedCount(parseInt(getChildText(buildItemNode, "successfulTestCount")))
-				.testsFailedCount(parseInt(getChildText(buildItemNode, "failedTestCount"))).completionTime(completionTime)
-				.relativeBuildDate(relativeBuildDate).durationDescription(durationDescription).commiters(commiters).build();
+				.testsFailedCount(parseInt(getChildText(buildItemNode, "failedTestCount")))
+				.completionTime(completionTime)
+				.relativeBuildDate(relativeBuildDate)
+				.durationDescription(durationDescription)
+				.commiters(commiters)
+				.build();
 	}
 
 	@NotNull
@@ -682,17 +703,20 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	private static DateTimeFormatter buildDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+
 	private static DateTimeFormatter commitDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
 
 	/**
 	 * Parses date without timezone info
 	 * <p/>
-	 * wseliga: I have no idea why this method silently returns null in case of parsing problem.
-	 * For now, I am going to leave it as it is to avoid hell of the problems, should it be really necessary
-	 * (and I am now a few days before 2.0.0 final release)
-	 *
-	 * @param date		 string to parse
-	 * @param errorMessage message used during logging
+	 * wseliga: I have no idea why this method silently returns null in case of parsing problem. For now, I am going to
+	 * leave it as it is to avoid hell of the problems, should it be really necessary (and I am now a few days before
+	 * 2.0.0 final release)
+	 * 
+	 * @param date
+	 *            string to parse
+	 * @param errorMessage
+	 *            message used during logging
 	 * @return parsed date
 	 */
 	@Nullable
@@ -743,9 +767,15 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	public String getBuildLogs(@NotNull String planKey, int buildNumber) throws RemoteApiException {
-		String buildResultUrl = new StringBuilder().append(getBaseUrl()).append("/download/")
-				.append(UrlUtil.encodeUrl(planKey)).append("/build_logs/").append(UrlUtil.encodeUrl(planKey)).append("-")
-				.append(buildNumber).append(".log").toString();
+		String buildResultUrl = new StringBuilder().append(getBaseUrl())
+				.append("/download/")
+				.append(UrlUtil.encodeUrl(planKey))
+				.append("/build_logs/")
+				.append(UrlUtil.encodeUrl(planKey))
+				.append("-")
+				.append(buildNumber)
+				.append(".log")
+				.toString();
 
 		try {
 			return doUnconditionalGetForTextNonXmlResource(buildResultUrl);
@@ -755,7 +785,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	@Override
-	protected void adjustHttpHeader(HttpMethod method) {
+	public void adjustHttpHeader(HttpMethod method) {
 		// Bamboo does not require custom headers
 	}
 

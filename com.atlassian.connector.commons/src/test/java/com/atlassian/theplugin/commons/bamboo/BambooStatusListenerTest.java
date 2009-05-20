@@ -51,7 +51,7 @@ public class BambooStatusListenerTest extends TestCase {
 
 		EasyMock.replay(displayMock);
 
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail));
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail), null);
 
 		EasyMock.verify(displayMock);
 	}
@@ -61,7 +61,7 @@ public class BambooStatusListenerTest extends TestCase {
 
 		EasyMock.replay(displayMock);
 
-		tooltipListener.updateBuildStatuses(Arrays.asList(build));
+		tooltipListener.updateBuildStatuses(Arrays.asList(build), null);
 
 		EasyMock.verify(displayMock);
 	}
@@ -71,7 +71,7 @@ public class BambooStatusListenerTest extends TestCase {
 
 		EasyMock.replay(displayMock);
 
-		tooltipListener.updateBuildStatuses(Arrays.asList(build));
+		tooltipListener.updateBuildStatuses(Arrays.asList(build), null);
 
 		EasyMock.verify(displayMock);
 	}
@@ -113,8 +113,8 @@ public class BambooStatusListenerTest extends TestCase {
 
 		EasyMock.replay(displayMock);
 
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail));
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail), null);
 
 		EasyMock.verify(displayMock);
 	}
@@ -127,8 +127,8 @@ public class BambooStatusListenerTest extends TestCase {
 
 		EasyMock.replay(displayMock);
 
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK));
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK), null);
 
 		EasyMock.verify(displayMock);
 	}
@@ -140,48 +140,48 @@ public class BambooStatusListenerTest extends TestCase {
 
 		EasyMock.replay(displayMock);
 
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown));
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown), null);
 		EasyMock.verify(displayMock);
 		EasyMock.reset(displayMock);
 
 		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.FAILURE), findPopupInfo(".*red.*failed.*"));
 		EasyMock.replay(displayMock);
 
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFailed));
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFailed), null);
 		EasyMock.verify(displayMock);
 		EasyMock.reset(displayMock);
 
 		EasyMock.replay(displayMock);
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFailed));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFailed));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFailed));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown));
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFailed), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFailed), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFailed), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown), null);
 		EasyMock.verify(displayMock);
 		EasyMock.reset(displayMock);
 
 		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.SUCCESS), findPopupInfo(".*green.*succeed.*"));
 		EasyMock.replay(displayMock);
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded));
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded), null);
 		EasyMock.verify(displayMock);
 		EasyMock.reset(displayMock);
 
 		EasyMock.replay(displayMock);
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown));
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildSucceeded), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildUnknown), null);
 		EasyMock.verify(displayMock);
 	}
 
@@ -196,9 +196,9 @@ public class BambooStatusListenerTest extends TestCase {
 
 		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.FAILURE), findPopupInfo(".*red.*failed.*"));
 		EasyMock.replay(displayMock);
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstUnknown, buildSecondUnknown));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstOK, buildSecondOK));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstFailed, buildSecondFailed));
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstUnknown, buildSecondUnknown), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstOK, buildSecondOK), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstFailed, buildSecondFailed), null);
 		EasyMock.verify(displayMock);
 
 	}
@@ -214,9 +214,9 @@ public class BambooStatusListenerTest extends TestCase {
 
 		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.SUCCESS), findPopupInfo(".*green.*succeed.*"));
 		EasyMock.replay(displayMock);
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstUnknown, buildSecondUnknown));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstFailed, buildSecondFailed));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstOK, buildSecondOK));
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstUnknown, buildSecondUnknown), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstFailed, buildSecondFailed), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstOK, buildSecondOK), null);
 		EasyMock.verify(displayMock);
 
 	}
@@ -232,17 +232,17 @@ public class BambooStatusListenerTest extends TestCase {
 
 		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.FAILURE), and(findPopupInfo(".*green.*succeed.*"), findPopupInfo(".*red.*failed.*")));
 		EasyMock.replay(displayMock);
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstUnknown, buildSecondUnknown));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstFailed, buildSecondOK));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstOK, buildSecondFailed));
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstUnknown, buildSecondUnknown), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstFailed, buildSecondOK), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstOK, buildSecondFailed), null);
 		EasyMock.verify(displayMock);
 
 		EasyMock.reset(displayMock);
 		displayMock.updateBambooStatus(EasyMock.eq(BuildStatus.FAILURE), and(findPopupInfo(".*green.*succeed.*"), findPopupInfo(".*red.*failed.*")));
 		EasyMock.replay(displayMock);
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstUnknown, buildSecondUnknown));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstOK, buildSecondFailed));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstFailed, buildSecondOK));
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstUnknown, buildSecondUnknown), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstOK, buildSecondFailed), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFirstFailed, buildSecondOK), null);
 		EasyMock.verify(displayMock);
 
 	}

@@ -86,13 +86,13 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 
 		EasyMock.replay(displayMock);
 
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK_JJ));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_JJ));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_US));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_UN));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK_UN));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_US));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK_US));
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK_JJ), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_JJ), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_US), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_UN), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK_UN), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_US), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK_US), null);
 	}
 
 	public void testOnlyMyOff() {
@@ -116,13 +116,13 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 
 		EasyMock.replay(displayMock);
 
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK_JJ));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_JJ));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_US));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_UN));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK_UN));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_US));
-		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK_US));
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK_JJ), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_JJ), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_US), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_UN), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK_UN), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildFail_US), null);
+		tooltipListener.updateBuildStatuses(Arrays.asList(buildOK_US), null);
 	}
 
 	public static BambooBuildInfo generateBuildInfo(BuildStatus status, int buildNumber, String loggedUser) {

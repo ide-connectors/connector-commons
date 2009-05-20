@@ -21,6 +21,5 @@ import com.atlassian.theplugin.commons.StatusListener;
 import java.util.Collection;
 
 public interface BambooStatusListener extends StatusListener {
-	void updateBuildStatuses(Collection<BambooBuild> buildStatuses);
-
+	void updateBuildStatuses(Collection<BambooBuild> buildStatuses, Collection<Exception> generalExceptions);
 }

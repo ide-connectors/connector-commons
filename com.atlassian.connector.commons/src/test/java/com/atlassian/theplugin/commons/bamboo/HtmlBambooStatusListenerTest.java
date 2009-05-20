@@ -79,7 +79,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		final BambooBuildInfo buildUnknown = new BambooBuildInfo.Builder("whatever", null, BAMBOO, null, null,
 				BuildStatus.UNKNOWN).build();
 		builds.add(buildUnknown);
-		bambooListener.updateBuildStatuses(builds);
+		bambooListener.updateBuildStatuses(builds, null);
 
 		EasyMock.verify(mockDisplay);
 
@@ -102,7 +102,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
 		builds.add(buildSuccessful);
 		builds.add(buildUnknown);
-		bambooListener.updateBuildStatuses(builds);
+		bambooListener.updateBuildStatuses(builds, null);
 
 		EasyMock.verify(mockDisplay);
 	}
@@ -122,7 +122,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		// test: successful build should generate green (successful) state
 		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
 		builds.add(buildSuccessful);
-		bambooListener.updateBuildStatuses(builds);
+		bambooListener.updateBuildStatuses(builds, null);
 
 		EasyMock.verify(mockDisplay);
 	}
@@ -142,13 +142,13 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		// test: unknown build should generate grey (unknown) state
 		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
 		builds.add(buildUnknown);
-		bambooListener.updateBuildStatuses(builds);
+		bambooListener.updateBuildStatuses(builds, null);
 
 		EasyMock.verify(mockDisplay);
 	}
 
 	public void testNullStatusCollection() throws Exception {
-		testedListener.updateBuildStatuses(null);
+		testedListener.updateBuildStatuses(null, null);
 		assertEquals(1, output.count);
 		assertSame(BuildStatus.UNKNOWN, output.buildStatus);
 //		assertEquals(
@@ -157,7 +157,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	public void testEmptyStatusCollection() throws Exception {
-		testedListener.updateBuildStatuses(new ArrayList<BambooBuild>());
+		testedListener.updateBuildStatuses(new ArrayList<BambooBuild>(), null);
 		assertEquals(1, output.count);
 		assertSame(BuildStatus.UNKNOWN, output.buildStatus);
 //        assertEquals(
@@ -169,7 +169,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		Collection<BambooBuild> buildInfo = new ArrayList<BambooBuild>();
 
 		buildInfo.add(generateBuildInfo(BuildStatus.SUCCESS));
-		testedListener.updateBuildStatuses(buildInfo);
+		testedListener.updateBuildStatuses(buildInfo, null);
 
 		assertSame(BuildStatus.SUCCESS, output.buildStatus);
 
@@ -184,7 +184,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		Collection<BambooBuild> buildInfo = new ArrayList<BambooBuild>();
 
 		buildInfo.add(generateDisabledBuildInfo(BuildStatus.SUCCESS));
-		testedListener.updateBuildStatuses(buildInfo);
+		testedListener.updateBuildStatuses(buildInfo, null);
 
 		// disabled builds are not considered
 		assertSame(BuildStatus.UNKNOWN, output.buildStatus);
@@ -199,7 +199,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	public void testSingleFailedResult() throws Exception {
 		Collection<BambooBuild> buildInfo = new ArrayList<BambooBuild>();
 		buildInfo.add(generateBuildInfo(BuildStatus.FAILURE));
-		testedListener.updateBuildStatuses(buildInfo);
+		testedListener.updateBuildStatuses(buildInfo, null);
 
 		// disabled builds are not considered
 		assertSame(BuildStatus.FAILURE, output.buildStatus);
@@ -214,7 +214,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	public void testSingleFailedResultForDisabledBuild() throws Exception {
 		Collection<BambooBuild> buildInfo = new ArrayList<BambooBuild>();
 		buildInfo.add(generateDisabledBuildInfo(BuildStatus.FAILURE));
-		testedListener.updateBuildStatuses(buildInfo);
+		testedListener.updateBuildStatuses(buildInfo, null);
 		assertSame(BuildStatus.UNKNOWN, output.buildStatus);
 
 //		HtmlTable table = output.response.getTheTable();
@@ -227,7 +227,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	public void testSingleErrorResult() throws Exception {
 		Collection<BambooBuild> buildInfo = new ArrayList<BambooBuild>();
 		buildInfo.add(generateBuildInfo(BuildStatus.UNKNOWN));
-		testedListener.updateBuildStatuses(buildInfo);
+		testedListener.updateBuildStatuses(buildInfo, null);
 		assertSame(BuildStatus.UNKNOWN, output.buildStatus);
 //
 //		HtmlTable table = output.response.getTheTable();

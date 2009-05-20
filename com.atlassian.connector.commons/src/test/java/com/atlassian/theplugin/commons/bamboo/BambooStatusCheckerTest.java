@@ -166,7 +166,7 @@ public class BambooStatusCheckerTest extends TestCase {
 
 		private Collection<BambooBuild> lastStatuses;
 
-		public void updateBuildStatuses(Collection<BambooBuild> buildStatuses) {
+        public void updateBuildStatuses(Collection<BambooBuild> buildStatuses, Collection<Exception> generalExceptions) {
 			lastStatuses = buildStatuses;
 		}
 
@@ -182,7 +182,7 @@ public class BambooStatusCheckerTest extends TestCase {
 
 		public void resetState() {
 		}
-	}
+    }
 
 	private class EasyInvoker implements UIActionScheduler {
 		private boolean invoked;

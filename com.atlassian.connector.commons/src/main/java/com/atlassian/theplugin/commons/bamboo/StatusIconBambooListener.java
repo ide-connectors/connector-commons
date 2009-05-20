@@ -32,7 +32,7 @@ public class StatusIconBambooListener implements BambooStatusListener {
 		this.display = aDisplay;
 	}
 
-	public void updateBuildStatuses(Collection<BambooBuild> buildStatuses) {
+	public void updateBuildStatuses(Collection<BambooBuild> buildStatuses, Collection<Exception> generalExceptions) {
 
 		BuildStatus status = BuildStatus.UNKNOWN;
 
@@ -73,6 +73,6 @@ public class StatusIconBambooListener implements BambooStatusListener {
 
 	public void resetState() {
 		// set empty list of builds
-		updateBuildStatuses(new ArrayList<BambooBuild>());
+		updateBuildStatuses(new ArrayList<BambooBuild>(), null);
 	}
 }

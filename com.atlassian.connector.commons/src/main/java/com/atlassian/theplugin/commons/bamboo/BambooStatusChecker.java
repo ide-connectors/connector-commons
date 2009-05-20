@@ -91,6 +91,8 @@ public final class BambooStatusChecker implements SchedulableChecker {
 	private void doRun() {
 		try {
 
+            final List<Exception> generalProblems = new ArrayList<Exception>();
+
 			// collect build info from each server
 			final Collection<BambooBuild> newServerBuildsStatus = new ArrayList<BambooBuild>();
 			for (BambooServerCfg server : cfgManager.getAllEnabledBambooServers()) {
@@ -112,6 +114,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 
 				} catch (ServerPasswordNotProvidedException exception) {
 					actionScheduler.invokeLater(missingPasswordHandler);
+                    generalProblems.add(exception);
 				}
 			}
 
@@ -120,7 +123,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 				public void run() {
 					synchronized (listenerList) {
 						for (BambooStatusListener listener : listenerList) {
-							listener.updateBuildStatuses(newServerBuildsStatus);
+							listener.updateBuildStatuses(newServerBuildsStatus, generalProblems);
 						}
 					}
 				}

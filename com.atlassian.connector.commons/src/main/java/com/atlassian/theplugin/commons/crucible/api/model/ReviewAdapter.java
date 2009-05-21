@@ -492,9 +492,9 @@ public class ReviewAdapter {
 			} catch (ValueNotYetInitialized valueNotYetInitialized) {
 				// shame
 			}
-			if (reviewDifferenceProducer.getCommentChangesCount() > 0) {
+//			if (reviewDifferenceProducer.getCommentChangesCount() > 0) {
 				reviewChanged = true;
-			}
+//			}
 		}
 
 		if (reviewChanged) {

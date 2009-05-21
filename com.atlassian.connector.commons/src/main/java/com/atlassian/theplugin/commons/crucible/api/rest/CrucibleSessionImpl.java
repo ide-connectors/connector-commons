@@ -165,6 +165,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	private CrucibleVersionInfo crucibleVersionInfo;
 
+	private boolean loginCalled = false;
+
 	/**
 	 * Public constructor for CrucibleSessionImpl.
 	 * 
@@ -183,9 +185,13 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	}
 
+
 	public void login() throws RemoteApiLoginException {
-		// Check isLoggedIn for details
-		//if (!isLoggedIn()) {
+		loginCalled = true;
+	}
+
+	private void realLogin() throws RemoteApiLoginException {
+		// Login every time access Crucible server - https://studio.atlassian.com/browse/ACC-31 
 		String loginUrl;
 		try {
 			if (getUsername() == null || getPassword() == null) {
@@ -228,10 +234,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IllegalArgumentException e) {
 			throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
 		}
-		//}
 	}
 
 	public void logout() {
+		loginCalled = false;
 		if (authToken != null) {
 			authToken = null;
 		}
@@ -1597,10 +1603,12 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	public boolean isLoggedIn() throws RemoteApiLoginException {
+		if (!loginCalled) {
+			return false;
+		}
 		// TODO: check if http://jira.atlassian.com/browse/CRUC-1452 was fixed then fix this code.
 		// Refresh login to fix problem with https://studio.atlassian.com/browse/ACC-31
-		logout();
-		login();
+		realLogin();
 		return authToken != null;
 	}
 }

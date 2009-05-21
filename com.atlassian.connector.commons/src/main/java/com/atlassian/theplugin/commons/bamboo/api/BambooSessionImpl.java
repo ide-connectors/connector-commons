@@ -785,7 +785,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	}
 
 	@Override
-	public void adjustHttpHeader(HttpMethod method) {
+	protected void adjustHttpHeader(HttpMethod method) {
 		// Bamboo does not require custom headers
 	}
 

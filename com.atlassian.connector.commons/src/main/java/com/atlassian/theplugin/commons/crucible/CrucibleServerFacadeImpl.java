@@ -152,6 +152,11 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		try {
 			session.getServerVersion();
 		} catch (RemoteApiException e) {
+			// getServerVersion tries to login again due to https://studio.atlassian.com/browse/ACC-31
+			// if it fails it will throw RemoteApiLoginException which doesn't have Cause
+			if (e.getCause() == null || e.getCause().getMessage() == null)
+				throw e;
+			
 			if (e.getCause().getMessage().startsWith("HTTP 500")) {
 				throw new CrucibleLoginException(
 						"Atlassian IntelliJ Connector detected a Crucible version older\n"

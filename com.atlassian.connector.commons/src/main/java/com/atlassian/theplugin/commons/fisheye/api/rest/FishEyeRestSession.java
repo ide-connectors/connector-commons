@@ -89,7 +89,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 	}
 
 	@Override
-	public void adjustHttpHeader(final HttpMethod method) {
+	protected void adjustHttpHeader(final HttpMethod method) {
 		// TODO: may be use the same approach as in CrucibleSessionImpl?
 	}
 

@@ -492,16 +492,13 @@ public class ReviewAdapter {
 			} catch (ValueNotYetInitialized valueNotYetInitialized) {
 				// shame
 			}
-//			if (reviewDifferenceProducer.getCommentChangesCount() > 0) {
-				reviewChanged = true;
-//			}
+            reviewChanged = true;
 		}
 
 		if (reviewChanged) {
 			for (CrucibleReviewListener listener : getListeners()) {
 				listener.reviewChanged(this, differences);
 			}
-
 		}
 
 		return differences;

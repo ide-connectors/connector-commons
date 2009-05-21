@@ -184,51 +184,51 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	public void login() throws RemoteApiLoginException {
-		if (!isLoggedIn()) {
-			String loginUrl;
-			try {
-				if (getUsername() == null || getPassword() == null) {
-					throw new RemoteApiLoginException("Corrupted configuration. Username or Password null");
-				}
-				loginUrl = getBaseUrl() + AUTH_SERVICE + LOGIN + "?userName="
-						+ URLEncoder.encode(getUsername(), "UTF-8") + "&password="
-						+ URLEncoder.encode(getPassword(), "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				///CLOVER:OFF
-				throw new RuntimeException("URLEncoding problem: " + e.getMessage());
-				///CLOVER:ON
+		// Check isLoggedIn for details
+		//if (!isLoggedIn()) {
+		String loginUrl;
+		try {
+			if (getUsername() == null || getPassword() == null) {
+				throw new RemoteApiLoginException("Corrupted configuration. Username or Password null");
 			}
-
-			try {
-				Document doc = retrieveGetResponse(loginUrl);
-				String exception = getExceptionMessages(doc);
-				if (null != exception) {
-					throw new RemoteApiLoginFailedException(exception);
-				}
-				XPath xpath = XPath.newInstance("/loginResult/token");
-				List<?> elements = xpath.selectNodes(doc);
-				if (elements == null) {
-					throw new RemoteApiLoginException("Server did not return any authentication token");
-				}
-				if (elements.size() != 1) {
-					throw new RemoteApiLoginException("Server returned unexpected number of authentication tokens ("
-							+ elements.size() + ")");
-				}
-				this.authToken = ((Element) elements.get(0)).getText();
-			} catch (MalformedURLException e) {
-				throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
-			} catch (UnknownHostException e) {
-				throw new RemoteApiLoginException("Unknown host: " + e.getMessage(), e);
-			} catch (IOException e) {
-				throw new RemoteApiLoginException(getBaseUrl() + ":" + e.getMessage(), e);
-			} catch (JDOMException e) {
-				throw new RemoteApiLoginException("Server:" + getBaseUrl() + " returned malformed response", e);
-			} catch (RemoteApiSessionExpiredException e) {
-				// Crucible does not return this exception
-			} catch (IllegalArgumentException e) {
-				throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
-			}
+			loginUrl = getBaseUrl() + AUTH_SERVICE + LOGIN + "?userName=" + URLEncoder.encode(getUsername(), "UTF-8")
+					+ "&password=" + URLEncoder.encode(getPassword(), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			///CLOVER:OFF
+			throw new RuntimeException("URLEncoding problem: " + e.getMessage());
+			///CLOVER:ON
 		}
+
+		try {
+			Document doc = retrieveGetResponse(loginUrl);
+			String exception = getExceptionMessages(doc);
+			if (null != exception) {
+				throw new RemoteApiLoginFailedException(exception);
+			}
+			XPath xpath = XPath.newInstance("/loginResult/token");
+			List<?> elements = xpath.selectNodes(doc);
+			if (elements == null) {
+				throw new RemoteApiLoginException("Server did not return any authentication token");
+			}
+			if (elements.size() != 1) {
+				throw new RemoteApiLoginException("Server returned unexpected number of authentication tokens ("
+						+ elements.size() + ")");
+			}
+			this.authToken = ((Element) elements.get(0)).getText();
+		} catch (MalformedURLException e) {
+			throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
+		} catch (UnknownHostException e) {
+			throw new RemoteApiLoginException("Unknown host: " + e.getMessage(), e);
+		} catch (IOException e) {
+			throw new RemoteApiLoginException(getBaseUrl() + ":" + e.getMessage(), e);
+		} catch (JDOMException e) {
+			throw new RemoteApiLoginException("Server:" + getBaseUrl() + " returned malformed response", e);
+		} catch (RemoteApiSessionExpiredException e) {
+			// Crucible does not return this exception
+		} catch (IllegalArgumentException e) {
+			throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
+		}
+		//}
 	}
 
 	public void logout() {
@@ -1555,7 +1555,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	@Override
-	public void adjustHttpHeader(HttpMethod method) {
+	protected void adjustHttpHeader(HttpMethod method) {
 		method.addRequestHeader(new Header("Authorization", getAuthHeaderValue()));
 	}
 
@@ -1596,7 +1596,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	public boolean isLoggedIn() {
+	public boolean isLoggedIn() throws RemoteApiLoginException {
+		// TODO: check if http://jira.atlassian.com/browse/CRUC-1452 was fixed then fix this code.
+		// Refresh login to fix problem with https://studio.atlassian.com/browse/ACC-31
+		logout();
+		login();
 		return authToken != null;
 	}
 }

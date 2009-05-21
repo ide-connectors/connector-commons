@@ -40,7 +40,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-
 public interface CrucibleSession {
 	void login() throws RemoteApiLoginException;
 
@@ -130,13 +129,14 @@ public interface CrucibleSession {
 
 	GeneralComment addGeneralCommentReply(PermId id, PermId cId, GeneralComment comment) throws RemoteApiException;
 
-	VersionedComment addVersionedCommentReply(PermId id, PermId cId, VersionedComment comment) throws RemoteApiException;
+	VersionedComment addVersionedCommentReply(PermId id, PermId cId, VersionedComment comment)
+			throws RemoteApiException;
 
 	void updateReply(PermId id, PermId cId, PermId rId, GeneralComment comment) throws RemoteApiException;
 
 	List<CustomFieldDef> getMetrics(int version) throws RemoteApiException;
 
-	boolean isLoggedIn();
+	boolean isLoggedIn() throws RemoteApiLoginException;
 
 //	CrucibleFileInfo addItemToReview(Review review, NewReviewItem item) throws RemoteApiException;
 

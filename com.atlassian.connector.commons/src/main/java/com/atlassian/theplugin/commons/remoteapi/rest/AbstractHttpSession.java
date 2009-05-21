@@ -522,7 +522,7 @@ public abstract class AbstractHttpSession {
 		return doc;
 	}
 
-	public abstract void adjustHttpHeader(HttpMethod method);
+	protected abstract void adjustHttpHeader(HttpMethod method);
 
 	protected abstract void preprocessResult(Document doc) throws JDOMException, RemoteApiSessionExpiredException;
 

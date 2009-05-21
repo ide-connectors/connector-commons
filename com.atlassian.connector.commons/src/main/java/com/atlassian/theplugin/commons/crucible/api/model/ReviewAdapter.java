@@ -446,6 +446,9 @@ public class ReviewAdapter {
 
 		ReviewDifferenceProducer reviewDifferenceProducer = new ReviewDifferenceProducer(this, newReview);
 		List<CrucibleNotification> differences = reviewDifferenceProducer.getDiff();
+        if (differences != null && differences.size() > 0) {
+            reviewChanged = true;
+        }
 		review.setAuthor(newReview.getAuthor());
 		review.setModerator(newReview.getModerator());
 		review.setName(newReview.getName());
@@ -482,7 +485,6 @@ public class ReviewAdapter {
 			} catch (ValueNotYetInitialized valueNotYetInitialized) {
 				// shame
 			}
-			reviewChanged = true;
 		}
 
 
@@ -492,7 +494,6 @@ public class ReviewAdapter {
 			} catch (ValueNotYetInitialized valueNotYetInitialized) {
 				// shame
 			}
-            reviewChanged = true;
 		}
 
 		if (reviewChanged) {

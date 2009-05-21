@@ -165,8 +165,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	private CrucibleVersionInfo crucibleVersionInfo;
 
-	private boolean loginCalled = false;
-
 	/**
 	 * Public constructor for CrucibleSessionImpl.
 	 * 
@@ -185,12 +183,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	}
 
-
 	public void login() throws RemoteApiLoginException {
-		loginCalled = true;
-	}
-
-	private void realLogin() throws RemoteApiLoginException {
 		// Check isLoggedIn for details
 		//if (!isLoggedIn()) {
 		String loginUrl;
@@ -239,7 +232,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	public void logout() {
-		loginCalled = false;
 		if (authToken != null) {
 			authToken = null;
 		}
@@ -1605,12 +1597,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	public boolean isLoggedIn() throws RemoteApiLoginException {
-		if (!loginCalled) {
-			return false;
-		}
 		// TODO: check if http://jira.atlassian.com/browse/CRUC-1452 was fixed then fix this code.
 		// Refresh login to fix problem with https://studio.atlassian.com/browse/ACC-31
-		realLogin();
+		logout();
+		login();
 		return authToken != null;
 	}
 }

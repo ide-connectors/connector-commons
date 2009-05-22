@@ -7,12 +7,18 @@ package com.atlassian.theplugin.commons.crucible.api.content;
  */
 public class ReviewFileContent {
 	private final byte[] content;
+    private boolean revisionOnLocalFS = false;
 
-	public ReviewFileContent(final byte[] content) {
+    public ReviewFileContent(final byte[] content, final boolean revisionOnLocalFS) {
 		this.content = content;
+        this.revisionOnLocalFS = revisionOnLocalFS;
 	}
 
 	public byte[] getContent() {
 		return content;
 	}
+
+    public boolean isRevisionOnLocalFS() {
+        return revisionOnLocalFS;
+    }
 }

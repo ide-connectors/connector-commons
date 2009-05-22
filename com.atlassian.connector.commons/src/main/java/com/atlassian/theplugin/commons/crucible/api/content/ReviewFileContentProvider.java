@@ -16,4 +16,6 @@ public interface ReviewFileContentProvider {
 			throws ReviewFileContentException;
 
 	CrucibleFileInfo getFileInfo();
+
+    boolean isLocalFileDirty();
 }

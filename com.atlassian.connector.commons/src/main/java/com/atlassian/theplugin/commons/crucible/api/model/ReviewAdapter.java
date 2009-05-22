@@ -589,18 +589,27 @@ public class ReviewAdapter {
 		}
 	}
 
+
+    public ReviewFileContentProvider getContentProvider(VersionedVirtualFile fileInfo) {
+        String key = getFileCacheKey(fileInfo);
+        if (contentProviders.containsKey(key)) {
+            return contentProviders.get(key);
+        }
+        return null;
+    }
 	public ReviewFileContent getFileContent(VersionedVirtualFile fileInfo)
 			throws ReviewFileContentException {
 		String key = getFileCacheKey(fileInfo);
 		if (fetchedFilesCache.containsKey(key)) {
-			return fetchedFilesCache.get(key);
-		}
+            return fetchedFilesCache.get(key);
+        }
+
 		ReviewFileContentProvider provider = contentProviders.get(key);
 		if (provider != null) {
 			ReviewFileContent content = provider.getContent(this, fileInfo);
 			fetchedFilesCache.put(key, content);
-			contentProviders.remove(key);
-			return content;
+			//contentProviders.remove(key);
+            return content;
 		}
 		return null;
 	}

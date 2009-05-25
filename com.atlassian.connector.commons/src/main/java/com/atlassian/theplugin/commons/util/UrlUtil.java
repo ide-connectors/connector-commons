@@ -17,7 +17,11 @@
 package com.atlassian.theplugin.commons.util;
 
 import java.io.UnsupportedEncodingException;
-import java.net.*;
+import java.net.URL;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+
 
 /**
  * Created by IntelliJ IDEA.

@@ -1530,12 +1530,13 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	public List<CustomFieldDef> getMetrics(int version) throws RemoteApiException {
-		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
-
 		String key = Integer.toString(version);
 		if (!metricsDefinitions.containsKey(key)) {
+            // workaround for ACC-31
+            if (!isLoggedIn()) {
+                throw new IllegalStateException("Calling method without calling login() first");
+            }
+
 			String requestUrl = getBaseUrl() + REVIEW_SERVICE + METRICS + "/" + Integer.toString(version);
 			try {
 				Document doc = retrieveGetResponse(requestUrl);

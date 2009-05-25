@@ -95,6 +95,10 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		if (session == null) {
 			try {
 				session = new CrucibleSessionImpl(server, callback);
+                // workaround for ACC-31
+                if (!session.isLoggedIn()) {
+                    session.login();
+                }
 				sessions.put(key, session);
 			} catch (RemoteApiMalformedUrlException e) {
 				if (server.getPassword().length() > 0 || !UrlUtil.isUrlValid(server.getUrl())) {
@@ -105,9 +109,6 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 					throw new ServerPasswordNotProvidedException(e);
 				}
 			}
-		}
-		if (!session.isLoggedIn()) {
-			session.login();
 		}
 		return session;
 	}

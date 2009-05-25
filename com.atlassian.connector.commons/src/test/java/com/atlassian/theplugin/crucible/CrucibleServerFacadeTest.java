@@ -16,6 +16,9 @@
 
 package com.atlassian.theplugin.crucible;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
+
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
@@ -24,32 +27,54 @@ import com.atlassian.theplugin.commons.crucible.CrucibleServerFacade;
 import com.atlassian.theplugin.commons.crucible.CrucibleServerFacadeImpl;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewBean;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.State;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.UserBean;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
-import junit.framework.TestCase;
+
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
 import org.mortbay.jetty.Server;
-import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import junit.framework.TestCase;
 
 public class CrucibleServerFacadeTest extends TestCase {
 	private static final User VALID_LOGIN = new UserBean("validLogin");
+
 	private static final String VALID_PASSWORD = "validPassword";
+
 	private static final String VALID_URL = "http://localhost:9001";
 
 	private CrucibleServerFacade facade;
+
 	private CrucibleSession crucibleSessionMock;
+
 	public static final String INVALID_PROJECT_KEY = "INVALID project key";
+
 	private CrucibleServerCfg crucibleServerCfg;
 
 	@Override
@@ -69,8 +94,8 @@ public class CrucibleServerFacadeTest extends TestCase {
 			Field f = CrucibleServerFacadeImpl.class.getDeclaredField("sessions");
 			f.setAccessible(true);
 
-			((Map<String, CrucibleSession>) f.get(facade))
-					.put(VALID_URL + VALID_LOGIN.getUserName() + VALID_PASSWORD, crucibleSessionMock);
+			((Map<String, CrucibleSession>) f.get(facade)).put(VALID_URL + VALID_LOGIN.getUserName() + VALID_PASSWORD,
+					crucibleSessionMock);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -84,8 +109,8 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		crucibleServerCfg.setUrl("http://localhost:" + server.getConnectors()[0].getLocalPort());
 		JettyMockServer mockServer = new JettyMockServer(server);
-		mockServer.expect("/rest-service/auth-v1/login",
-				new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD, LoginCallback.ALWAYS_FAIL));
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD,
+				LoginCallback.ALWAYS_FAIL));
 
 		try {
 			facade.testServerConnection(getServerData(crucibleServerCfg));
@@ -105,7 +130,8 @@ public class CrucibleServerFacadeTest extends TestCase {
 		crucibleServerCfg.setUrl("http://localhost:" + server.getConnectors()[0].getLocalPort());
 		JettyMockServer mockServer = new JettyMockServer(server);
 
-		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD, false));
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD,
+				false));
 		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(false));
 
 		try {
@@ -118,6 +144,18 @@ public class CrucibleServerFacadeTest extends TestCase {
 		server.stop();
 	}
 
+	public void testConnectionTestInvalidUrl() throws Exception {
+		crucibleServerCfg.setUrl("http://invalid url");
+		try {
+			facade.testServerConnection(getServerData(crucibleServerCfg));
+			fail("Should throw RemoteApiLoginException");
+		} catch (RemoteApiException e) {
+			assertTrue(e instanceof RemoteApiLoginException);
+			assertTrue(e.getCause() instanceof IOException);
+			assertTrue(e.getCause().getMessage().startsWith("Invalid url"));
+		}
+	}
+
 	public void testConnectionTestSucceed() throws Exception {
 		Server server = new Server(0);
 		server.start();
@@ -125,7 +163,8 @@ public class CrucibleServerFacadeTest extends TestCase {
 		crucibleServerCfg.setUrl("http://localhost:" + server.getConnectors()[0].getLocalPort());
 		JettyMockServer mockServer = new JettyMockServer(server);
 
-		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD, false));
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD,
+				false));
 		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 
 		try {
@@ -137,7 +176,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 		mockServer.verify();
 		server.stop();
 	}
-
 
 	@SuppressWarnings("unchecked")
 	Map<String, CrucibleSession> getSessionsFromFacade() {
@@ -247,7 +285,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 		assertSame(response, ret);
 
 		EasyMock.verify(crucibleSessionMock);
-
 
 	}
 

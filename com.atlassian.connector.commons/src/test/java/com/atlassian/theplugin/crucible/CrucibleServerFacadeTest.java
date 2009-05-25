@@ -158,18 +158,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 		}
 	}
 
-	public void testConnectionTestInvalidUrl() throws Exception {
-		crucibleServerCfg.setUrl("http://invalid url");
-		try {
-			facade.testServerConnection(getServerData(crucibleServerCfg));
-			fail("Should throw RemoteApiLoginException");
-		} catch (RemoteApiException e) {
-			assertTrue(e instanceof RemoteApiLoginException);
-			assertTrue(e.getCause() instanceof IOException);
-			assertTrue(e.getCause().getMessage().startsWith("Invalid url"));
-		}
-	}
-
 	public void testConnectionTestSucceed() throws Exception {
 		Server server = new Server(0);
 		server.start();

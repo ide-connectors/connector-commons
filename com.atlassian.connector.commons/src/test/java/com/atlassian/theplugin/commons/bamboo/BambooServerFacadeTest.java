@@ -391,6 +391,19 @@ public class BambooServerFacadeTest extends TestCase {
 		return bambooServerCfg;
 	}
 
+	/**
+	 * Regression for https://studio.atlassian.com/browse/ACC-40
+	 * @throws Exception
+	 */
+	public void testConnectionTestInvalidUrlIncludesPassword() throws Exception {
+		try {
+			testedBambooServerFacade.testServerConnection(getServerData(createBambooServerCfg("http://invalid url", USER_NAME, PASSWORD)));
+			fail("Should throw RemoteApiLoginException");
+		} catch (RemoteApiException e) {
+			assertFalse("Message should not include users's password", e.getMessage().contains(PASSWORD));
+		}
+	}
+	
 	public void testConnectionTest() throws Exception {
 
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));

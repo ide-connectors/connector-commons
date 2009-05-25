@@ -5,6 +5,7 @@ import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.fisheye.FishEyeServerFacadeImpl;
+import com.atlassian.theplugin.commons.fisheye.FishEyeServerFacade;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
@@ -98,4 +99,19 @@ public class FishEyeServerFacadeTest extends TestCase {
 		return new ServerData("myname", (new ServerId()).toString(), USER_NAME, PASSWORD, URL);
 
 	}
+
+	/**
+	 * Regression for https://studio.atlassian.com/browse/ACC-40
+	 * @throws Exception
+	 */
+	public void testConnectionTestInvalidUrlIncludesPassword() throws Exception {
+		try {
+			FishEyeServerFacade facade = FishEyeServerFacadeImpl.getInstance();
+			facade.testServerConnection(new ServerData("myname", (new ServerId()).toString(), USER_NAME, PASSWORD, "http://invalid url"));
+			fail("Should throw RemoteApiLoginException");
+		} catch (RemoteApiException e) {
+			assertFalse("Message should not include users's password", e.getMessage().contains(PASSWORD));
+		}
+	}
+
 }

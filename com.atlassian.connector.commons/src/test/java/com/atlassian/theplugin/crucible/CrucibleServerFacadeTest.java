@@ -144,6 +144,20 @@ public class CrucibleServerFacadeTest extends TestCase {
 		server.stop();
 	}
 
+	/**
+	 * Regression for https://studio.atlassian.com/browse/ACC-40
+	 * @throws Exception
+	 */
+	public void testConnectionTestInvalidUrlIncludesPassword() throws Exception {
+		crucibleServerCfg.setUrl("http://invalid url");
+		try {
+			facade.testServerConnection(getServerData(crucibleServerCfg));
+			fail("Should throw RemoteApiLoginException");
+		} catch (RemoteApiException e) {
+			assertFalse("Message should not include users's password", e.getMessage().contains(VALID_PASSWORD));
+		}
+	}
+
 	public void testConnectionTestInvalidUrl() throws Exception {
 		crucibleServerCfg.setUrl("http://invalid url");
 		try {

@@ -17,9 +17,7 @@
 package com.atlassian.theplugin.commons.util;
 
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -82,6 +80,11 @@ public abstract class UrlUtil {
 			if (url.getPort() >= 2 * Short.MAX_VALUE) {
 				throw new MalformedURLException("Url port invalid");
 			}
+
+			// check if it can be converted to URI, https://studio.atlassian.com/browse/ACC-40
+			url.toURI();
+		} catch (URISyntaxException e) {
+			throw new MalformedURLException("Malformed URL: " + e.getMessage());
 		} catch (MalformedURLException e) {
 			throw new MalformedURLException("Malformed URL: " + e.getMessage());
 		}

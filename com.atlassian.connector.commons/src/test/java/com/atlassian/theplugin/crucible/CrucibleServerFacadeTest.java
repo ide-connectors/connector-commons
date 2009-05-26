@@ -42,16 +42,16 @@ import com.atlassian.theplugin.commons.crucible.api.model.UserBean;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
+import com.atlassian.theplugin.remoteapi.ErrorResponse;
 
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
 import org.mortbay.jetty.Server;
+import org.apache.commons.httpclient.HttpStatus;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Date;
@@ -138,6 +138,34 @@ public class CrucibleServerFacadeTest extends TestCase {
 			facade.testServerConnection(getServerData(crucibleServerCfg));
 			fail("testServerConnection failed");
 		} catch (RemoteApiException e) {
+			// ok
+		}
+
+		mockServer.verify();
+		server.stop();
+	}
+
+	/**
+	 * Regression test for https://studio.atlassian.com/browse/PLE-514
+	 * @throws Exception
+	 */
+	public void testConnectionTestFailedHttp404() throws Exception {
+		Server server = new Server(0);
+		server.start();
+
+		crucibleServerCfg.setUrl("http://localhost:" + server.getConnectors()[0].getLocalPort());
+		JettyMockServer mockServer = new JettyMockServer(server);
+
+		mockServer.expect("/rest-service/auth-v1/login", new ErrorResponse(404, "Not Found"));
+
+		try {
+			facade.testServerConnection(getServerData(crucibleServerCfg));
+			fail("testServerConnection failed");
+		} catch (RemoteApiException e) {
+			assertTrue("Must include HTTP 404", e.getMessage().contains("HTTP 404"));
+			assertTrue("Must contain " + HttpStatus.getStatusText(HttpStatus.SC_NOT_FOUND),
+					e.getMessage().contains(HttpStatus.getStatusText(HttpStatus.SC_NOT_FOUND)));
+			assertFalse("Should not include \\n", e.getMessage().contains("\n"));
 		}
 
 		mockServer.verify();

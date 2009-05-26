@@ -30,6 +30,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Date;
 
+import org.apache.commons.httpclient.HttpStatus;
+
 public abstract class Util {
 
 	public static final String RESOURCE_BASE_1_2_4 = "/mock/bamboo/1_2_4/api/rest/";
@@ -93,7 +95,8 @@ public abstract class Util {
 		Assert.assertTrue(build.getPollingTime().getTime() - System.currentTimeMillis() < 5000);
 		final String errorMessage = build.getErrorMessage();
 		Assert.assertNotNull(errorMessage);
-		Assert.assertTrue(errorMessage.startsWith(ErrorResponse.getStaticErrorMessage(HTTP_400, HTTP_400_TEXT)));
+		Assert.assertTrue(errorMessage.startsWith(
+				"HTTP " + HttpStatus.SC_BAD_REQUEST + " (" + HttpStatus.getStatusText(HttpStatus.SC_BAD_REQUEST) + ")"));
 	}
 
 

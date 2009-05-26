@@ -87,7 +87,7 @@ public abstract class AbstractSessionTest extends TestCase {
 	}
 
 	public void testWrongUrlLogin() throws Exception {
-		ErrorResponse error = new ErrorResponse(400, "Bad Request");
+		ErrorResponse error = new ErrorResponse(400, "Bad Request/reason phrase");
 		mockServer.expect("/wrongurl" + getLoginUrl(), error);
 		RemoteApiLoginException exception = null;
 
@@ -102,7 +102,9 @@ public abstract class AbstractSessionTest extends TestCase {
 		assertNotNull("Exception expected", exception);
 		assertNotNull("Exception should have a cause", exception.getCause());
 		assertSame(IOException.class, exception.getCause().getClass());
-		assertTrue(exception.getMessage().contains(error.getErrorMessage()));
+		// Regression test for https://studio.atlassian.com/browse/PLE-514
+		// exception should not include Reason Phrase - it goes to log
+		assertFalse(exception.getMessage().contains(error.getErrorMessage()));
 	}
 
 	public void testNonExistingServerLogin() throws Exception {

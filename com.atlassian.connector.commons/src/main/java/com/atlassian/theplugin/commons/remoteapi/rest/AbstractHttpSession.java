@@ -22,6 +22,7 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.UrlUtil;
+import com.atlassian.theplugin.commons.util.LoggerImpl;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -267,12 +268,17 @@ public abstract class AbstractHttpSession {
 //					System.out.println("Cache record valid, using cached value: " + new String(cacheRecord.getDocument()));
 					return cacheRecord.getDocument();
 				} else if (method.getStatusCode() == HttpStatus.SC_BAD_REQUEST) {
-					throw createIOException("HTTP " + method.getStatusCode() + " ("
-							+ HttpStatus.getStatusText(method.getStatusCode()) + ") \n" + method.getStatusText(),
-							new Exception(method.getResponseBodyAsString()));
+					final String errorDescription = "HTTP " + method.getStatusCode() + " ("
+							+ HttpStatus.getStatusText(method.getStatusCode()) + ")";
+					LoggerImpl.getInstance().info(errorDescription + "\n" + method.getStatusText());
+					
+					throw createIOException(errorDescription, new Exception(method.getResponseBodyAsString()));
 				} else if (method.getStatusCode() != HttpStatus.SC_OK) {
-					throw new IOException("HTTP " + method.getStatusCode() + " ("
-							+ HttpStatus.getStatusText(method.getStatusCode()) + ") \n" + method.getStatusText());
+					final String errorDescription = "HTTP " + method.getStatusCode() + " ("
+							+ HttpStatus.getStatusText(method.getStatusCode()) + ")";
+					LoggerImpl.getInstance().info(errorDescription +  "\n" + method.getStatusText());
+
+					throw new IOException(errorDescription);
 				} else {
 					final byte[] result = method.getResponseBody();
 					final String lastModified = method.getResponseHeader("Last-Modified") == null ? null

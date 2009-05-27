@@ -36,6 +36,8 @@ public interface CfgManager extends BambooCfgManager {
 
 	Collection<ServerCfg> getAllServers(ProjectId projectId);
 
+	Collection<ServerCfg> getAllServers(ProjectId projectId, ServerType serverType);
+
 	Collection<ServerCfg> getProjectSpecificServers(ProjectId projectId);
 
 	Collection<ServerCfg> getGlobalServers();
@@ -79,6 +81,4 @@ public interface CfgManager extends BambooCfgManager {
 	Collection<CrucibleServerCfg> getAllCrucibleServers(ProjectId projectId);
 
 	ServerCfg getServer(ProjectId projectId, ServerData serverData);
-
-	Collection<ServerCfg> getAllServers(ProjectId projectId, ServerType serverType);
 }

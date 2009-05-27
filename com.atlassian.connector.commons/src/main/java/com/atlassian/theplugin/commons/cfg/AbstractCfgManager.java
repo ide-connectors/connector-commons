@@ -53,6 +53,17 @@ public class AbstractCfgManager implements CfgManager {
 		return tmp;
 	}
 
+	public Collection<ServerCfg> getAllServers(final ProjectId projectId, ServerType serverType) {
+		Collection<ServerCfg> tmp = getAllServers(projectId);
+		Collection<ServerCfg> res = MiscUtil.buildArrayList();
+		for (ServerCfg serverCfg : tmp) {
+			if (serverCfg.getServerType() == serverType) {
+				res.add(serverCfg);
+			}
+		}
+		return res;
+	}
+
 	public Collection<CrucibleServerCfg> getAllCrucibleServers(ProjectId projectId) {
 
 		Collection<ServerCfg> tmp = getAllServers(projectId);

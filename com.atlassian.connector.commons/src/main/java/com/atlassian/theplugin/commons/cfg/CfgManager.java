@@ -80,4 +80,5 @@ public interface CfgManager extends BambooCfgManager {
 
 	ServerCfg getServer(ProjectId projectId, ServerData serverData);
 
+	Collection<ServerCfg> getAllServers(ProjectId projectId, ServerType serverType);
 }

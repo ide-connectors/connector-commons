@@ -17,8 +17,8 @@ package com.atlassian.theplugin.commons.cfg;
 
 public class CfgManagerImplTest extends AbstractCfgManagerTest {
 	@Override
-	protected AbstractCfgManager createCfgManager() {
-		return new AbstractCfgManager() {
+	protected CfgManagerImpl createCfgManager() {
+		return new CfgManagerImpl() {
 
 		};
 	}

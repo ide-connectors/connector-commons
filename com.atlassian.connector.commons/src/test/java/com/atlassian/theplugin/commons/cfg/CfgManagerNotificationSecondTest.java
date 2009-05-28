@@ -32,7 +32,7 @@ public class CfgManagerNotificationSecondTest extends TestCase {
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		cfgManager = new AbstractCfgManager() {
+		cfgManager = new CfgManagerImpl() {
 
 			public ServerData getServerData(final ProjectId projectId, final Server serverCfg) {
 				return null;

@@ -23,7 +23,7 @@ import static com.atlassian.theplugin.commons.util.MiscUtil.buildConcurrentHashM
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public class AbstractCfgManager implements CfgManager {
+public class CfgManagerImpl implements CfgManager {
 	private final Map<ProjectId, ProjectConfiguration> projectConfigurations = buildConcurrentHashMap(INITIAL_CAPACITY);
 	private Collection<ServerCfg> globalServers = MiscUtil.buildArrayList();
 	private final Map<ProjectId, Collection<ConfigurationListener>> listeners = buildConcurrentHashMap(100);
@@ -32,12 +32,12 @@ public class AbstractCfgManager implements CfgManager {
 
 	private static final ProjectListenerAction PROJECT_UNREGISTERED_LISTENER_ACTION = new ProjectListenerAction() {
 		public void run(final ConfigurationListener projectListener, final ProjectId projectId,
-				final AbstractCfgManager cfgManager) {
+				final CfgManagerImpl cfgManager) {
 			projectListener.projectUnregistered();
 		}
 	};
 
-	public AbstractCfgManager() {
+	public CfgManagerImpl() {
 		// TODO wseliga remove it later on and handle properly null values
 		update(new GlobalConfiguration());
 	}
@@ -359,7 +359,7 @@ public class AbstractCfgManager implements CfgManager {
 	}
 
 	private interface ProjectListenerAction {
-		void run(final ConfigurationListener projectListener, final ProjectId projectId, final AbstractCfgManager cfgManager);
+		void run(final ConfigurationListener projectListener, final ProjectId projectId, final CfgManagerImpl cfgManager);
 	}
 
 
@@ -381,7 +381,7 @@ public class AbstractCfgManager implements CfgManager {
 		}
 
 		public void run(final ConfigurationListener projectListener, final ProjectId projectId,
-				final AbstractCfgManager cfgManager) {
+				final CfgManagerImpl cfgManager) {
 			projectListener.configurationUpdated(projectConfiguration);
 		}
 	}
@@ -395,7 +395,7 @@ public class AbstractCfgManager implements CfgManager {
 			this.oldConfiguration = oldConfiguration;
 		}
 
-		public void run(ConfigurationListener projectListener, ProjectId projectId, AbstractCfgManager cfgManager) {
+		public void run(ConfigurationListener projectListener, ProjectId projectId, CfgManagerImpl cfgManager) {
 			if (oldConfiguration == null || newConfiguration == null) {
 				return;
 			}
@@ -450,7 +450,7 @@ public class AbstractCfgManager implements CfgManager {
 			this.oldConfiguration = oldConfiguration;
 		}
 
-		public void run(ConfigurationListener projectListener, ProjectId projectId, AbstractCfgManager cfgManager) {
+		public void run(ConfigurationListener projectListener, ProjectId projectId, CfgManagerImpl cfgManager) {
 			if (oldConfiguration == null || newConfiguration == null) {
 				return;
 			}
@@ -472,7 +472,7 @@ public class AbstractCfgManager implements CfgManager {
 			this.oldConfiguration = oldConfiguration;
 		}
 
-		public void run(ConfigurationListener projectListener, ProjectId projectId, AbstractCfgManager cfgManager) {
+		public void run(ConfigurationListener projectListener, ProjectId projectId, CfgManagerImpl cfgManager) {
 			if (oldConfiguration == null || newConfiguration == null) {
 				return;
 			}
@@ -495,7 +495,7 @@ public class AbstractCfgManager implements CfgManager {
 			this.oldConfiguration = oldConfiguration;
 		}
 
-		public void run(ConfigurationListener projectListener, ProjectId projectId, AbstractCfgManager cfgManager) {
+		public void run(ConfigurationListener projectListener, ProjectId projectId, CfgManagerImpl cfgManager) {
 			if (oldConfiguration == null || newConfiguration == null) {
 				return;
 			}
@@ -524,7 +524,7 @@ public class AbstractCfgManager implements CfgManager {
 			this.oldConfiguration = oldConfiguration;
 		}
 
-		public void run(ConfigurationListener projectListener, ProjectId projectId, AbstractCfgManager cfgManager) {
+		public void run(ConfigurationListener projectListener, ProjectId projectId, CfgManagerImpl cfgManager) {
 			if (oldConfiguration == null || newConfiguration == null) {
 				return;
 			}

@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-public interface CfgManager extends BambooCfgManager {
+public interface CfgManager {
 	/**
 	 * @param projectId id of the project
 	 * @return project configuration of selected project or null if no such project is registered
@@ -73,6 +73,8 @@ public interface CfgManager extends BambooCfgManager {
 	Collection<CrucibleServerCfg> getAllEnabledCrucibleServers(final ProjectId projectId);
 
 	Collection<JiraServerCfg> getAllEnabledJiraServers(final ProjectId projectId);
+
+	Collection<BambooServerCfg> getAllEnabledBambooServers(final ProjectId projectId);
 
 	Collection<ServerCfg> getAllUniqueServers();
 

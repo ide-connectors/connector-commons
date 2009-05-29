@@ -197,12 +197,12 @@ public class ProjectConfiguration {
 
 		// no additional check - let IDE handle such error in a standard way (error dialog)
 		// in unlikely event of some fuck-up
-		if (serverCfg == null || serverCfg.isEnabled() == false) {
+		if (serverCfg == null || !serverCfg.isEnabled()) {
 			return null;
 		}
 
 		FishEyeServer res = serverCfg.asFishEyeServer();
-		if (res == null || res.isEnabled() == false) {
+		if (res == null || !res.isEnabled()) {
 			return null;
 		}
 		return res;

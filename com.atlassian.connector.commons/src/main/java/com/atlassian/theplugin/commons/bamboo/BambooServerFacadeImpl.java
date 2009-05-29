@@ -29,13 +29,8 @@ import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.Logger;
 import org.jetbrains.annotations.NotNull;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.WeakHashMap;
+
+import java.util.*;
 
 
 /**
@@ -85,9 +80,10 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 		return false;
 	}
 
-	private synchronized BambooSession getSession(ServerData server) throws RemoteApiException {
+	// package scope for test purposes
+	synchronized BambooSession getSession(ServerData server) throws RemoteApiException {
 		// @todo old server will stay on map - remove them !!!
-		String key = server.getUserName() + server.getUrl() + server.getPassword();
+		String key = server.getUserName() + server.getUrl() + server.getPassword() + server.getServerId();
 		BambooSession session = sessions.get(key);
 		if (session == null) {
 			session = bambooSessionFactory.createSession(server, callback);

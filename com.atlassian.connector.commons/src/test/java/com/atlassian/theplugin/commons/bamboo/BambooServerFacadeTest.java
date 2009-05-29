@@ -105,6 +105,28 @@ public class BambooServerFacadeTest extends TestCase {
 		httpServer.stop();
 	}
 
+	public void testGetSessionTwoTheSameServers() throws RemoteApiException {
+		BambooServerFacadeImpl facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(), new BambooSessionFactory() {
+			public BambooSession createSession(final ServerData serverData, final HttpSessionCallback callback) throws
+					RemoteApiException {
+				BambooSession session = EasyMock.createMock(BambooSession.class);
+				EasyMock.expect(session.isLoggedIn()).andReturn(true).anyTimes();
+				EasyMock.replay(session);
+				return session;
+			}
+		});
+
+		BambooServerCfg server1 = createBambooServerCfg("http://atlassian.com", "", "");
+		BambooServerCfg server1clone = createBambooServerCfg("http://atlassian.com", "", "");
+		BambooServerCfg server2 = createBambooServerCfg("http://spartez.com", "", "");
+
+		assertEquals(facade.getSession(getServerData(server1)), facade.getSession(getServerData(server1)));
+
+		// servers with different serverId should have different sessions event if url, username and password are equals
+		TestUtil.assertNotEquals(facade.getSession(getServerData(server1)), facade.getSession(getServerData(server1clone)));
+		TestUtil.assertNotEquals(facade.getSession(getServerData(server1)), facade.getSession(getServerData(server2)));
+	}
+
 	public void testSubscribedBuildStatus() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());

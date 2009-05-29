@@ -67,7 +67,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 	}
 
 	public boolean isBamboo2(final ServerData serverData) {
-		BambooSession session = null;
+		BambooSession session;
 		try {
 			session = getSession(serverData);
 			if (session != null && session.getBamboBuildNumber() > 0) {

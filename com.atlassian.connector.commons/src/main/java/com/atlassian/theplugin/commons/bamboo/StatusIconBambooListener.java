@@ -23,10 +23,7 @@ import java.util.*;
  */
 public class StatusIconBambooListener implements BambooStatusListener {
 
-	private final BambooStatusDisplay display;
-
-	public static final String BODY_WITH_STYLE =
-			"<body style=\"font-size:12pt ; font-family: arial, helvetica, sans-serif\">";
+	private final BambooStatusDisplay display;	
 
 	public StatusIconBambooListener(BambooStatusDisplay aDisplay) {
 		this.display = aDisplay;

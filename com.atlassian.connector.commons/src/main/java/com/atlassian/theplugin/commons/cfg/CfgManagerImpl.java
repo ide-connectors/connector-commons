@@ -64,8 +64,19 @@ public class CfgManagerImpl implements CfgManager {
 		return res;
 	}
 
-	public Collection<CrucibleServerCfg> getAllCrucibleServers(ProjectId projectId) {
+	public Collection<JiraServerCfg> getAllJiraServers(final ProjectId projectId) {
+		Collection<ServerCfg> tmp = getAllServers(projectId);
+		Collection<JiraServerCfg> res = MiscUtil.buildArrayList();
+		for (ServerCfg serverCfg : tmp) {
+			if (serverCfg.getServerType() == ServerType.JIRA_SERVER && serverCfg instanceof JiraServerCfg) {
+				res.add((JiraServerCfg) serverCfg);
+			}
+		}
+		return res;
 
+	}
+
+	public Collection<CrucibleServerCfg> getAllCrucibleServers(ProjectId projectId) {
 		Collection<ServerCfg> tmp = getAllServers(projectId);
 		Collection<CrucibleServerCfg> res = MiscUtil.buildArrayList();
 		for (ServerCfg serverCfg : tmp) {

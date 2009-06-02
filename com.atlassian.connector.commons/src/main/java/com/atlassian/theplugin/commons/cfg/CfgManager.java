@@ -83,4 +83,6 @@ public interface CfgManager {
 	Collection<CrucibleServerCfg> getAllCrucibleServers(ProjectId projectId);
 
 	ServerCfg getServer(ProjectId projectId, ServerData serverData);
+
+	Collection<JiraServerCfg> getAllJiraServers(ProjectId projectId);
 }

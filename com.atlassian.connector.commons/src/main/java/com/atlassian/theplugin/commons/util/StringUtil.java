@@ -90,17 +90,51 @@ public final class StringUtil {
 		return out.toString();
 	}
 
+	/**
+	 * Removes slashes from the beginning end the end of the input string
+	 * @param text string to parse
+	 * @return string without trailing slashes
+	 */
 	public static String removeTrailingSlashes(String text) {
+		if (text == null) {
+			return null;
+		}
+
+		text = removePrefixSlashes(text);
+		text = removeSuffixSlashes(text);
+
+		return text;
+	}
+
+	/**
+	 * Removes slashes from the beginning of the input string
+	 * @param text string to parse
+	 * @return string without prefix slashes
+	 */
+	public static String removePrefixSlashes(String text) {
+		if (text == null) {
+			return null;
+		}
+
+		while (text.startsWith("/")) {
+			text = text.substring(1, text.length());
+		}
+
+		return text;
+	}
+
+	/**
+	 * Removes slashes from the end of the input string
+	 * @param text string to parse
+	 * @return string without suffix slashes
+	 */
+	public static String removeSuffixSlashes(String text) {
 		if (text == null) {
 			return null;
 		}
 
 		while (text.endsWith("/")) {
 			text = text.substring(0, text.length() - 1);
-		}
-
-		while (text.startsWith("/")) {
-			text = text.substring(1, text.length());
 		}
 
 		return text;

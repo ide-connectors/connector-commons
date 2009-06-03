@@ -27,6 +27,7 @@ import com.atlassian.theplugin.commons.util.LoggerImpl;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.auth.AuthenticationException;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -295,6 +296,9 @@ public abstract class AbstractHttpSession {
 				}
 			} catch (NullPointerException e) {
 				throw createIOException("Connection error", e);
+            } catch (AuthenticationException e) {
+                // bug PL-1275
+                throw createIOException("Connection error", e);
 			} finally {
 				method.releaseConnection();
 			}

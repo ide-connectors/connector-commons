@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.atlassian.pom</groupId>
@@ -18,7 +19,8 @@
 	</organization>
 	<scm>
 		<connection>scm:svn:https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.parentpom/</connection>
-		<developerConnection>scm:svn:https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.parentpom/</developerConnection>
+		<developerConnection>scm:svn:https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.parentpom/
+		</developerConnection>
 		<url>https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.parentpom/</url>
 	</scm>
 	<issueManagement>
@@ -79,7 +81,7 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
-			<version>1.6</version>
+			<version>1.7</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -103,19 +105,19 @@
 	</dependencies>
 	<build>
 		<plugins>
-<!--
-			<plugin>
-				<groupId>com.atlassian.maven.plugins</groupId>
-				<artifactId>maven-clover2-plugin</artifactId>
-				<version>2.4.1</version>
-				<configuration>
-					<resolveReportDescriptor>false</resolveReportDescriptor>
-					<generateXml>true</generateXml>
-					<generateHtml>true</generateHtml>
-					<historyDir>${user.home}/clover-studio-history/${pom.artifactId}</historyDir>
-				</configuration>
-			</plugin>
--->
+			<!--
+			   <plugin>
+				   <groupId>com.atlassian.maven.plugins</groupId>
+				   <artifactId>maven-clover2-plugin</artifactId>
+				   <version>2.4.1</version>
+				   <configuration>
+					   <resolveReportDescriptor>false</resolveReportDescriptor>
+					   <generateXml>true</generateXml>
+					   <generateHtml>true</generateHtml>
+					   <historyDir>${user.home}/clover-studio-history/${pom.artifactId}</historyDir>
+				   </configuration>
+			   </plugin>
+   -->
 			<plugin>
 				<groupId>com.atlassian.maven.plugins</groupId>
 				<artifactId>maven-clover2-plugin</artifactId>
@@ -132,7 +134,8 @@
 					</excludes>
 					<contextFilters>private-constructor-noparam-nothrows</contextFilters>
 					<methodContexts>
-						<private-constructor-noparam-nothrows>private +[a-zA-Z0-9_$]+ *\( *\)</private-constructor-noparam-nothrows>
+						<private-constructor-noparam-nothrows>private +[a-zA-Z0-9_$]+ *\( *\)
+						</private-constructor-noparam-nothrows>
 					</methodContexts>
 					<historyDir>${user.home}/clover-studio-history/${pom.artifactId}</historyDir>
 				</configuration>

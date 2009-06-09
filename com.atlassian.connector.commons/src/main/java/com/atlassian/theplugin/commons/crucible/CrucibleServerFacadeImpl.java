@@ -21,25 +21,7 @@ import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleLoginException;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
-import com.atlassian.theplugin.commons.crucible.api.model.Comment;
-import com.atlassian.theplugin.commons.crucible.api.model.CommentBean;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCache;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCacheImpl;
-import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
-import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
-import com.atlassian.theplugin.commons.crucible.api.model.PermId;
-import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.Repository;
-import com.atlassian.theplugin.commons.crucible.api.model.Review;
-import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
-import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
-import com.atlassian.theplugin.commons.crucible.api.model.User;
-import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
-import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.*;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
@@ -49,15 +31,10 @@ import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	private final Map<String, CrucibleSession> sessions = new HashMap<String, CrucibleSession>();
@@ -95,10 +72,10 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		if (session == null) {
 			try {
 				session = new CrucibleSessionImpl(server, callback);
-                // workaround for ACC-31
-                if (!session.isLoggedIn()) {
-                    session.login();
-                }
+				// workaround for ACC-31
+				if (!session.isLoggedIn()) {
+					session.login();
+				}
 				sessions.put(key, session);
 			} catch (RemoteApiMalformedUrlException e) {
 				if (server.getPassword().length() > 0 || !UrlUtil.isUrlValid(server.getUrl())) {
@@ -168,12 +145,10 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	}
 
 	/**
-	 * @param serverCfg
-	 *            The configuration for the server that we want to test the connection for
+	 * @param serverCfg The configuration for the server that we want to test the connection for
 	 * @throws com.atlassian.theplugin.commons.crucible.api.CrucibleException
-	 *             if Crucible version is not supported
-	 * @throws RemoteApiException
-	 *             if it's not possible to authenticate user on specified server
+	 *                            if Crucible version is not supported
+	 * @throws RemoteApiException if it's not possible to authenticate user on specified server
 	 */
 	public void testServerConnection(ServerData serverCfg) throws RemoteApiException {
 		final CrucibleSession session = new CrucibleSessionImpl(serverCfg, callback);
@@ -202,13 +177,12 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 
 	/**
 	 * Creates new review in Crucible
-	 * 
+	 *
 	 * @param server
-	 * @param review
-	 *            data for new review to create (some fields have to be set e.g. projectKey)
+	 * @param review data for new review to create (some fields have to be set e.g. projectKey)
 	 * @return created revew date
 	 * @throws com.atlassian.theplugin.commons.crucible.api.CrucibleException
-	 *             in case of createReview error or CrucibleLoginException in case of login error
+	 *          in case of createReview error or CrucibleLoginException in case of login error
 	 */
 	public Review createReview(ServerData server, Review review) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
@@ -360,15 +334,13 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 
 	/**
 	 * Creates new review in Crucible
-	 * 
+	 *
 	 * @param server
-	 * @param review
-	 *            data for new review to create (some fields have to be set e.g. projectKey)
-	 * @param patch
-	 *            patch to assign with the review
+	 * @param review data for new review to create (some fields have to be set e.g. projectKey)
+	 * @param patch  patch to assign with the review
 	 * @return created revew date
 	 * @throws com.atlassian.theplugin.commons.crucible.api.CrucibleException
-	 *             in case of createReview error or CrucibleLoginException in case of login error
+	 *          in case of createReview error or CrucibleLoginException in case of login error
 	 */
 	public Review createReviewFromPatch(ServerData server, Review review, String patch) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
@@ -382,7 +354,29 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		return session.getFiles(permId);
 	}
 
-//	public List<Comment> getComments(CrucibleServerCfg server, PermId permId)
+	/**
+	 * Add info about files, versioned comments and general comments to the review
+	 *
+	 * @param reviewItem review to fill with details
+	 * @throws RemoteApiException
+	 * @throws ServerPasswordNotProvidedException
+	 *
+	 */
+	public void getDetailsForReview(final ReviewAdapter reviewItem)
+			throws RemoteApiException, ServerPasswordNotProvidedException {
+
+		reviewItem.setGeneralComments(getGeneralComments(reviewItem.getServerData(), reviewItem.getPermId()));
+
+		List<VersionedComment> comments;
+		comments = getVersionedComments(reviewItem.getServerData(), reviewItem.getPermId());
+
+		Set<CrucibleFileInfo> files;
+		files = getFiles(reviewItem.getServerData(), reviewItem.getPermId());
+
+		reviewItem.setFilesAndVersionedComments(files, comments);
+	}
+
+	//	public List<Comment> getComments(CrucibleServerCfg server, PermId permId)
 //			throws RemoteApiException, ServerPasswordNotProvidedException {
 //		CrucibleSession session = getSession(server);
 //		return session.getComments(permId);
@@ -489,12 +483,12 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 
 	/**
 	 * Retrieves list of projects defined on Crucible server
-	 * 
+	 *
 	 * @param server
 	 * @return
 	 * @throws RemoteApiException
 	 * @throws ServerPasswordNotProvidedException
-	 * 
+	 *
 	 */
 	public List<CrucibleProject> getProjects(ServerData server) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
@@ -504,12 +498,12 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 
 	/**
 	 * Retrieves list of repositories defined on Crucible server
-	 * 
+	 *
 	 * @param server
 	 * @return
 	 * @throws RemoteApiException
 	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException
-	 * 
+	 *
 	 */
 	public List<Repository> getRepositories(ServerData server) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
@@ -530,8 +524,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	}
 
 	/**
-	 * @param server
-	 *            server object with Url, Login and Password to connect to
+	 * @param server server object with Url, Login and Password to connect to
 	 * @return List of reviews (empty list in case there is no review)
 	 */
 	public List<Review> getAllReviews(ServerData server) throws RemoteApiException, ServerPasswordNotProvidedException {

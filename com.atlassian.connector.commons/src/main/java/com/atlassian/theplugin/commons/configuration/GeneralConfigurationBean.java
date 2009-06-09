@@ -132,6 +132,12 @@ public class GeneralConfigurationBean {
         return statsCountersMap;
     }
 
+    public synchronized void addCounterIfNotPresent(String counterName) {
+        if (!getStatsCountersMap().containsKey(counterName)) {
+            getStatsCountersMap().put(counterName, 0);
+        }
+    }
+
     public void bumpCounter(String counterName) {
         Boolean enabled = getAnonymousEnhancedFeedbackEnabled();
         if (enabled == null || !enabled) {

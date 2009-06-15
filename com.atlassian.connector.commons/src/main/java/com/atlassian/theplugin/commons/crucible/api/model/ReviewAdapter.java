@@ -112,7 +112,7 @@ public class ReviewAdapter {
 	public User getModerator() {
 		return review.getModerator();
 	}
-
+    
 	public String getName() {
 		return review.getName();
 	}
@@ -449,6 +449,7 @@ public class ReviewAdapter {
         if (differences != null && differences.size() > 0) {
             reviewChanged = true;
         }
+        this.server = newReview.getServerData();
 		review.setAuthor(newReview.getAuthor());
 		review.setModerator(newReview.getModerator());
 		review.setName(newReview.getName());

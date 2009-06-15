@@ -41,6 +41,9 @@ public class GeneralConfigurationBean {
 	private static final double ID_DISCRIMINATOR = 1e3d;
 	private CheckNowButtonOption checkNowButtonOption = CheckNowButtonOption.ONLY_STABLE;
 
+	public static final int HTTP_SERVER_PORT = 51235;
+	private int httpServerPort = HTTP_SERVER_PORT;
+
 	public GeneralConfigurationBean() {
 
 	}
@@ -51,6 +54,7 @@ public class GeneralConfigurationBean {
 		this.checkUnstableVersionsEnabled = generalConfigurationData.isCheckUnstableVersionsEnabled();
 		this.autoUpdateEnabled = generalConfigurationData.isAutoUpdateEnabled();
 		this.httpServerEnabled = generalConfigurationData.isHttpServerEnabled();
+		this.httpServerPort = generalConfigurationData.getHttpServerPort();
 		this.uid = generalConfigurationData.getUid();
 		this.useIdeaProxySettings = generalConfigurationData.getUseIdeaProxySettings();
 		this.certs = generalConfigurationData.getCerts();
@@ -88,6 +92,14 @@ public class GeneralConfigurationBean {
 
 	public void setHttpServerEnabled(boolean httpServerEnabled) {
 		this.httpServerEnabled = httpServerEnabled;
+	}
+
+	public int getHttpServerPort() {
+		return httpServerPort;
+	}
+
+	public void setHttpServerPort(int port) {
+		this.httpServerPort = port;
 	}
 
 	public Version getRejectedUpgrade() {
@@ -188,6 +200,9 @@ public class GeneralConfigurationBean {
 		if (httpServerEnabled != that.httpServerEnabled) {
 			return false;
 		}
+		if (httpServerPort != that.httpServerPort) {
+			return false;
+		}
 		if (checkUnstableVersionsEnabled != that.checkUnstableVersionsEnabled) {
 			return false;
 		}
@@ -228,6 +243,7 @@ public class GeneralConfigurationBean {
 		int result;
 		result = (autoUpdateEnabled ? 1 : 0);
 		result = THIRTY_ONE * result + (httpServerEnabled ? 1 : 0);
+		result = THIRTY_ONE * result + httpServerPort;
 		result = THIRTY_ONE * result + (rejectedUpgrade != null ? rejectedUpgrade.hashCode() : 0);
 		result = THIRTY_ONE * result + (checkUnstableVersionsEnabled ? 1 : 0);
 		result = THIRTY_ONE * result + (useIdeaProxySettings ? 1 : 0);

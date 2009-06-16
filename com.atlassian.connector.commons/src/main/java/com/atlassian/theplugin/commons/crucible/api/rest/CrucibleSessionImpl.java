@@ -52,6 +52,7 @@ import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.ProductVersionUtil;
+import com.atlassian.theplugin.commons.util.StringUtil;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
@@ -168,7 +169,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	/**
 	 * Public constructor for CrucibleSessionImpl.
-	 * 
+	 *
 	 * @param serverData
 	 *            The server fisheye configuration for this session
 	 * @param callback
@@ -190,7 +191,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	private void realLogin() throws RemoteApiLoginException {
-		// Login every time access Crucible server - https://studio.atlassian.com/browse/ACC-31 
+		// Login every time access Crucible server - https://studio.atlassian.com/browse/ACC-31
 		String loginUrl;
 		try {
 			if (getUsername() == null || getPassword() == null) {
@@ -620,7 +621,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	/**
 	 * Retrieves projects from cache (reduces server calls)
-	 * 
+	 *
 	 * @return list of Crucible Projects
 	 * @throws RemoteApiException
 	 *             thrown in case of connection problems
@@ -631,7 +632,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	/**
 	 * Retrieves projects directly from server ommiting cache
-	 * 
+	 *
 	 * @return list of Crucible projects
 	 * @throws RemoteApiException
 	 *             thrown in case of connection problems
@@ -1571,7 +1572,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	private String getAuthHeaderValue() {
-		return "Basic " + encode(getUsername() + ":" + getPassword());
+		return "Basic " + StringUtil.encode(getUsername() + ":" + getPassword());
 	}
 
 	private static String getExceptionMessages(Document doc) throws JDOMException {

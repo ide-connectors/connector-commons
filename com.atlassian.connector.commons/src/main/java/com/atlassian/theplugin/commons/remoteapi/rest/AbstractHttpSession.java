@@ -36,6 +36,7 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.codec.binary.Base64;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -47,6 +48,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -134,6 +136,16 @@ public abstract class AbstractHttpSession {
 
 	protected String getBaseUrl() {
 		return UrlUtil.removeUrlTrailingSlashes(server.getUrl());
+	}
+
+	protected synchronized String encode(String str2encode) {
+    	try {
+			Base64 base64 = new Base64();
+			byte[] bytes = base64.encode(str2encode.getBytes("UTF-8"));
+			return new String(bytes);
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("UTF-8 is not supported", e);
+		}
 	}
 
 	/**

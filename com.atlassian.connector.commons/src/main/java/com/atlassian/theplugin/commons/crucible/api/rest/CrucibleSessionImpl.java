@@ -1575,16 +1575,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		return "Basic " + encode(getUsername() + ":" + getPassword());
 	}
 
-	private synchronized String encode(String str2encode) {
-		try {
-			Base64 base64 = new Base64();
-			byte[] bytes = base64.encode(str2encode.getBytes("UTF-8"));
-			return new String(bytes);
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("UTF-8 is not supported", e);
-		}
-	}
-
 	private static String getExceptionMessages(Document doc) throws JDOMException {
 		XPath xpath = XPath.newInstance("/loginResult/error");
 		@SuppressWarnings("unchecked")

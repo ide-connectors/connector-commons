@@ -15,14 +15,14 @@
  */
 package com.atlassian.theplugin.commons.bamboo;
 
+import com.atlassian.connector.cfg.ProjectCfgManager;
 import com.atlassian.theplugin.commons.cfg.*;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.MiscUtil;
-import com.atlassian.connector.cfg.ProjectCfgManager;
-
-import java.util.Collection;
-
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class MockBambooCfgManager implements ProjectCfgManager {
 
@@ -48,6 +48,10 @@ public class MockBambooCfgManager implements ProjectCfgManager {
 
 	public Collection<BambooServerCfg> getAllEnabledBambooServers() {
 		return bambooServers;
+	}
+
+	public Collection<ServerCfg> getAllUniqueServers() {
+		return new ArrayList<ServerCfg>(bambooServers);
 	}
 
 	void addServer(BambooServerCfg bambooServerCfg) {

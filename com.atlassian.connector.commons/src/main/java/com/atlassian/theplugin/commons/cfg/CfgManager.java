@@ -40,7 +40,7 @@ public interface CfgManager {
 
 	Collection<ServerCfg> getProjectSpecificServers(ProjectId projectId);
 
-	Collection<ServerCfg> getGlobalServers();
+//	Collection<ServerCfg> getGlobalServers();
 
 	Collection<ServerCfg> getAllEnabledServers(ProjectId projectId);
 
@@ -52,15 +52,15 @@ public interface CfgManager {
 
 	void updateProjectConfiguration(ProjectId projectId, ProjectConfiguration projectConfiguration);
 
-	void updateGlobalConfiguration(GlobalConfiguration globalConfiguration);
+//	void updateGlobalConfiguration(GlobalConfiguration globalConfiguration);
 
 	void addProjectSpecificServer(ProjectId projectId, ServerCfg serverCfg);
 
-	void addGlobalServer(ServerCfg serverCfg);
+//	void addGlobalServer(ServerCfg serverCfg);
 
 	ProjectConfiguration removeProject(ProjectId projectId);
 
-	ServerCfg removeGlobalServer(ServerId serverId);
+//	ServerCfg removeGlobalServer(ServerId serverId);
 
 	ServerCfg removeProjectSpecificServer(ProjectId projectId, ServerId serverId);
 

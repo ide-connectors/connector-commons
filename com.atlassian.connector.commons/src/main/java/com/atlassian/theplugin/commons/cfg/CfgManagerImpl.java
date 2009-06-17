@@ -25,9 +25,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class CfgManagerImpl implements CfgManager {
 	private final Map<ProjectId, ProjectConfiguration> projectConfigurations = buildConcurrentHashMap(INITIAL_CAPACITY);
-	private Collection<ServerCfg> globalServers = MiscUtil.buildArrayList();
+	//	private Collection<ServerCfg> globalServers = MiscUtil.buildArrayList();
 	private final Map<ProjectId, Collection<ConfigurationListener>> listeners = buildConcurrentHashMap(100);
-	private BambooCfg bambooCfg;
+	//	private BambooCfg bambooCfg;
 	private static final int INITIAL_CAPACITY = 4;
 
 	private static final ProjectListenerAction PROJECT_UNREGISTERED_LISTENER_ACTION = new ProjectListenerAction() {
@@ -39,7 +39,7 @@ public class CfgManagerImpl implements CfgManager {
 
 	public CfgManagerImpl() {
 		// TODO wseliga remove it later on and handle properly null values
-		update(new GlobalConfiguration());
+//		update(new GlobalConfiguration());
 	}
 
 	public ProjectConfiguration getProjectConfiguration(final ProjectId projectId) {
@@ -48,9 +48,8 @@ public class CfgManagerImpl implements CfgManager {
 	}
 
 	public Collection<ServerCfg> getAllServers(final ProjectId projectId) {
-		Collection<ServerCfg> tmp = new ArrayList<ServerCfg>(getProjectSpecificServers(projectId));
-		tmp.addAll(globalServers);
-		return tmp;
+		//		tmp.addAll(globalServers);
+		return new ArrayList<ServerCfg>(getProjectSpecificServers(projectId));
 	}
 
 	public Collection<ServerCfg> getAllServers(final ProjectId projectId, ServerType serverType) {
@@ -106,9 +105,9 @@ public class CfgManagerImpl implements CfgManager {
 		return MiscUtil.buildArrayList(res.getServers());
 	}
 
-	public Collection<ServerCfg> getGlobalServers() {
-		return new ArrayList<ServerCfg>(globalServers);
-	}
+//	public Collection<ServerCfg> getGlobalServers() {
+//		return new ArrayList<ServerCfg>(globalServers);
+//	}
 
 	public Collection<ServerCfg> getAllEnabledServers(final ProjectId projectId) {
 		Collection<ServerCfg> tmp = new ArrayList<ServerCfg>();
@@ -120,10 +119,9 @@ public class CfgManagerImpl implements CfgManager {
 		return tmp;
 	}
 
-
-	public BambooCfg getGlobalBambooCfg() {
-		return bambooCfg;
-	}
+//	public BambooCfg getGlobalBambooCfg() {
+//		return bambooCfg;
+//	}
 
 	public void updateProjectConfiguration(final ProjectId projectId, final ProjectConfiguration projectConfiguration) {
 		verifyProjectId(projectId);
@@ -198,13 +196,13 @@ public class CfgManagerImpl implements CfgManager {
 		return tmp.remove(configurationListener);
 	}
 
-	public void updateGlobalConfiguration(final GlobalConfiguration globalConfiguration) {
-		if (globalConfiguration == null) {
-			throw new NullPointerException("Global configuration cannot be null");
-		}
-		// internalize the list to be private
-		globalServers = MiscUtil.buildArrayList(globalConfiguration.getGlobalServers());
-	}
+//	public void updateGlobalConfiguration(final GlobalConfiguration globalConfiguration) {
+//		if (globalConfiguration == null) {
+//			throw new NullPointerException("Global configuration cannot be null");
+//		}
+//		// internalize the list to be private
+//		globalServers = MiscUtil.buildArrayList(globalConfiguration.getGlobalServers());
+//	}
 
 	public void addProjectSpecificServer(final ProjectId projectId, final ServerCfg serverCfg) {
 		verifyProjectId(projectId);
@@ -224,9 +222,9 @@ public class CfgManagerImpl implements CfgManager {
 
 	}
 
-	public void addGlobalServer(final ServerCfg serverCfg) {
-		globalServers.add(serverCfg);
-	}
+//	public void addGlobalServer(final ServerCfg serverCfg) {
+//		globalServers.add(serverCfg);
+//	}
 
 	public ProjectConfiguration removeProject(final ProjectId projectId) {
 		final ProjectConfiguration res = projectConfigurations.remove(projectId);
@@ -236,11 +234,10 @@ public class CfgManagerImpl implements CfgManager {
 		return res;
 	}
 
-
-	public ServerCfg removeGlobalServer(final ServerId serverId) {
-		verifyServerId(serverId);
-		return removeServer(serverId, globalServers);
-	}
+//	public ServerCfg removeGlobalServer(final ServerId serverId) {
+//		verifyServerId(serverId);
+//		return removeServer(serverId, globalServers);
+//	}
 
 	private void verifyServerId(final ServerId serverId) {
 		if (serverId == null) {
@@ -364,10 +361,9 @@ public class CfgManagerImpl implements CfgManager {
 		return null;
 	}
 
-
-	public void update(GlobalConfiguration globalConfiguration) {
-		bambooCfg = globalConfiguration.getBambooCfg();
-	}
+//	public void update(GlobalConfiguration globalConfiguration) {
+//		bambooCfg = globalConfiguration.getBambooCfg();
+//	}
 
 	private interface ProjectListenerAction {
 		void run(final ConfigurationListener projectListener, final ProjectId projectId, final CfgManagerImpl cfgManager);
@@ -375,7 +371,7 @@ public class CfgManagerImpl implements CfgManager {
 
 
 	public Collection<ServerCfg> getAllUniqueServers() {
-		final Set<ServerCfg> res = new HashSet<ServerCfg>(globalServers);
+		final Set<ServerCfg> res = new HashSet<ServerCfg>();
 		for (ProjectConfiguration projectCfg : projectConfigurations.values()) {
 			res.addAll(projectCfg.getServers());
 		}

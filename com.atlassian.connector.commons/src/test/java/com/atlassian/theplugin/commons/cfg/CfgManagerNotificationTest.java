@@ -60,8 +60,8 @@ public class CfgManagerNotificationTest extends TestCase {
 	private final JiraServerCfg jira = new JiraServerCfg("jira", new ServerId());
 
 	private void populateServerCfgs() {
-		cfgManager.addGlobalServer(bamboo);
-		cfgManager.addGlobalServer(jira);
+//		cfgManager.addGlobalServer(bamboo);
+//		cfgManager.addGlobalServer(jira);
 
 		cfgManager.addProjectSpecificServer(PROJECT_ID_1, bamboo1);
 		cfgManager.addProjectSpecificServer(PROJECT_ID_1, jira1);
@@ -91,7 +91,7 @@ public class CfgManagerNotificationTest extends TestCase {
 		cfgManager.addProjectConfigurationListener(PROJECT_ID_1, project1Listener);
 		cfgManager.addProjectConfigurationListener(PROJECT_ID_2, project2Listener);
 
-		cfgManager.updateGlobalConfiguration(new GlobalConfiguration());
+//		cfgManager.updateGlobalConfiguration(new GlobalConfiguration());
 		cfgManager.updateProjectConfiguration(PROJECT_ID_1, emptyCfg);
 
 		EasyMock.verify(mocks);
@@ -104,7 +104,7 @@ public class CfgManagerNotificationTest extends TestCase {
 
 		// test
 		EasyMock.replay(mocks);
-		cfgManager.updateGlobalConfiguration(new GlobalConfiguration());
+//		cfgManager.updateGlobalConfiguration(new GlobalConfiguration());
 		cfgManager.updateProjectConfiguration(PROJECT_ID_2, ProjectConfiguration.emptyConfiguration());
 
 		EasyMock.verify(mocks);
@@ -121,7 +121,7 @@ public class CfgManagerNotificationTest extends TestCase {
 
 		// test
 		EasyMock.replay(mocks);
-		cfgManager.updateGlobalConfiguration(new GlobalConfiguration());
+//		cfgManager.updateGlobalConfiguration(new GlobalConfiguration());
 		cfgManager.updateProjectConfiguration(PROJECT_ID_2, nonEmptyCfg);
 		cfgManager.updateProjectConfiguration(PROJECT_ID_1, nonEmptyCfg);
 		EasyMock.verify(mocks);

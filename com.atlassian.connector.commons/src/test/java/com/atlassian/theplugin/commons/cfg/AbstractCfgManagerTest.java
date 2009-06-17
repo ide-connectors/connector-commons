@@ -51,7 +51,6 @@ public abstract class AbstractCfgManagerTest extends TestCase {
 	// these fields are not static as they must be reinitialized (refreshed) in every instance (to keep them clean)
 
 	private final BambooServerCfg bamboo1 = new BambooServerCfg("bamboo1", new ServerId());
-	private final BambooServerCfg bamboo2 = new BambooServerCfg("bamboo2", new ServerId());
 	private final BambooServerCfg bamboo3 = new BambooServerCfg("bamboo3", new ServerId());
 	private final CrucibleServerCfg crucible1 = new CrucibleServerCfg("crucible1", new ServerId());
 	private final CrucibleServerCfg crucible2 = new CrucibleServerCfg("crucible2", new ServerId());
@@ -59,30 +58,29 @@ public abstract class AbstractCfgManagerTest extends TestCase {
 	private final JiraServerCfg jira2 = new JiraServerCfg("jira2", new ServerId());
 
 	public void testGetAllServers() {
-		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_1), jira1, bamboo1, bamboo3, jira2);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_2), jira2, bamboo3, crucible1);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_3), jira2, bamboo3);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_1), jira1, bamboo1);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_2), crucible1);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_3));
 		TestUtil.assertThrows(IllegalArgumentException.class, new IAction() {
 			public void run() {
 				cfgManager.getAllServers(null);
 			}
 		});
-		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(new ProjectId()), bamboo3, jira2);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(new ProjectId()));
 
-		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_1, ServerType.BAMBOO_SERVER), bamboo1, bamboo3);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_1, ServerType.JIRA_SERVER), jira1, jira2);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_1, ServerType.BAMBOO_SERVER), bamboo1);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_1, ServerType.JIRA_SERVER), jira1);
 
-		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_2, ServerType.BAMBOO_SERVER), bamboo3);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_2, ServerType.BAMBOO_SERVER));
 		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_2, ServerType.CRUCIBLE_SERVER), crucible1);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_2, ServerType.JIRA_SERVER), jira2);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_2, ServerType.JIRA_SERVER));
 
-		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_3, ServerType.BAMBOO_SERVER), bamboo3);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_3, ServerType.BAMBOO_SERVER), bamboo3);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_3, ServerType.BAMBOO_SERVER));
 	}
 
 	private void populateServerCfgs() {
-		cfgManager.addGlobalServer(bamboo3);
-		cfgManager.addGlobalServer(jira2);
+//		cfgManager.addGlobalServer(bamboo3);
+//		cfgManager.addGlobalServer(jira2);
 		cfgManager.addProjectSpecificServer(PROJECT_ID_1, bamboo1);
 		cfgManager.addProjectSpecificServer(PROJECT_ID_2, crucible1);
 		cfgManager.addProjectSpecificServer(PROJECT_ID_1, jira1);
@@ -100,30 +98,25 @@ public abstract class AbstractCfgManagerTest extends TestCase {
 		});
 	}
 
-	public void testGetGlobalServers() {
-		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), bamboo3, jira2);
-		TestUtil.assertHasOnlyElements(createCfgManager().getGlobalServers());
-	}
-
 	/**
 	 * Method: getAllEnabledServers(final ProjectId projectId)
 	 */
 	public void testGetAllEnabledServers() {
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_1), jira1, bamboo1, bamboo3, jira2);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_1), jira1, bamboo1);
 		jira1.setEnabled(false);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_1), bamboo1, bamboo3, jira2);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_1), bamboo1);
 		bamboo3.setEnabled(false);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_1), bamboo1, jira2);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_1), bamboo1);
 
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_2), jira2, crucible1);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_2), crucible1);
 		bamboo3.setEnabled(true);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_2), jira2, bamboo3, crucible1);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_2), crucible1);
 		jira2.setEnabled(false);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_2), bamboo3, crucible1);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_2), crucible1);
 		crucible1.setEnabled(false);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_2), bamboo3);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_2));
 		crucible1.setEnabled(true);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_2), bamboo3, crucible1);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledServers(PROJECT_ID_2), crucible1);
 
 		bamboo3.setEnabled(false);
 		crucible1.setEnabled(false);
@@ -210,14 +203,13 @@ public abstract class AbstractCfgManagerTest extends TestCase {
 
 	}
 
-
-	public void testGlobalServersReturnedCollectionIsNotInternal() {
-		final Collection<ServerCfg> servers = cfgManager.getGlobalServers();
-		assertFalse(servers.contains(crucible1));
-		servers.add(crucible1);
-		assertTrue(servers.contains(crucible1));
-		assertFalse(cfgManager.getGlobalServers().contains(crucible1));
-	}
+//	public void testGlobalServersReturnedCollectionIsNotInternal() {
+//		final Collection<ServerCfg> servers = cfgManager.getGlobalServers();
+//		assertFalse(servers.contains(crucible1));
+//		servers.add(crucible1);
+//		assertTrue(servers.contains(crucible1));
+//		assertFalse(cfgManager.getGlobalServers().contains(crucible1));
+//	}
 
 
 	public void testGetAllEnabledServersReturnedCollectionIsNotInternal() {
@@ -229,44 +221,43 @@ public abstract class AbstractCfgManagerTest extends TestCase {
 		assertFalse(cfgManager.getAllEnabledServers(PROJECT_ID_1).contains(crucible1));
 	}
 
+//	public void testAddGlobalServer() {
+//		cfgManager = createCfgManager();
+//		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers());
+//		cfgManager.addGlobalServer(bamboo1);
+//		cfgManager.updateProjectConfiguration(PROJECT_ID_1, new ProjectConfiguration());
+//		cfgManager.updateProjectConfiguration(PROJECT_ID_2, new ProjectConfiguration());
+//
+//		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), bamboo1);
+//		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_1), bamboo1);
+//		TestUtil.assertHasOnlyElements(cfgManager.getProjectSpecificServers(PROJECT_ID_1));
+//
+//		cfgManager.addGlobalServer(jira2);
+//		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), bamboo1, jira2);
+//		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_1), bamboo1, jira2);
+//		TestUtil.assertHasOnlyElements(cfgManager.getProjectSpecificServers(PROJECT_ID_1));
+//
+//		cfgManager.addGlobalServer(crucible2);
+//		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), crucible2, bamboo1, jira2);
+//		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_2), crucible2, bamboo1, jira2);
+//		TestUtil.assertHasOnlyElements(cfgManager.getProjectSpecificServers(PROJECT_ID_1));
+//	}
 
-	public void testAddGlobalServer() {
-		cfgManager = createCfgManager();
-		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers());
-		cfgManager.addGlobalServer(bamboo1);
-		cfgManager.updateProjectConfiguration(PROJECT_ID_1, new ProjectConfiguration());
-		cfgManager.updateProjectConfiguration(PROJECT_ID_2, new ProjectConfiguration());
-
-		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), bamboo1);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_1), bamboo1);
-		TestUtil.assertHasOnlyElements(cfgManager.getProjectSpecificServers(PROJECT_ID_1));
-
-		cfgManager.addGlobalServer(jira2);
-		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), bamboo1, jira2);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_1), bamboo1, jira2);
-		TestUtil.assertHasOnlyElements(cfgManager.getProjectSpecificServers(PROJECT_ID_1));
-
-		cfgManager.addGlobalServer(crucible2);
-		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), crucible2, bamboo1, jira2);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllServers(PROJECT_ID_2), crucible2, bamboo1, jira2);
-		TestUtil.assertHasOnlyElements(cfgManager.getProjectSpecificServers(PROJECT_ID_1));
-	}
-
-	public void testRemoveServer() {
-		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), bamboo3, jira2);
-		assertEquals(jira2, cfgManager.removeGlobalServer(jira2.getServerId()));
-		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), bamboo3);
-		assertNull(cfgManager.removeGlobalServer(bamboo1.getServerId()));
-		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), bamboo3);
-		assertEquals(bamboo3, cfgManager.removeGlobalServer(bamboo3.getServerId()));
-		assertEquals(0, cfgManager.getGlobalServers().size());
-
-		TestUtil.assertThrows(IllegalArgumentException.class, new IAction() {
-			public void run() {
-				cfgManager.removeGlobalServer(null);
-			}
-		});
-	}
+//	public void testRemoveServer() {
+//		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), bamboo3, jira2);
+//		assertEquals(jira2, cfgManager.removeGlobalServer(jira2.getServerId()));
+//		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), bamboo3);
+//		assertNull(cfgManager.removeGlobalServer(bamboo1.getServerId()));
+//		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), bamboo3);
+//		assertEquals(bamboo3, cfgManager.removeGlobalServer(bamboo3.getServerId()));
+//		assertEquals(0, cfgManager.getGlobalServers().size());
+//
+//		TestUtil.assertThrows(IllegalArgumentException.class, new IAction() {
+//			public void run() {
+//				cfgManager.removeGlobalServer(null);
+//			}
+//		});
+//	}
 
 	public void testRemoveProjectSpecificServer() {
 		TestUtil.assertHasOnlyElements(cfgManager.getProjectSpecificServers(PROJECT_ID_1), jira1, bamboo1);
@@ -285,7 +276,7 @@ public abstract class AbstractCfgManagerTest extends TestCase {
 		TestUtil.assertHasOnlyElements(cfgManager.getProjectSpecificServers(PROJECT_ID_2));
 
 		final Collection<ServerCfg> servers = cfgManager.getAllServers(PROJECT_ID_1);
-		TestUtil.assertHasOnlyElements(servers, bamboo3, jira2, bamboo1);
+		TestUtil.assertHasOnlyElements(servers, bamboo1);
 		assertTrue(servers.contains(bamboo1));
 
 		TestUtil.assertThrows(IllegalArgumentException.class, new IAction() {
@@ -307,20 +298,20 @@ public abstract class AbstractCfgManagerTest extends TestCase {
 		});
 	}
 
-	public void testUpdateGlobalServers() {
-		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), bamboo3, jira2);
-		final ServerCfg[] serverCfgs = {jira2, bamboo1, crucible2};
-		final GlobalConfiguration globalConfiguration = new GlobalConfiguration();
-		globalConfiguration.setGlobalServers(MiscUtil.buildArrayList(serverCfgs));
-		cfgManager.updateGlobalConfiguration(globalConfiguration);
-
-		TestUtil.assertContains(cfgManager.getAllServers(PROJECT_ID_1), serverCfgs);
-
-		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), serverCfgs);
-		globalConfiguration.setGlobalServers(MiscUtil.<ServerCfg>buildArrayList());
-		cfgManager.updateGlobalConfiguration(globalConfiguration);
-		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers());
-	}
+//	public void testUpdateGlobalServers() {
+//		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), bamboo3, jira2);
+//		final ServerCfg[] serverCfgs = {jira2, bamboo1, crucible2};
+//		final GlobalConfiguration globalConfiguration = new GlobalConfiguration();
+//		globalConfiguration.setGlobalServers(MiscUtil.buildArrayList(serverCfgs));
+//		cfgManager.updateGlobalConfiguration(globalConfiguration);
+//
+//		TestUtil.assertContains(cfgManager.getAllServers(PROJECT_ID_1), serverCfgs);
+//
+//		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers(), serverCfgs);
+//		globalConfiguration.setGlobalServers(MiscUtil.<ServerCfg>buildArrayList());
+//		cfgManager.updateGlobalConfiguration(globalConfiguration);
+//		TestUtil.assertHasOnlyElements(cfgManager.getGlobalServers());
+//	}
 
 	public void testUpdateProjectSpecificServers() {
 		TestUtil.assertHasOnlyElements(cfgManager.getProjectSpecificServers(PROJECT_ID_1), jira1, bamboo1);
@@ -333,24 +324,19 @@ public abstract class AbstractCfgManagerTest extends TestCase {
 
 
 	public void testGetAllEnabledBambooServers() {
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(PROJECT_ID_1), bamboo1, bamboo3);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(PROJECT_ID_2), bamboo3);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(PROJECT_ID_1), bamboo1);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(PROJECT_ID_2));
 		TestUtil.assertThrows(IllegalArgumentException.class, new IAction() {
 			public void run() {
 				cfgManager.getAllEnabledBambooServers(null);
 			}
 		});
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(new ProjectId()), bamboo3);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(new ProjectId()));
 	}
 
 	public void testGetAllEnabledCrucibleServers() {
 		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledCrucibleServers(PROJECT_ID_2), crucible1);
 		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledCrucibleServers(PROJECT_ID_1));
-		final CrucibleServerCfg crucible2 = new CrucibleServerCfg("anothercrucible", new ServerId());
-		cfgManager.addGlobalServer(crucible2);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledCrucibleServers(PROJECT_ID_2), crucible2, crucible1);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledCrucibleServers(PROJECT_ID_1), crucible2);
-		crucible2.setEnabled(false);
 		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledCrucibleServers(PROJECT_ID_2), crucible1);
 		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledCrucibleServers(PROJECT_ID_1));
 		TestUtil.assertThrows(IllegalArgumentException.class, new IAction() {
@@ -362,12 +348,9 @@ public abstract class AbstractCfgManagerTest extends TestCase {
 	}
 
 	public void testGetAllEnabledJiraServers() {
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledJiraServers(PROJECT_ID_2), jira2);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledJiraServers(PROJECT_ID_1), jira1, jira2);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledJiraServers(PROJECT_ID_2));
+		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledJiraServers(PROJECT_ID_1), jira1);
 		jira1.setEnabled(false);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledJiraServers(PROJECT_ID_2), jira2);
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledJiraServers(PROJECT_ID_1), jira2);
-		cfgManager.removeGlobalServer(jira2.getServerId());
 		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledJiraServers(PROJECT_ID_2));
 		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledJiraServers(PROJECT_ID_1));
 
@@ -379,16 +362,15 @@ public abstract class AbstractCfgManagerTest extends TestCase {
 		assertEquals(0, cfgManager.getAllEnabledJiraServers(new ProjectId()).size());
 	}
 
-
-	public void testRemoveProject() {
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(PROJECT_ID_1), bamboo1, bamboo3);
-		assertNull(cfgManager.removeProject(new ProjectId()));
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(PROJECT_ID_1), bamboo1, bamboo3);
-		assertNotNull(cfgManager.removeProject(PROJECT_ID_1));
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(PROJECT_ID_1), bamboo3);
-		// PROJECT_ID_2 is intact
-		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(PROJECT_ID_2), bamboo3);
-	}
+//	public void testRemoveProject() {
+//		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(PROJECT_ID_1), bamboo1);
+//		assertNull(cfgManager.removeProject(new ProjectId()));
+//		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(PROJECT_ID_1), bamboo1, bamboo3);
+//		assertNotNull(cfgManager.removeProject(PROJECT_ID_1));
+//		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(PROJECT_ID_1), bamboo3);
+//		// PROJECT_ID_2 is intact
+//		TestUtil.assertHasOnlyElements(cfgManager.getAllEnabledBambooServers(PROJECT_ID_2), bamboo3);
+//	}
 
 	public void testGerServer() {
 		assertEquals(crucible1, cfgManager.getServer(PROJECT_ID_2, crucible1.getServerId()));
@@ -396,10 +378,10 @@ public abstract class AbstractCfgManagerTest extends TestCase {
 	}
 
 	public void testGetAllUniqueServers() {
-		TestUtil.assertHasOnlyElements(cfgManager.getAllUniqueServers(), bamboo3, jira2, bamboo1, crucible1, jira1);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllUniqueServers(), bamboo1, crucible1, jira1);
 		cfgManager.addProjectSpecificServer(PROJECT_ID_1, crucible1);
 		// must be unique - so adding new server above should have no effect
-		TestUtil.assertHasOnlyElements(cfgManager.getAllUniqueServers(), bamboo3, jira2, bamboo1, crucible1, jira1);
+		TestUtil.assertHasOnlyElements(cfgManager.getAllUniqueServers(), bamboo1, crucible1, jira1);
 		cfgManager = createCfgManager();
 		TestUtil.assertHasOnlyElements(cfgManager.getAllUniqueServers());
 

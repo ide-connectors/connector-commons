@@ -76,7 +76,7 @@ public interface CfgManager {
 
 	Collection<BambooServerCfg> getAllEnabledBambooServers(final ProjectId projectId);
 
-	Collection<ServerCfg> getAllUniqueServers();
+//	Collection<ServerCfg> getAllUniqueServers();
 
 //	boolean hasProject(ProjectId projectId);
 

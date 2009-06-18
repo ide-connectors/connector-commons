@@ -368,14 +368,13 @@ public class CfgManagerImpl implements CfgManager {
 		void run(final ConfigurationListener projectListener, final ProjectId projectId, final CfgManagerImpl cfgManager);
 	}
 
-
-	public Collection<ServerCfg> getAllUniqueServers() {
-		final Set<ServerCfg> res = new HashSet<ServerCfg>();
-		for (ProjectConfiguration projectCfg : projectConfigurations.values()) {
-			res.addAll(projectCfg.getServers());
-		}
-		return res;
-	}
+//	public Collection<ServerCfg> getAllUniqueServers() {
+//		final Set<ServerCfg> res = new HashSet<ServerCfg>();
+//		for (ProjectConfiguration projectCfg : projectConfigurations.values()) {
+//			res.addAll(projectCfg.getServers());
+//		}
+//		return res;
+//	}
 
 
 	private static class UpdateConfigurationListenerAction implements ProjectListenerAction {

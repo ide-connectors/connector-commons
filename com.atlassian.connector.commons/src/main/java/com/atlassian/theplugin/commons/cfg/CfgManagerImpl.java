@@ -72,7 +72,6 @@ public class CfgManagerImpl implements CfgManager {
 			}
 		}
 		return res;
-
 	}
 
 	public Collection<CrucibleServerCfg> getAllCrucibleServers(ProjectId projectId) {
@@ -263,9 +262,9 @@ public class CfgManagerImpl implements CfgManager {
 		}
 	}
 
-	public boolean hasProject(ProjectId projectId) {
-		return projectConfigurations.containsKey(projectId);
-	}
+//	public boolean hasProject(ProjectId projectId) {
+//		return projectConfigurations.containsKey(projectId);
+//	}
 
 	public Collection<BambooServerCfg> getAllEnabledBambooServers(final ProjectId projectId) {
 		Collection<ServerCfg> tmp = getAllEnabledServers(projectId);

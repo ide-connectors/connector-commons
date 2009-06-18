@@ -78,7 +78,7 @@ public interface CfgManager {
 
 	Collection<ServerCfg> getAllUniqueServers();
 
-	boolean hasProject(ProjectId projectId);
+//	boolean hasProject(ProjectId projectId);
 
 	Collection<CrucibleServerCfg> getAllCrucibleServers(ProjectId projectId);
 

@@ -48,7 +48,7 @@ public abstract class ServerCfg implements Server {
 		isEnabled = other.isEnabled();
 		name = other.getName();
 		url = other.getUrl();
-		username = other.getUsername();
+		username = other.getUserName();
 		password = other.getPassword();
 		isPasswordStored = other.isPasswordStored();
 		useDefaultCredentials = other.useDefaultCredentials;
@@ -80,7 +80,7 @@ public abstract class ServerCfg implements Server {
 	}
 
 
-	public String getUserName() {	
+	public String getUserName() {
 		return username;
 	}
 
@@ -128,10 +128,6 @@ public abstract class ServerCfg implements Server {
 
 	public String getUrl() {
 		return url;
-	}
-
-	public String getUsername() {
-		return username;
 	}
 
 	public boolean isPasswordStored() {

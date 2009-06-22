@@ -387,7 +387,7 @@ public class CrucibleSessionTest extends TestCase {
 		List<State> states = Arrays.asList(State.values());
 		mockServer.expect("/rest-service/reviews-v1/details", new GetReviewsCallback(states));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-        mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(1));
+		mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(1));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
@@ -430,7 +430,7 @@ public class CrucibleSessionTest extends TestCase {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
 		mockServer.expect("/rest-service/reviews-v1/details", new GetReviewsCallback(states));
-        mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(1));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
@@ -459,7 +459,7 @@ public class CrucibleSessionTest extends TestCase {
 		List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
 		mockServer.expect("/rest-service/reviews-v1/details", new GetReviewsCallback(states));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-        mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(1));
+		mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(1));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
@@ -922,7 +922,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	private ServerData createServerData(ServerCfg serverCfg) {
-		return new ServerData(serverCfg.getName(), serverCfg.getServerId().toString(), serverCfg.getUsername(),
+		return new ServerData(serverCfg.getName(), serverCfg.getServerId().toString(), serverCfg.getUserName(),
 				serverCfg.getPassword(), serverCfg.getUrl());
 	}
 

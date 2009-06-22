@@ -16,10 +16,11 @@
 
 package com.atlassian.connector.cfg;
 
-import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.cfg.Server;
+import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.cfg.*;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -28,4 +29,53 @@ public interface ProjectCfgManager {
 	ServerData getServerData(@NotNull Server serverCfg);
 
 	Collection<BambooServerCfg> getAllEnabledBambooServers();
+
+	Collection<ServerCfg> getAllServers();
+
+	Collection<ServerCfg> getAllServers(ServerType serverType);
+
+	Collection<ServerCfg> getAllEnabledServers();
+
+	Collection<ServerCfg> getAllEnabledServers(ServerType serverType);
+
+	Collection<ServerCfg> getAllEnabledServersWithDefaultCredentials();
+
+	Collection<ServerCfg> getAllEnabledServersWithDefaultCredentials(ServerType serverType);
+
+	Collection<BambooServerCfg> getAllBambooServers();
+
+	Collection<JiraServerCfg> getAllJiraServers();
+
+	Collection<CrucibleServerCfg> getAllCrucibleServers();
+
+	Collection<JiraServerCfg> getAllEnabledJiraServers();
+
+	Collection<CrucibleServerCfg> getAllEnabledCrucibleServers();
+
+	@Nullable
+	ServerData getDefaultJiraServer();
+
+	@Nullable
+	ServerData getDefaultCrucibleServer();
+
+	@Nullable
+	ServerData getDefaultFishEyeServer();
+
+	String getDefaultCrucibleRepo();
+
+	String getDefaultCrucibleProject();
+
+	String getDefaultFishEyeRepo();
+
+	String getFishEyeProjectPath();
+
+	ServerCfg getServer(ServerId serverId);
+
+	void addProjectConfigurationListener(ConfigurationListener configurationListener);
+
+	boolean removeProjectConfigurationListener(ConfigurationListener configurationListener);
+
+	ServerCfg getServer(ServerData serverData);
+
+	boolean isDefaultJiraServerValid();
 }

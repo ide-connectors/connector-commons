@@ -16,22 +16,28 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
+import com.atlassian.connector.cfg.ProjectCfgManager;
 import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
 import com.atlassian.theplugin.commons.UIActionScheduler;
-import com.atlassian.theplugin.commons.cfg.*;
+import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.Logger;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.TimerTask;
 
@@ -58,7 +64,8 @@ public class BambooStatusCheckerTest extends TestCase {
 	public void testGetInterval() throws Exception {
 
 		BambooStatusChecker checker = new BambooStatusChecker(
-				null, MockBambooCfgManager.createBambooTestConfiguration(),
+//				null, MockBambooCfgManager.createBambooTestConfiguration(),
+				null, Mockito.mock(ProjectCfgManager.class),
 				new PluginConfigurationBean(), null, logger);
 		assertEquals(1000 * 60 * 10, checker.getInterval());
 	}
@@ -75,13 +82,13 @@ public class BambooStatusCheckerTest extends TestCase {
 	public void testLogic() throws Exception {
 		// perform no-operation
 
-		MockBambooCfgManager config = MockBambooCfgManager.createEmptyBambooTestConfiguration();
+		ProjectCfgManager cfg = Mockito.mock(ProjectCfgManager.class);
 
 		EasyInvoker invoker = new EasyInvoker();
-		BambooStatusChecker checker = new BambooStatusChecker(null, config, null, null, logger);
+		BambooStatusChecker checker = new BambooStatusChecker(null, cfg, null, null, logger);
 
 		checker.setActionScheduler(invoker);
-		checker.updateConfiguration(config);
+		checker.updateConfiguration(cfg);
 
 		TimerTask task = checker.newTimerTask();
 		task.run();
@@ -124,7 +131,9 @@ public class BambooStatusCheckerTest extends TestCase {
 		String mockBaseUrl = "http://localhost:" + httpServer.getConnectors()[0].getLocalPort();
 
 		JettyMockServer mockServer = new JettyMockServer(httpServer);
-		addServer(config, mockBaseUrl);
+//		addServer(config, mockBaseUrl);
+		final BambooServerCfg server = getServer(mockBaseUrl);
+		Mockito.when(cfg.getAllEnabledBambooServers()).thenReturn(Arrays.asList(server));
 
 		assertTrue(checker.canSchedule()); // config not empty
 
@@ -134,6 +143,9 @@ public class BambooStatusCheckerTest extends TestCase {
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());
 
+		Mockito.when(cfg.getServerData(server)).thenReturn(new ServerData(
+				server.getName(), server.getServerId().toString(), server.getUserName(), server.getPassword(),
+				server.getUrl()));
 		task.run();
 		assertEquals(1, r2.lastStatuses.size());
 
@@ -142,8 +154,7 @@ public class BambooStatusCheckerTest extends TestCase {
 
 	}
 
-
-	private static void addServer(MockBambooCfgManager config, String url) {
+	private static BambooServerCfg getServer(String url) {
 		BambooServerCfg server = new BambooServerCfg("TestServer", new ServerId());
 		server.setUrl(url);
 		server.setUsername(USER_NAME);
@@ -155,7 +166,7 @@ public class BambooStatusCheckerTest extends TestCase {
 		plans.add(plan);
 
 		server.setPlans(plans);
-		config.addServer(server);
+		return server;
 	}
 
 	public static Test suite() {
@@ -166,7 +177,7 @@ public class BambooStatusCheckerTest extends TestCase {
 
 		private Collection<BambooBuild> lastStatuses;
 
-        public void updateBuildStatuses(Collection<BambooBuild> buildStatuses, Collection<Exception> generalExceptions) {
+		public void updateBuildStatuses(Collection<BambooBuild> buildStatuses, Collection<Exception> generalExceptions) {
 			lastStatuses = buildStatuses;
 		}
 
@@ -182,7 +193,7 @@ public class BambooStatusCheckerTest extends TestCase {
 
 		public void resetState() {
 		}
-    }
+	}
 
 	private class EasyInvoker implements UIActionScheduler {
 		private boolean invoked;

@@ -16,7 +16,6 @@
 package com.atlassian.theplugin.commons.cfg;
 
 import com.atlassian.theplugin.commons.ServerType;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
 
 public abstract class ServerCfg implements Server {
 	private static final int HASHCODE_MAGIC = 31;
@@ -132,11 +131,6 @@ public abstract class ServerCfg implements Server {
 
 	public boolean isPasswordStored() {
 		return isPasswordStored;
-	}
-
-
-	public ServerData getServerData() {
-		return new ServerData(getName(), getServerId().toString(), getUserName(), getPassword(), getUrl());
 	}
 
 	@Override

@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,18 +35,17 @@ public class BambooStatusTooltipListener implements BambooStatusListener {
 
 
 	/**
-	 *
-	 * @param display reference to display component
+	 * @param display			 reference to display component
 	 * @param pluginConfiguration cfg how incoming status changes should be handled
 	 */
 	public BambooStatusTooltipListener(final BambooStatusDisplay display,
-									   final PluginConfiguration pluginConfiguration) {
+			final PluginConfiguration pluginConfiguration) {
 		this.display = display;
 		this.pluginConfiguration = pluginConfiguration;
 	}
 
 	public void updateBuildStatuses(Collection<BambooBuild> newBuildStatuses, Collection<Exception> generalExceptions) {
-		
+
 		popupInfo.clear();
 
 		final BambooTooltipOption bambooTooltipOption = pluginConfiguration != null
@@ -120,7 +119,7 @@ public class BambooStatusTooltipListener implements BambooStatusListener {
 				}
 			}
 		}
-		
+
 		if (fireTooltip && status != null) {
 			display.updateBambooStatus(status, popupInfo);
 		}
@@ -129,7 +128,7 @@ public class BambooStatusTooltipListener implements BambooStatusListener {
 	private static String getBuildMapKey(BambooBuild build) {
 		String serverId = "none";
 		if (build.getServer() != null) {
-			serverId = build.getServer().getServerId().toString();
+			serverId = build.getServer().getServerId();
 		}
 		return serverId + build.getPlanKey();
 	}

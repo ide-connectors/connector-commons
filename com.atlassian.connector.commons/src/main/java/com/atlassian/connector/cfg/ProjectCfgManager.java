@@ -78,4 +78,6 @@ public interface ProjectCfgManager {
 	ServerCfg getServer(ServerData serverData);
 
 	boolean isDefaultJiraServerValid();
+
+	ServerData getServerData(ServerId serverId);
 }

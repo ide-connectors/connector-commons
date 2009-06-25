@@ -50,15 +50,13 @@
 		<testResult testClass="com.atlassian.theplugin.commons.bamboo.HtmlBambooStatusListenerTest"
 					testMethod="testSingleSuccessResultForDisabledBuild" duration="0.012">
 			<errors>
-				<error>error 1
-				</error>
+				<error>error 1</error>
 			</errors>
 		</testResult>
 		<testResult testClass="com.atlassian.theplugin.commons.bamboo.HtmlBambooStatusListenerTest"
 					testMethod="testSingleFailedResultForDisabledBuild" duration="0.011">
 			<errors>
-				<error>error 2
-				</error>
+				<error>error 2</error>
 			</errors>
 		</testResult>
 	</failedTests>

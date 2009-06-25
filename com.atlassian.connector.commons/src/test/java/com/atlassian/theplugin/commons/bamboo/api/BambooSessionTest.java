@@ -485,8 +485,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 		assertEquals(TestResult.TEST_FAILED,
 				build.getFailedTestDetails().iterator().next().getTestResult());
 
-		assertEquals("error 1\n", build.getFailedTestDetails().get(0).getErrors());
-		assertEquals("error 2\n", build.getFailedTestDetails().get(1).getErrors());
+		assertEquals("error 1", build.getFailedTestDetails().get(0).getErrors());
+		assertEquals("error 2", build.getFailedTestDetails().get(1).getErrors());
 
 		// successful tests
 		assertEquals(117, build.getSuccessfulTestDetails().size());

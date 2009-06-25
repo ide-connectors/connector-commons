@@ -80,4 +80,6 @@ public interface ProjectCfgManager {
 	boolean isDefaultJiraServerValid();
 
 	ServerData getServerData(IServerId serverId);
+
+    Collection<FishEyeServerCfg> getAllFishEyeServers();
 }

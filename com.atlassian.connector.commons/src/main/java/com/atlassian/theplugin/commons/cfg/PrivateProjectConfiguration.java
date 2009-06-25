@@ -16,10 +16,9 @@
 package com.atlassian.theplugin.commons.cfg;
 
 import com.atlassian.theplugin.commons.util.MiscUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-
-import org.jetbrains.annotations.NotNull;
 
 public class PrivateProjectConfiguration {
 	public Collection<PrivateServerCfgInfo> getPrivateServerCfgInfos() {
@@ -32,7 +31,7 @@ public class PrivateProjectConfiguration {
 		privateServerCfgInfos.add(info);
 	}
 
-	public PrivateServerCfgInfo getPrivateServerCfgInfo(final ServerId serverId) {
+	public PrivateServerCfgInfo getPrivateServerCfgInfo(final IServerId serverId) {
 		for (PrivateServerCfgInfo privateServerCfgInfo : privateServerCfgInfos) {
 			if (privateServerCfgInfo.getServerId().equals(serverId)) {
 				return privateServerCfgInfo;

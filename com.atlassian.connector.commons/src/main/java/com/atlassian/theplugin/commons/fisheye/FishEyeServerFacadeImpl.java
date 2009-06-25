@@ -52,8 +52,8 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
 	 * @return
 	 * @throws RemoteApiMalformedUrlException
 	 */
-	public FishEyeSession getSession(String url) throws RemoteApiMalformedUrlException {
-		ServerData serverCfg = new ServerData((new ServerId()).toString(), "", "", "", url);
+	FishEyeSession getSession(String url) throws RemoteApiMalformedUrlException {
+		ServerData serverCfg = new ServerData("", new ServerId(), "", "", url);
 		return new FishEyeRestSession(serverCfg, callback);
 
 	}

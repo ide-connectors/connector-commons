@@ -15,12 +15,13 @@
  */
 package com.atlassian.theplugin.commons.cfg;
 
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 
 public interface PrivateConfigurationDao {
 	@Nullable
-	PrivateServerCfgInfo load(ServerId id) throws ServerCfgFactoryException;
+	PrivateServerCfgInfo load(IServerId id) throws ServerCfgFactoryException;
+
 	void save(@NotNull PrivateServerCfgInfo info) throws ServerCfgFactoryException;
 }

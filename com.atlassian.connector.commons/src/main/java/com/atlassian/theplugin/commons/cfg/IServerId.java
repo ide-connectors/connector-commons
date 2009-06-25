@@ -18,6 +18,6 @@ package com.atlassian.theplugin.commons.cfg;
 /**
  * @author Jacek Jaroczynski
  */
-public interface ConfigurationCredentialsListener {
-	void configurationCredentialsUpdated(final ServerId serverId);
+public interface IServerId {
+	String getStringId();
 }

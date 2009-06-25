@@ -17,7 +17,6 @@
 package com.atlassian.theplugin.commons.crucible;
 
 import com.atlassian.theplugin.commons.ServerType;
-import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleLoginException;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
@@ -139,10 +138,10 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	/**
 	 * For testing Only
 	 */
-	public void testServerConnection(String url, String userName, String password) throws RemoteApiException {
-		ServerData serverData = new ServerData("unknown", (new ServerId()).toString(), userName, password, url);
-		testServerConnection(serverData);
-	}
+//	public void testServerConnection(String url, String userName, String password) throws RemoteApiException {
+//		ServerData serverData = new ServerData("unknown", new ServerId(), userName, password, url);
+//		testServerConnection(serverData);
+//	}
 
 	/**
 	 * @param serverCfg The configuration for the server that we want to test the connection for

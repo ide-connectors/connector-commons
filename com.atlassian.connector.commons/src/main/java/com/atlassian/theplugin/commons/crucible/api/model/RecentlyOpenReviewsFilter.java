@@ -52,7 +52,7 @@ public class RecentlyOpenReviewsFilter implements CrucibleFilter {
 	public void addRecentlyOpenReview(final ReviewAdapter review) {
 		if (review != null) {
 			String reviewId = review.getPermId().getId();
-			String serverId = review.getServerData().getServerId();
+			String serverId = review.getServerData().getServerId().getStringId();
 
 			// add element and make sure it is not duplicated and it is insterted at the top
 			ReviewRecentlyOpenBean r = new ReviewRecentlyOpenBean(serverId, reviewId);

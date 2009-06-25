@@ -32,7 +32,7 @@ public class PrivateServerCfgInfo {
 		this.password = password;
 	}
 
-	public ServerId getServerId() {
+	public IServerId getServerId() {
 		return serverId;
 	}
 

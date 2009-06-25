@@ -17,7 +17,7 @@
 package com.atlassian.theplugin.commons.bamboo;
 
 import com.atlassian.theplugin.commons.cfg.ConfigurationListenerAdapter;
-import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.IServerId;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 
 import java.text.SimpleDateFormat;
@@ -143,7 +143,7 @@ public class BambooBuildAdapter extends ConfigurationListenerAdapter {
 		return build.isMyBuild();
 	}
 
-	public void serverDataChanged(final ServerId serverCfg) {
+	public void serverDataChanged(final IServerId serverCfg) {
 		// I need ServerData here!!! ServerData is combined with default credentials which depends on the project
 		// I know nothing about project here
 		// todo refactor configuration

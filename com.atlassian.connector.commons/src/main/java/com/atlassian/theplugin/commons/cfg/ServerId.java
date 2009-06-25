@@ -17,7 +17,7 @@ package com.atlassian.theplugin.commons.cfg;
 
 import java.util.UUID;
 
-public class ServerId {
+public class ServerId implements IServerId {
 	private UUID uuid;
 
 	public ServerId() {
@@ -28,6 +28,10 @@ public class ServerId {
 	public ServerId(final String uuid) {
 		this.uuid = UUID.fromString(uuid);
 		assert uuid != null;
+	}
+
+	public String getStringId() {
+		return uuid.toString();
 	}
 
 	@Override

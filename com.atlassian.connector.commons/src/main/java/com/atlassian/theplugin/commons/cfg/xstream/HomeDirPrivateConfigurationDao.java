@@ -15,10 +15,10 @@
  */
 package com.atlassian.theplugin.commons.cfg.xstream;
 
+import com.atlassian.theplugin.commons.cfg.IServerId;
 import com.atlassian.theplugin.commons.cfg.PrivateConfigurationDao;
 import com.atlassian.theplugin.commons.cfg.PrivateServerCfgInfo;
 import com.atlassian.theplugin.commons.cfg.ServerCfgFactoryException;
-import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.JDomReader;
 import com.thoughtworks.xstream.io.xml.JDomWriter;
@@ -42,14 +42,14 @@ public class HomeDirPrivateConfigurationDao implements PrivateConfigurationDao {
 	private static final String ATLASSIAN_DIR_NAME = ".atlassian";
 	private static final String ATLASSIAN_IDE_CONNECTOR_DIR_NAME = "ide-connector";
 	private static final String ROOT_ELEMENT_NAME = "single-server-private-cfg";
-	private static final String USE_DEFAULT_CREDENTIALS_NAME = "use-default-credentials";
+//	private static final String USE_DEFAULT_CREDENTIALS_NAME = "use-default-credentials";
 
 
-	public PrivateServerCfgInfo load(final ServerId id) throws ServerCfgFactoryException {
+	public PrivateServerCfgInfo load(final IServerId id) throws ServerCfgFactoryException {
 		final File atlassianDir = getPrivateCfgDirectorySavePath();
 
 		if (atlassianDir.isDirectory() && atlassianDir.canRead()) {
-			final File serverCfgFile = new File(atlassianDir.getAbsolutePath(), id.getUuid().toString());
+			final File serverCfgFile = new File(atlassianDir.getAbsolutePath(), id.getStringId());
 			if (serverCfgFile.isFile() && serverCfgFile.canRead()) {
 				Document doc;
 
@@ -89,7 +89,7 @@ public class HomeDirPrivateConfigurationDao implements PrivateConfigurationDao {
 		try {
 			//document.setRootElement(new Element("private-server-cfg"));
 			writeXmlFile(document.getRootElement(), new File(getPrivateCfgDirectorySavePath(),
-					info.getServerId().getUuid().toString()));
+					info.getServerId().getStringId()));
 		} catch (IOException e) {
 			final ServerCfgFactoryException ex = new ServerCfgFactoryException(e.getMessage());
 			ex.initCause(e);

@@ -114,7 +114,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 
 		final StringWriter privateWriter = new StringWriter();
 		new XMLOutputter(Format.getPrettyFormat()).output(pcf.documentMap.get(bamboo1.getServerId()), privateWriter);
-		assertTrue(privateWriter.toString().indexOf(bamboo1.getServerId().getUuid().toString()) != -1);
+		assertTrue(privateWriter.toString().indexOf(bamboo1.getServerId().getStringId()) != -1);
 		// password should be hashed - so it should not be found in resulting xml stream
 		assertEquals(-1, privateWriter.toString().indexOf(bamboo1.getPassword()));
 	}
@@ -394,7 +394,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 
 	public void testMissingPrivateCfg() throws ServerCfgFactoryException {
 		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, new PrivateConfigurationDao() {
-			public PrivateServerCfgInfo load(final ServerId id) {
+			public PrivateServerCfgInfo load(final IServerId id) {
 				return null;
 			}
 
@@ -410,9 +410,9 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 	}
 
 	private static class MyPrivateConfigurationDao implements PrivateConfigurationDao {
-		private Map<ServerId, Document> documentMap = MiscUtil.buildHashMap();
+		private Map<IServerId, Document> documentMap = MiscUtil.buildHashMap();
 
-		public PrivateServerCfgInfo load(final ServerId id) throws ServerCfgFactoryException {
+		public PrivateServerCfgInfo load(final IServerId id) throws ServerCfgFactoryException {
 			final Document document = documentMap.get(id);
 			if (document == null) {
 				return null;
@@ -427,7 +427,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 
 		public Collection<PrivateServerCfgInfo> getInfos() throws ServerCfgFactoryException {
 			final ArrayList<PrivateServerCfgInfo> res = MiscUtil.buildArrayList();
-			for (Map.Entry<ServerId, Document> entry : documentMap.entrySet()) {
+			for (Map.Entry<IServerId, Document> entry : documentMap.entrySet()) {
 				res.add(load(entry.getKey()));
 			}
 			return res;
@@ -435,9 +435,9 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 	}
 
 	private static class MemoryPrivateConfigurationDao implements PrivateConfigurationDao {
-		private Map<ServerId, PrivateServerCfgInfo> map = MiscUtil.buildHashMap();
+		private Map<IServerId, PrivateServerCfgInfo> map = MiscUtil.buildHashMap();
 
-		public PrivateServerCfgInfo load(final ServerId id) throws ServerCfgFactoryException {
+		public PrivateServerCfgInfo load(final IServerId id) throws ServerCfgFactoryException {
 			return map.get(id);
 		}
 

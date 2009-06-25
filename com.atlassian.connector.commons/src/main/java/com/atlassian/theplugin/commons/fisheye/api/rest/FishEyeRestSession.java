@@ -15,22 +15,14 @@
  */
 package com.atlassian.theplugin.commons.fisheye.api.rest;
 
-import com.atlassian.theplugin.commons.cfg.FishEyeServer;
-import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
+import com.atlassian.theplugin.commons.remoteapi.*;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.UrlUtil;
-
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
@@ -59,30 +51,22 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 
 	/**
 	 * For testing purposes
-	 * 
+	 *
 	 * @param url
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
-	 * 
+	 *
 	 */
 	FishEyeRestSession(String url) throws RemoteApiMalformedUrlException {
-		this(new ServerData("", "", "", "", url), new HttpSessionCallbackImpl());
-	}
-
-	private static FishEyeServer createServerCfg(String url) {
-		FishEyeServerCfg serverCfg = new FishEyeServerCfg(url, new ServerId());
-		serverCfg.setUrl(url);
-		return serverCfg;
+		this(new ServerData("", new ServerId(), "", "", url), new HttpSessionCallbackImpl());
 	}
 
 	/**
 	 * Public constructor for AbstractHttpSession
-	 * 
-	 * @param server
-	 *            The server configuration for this session
-	 * @param callback
-	 *            The callback needed for preparing HttpClient calls
+	 *
+	 * @param server   The server configuration for this session
+	 * @param callback The callback needed for preparing HttpClient calls
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
-	 *             for malformed url
+	 *          for malformed url
 	 */
 	public FishEyeRestSession(ServerData server, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
 		super(server, callback);
@@ -99,7 +83,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 
 	/**
 	 * Login method - use empty both username and password for anonymous access (see PL-931)
-	 * 
+	 *
 	 * @param name
 	 * @param aPassword
 	 * @throws RemoteApiLoginException

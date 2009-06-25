@@ -69,7 +69,7 @@ public interface ProjectCfgManager {
 
 	String getFishEyeProjectPath();
 
-	ServerCfg getServer(ServerId serverId);
+	ServerCfg getServer(IServerId serverId);
 
 	void addProjectConfigurationListener(ConfigurationListener configurationListener);
 
@@ -79,5 +79,5 @@ public interface ProjectCfgManager {
 
 	boolean isDefaultJiraServerValid();
 
-	ServerData getServerData(ServerId serverId);
+	ServerData getServerData(IServerId serverId);
 }

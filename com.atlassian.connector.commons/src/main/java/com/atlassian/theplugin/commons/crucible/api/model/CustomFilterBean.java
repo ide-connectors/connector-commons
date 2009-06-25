@@ -16,12 +16,11 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import com.atlassian.theplugin.commons.cfg.ServerId;
 import org.apache.commons.lang.StringUtils;
 
 
 public class CustomFilterBean implements CustomFilter {
-	private ServerId serverUid = new ServerId();
+	private String serverUid = "";
 	private String title = "";
 	private State[] state = new State[0];
 	private String author = "";
@@ -71,11 +70,11 @@ public class CustomFilterBean implements CustomFilter {
 	private transient long uid = System.currentTimeMillis() + (long) (Math.random() * ID_DISCRIMINATOR);
 
 	public String getServerUid() {
-		return serverUid.toString();
+		return serverUid;
 	}
 
 	public void setServerUid(String serverUid) {
-		this.serverUid = new ServerId(serverUid);
+		this.serverUid = serverUid;
 	}
 
 	public CustomFilterBean() {

@@ -415,26 +415,28 @@ public class BambooServerFacadeTest extends TestCase {
 
 	/**
 	 * Regression for https://studio.atlassian.com/browse/ACC-40
+	 *
 	 * @throws Exception
 	 */
 	public void testConnectionTestInvalidUrlIncludesPassword() throws Exception {
 		try {
-			testedBambooServerFacade.testServerConnection(getServerData(createBambooServerCfg("http://invalid url", USER_NAME, PASSWORD)));
+			testedBambooServerFacade
+					.testServerConnection(getServerData(createBambooServerCfg("http://invalid url", USER_NAME, PASSWORD)));
 			fail("Should throw RemoteApiLoginException");
 		} catch (RemoteApiException e) {
 			assertFalse("Message should not include users's password", e.getMessage().contains(PASSWORD));
 		}
 	}
-	
+
 	public void testConnectionTest() throws Exception {
 
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
-		testedBambooServerFacade.testServerConnection(new ServerData("", "", USER_NAME, PASSWORD, mockBaseUrl));
+		testedBambooServerFacade.testServerConnection(new ServerData("", new ServerId(), USER_NAME, PASSWORD, mockBaseUrl));
 
 		TestUtil.assertThrows(RemoteApiMalformedUrlException.class, new IAction() {
 			public void run() throws Throwable {
-				testedBambooServerFacade.testServerConnection(new ServerData("", "", "", "", ""));
+				testedBambooServerFacade.testServerConnection(new ServerData("", new ServerId(), "", "", ""));
 			}
 		});
 
@@ -442,17 +444,17 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/login.action", new LoginCallback("", "", LoginCallback.ALWAYS_FAIL));
 		TestUtil.assertThrows(RemoteApiLoginException.class, new IAction() {
 			public void run() throws Throwable {
-				testedBambooServerFacade.testServerConnection(new ServerData("", "", "", "", mockBaseUrl));
+				testedBambooServerFacade.testServerConnection(new ServerData("", new ServerId(), "", "", mockBaseUrl));
 			}
 		});
 		TestUtil.assertThrows(RemoteApiMalformedUrlException.class, new IAction() {
 			public void run() throws Throwable {
-				testedBambooServerFacade.testServerConnection(new ServerData("", "", USER_NAME, "", ""));
+				testedBambooServerFacade.testServerConnection(new ServerData("", new ServerId(), USER_NAME, "", ""));
 			}
 		});
 		TestUtil.assertThrows(RemoteApiMalformedUrlException.class, new IAction() {
 			public void run() throws Throwable {
-				testedBambooServerFacade.testServerConnection(new ServerData("", "", "", PASSWORD, ""));
+				testedBambooServerFacade.testServerConnection(new ServerData("", new ServerId(), "", PASSWORD, ""));
 			}
 		});
 
@@ -632,7 +634,7 @@ public class BambooServerFacadeTest extends TestCase {
 	}
 
 	private ServerData getServerData(final Server serverCfg) {
-		return new ServerData(serverCfg.getName(), serverCfg.getServerId().toString(), serverCfg.getUserName(),
+		return new ServerData(serverCfg.getName(), serverCfg.getServerId(), serverCfg.getUserName(),
 				serverCfg.getPassword(), serverCfg.getUrl());
 	}
 }

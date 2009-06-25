@@ -58,7 +58,7 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 	private static ServerData createCrucibleTestConfiguration(String serverUrl, boolean isPassInitialized) {
 		// TODO wseliga how to handle it???
 		// server.transientSetIsConfigInitialized(isPassInitialized);
-		return new ServerData("TestServer", (new ServerId()).toString(), USER_NAME, isPassInitialized ? PASSWORD : "",
+		return new ServerData("TestServer", new ServerId(), USER_NAME, isPassInitialized ? PASSWORD : "",
 				serverUrl);
 	}
 
@@ -110,7 +110,7 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 	public void testConnectionTestFailedNullUser() throws Exception {
 		try {
 			ServerData server = new ServerData(crucibleServerCfg.getName(),
-					crucibleServerCfg.getServerId().toString(),
+					crucibleServerCfg.getServerId(),
 					null,
 					crucibleServerCfg.getPassword(),
 					crucibleServerCfg.getUrl());
@@ -124,7 +124,7 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 	public void testConnectionTestFailedNullPassword() throws Exception {
 		try {
 			ServerData server = new ServerData(crucibleServerCfg.getName(),
-					crucibleServerCfg.getServerId().toString(),
+					crucibleServerCfg.getServerId(),
 					crucibleServerCfg.getUserName(),
 					null,
 					crucibleServerCfg.getUrl());
@@ -138,7 +138,7 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 	public void testConnectionTestFailedEmptyUrl() throws Exception {
 		try {
 			ServerData server = new ServerData(crucibleServerCfg.getName(),
-					crucibleServerCfg.getServerId().toString(),
+					crucibleServerCfg.getServerId(),
 					crucibleServerCfg.getUserName(),
 					crucibleServerCfg.getPassword(),
 					null);

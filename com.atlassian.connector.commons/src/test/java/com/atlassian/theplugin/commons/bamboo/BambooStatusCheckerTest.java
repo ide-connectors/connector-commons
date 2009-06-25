@@ -144,7 +144,7 @@ public class BambooStatusCheckerTest extends TestCase {
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());
 
 		Mockito.when(cfg.getServerData(server)).thenReturn(new ServerData(
-				server.getName(), server.getServerId().toString(), server.getUserName(), server.getPassword(),
+				server.getName(), server.getServerId(), server.getUserName(), server.getPassword(),
 				server.getUrl()));
 		task.run();
 		assertEquals(1, r2.lastStatuses.size());

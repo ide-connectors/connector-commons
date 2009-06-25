@@ -43,7 +43,7 @@ public class ProjectConfiguration {
 		defaultCrucibleRepo = other.defaultCrucibleRepo;
 		defaultFishEyeRepo = other.defaultFishEyeRepo;
 		fishEyeProjectPath = other.fishEyeProjectPath;
-		defaultJiraServerId = other.defaultJiraServerId;		
+		defaultJiraServerId = other.defaultJiraServerId;
 	}
 
 	public static Collection<ServerCfg> cloneArrayList(final Collection<ServerCfg> collection) {
@@ -139,7 +139,7 @@ public class ProjectConfiguration {
 		return servers;
 	}
 
-	public ServerCfg getServerCfg(ServerId serverId) {
+	public ServerCfg getServerCfg(IServerId serverId) {
 		for (ServerCfg serverCfg : servers) {
 			if (serverId.equals(serverCfg.getServerId())) {
 				return serverCfg;
@@ -156,7 +156,7 @@ public class ProjectConfiguration {
 		return new ProjectConfiguration(this);
 	}
 
-	public ServerId getDefaultCrucibleServerId() {
+	public IServerId getDefaultCrucibleServerId() {
 		return defaultCrucibleServerId;
 	}
 
@@ -184,7 +184,7 @@ public class ProjectConfiguration {
 		}
 	}
 
-	public ServerId getDefaultFishEyeServerId() {
+	public IServerId getDefaultFishEyeServerId() {
 		return defaultFishEyeServerId;
 	}
 
@@ -215,7 +215,7 @@ public class ProjectConfiguration {
 		}
 	}
 
-	public ServerId getDefaultJiraServerId() {
+	public IServerId getDefaultJiraServerId() {
 		return defaultJiraServerId;
 	}
 

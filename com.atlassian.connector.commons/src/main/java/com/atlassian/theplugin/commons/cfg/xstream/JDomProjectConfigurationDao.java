@@ -15,13 +15,7 @@
  */
 package com.atlassian.theplugin.commons.cfg.xstream;
 
-import com.atlassian.theplugin.commons.cfg.PrivateConfigurationDao;
-import com.atlassian.theplugin.commons.cfg.PrivateProjectConfiguration;
-import com.atlassian.theplugin.commons.cfg.PrivateServerCfgInfo;
-import com.atlassian.theplugin.commons.cfg.ProjectConfiguration;
-import com.atlassian.theplugin.commons.cfg.ProjectConfigurationDao;
-import com.atlassian.theplugin.commons.cfg.ServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerCfgFactoryException;
+import com.atlassian.theplugin.commons.cfg.*;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.JDomReader;
@@ -112,7 +106,7 @@ public class JDomProjectConfigurationDao implements ProjectConfigurationDao {
 				privateConfigurationDao.save(serverCfg.createPrivateProjectConfiguration());
 			} catch (ServerCfgFactoryException e) {
 				LoggerImpl.getInstance().error("Cannot write private cfg file for server Uuid = "
-						+ serverCfg.getServerId().getUuid());
+						+ serverCfg.getServerId().getStringId());
 			}
 		}
 	}
@@ -129,5 +123,5 @@ public class JDomProjectConfigurationDao implements ProjectConfigurationDao {
 
 	static PrivateServerCfgInfo createPrivateProjectConfiguration(final ServerCfg serverCfg) {
 		return serverCfg.createPrivateProjectConfiguration();
-}
+	}
 }

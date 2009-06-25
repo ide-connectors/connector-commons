@@ -29,7 +29,7 @@ import java.util.ArrayList;
 
 public class CrucibleServerFacadeImplTest extends TestCase {
 
-	private static final ServerData SERVER_DATA = new ServerData("crucible", (new ServerId()).toString(), "", "", "");
+	private static final ServerData SERVER_DATA = new ServerData("crucible", new ServerId(), "", "", "");
 
 	public void testSetReviewers() throws RemoteApiException, ServerPasswordNotProvidedException {
 		final CrucibleSession mock = EasyMock.createNiceMock(CrucibleSession.class);

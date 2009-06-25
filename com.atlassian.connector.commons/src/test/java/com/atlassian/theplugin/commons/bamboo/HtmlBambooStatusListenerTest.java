@@ -46,7 +46,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	private static final String DEFAULT_SERVER_URL = "http://test.atlassian.com/bamboo";
 	private static final String DEFAULT_PROJECT_NAME = "ThePlugin";
 	private static final String DEFAULT_PLAN_KEY_2 = "PLAN2-ID";
-	private static final ServerData BAMBOO = new ServerData("mybamboo", (new ServerId()).toString(),
+	private static final ServerData BAMBOO = new ServerData("mybamboo", new ServerId(),
 			"username", "password", DEFAULT_SERVER_URL);
 
 

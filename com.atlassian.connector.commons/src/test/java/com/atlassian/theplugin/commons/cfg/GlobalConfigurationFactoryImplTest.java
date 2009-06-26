@@ -30,10 +30,10 @@ import java.util.Collection;
  */
 public class GlobalConfigurationFactoryImplTest extends TestCase {
 
-	public static final BambooServerCfg BAMBOO_1 = new BambooServerCfg("mybamboo1", new ServerId());
-	public static final BambooServerCfg BAMBOO_2 = new BambooServerCfg("mybamboo2", new ServerId());
-	public static final CrucibleServerCfg CRUCIBLE_1 = new CrucibleServerCfg("mycrucible1", new ServerId());
-	public static final JiraServerCfg JIRA_1 = new JiraServerCfg("myjira1", new ServerId());
+	public static final BambooServerCfg BAMBOO_1 = new BambooServerCfg("mybamboo1", new ServerIdImpl());
+	public static final BambooServerCfg BAMBOO_2 = new BambooServerCfg("mybamboo2", new ServerIdImpl());
+	public static final CrucibleServerCfg CRUCIBLE_1 = new CrucibleServerCfg("mycrucible1", new ServerIdImpl());
+	public static final JiraServerCfg JIRA_1 = new JiraServerCfg("myjira1", new ServerIdImpl());
 
 	private GlobalConfigurationFactoryImpl cfgFactory;
 	private static final String TMP_DIR = System.getProperty("java.io.tmpdir");
@@ -46,12 +46,12 @@ public class GlobalConfigurationFactoryImplTest extends TestCase {
 	}
 
 	public GlobalConfigurationFactoryImplTest(String name) {
-        super(name);
-    }
+		super(name);
+	}
 
-    @Override
+	@Override
 	public void setUp() throws Exception {
-        super.setUp();
+		super.setUp();
 		BAMBOO_1.setEnabled(false);
 		BAMBOO_1.setUsername("wseliga");
 		globalFile = File.createTempFile("intellij-connector-global", "tmp");
@@ -78,7 +78,8 @@ public class GlobalConfigurationFactoryImplTest extends TestCase {
 			}
 		});
 
-		cfgFactory = new GlobalConfigurationFactoryImpl("/somenonexistingdir/anotherdir/xyznonexisting", "/somenonexistingdir/anotherdir/xyznonexisting");
+		cfgFactory = new GlobalConfigurationFactoryImpl("/somenonexistingdir/anotherdir/xyznonexisting",
+				"/somenonexistingdir/anotherdir/xyznonexisting");
 		TestUtil.assertThrows(ServerCfgFactoryException.class, new IAction() {
 			public void run() throws Throwable {
 				cfgFactory.load();
@@ -108,12 +109,12 @@ public class GlobalConfigurationFactoryImplTest extends TestCase {
 
 		GlobalConfiguration loadedCfg = cfgFactory.load();
 		assertEquals(cfg, loadedCfg);
-    }
+	}
 
-    public void testSaveLoadGlobalServers() throws ServerCfgFactoryException {
+	public void testSaveLoadGlobalServers() throws ServerCfgFactoryException {
 		final Collection<ServerCfg> serversToSave = MiscUtil.buildArrayList(BAMBOO_1, CRUCIBLE_1, BAMBOO_2);
 		cfgFactory.saveGlobalServers(serversToSave);
-		final Collection<ServerCfg> loadedServers =  cfgFactory.loadGlobalServers();
+		final Collection<ServerCfg> loadedServers = cfgFactory.loadGlobalServers();
 		TestUtil.assertEquals(serversToSave, loadedServers);
 
 		TestUtil.assertThrows(NullPointerException.class, new IAction() {
@@ -122,7 +123,6 @@ public class GlobalConfigurationFactoryImplTest extends TestCase {
 			}
 		});
 	}
-
 
 
 }

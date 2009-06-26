@@ -15,8 +15,8 @@
  */
 package com.atlassian.theplugin.commons.remoteapi;
 
-import com.atlassian.theplugin.commons.cfg.IServerId;
 import com.atlassian.theplugin.commons.cfg.Server;
+import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.cfg.UserCfg;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,12 +25,12 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class ServerData {
 	private final String name;
-	private final IServerId serverId;
+	private final ServerId serverId;
 	private final String userName;
 	private final String password;
 	private final String url;
 
-	public ServerData(final String serverName, final IServerId serverId, final String userName, final String password,
+	public ServerData(final String serverName, final ServerId serverId, final String userName, final String password,
 			final String url) {
 		this.name = serverName;
 		this.serverId = serverId;
@@ -51,7 +51,7 @@ public final class ServerData {
 		return url;
 	}
 
-	public IServerId getServerId() {
+	public ServerId getServerId() {
 		return serverId;
 	}
 

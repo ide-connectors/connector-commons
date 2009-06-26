@@ -17,7 +17,7 @@
 package com.atlassian.theplugin.crucible;
 
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.CrucibleServerFacade;
@@ -63,7 +63,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
 
 		crucibleSessionMock = createMock(CrucibleSession.class);
-		crucibleServerCfg = new CrucibleServerCfg("mycrucible", new ServerId());
+		crucibleServerCfg = new CrucibleServerCfg("mycrucible", new ServerIdImpl());
 		crucibleServerCfg.setUrl(VALID_URL);
 		crucibleServerCfg.setPassword(VALID_PASSWORD);
 		crucibleServerCfg.setUsername(VALID_LOGIN.getUserName());
@@ -749,7 +749,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 	}
 
 	private CrucibleServerCfg prepareServerBean() {
-		CrucibleServerCfg server = new CrucibleServerCfg("myname", new ServerId());
+		CrucibleServerCfg server = new CrucibleServerCfg("myname", new ServerIdImpl());
 		server.setUrl(VALID_URL);
 		server.setUsername(VALID_LOGIN.getUserName());
 		server.setPassword(VALID_PASSWORD);
@@ -811,7 +811,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 	}
 
 	private CrucibleServerCfg prepareCrucibleServerCfg() {
-		CrucibleServerCfg server = new CrucibleServerCfg("mycrucible", new ServerId());
+		CrucibleServerCfg server = new CrucibleServerCfg("mycrucible", new ServerIdImpl());
 		server.setUrl("http://lech.atlassian.pl:8060");
 		server.setUsername("test");
 		server.setPassword("test");

@@ -26,10 +26,10 @@ import junit.framework.TestCase;
  */
 public class BambooServerCfgTest extends TestCase {
 
-	private static final ServerId SERVER_ID = new ServerId();
+	private static final ServerIdImpl SERVER_ID = new ServerIdImpl();
 	private BambooServerCfg bamboo1 = createBambooServerCfg(SERVER_ID, "mybamboo1", "myurl", "myusername",
 			"mypassword", false, true);
-	private BambooServerCfg bamboo2 = new BambooServerCfg("mybamboo2", new ServerId());
+	private BambooServerCfg bamboo2 = new BambooServerCfg("mybamboo2", new ServerIdImpl());
 	private BambooServerCfg bamboo1sameId = createBambooServerCfg(SERVER_ID, "mybamboo1", "myurl", "myusername",
 			"mypassword", false, true);
 
@@ -42,7 +42,7 @@ public class BambooServerCfgTest extends TestCase {
 		super.setUp();
 	}
 
-	private static BambooServerCfg createBambooServerCfg(ServerId serverId, String name, String url, String username,
+	private static BambooServerCfg createBambooServerCfg(ServerIdImpl serverId, String name, String url, String username,
 			String password, boolean isUseFavourites, boolean isEnabled) {
 		BambooServerCfg res = new BambooServerCfg(name, serverId);
 		res.setUrl(url);

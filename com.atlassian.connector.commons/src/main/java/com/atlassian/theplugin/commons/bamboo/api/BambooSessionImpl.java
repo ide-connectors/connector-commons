@@ -19,7 +19,7 @@ package com.atlassian.theplugin.commons.bamboo.api;
 import com.atlassian.theplugin.commons.BambooFileInfo;
 import com.atlassian.theplugin.commons.BambooFileInfoImpl;
 import com.atlassian.theplugin.commons.bamboo.*;
-import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.remoteapi.*;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
@@ -93,7 +93,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	 * @throws RemoteApiMalformedUrlException malformed url
 	 */
 	BambooSessionImpl(String url) throws RemoteApiMalformedUrlException {
-		this(new ServerData("unknown", new ServerId(), "", "", url), new HttpSessionCallbackImpl());
+		this(new ServerData("unknown", new ServerIdImpl(), "", "", url), new HttpSessionCallbackImpl());
 	}
 
 	/**

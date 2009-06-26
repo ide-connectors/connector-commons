@@ -15,8 +15,8 @@
  */
 package com.atlassian.theplugin.commons.cfg;
 
-import junit.framework.TestCase;
 import com.spartez.util.junit3.TestUtil;
+import junit.framework.TestCase;
 
 /**
  * ServerId Tester.
@@ -24,8 +24,8 @@ import com.spartez.util.junit3.TestUtil;
  * @author wseliga
  */
 public class ServerIdTest extends TestCase {
-	public static final ServerId SERVER_ID_1 = new ServerId();
-	public static final ServerId SERVER_ID_2 = new ServerId();
+	public static final ServerIdImpl SERVER_ID_1 = new ServerIdImpl();
+	public static final ServerIdImpl SERVER_ID_2 = new ServerIdImpl();
 
 	public void testEquals() {
 		TestUtil.assertNotEquals(SERVER_ID_1, SERVER_ID_2);

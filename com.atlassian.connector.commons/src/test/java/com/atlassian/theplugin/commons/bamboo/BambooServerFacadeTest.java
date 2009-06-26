@@ -20,7 +20,7 @@ import com.atlassian.theplugin.bamboo.api.bamboomock.*;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.cfg.Server;
-import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
@@ -80,7 +80,7 @@ public class BambooServerFacadeTest extends TestCase {
 
 	private static BambooServerCfg createBambooTestConfiguration(String serverUrl, boolean isPassInitialized) {
 
-		BambooServerCfg server = new BambooServerCfg("TestServer", new ServerId());
+		BambooServerCfg server = new BambooServerCfg("TestServer", new ServerIdImpl());
 		server.setName("TestServer");
 		server.setUrl(serverUrl);
 		server.setUsername(USER_NAME);
@@ -407,7 +407,7 @@ public class BambooServerFacadeTest extends TestCase {
 	}
 
 	private BambooServerCfg createBambooServerCfg(String url, String username, String password) {
-		BambooServerCfg bambooServerCfg = new BambooServerCfg("mybamboo", url, new ServerId());
+		BambooServerCfg bambooServerCfg = new BambooServerCfg("mybamboo", url, new ServerIdImpl());
 		bambooServerCfg.setUsername(username);
 		bambooServerCfg.setPassword(password);
 		return bambooServerCfg;
@@ -432,11 +432,11 @@ public class BambooServerFacadeTest extends TestCase {
 
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
-		testedBambooServerFacade.testServerConnection(new ServerData("", new ServerId(), USER_NAME, PASSWORD, mockBaseUrl));
+		testedBambooServerFacade.testServerConnection(new ServerData("", new ServerIdImpl(), USER_NAME, PASSWORD, mockBaseUrl));
 
 		TestUtil.assertThrows(RemoteApiMalformedUrlException.class, new IAction() {
 			public void run() throws Throwable {
-				testedBambooServerFacade.testServerConnection(new ServerData("", new ServerId(), "", "", ""));
+				testedBambooServerFacade.testServerConnection(new ServerData("", new ServerIdImpl(), "", "", ""));
 			}
 		});
 
@@ -444,17 +444,17 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/login.action", new LoginCallback("", "", LoginCallback.ALWAYS_FAIL));
 		TestUtil.assertThrows(RemoteApiLoginException.class, new IAction() {
 			public void run() throws Throwable {
-				testedBambooServerFacade.testServerConnection(new ServerData("", new ServerId(), "", "", mockBaseUrl));
+				testedBambooServerFacade.testServerConnection(new ServerData("", new ServerIdImpl(), "", "", mockBaseUrl));
 			}
 		});
 		TestUtil.assertThrows(RemoteApiMalformedUrlException.class, new IAction() {
 			public void run() throws Throwable {
-				testedBambooServerFacade.testServerConnection(new ServerData("", new ServerId(), USER_NAME, "", ""));
+				testedBambooServerFacade.testServerConnection(new ServerData("", new ServerIdImpl(), USER_NAME, "", ""));
 			}
 		});
 		TestUtil.assertThrows(RemoteApiMalformedUrlException.class, new IAction() {
 			public void run() throws Throwable {
-				testedBambooServerFacade.testServerConnection(new ServerData("", new ServerId(), "", PASSWORD, ""));
+				testedBambooServerFacade.testServerConnection(new ServerData("", new ServerIdImpl(), "", PASSWORD, ""));
 			}
 		});
 

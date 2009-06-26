@@ -106,7 +106,7 @@ public class JDomProjectConfigurationDao implements ProjectConfigurationDao {
 				privateConfigurationDao.save(serverCfg.createPrivateProjectConfiguration());
 			} catch (ServerCfgFactoryException e) {
 				LoggerImpl.getInstance().error("Cannot write private cfg file for server Uuid = "
-						+ serverCfg.getServerId().getStringId());
+						+ serverCfg.getServerId().getId());
 			}
 		}
 	}

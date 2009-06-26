@@ -128,7 +128,7 @@ public class BambooStatusTooltipListener implements BambooStatusListener {
 	private static String getBuildMapKey(BambooBuild build) {
 		String serverId = "none";
 		if (build.getServer() != null) {
-			serverId = build.getServer().getServerId().getStringId();
+			serverId = build.getServer().getServerId().toString();
 		}
 		return serverId + build.getPlanKey();
 	}

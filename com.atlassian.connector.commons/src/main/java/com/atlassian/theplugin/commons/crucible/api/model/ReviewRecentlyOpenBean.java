@@ -15,26 +15,31 @@
  */
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
+
 /**
  * @author Jacek Jaroczynski
  */
 public class ReviewRecentlyOpenBean {
-	private String serverId;
+	private ServerIdImpl serverId;
 	private String reviewId;
 
 	public ReviewRecentlyOpenBean() {
 	}
 
-	public ReviewRecentlyOpenBean(final String serverId, final String reviewId) {
-		this.serverId = serverId;
+	public ReviewRecentlyOpenBean(final ServerId serverId, final String reviewId) {
+		if (serverId instanceof ServerIdImpl) {
+			this.serverId = (ServerIdImpl) serverId;
+		}
 		this.reviewId = reviewId;
 	}
 
-	public String getServerId() {
+	public ServerIdImpl getServerId() {
 		return serverId;
 	}
 
-	public void setServerId(final String serverId) {
+	public void setServerId(final ServerIdImpl serverId) {
 		this.serverId = serverId;
 	}
 

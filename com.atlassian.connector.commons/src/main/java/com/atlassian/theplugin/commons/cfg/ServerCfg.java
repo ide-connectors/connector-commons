@@ -20,11 +20,11 @@ import com.atlassian.theplugin.commons.ServerType;
 public abstract class ServerCfg implements Server {
 	private static final int HASHCODE_MAGIC = 31;
 
-	public ServerCfg(final boolean enabled, final String name, final ServerId serverId) {
+	public ServerCfg(final boolean enabled, final String name, final ServerIdImpl serverId) {
 		this(enabled, name, "", serverId);
 	}
 
-	public ServerCfg(final boolean enabled, final String name, final String url, final ServerId serverId) {
+	public ServerCfg(final boolean enabled, final String name, final String url, final ServerIdImpl serverId) {
 		isEnabled = enabled;
 		this.name = name;
 		this.serverId = serverId;
@@ -32,7 +32,7 @@ public abstract class ServerCfg implements Server {
 	}
 
 	//    private boolean isShargetPassed;
-	private ServerId serverId;
+	private ServerIdImpl serverId;
 	private boolean isEnabled;
 	private String name;
 	private String url = "";
@@ -91,7 +91,7 @@ public abstract class ServerCfg implements Server {
 		this.name = name;
 	}
 
-	public void setServerId(final ServerId serverId) {
+	public void setServerId(final ServerIdImpl serverId) {
 		this.serverId = serverId;
 	}
 
@@ -121,7 +121,7 @@ public abstract class ServerCfg implements Server {
 		return name;
 	}
 
-	public ServerId getServerId() {
+	public ServerIdImpl getServerId() {
 		return serverId;
 	}
 

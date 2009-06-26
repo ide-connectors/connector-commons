@@ -18,7 +18,7 @@ package com.atlassian.theplugin.commons.cfg;
 
 public interface Server {
 
-	ServerId getServerId();
+	ServerIdImpl getServerId();
 
 	String getName();
 
@@ -32,5 +32,5 @@ public interface Server {
 
 	String getUserName();
 
-	String getPassword();	
+	String getPassword();
 }

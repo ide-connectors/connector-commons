@@ -20,7 +20,7 @@ import com.atlassian.connector.commons.misc.IntRange;
 import com.atlassian.connector.commons.misc.IntRanges;
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
@@ -791,13 +791,13 @@ public class CrucibleSessionTest extends TestCase {
 
 
 	private CrucibleSessionImpl createCrucibleSession(String url) throws RemoteApiException {
-		CrucibleServerCfg serverCfg = new CrucibleServerCfg(url, new ServerId());
+		CrucibleServerCfg serverCfg = new CrucibleServerCfg(url, new ServerIdImpl());
 		serverCfg.setUrl(url);
 		return new CrucibleSessionImpl(createServerData(serverCfg), new HttpSessionCallbackImpl());
 	}
 
 	private CrucibleSessionImpl createCrucibleSession(String url, String username, String password) throws RemoteApiException {
-		final CrucibleServerCfg serverCfg = new CrucibleServerCfg("mockcrucibleservercfg", new ServerId());
+		final CrucibleServerCfg serverCfg = new CrucibleServerCfg("mockcrucibleservercfg", new ServerIdImpl());
 		serverCfg.setUrl(url);
 		serverCfg.setUsername(username);
 		serverCfg.setPassword(password);

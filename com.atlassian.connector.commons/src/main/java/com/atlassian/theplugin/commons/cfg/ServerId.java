@@ -15,54 +15,11 @@
  */
 package com.atlassian.theplugin.commons.cfg;
 
-import java.util.UUID;
+/**
+ * @author Jacek Jaroczynski
+ */
+public interface ServerId {
+	boolean equals(ServerId o);
 
-public class ServerId implements IServerId {
-	private UUID uuid;
-
-	public ServerId() {
-		uuid = UUID.randomUUID();
-		assert uuid != null;
-	}
-
-	public ServerId(final String uuid) {
-		this.uuid = UUID.fromString(uuid);
-		assert uuid != null;
-	}
-
-	public String getStringId() {
-		return uuid.toString();
-	}
-
-	@Override
-	public String toString() {
-		return uuid.toString();
-	}
-
-	public UUID getUuid() {
-		return uuid;
-	}
-
-	@Override
-	public boolean equals(final Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-
-		final ServerId serverId = (ServerId) o;
-
-		if (!uuid.equals(serverId.uuid)) {
-			return false;
-		}
-
-		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		return uuid.hashCode();
-	}
+	String getId();
 }

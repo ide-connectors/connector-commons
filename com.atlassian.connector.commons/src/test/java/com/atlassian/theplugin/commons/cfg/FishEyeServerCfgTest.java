@@ -19,8 +19,8 @@ import com.spartez.util.junit3.TestUtil;
 import junit.framework.TestCase;
 
 public class FishEyeServerCfgTest extends TestCase {
-	private final FishEyeServerCfg fish1 = new FishEyeServerCfg(true, "FServer1", new ServerId());
-	private final FishEyeServerCfg fish2 = new FishEyeServerCfg(true, "FServer2", new ServerId());
+	private final FishEyeServerCfg fish1 = new FishEyeServerCfg(true, "FServer1", new ServerIdImpl());
+	private final FishEyeServerCfg fish2 = new FishEyeServerCfg(true, "FServer2", new ServerIdImpl());
 
 	public void testEquals() {
 		//noinspection ObjectEqualsNull
@@ -33,6 +33,6 @@ public class FishEyeServerCfgTest extends TestCase {
 
 	public void testClone() {
 		final FishEyeServerCfg fishClone = fish1.getClone();
-		TestUtil.assertEqualsSymmetrical(fish1, fishClone);	
+		TestUtil.assertEqualsSymmetrical(fish1, fishClone);
 	}
 }

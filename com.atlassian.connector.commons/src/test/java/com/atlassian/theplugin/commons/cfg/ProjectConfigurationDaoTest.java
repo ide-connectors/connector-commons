@@ -15,19 +15,18 @@
  */
 package com.atlassian.theplugin.commons.cfg;
 
+import com.atlassian.theplugin.commons.util.MiscUtil;
 import junit.framework.TestCase;
 
 import java.util.Collection;
 
-import com.atlassian.theplugin.commons.util.MiscUtil;
-
 public abstract class ProjectConfigurationDaoTest extends TestCase {
 	private ProjectConfigurationDao dao;
 
-	public static final BambooServerCfg BAMBOO_1 = new BambooServerCfg("mybamboo1", new ServerId());
-	public static final BambooServerCfg BAMBOO_2 = new BambooServerCfg("mybamboo2", new ServerId());
-	public static final CrucibleServerCfg CRUCIBLE_1 = new CrucibleServerCfg("mycrucible1", new ServerId());
-	public static final JiraServerCfg JIRA_1 = new JiraServerCfg("myjira1", new ServerId());
+	public static final BambooServerCfg BAMBOO_1 = new BambooServerCfg("mybamboo1", new ServerIdImpl());
+	public static final BambooServerCfg BAMBOO_2 = new BambooServerCfg("mybamboo2", new ServerIdImpl());
+	public static final CrucibleServerCfg CRUCIBLE_1 = new CrucibleServerCfg("mycrucible1", new ServerIdImpl());
+	public static final JiraServerCfg JIRA_1 = new JiraServerCfg("myjira1", new ServerIdImpl());
 
 	{
 		BAMBOO_1.setUrl("url1");

@@ -16,7 +16,7 @@
 
 package com.atlassian.theplugin.crucible;
 
-import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.CrucibleServerFacade;
@@ -58,7 +58,7 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 	private static ServerData createCrucibleTestConfiguration(String serverUrl, boolean isPassInitialized) {
 		// TODO wseliga how to handle it???
 		// server.transientSetIsConfigInitialized(isPassInitialized);
-		return new ServerData("TestServer", new ServerId(), USER_NAME, isPassInitialized ? PASSWORD : "",
+		return new ServerData("TestServer", new ServerIdImpl(), USER_NAME, isPassInitialized ? PASSWORD : "",
 				serverUrl);
 	}
 

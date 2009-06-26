@@ -29,9 +29,9 @@ import java.util.Iterator;
  */
 public class ProjectConfigurationTest extends TestCase {
 
-	private static final BambooServerCfg BAMBOO_1 = new BambooServerCfg("mybamboo", new ServerId());
-	private static final CrucibleServerCfg CRUCIBLE_1 = new CrucibleServerCfg("mycrucible", new ServerId());
-	private static final FishEyeServerCfg FISHEYE_1 = new FishEyeServerCfg("myfisheye", new ServerId());
+	private static final BambooServerCfg BAMBOO_1 = new BambooServerCfg("mybamboo", new ServerIdImpl());
+	private static final CrucibleServerCfg CRUCIBLE_1 = new CrucibleServerCfg("mycrucible", new ServerIdImpl());
+	private static final FishEyeServerCfg FISHEYE_1 = new FishEyeServerCfg("myfisheye", new ServerIdImpl());
 	ProjectConfiguration projectCfg;
 	ProjectConfiguration anotherCfg;
 
@@ -57,9 +57,9 @@ public class ProjectConfigurationTest extends TestCase {
 		assertEquals(projectCfg, projectCfg.getClone());
 	}
 
-    public void testHashCode() {
+	public void testHashCode() {
 		assertEquals(projectCfg.hashCode(), anotherCfg.hashCode());
-    }
+	}
 
 	public void testGetClone() {
 		final ProjectConfiguration clone = projectCfg.getClone();
@@ -103,8 +103,8 @@ public class ProjectConfigurationTest extends TestCase {
 	public void testGetJiraServers() {
 
 		Collection<JiraServerCfg> jiraServers = MiscUtil.buildArrayList();
-		jiraServers.add(new JiraServerCfg("server1", new ServerId()));
-		jiraServers.add(new JiraServerCfg("server2", new ServerId()));
+		jiraServers.add(new JiraServerCfg("server1", new ServerIdImpl()));
+		jiraServers.add(new JiraServerCfg("server2", new ServerIdImpl()));
 
 		projectCfg.getServers().addAll(jiraServers);
 
@@ -114,8 +114,8 @@ public class ProjectConfigurationTest extends TestCase {
 	public void testGetBambooServers() {
 
 		Collection<BambooServerCfg> bambooServers = MiscUtil.buildArrayList();
-		bambooServers.add(new BambooServerCfg("server1", new ServerId()));
-		bambooServers.add(new BambooServerCfg("server2", new ServerId()));
+		bambooServers.add(new BambooServerCfg("server1", new ServerIdImpl()));
+		bambooServers.add(new BambooServerCfg("server2", new ServerIdImpl()));
 
 		projectCfg.getServers().remove(BAMBOO_1);
 		projectCfg.getServers().addAll(bambooServers);
@@ -126,8 +126,8 @@ public class ProjectConfigurationTest extends TestCase {
 	public void testGetCrucibleServers() {
 
 		Collection<CrucibleServerCfg> crucibleServers = MiscUtil.buildArrayList();
-		crucibleServers.add(new CrucibleServerCfg("server1", new ServerId()));
-		crucibleServers.add(new CrucibleServerCfg("server2", new ServerId()));
+		crucibleServers.add(new CrucibleServerCfg("server1", new ServerIdImpl()));
+		crucibleServers.add(new CrucibleServerCfg("server2", new ServerIdImpl()));
 
 		projectCfg.getServers().remove(CRUCIBLE_1);
 		projectCfg.getServers().addAll(crucibleServers);
@@ -138,8 +138,8 @@ public class ProjectConfigurationTest extends TestCase {
 	public void testGetFisheyeServers() {
 
 		Collection<FishEyeServerCfg> fisheyeServers = MiscUtil.buildArrayList();
-		fisheyeServers.add(new FishEyeServerCfg("server1", new ServerId()));
-		fisheyeServers.add(new FishEyeServerCfg("server2", new ServerId()));
+		fisheyeServers.add(new FishEyeServerCfg("server1", new ServerIdImpl()));
+		fisheyeServers.add(new FishEyeServerCfg("server2", new ServerIdImpl()));
 
 		projectCfg.getServers().remove(FISHEYE_1);
 		projectCfg.getServers().addAll(fisheyeServers);

@@ -16,6 +16,8 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
+
 public interface CustomFilter extends CrucibleFilter {
 	String AUTHOR = "author";
 	String CREATOR = "creator";
@@ -49,7 +51,7 @@ public interface CustomFilter extends CrucibleFilter {
 
 	boolean isEnabled();
 
-	String getServerUid();
+	ServerIdImpl getServerId();
 
 	String getStates();
 }

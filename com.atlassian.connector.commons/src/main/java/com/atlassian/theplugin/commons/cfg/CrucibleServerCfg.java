@@ -26,14 +26,14 @@ public class CrucibleServerCfg extends ServerCfg {
 	//	private FishEyeServer fishEyeView = new FishEyeServer() {...
 	private FishEyeServer fishEyeView;
 
-    public CrucibleServerCfg(boolean enabled, String name, ServerId serverId) {
-        super(enabled, name, serverId);
-    }
+	public CrucibleServerCfg(boolean enabled, String name, ServerIdImpl serverId) {
+		super(enabled, name, serverId);
+	}
 
-    private FishEyeServer getFishEyeView() {
+	private FishEyeServer getFishEyeView() {
 		if (fishEyeView == null) {
 			fishEyeView = new FishEyeServer() {
-				public ServerId getServerId() {
+				public ServerIdImpl getServerId() {
 					return CrucibleServerCfg.this.getServerId();
 				}
 
@@ -65,7 +65,7 @@ public class CrucibleServerCfg extends ServerCfg {
 		return fishEyeView;
 	}
 
-	public CrucibleServerCfg(final String name, final ServerId serverId) {
+	public CrucibleServerCfg(final String name, final ServerIdImpl serverId) {
 		super(true, name, serverId);
 	}
 

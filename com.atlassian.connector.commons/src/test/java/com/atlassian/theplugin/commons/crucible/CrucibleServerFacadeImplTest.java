@@ -15,7 +15,7 @@
  */
 package com.atlassian.theplugin.commons.crucible;
 
-import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.model.*;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 
 public class CrucibleServerFacadeImplTest extends TestCase {
 
-	private static final ServerData SERVER_DATA = new ServerData("crucible", new ServerId(), "", "", "");
+	private static final ServerData SERVER_DATA = new ServerData("crucible", new ServerIdImpl(), "", "", "");
 
 	public void testSetReviewers() throws RemoteApiException, ServerPasswordNotProvidedException {
 		final CrucibleSession mock = EasyMock.createNiceMock(CrucibleSession.class);

@@ -23,7 +23,7 @@ import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
 import com.atlassian.theplugin.commons.UIActionScheduler;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
@@ -155,7 +155,7 @@ public class BambooStatusCheckerTest extends TestCase {
 	}
 
 	private static BambooServerCfg getServer(String url) {
-		BambooServerCfg server = new BambooServerCfg("TestServer", new ServerId());
+		BambooServerCfg server = new BambooServerCfg("TestServer", new ServerIdImpl());
 		server.setUrl(url);
 		server.setUsername(USER_NAME);
 

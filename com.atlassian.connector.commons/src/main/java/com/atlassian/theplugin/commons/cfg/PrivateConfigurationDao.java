@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 public interface PrivateConfigurationDao {
 	@Nullable
-	PrivateServerCfgInfo load(IServerId id) throws ServerCfgFactoryException;
+	PrivateServerCfgInfo load(ServerId id) throws ServerCfgFactoryException;
 
 	void save(@NotNull PrivateServerCfgInfo info) throws ServerCfgFactoryException;
 }

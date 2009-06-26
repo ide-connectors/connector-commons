@@ -18,7 +18,7 @@ package com.atlassian.theplugin.commons.cfg;
 import com.atlassian.theplugin.commons.ServerType;
 
 public class JiraServerCfg extends ServerCfg {
-	public JiraServerCfg(final String name, final ServerId serverId) {
+	public JiraServerCfg(final String name, final ServerIdImpl serverId) {
 		super(true, name, serverId);
 	}
 
@@ -26,11 +26,11 @@ public class JiraServerCfg extends ServerCfg {
 		super(other);
 	}
 
-    public JiraServerCfg(boolean enabled, String name, ServerId serverId) {
-        super(enabled, name, serverId);
-    }
+	public JiraServerCfg(boolean enabled, String name, ServerIdImpl serverId) {
+		super(enabled, name, serverId);
+	}
 
-    @Override
+	@Override
 	public ServerType getServerType() {
 		return ServerType.JIRA_SERVER;
 	}

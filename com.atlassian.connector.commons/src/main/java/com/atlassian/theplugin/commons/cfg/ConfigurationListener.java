@@ -26,14 +26,14 @@ public interface ConfigurationListener {
 	 *
 	 * @param serverId id of modified server
 	 */
-	void serverConnectionDataChanged(IServerId serverId);
+	void serverConnectionDataChanged(ServerId serverId);
 
 	/**
 	 * Called in case server name (label) has changed
 	 *
 	 * @param serverId id of modified server
 	 */
-	void serverNameChanged(IServerId serverId);
+	void serverNameChanged(ServerId serverId);
 
 	/**
 	 * Called in case new server has been added.
@@ -56,14 +56,14 @@ public interface ConfigurationListener {
 	 *
 	 * @param serverId id of enabled server
 	 */
-	void serverEnabled(IServerId serverId);
+	void serverEnabled(ServerId serverId);
 
 	/**
 	 * Called in case server has been disabled
 	 *
 	 * @param serverId id of disabled server
 	 */
-	void serverDisabled(IServerId serverId);
+	void serverDisabled(ServerId serverId);
 
 	/**
 	 * Called in case server has been changed
@@ -71,7 +71,7 @@ public interface ConfigurationListener {
 	 *
 	 * @param serverId id of changed server
 	 */
-	void serverDataChanged(IServerId serverId);
+	void serverDataChanged(ServerId serverId);
 
 	/**
 	 * Called in case something in the JIRA servers list has been changed

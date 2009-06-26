@@ -15,6 +15,8 @@
  */
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import com.atlassian.theplugin.commons.cfg.ServerId;
+
 import java.util.LinkedList;
 
 /**
@@ -22,7 +24,7 @@ import java.util.LinkedList;
  */
 public class RecentlyOpenReviewsFilter implements CrucibleFilter {
 
-	private LinkedList<ReviewRecentlyOpenBean> recentlyOpenReviews = new LinkedList<ReviewRecentlyOpenBean>();
+	private LinkedList<ReviewRecentlyOpenBean> recentlyOpenReviewss = new LinkedList<ReviewRecentlyOpenBean>();
 	private boolean enabled = false;
 
 	public boolean isEnabled() {
@@ -33,12 +35,12 @@ public class RecentlyOpenReviewsFilter implements CrucibleFilter {
 		this.enabled = enabled;
 	}
 
-	public LinkedList<ReviewRecentlyOpenBean> getRecentlyOpenReviews() {
-		return recentlyOpenReviews;
+	public LinkedList<ReviewRecentlyOpenBean> getRecentlyOpenReviewss() {
+		return recentlyOpenReviewss;
 	}
 
-	public void setRecentlyOpenReviews(final LinkedList<ReviewRecentlyOpenBean> recentlyOpenReviews) {
-		this.recentlyOpenReviews = recentlyOpenReviews;
+	public void setRecentlyOpenReviewss(final LinkedList<ReviewRecentlyOpenBean> recentlyOpenReviewss) {
+		this.recentlyOpenReviewss = recentlyOpenReviewss;
 	}
 
 	public String getFilterName() {
@@ -52,16 +54,16 @@ public class RecentlyOpenReviewsFilter implements CrucibleFilter {
 	public void addRecentlyOpenReview(final ReviewAdapter review) {
 		if (review != null) {
 			String reviewId = review.getPermId().getId();
-			String serverId = review.getServerData().getServerId().getStringId();
+			ServerId serverId = review.getServerData().getServerId();
 
 			// add element and make sure it is not duplicated and it is insterted at the top
 			ReviewRecentlyOpenBean r = new ReviewRecentlyOpenBean(serverId, reviewId);
 
-			recentlyOpenReviews.remove(r);
-			recentlyOpenReviews.addFirst(r);
+			recentlyOpenReviewss.remove(r);
+			recentlyOpenReviewss.addFirst(r);
 
-			while (recentlyOpenReviews.size() > 10) {
-				recentlyOpenReviews.removeLast();
+			while (recentlyOpenReviewss.size() > 10) {
+				recentlyOpenReviewss.removeLast();
 			}
 		}
 	}

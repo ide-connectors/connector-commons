@@ -15,8 +15,8 @@
  */
 package com.atlassian.theplugin.commons.bamboo;
 
-import com.atlassian.theplugin.commons.cfg.IServerId;
 import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.configuration.BambooConfigurationBean;
 import com.atlassian.theplugin.commons.configuration.BambooTooltipOption;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
@@ -43,7 +43,7 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 	private static final String LOGGED_USER_JJ = "jjaroczynski";
 	private static final String LOGGED_USER_US = "user";
 	private static final String LOGGED_USER_UN = "unknown";
-	private static final IServerId ServerID = new ServerId();
+	private static final ServerId ServerID = new ServerIdImpl();
 	private PluginConfigurationBean conf;
 	private BambooConfigurationBean bean;
 

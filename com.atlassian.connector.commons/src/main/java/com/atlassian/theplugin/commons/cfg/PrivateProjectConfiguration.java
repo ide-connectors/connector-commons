@@ -31,7 +31,7 @@ public class PrivateProjectConfiguration {
 		privateServerCfgInfos.add(info);
 	}
 
-	public PrivateServerCfgInfo getPrivateServerCfgInfo(final IServerId serverId) {
+	public PrivateServerCfgInfo getPrivateServerCfgInfo(final ServerId serverId) {
 		for (PrivateServerCfgInfo privateServerCfgInfo : privateServerCfgInfos) {
 			if (privateServerCfgInfo.getServerId().equals(serverId)) {
 				return privateServerCfgInfo;

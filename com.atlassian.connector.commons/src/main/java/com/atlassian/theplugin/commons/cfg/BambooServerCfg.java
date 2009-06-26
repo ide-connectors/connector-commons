@@ -24,21 +24,21 @@ public class BambooServerCfg extends ServerCfg {
 
 	private static final int HASHCODE_MAGIC = 31;
 
-	private boolean isUseFavourites;	
+	private boolean isUseFavourites;
 	private boolean isBamboo2;
 	private Collection<SubscribedPlan> plans = MiscUtil.buildArrayList();
 
 	private int timezoneOffset;
 
-	public BambooServerCfg(final String name, final ServerId serverId) {
+	public BambooServerCfg(final String name, final ServerIdImpl serverId) {
 		super(true, name, serverId);
 	}
 
-	public BambooServerCfg(final String name, final String url, final ServerId serverId) {
+	public BambooServerCfg(final String name, final String url, final ServerIdImpl serverId) {
 		super(true, name, url, serverId);
 	}
 
-	public BambooServerCfg(final boolean enabled, final String name, final ServerId serverId) {
+	public BambooServerCfg(final boolean enabled, final String name, final ServerIdImpl serverId) {
 		super(enabled, name, serverId);
 	}
 

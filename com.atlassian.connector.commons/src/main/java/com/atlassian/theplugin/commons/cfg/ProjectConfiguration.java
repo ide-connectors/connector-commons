@@ -24,13 +24,13 @@ import java.util.Collection;
 public class ProjectConfiguration {
 	private Collection<ServerCfg> servers;
 
-	private ServerId defaultCrucibleServerId;
+	private ServerIdImpl defaultCrucibleServerId;
 	private String defaultCrucibleProject;
 	private String defaultCrucibleRepo;
-	private ServerId defaultFishEyeServerId;
+	private ServerIdImpl defaultFishEyeServerId;
 	private String defaultFishEyeRepo;
 	private String fishEyeProjectPath;
-	private ServerId defaultJiraServerId;
+	private ServerIdImpl defaultJiraServerId;
 
 	private static final int HASHCODE_MAGIC = 31;
 
@@ -131,7 +131,6 @@ public class ProjectConfiguration {
 		result = HASHCODE_MAGIC * result + (defaultCrucibleRepo != null ? defaultCrucibleRepo.hashCode() : 0);
 		result = HASHCODE_MAGIC * result + (fishEyeProjectPath != null ? fishEyeProjectPath.hashCode() : 0);
 		result = HASHCODE_MAGIC * result + (defaultJiraServerId != null ? defaultJiraServerId.hashCode() : 0);
-//		result = HASHCODE_MAGIC * result + (defaultUser != null ? defaultUser.hashCode() : 0);
 		return result;
 	}
 
@@ -139,7 +138,7 @@ public class ProjectConfiguration {
 		return servers;
 	}
 
-	public ServerCfg getServerCfg(IServerId serverId) {
+	public ServerCfg getServerCfg(ServerId serverId) {
 		for (ServerCfg serverCfg : servers) {
 			if (serverId.equals(serverCfg.getServerId())) {
 				return serverCfg;
@@ -156,7 +155,7 @@ public class ProjectConfiguration {
 		return new ProjectConfiguration(this);
 	}
 
-	public IServerId getDefaultCrucibleServerId() {
+	public ServerIdImpl getDefaultCrucibleServerId() {
 		return defaultCrucibleServerId;
 	}
 
@@ -176,7 +175,7 @@ public class ProjectConfiguration {
 		return crucible;
 	}
 
-	public void setDefaultCrucibleServerId(final ServerId defaultCrucibleServerId) {
+	public void setDefaultCrucibleServerId(final ServerIdImpl defaultCrucibleServerId) {
 		this.defaultCrucibleServerId = defaultCrucibleServerId;
 		if (defaultCrucibleServerId == null) {
 			setDefaultCrucibleProject(null);
@@ -184,7 +183,7 @@ public class ProjectConfiguration {
 		}
 	}
 
-	public IServerId getDefaultFishEyeServerId() {
+	public ServerIdImpl getDefaultFishEyeServerId() {
 		return defaultFishEyeServerId;
 	}
 
@@ -208,14 +207,14 @@ public class ProjectConfiguration {
 		return res;
 	}
 
-	public void setDefaultFishEyeServerId(final ServerId defaultFishEyeServerId) {
+	public void setDefaultFishEyeServerId(final ServerIdImpl defaultFishEyeServerId) {
 		this.defaultFishEyeServerId = defaultFishEyeServerId;
 		if (defaultFishEyeServerId == null) {
 			defaultFishEyeRepo = null;
 		}
 	}
 
-	public IServerId getDefaultJiraServerId() {
+	public ServerId getDefaultJiraServerId() {
 		return defaultJiraServerId;
 	}
 
@@ -235,7 +234,7 @@ public class ProjectConfiguration {
 		return jiraServerCfg;
 	}
 
-	public void setDefaultJiraServerId(final ServerId defaultJiraServerId) {
+	public void setDefaultJiraServerId(final ServerIdImpl defaultJiraServerId) {
 		this.defaultJiraServerId = defaultJiraServerId;
 	}
 

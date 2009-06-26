@@ -16,14 +16,14 @@
 package com.atlassian.theplugin.commons.cfg;
 
 public class PrivateServerCfgInfo {
-	private final ServerId serverId;
+	private final ServerIdImpl serverId;
 	private final boolean isEnabled;
 	private final String username;
 	private final String password;
 	private final boolean useDefaultCredentials;
 	private static final int HASHCODE_MAGIC = 31;
 
-	public PrivateServerCfgInfo(final ServerId serverId, final boolean enabled, final boolean useDefaultCredentials,
+	public PrivateServerCfgInfo(final ServerIdImpl serverId, final boolean enabled, final boolean useDefaultCredentials,
 			final String username, final String password) {
 		this.serverId = serverId;
 		isEnabled = enabled;
@@ -32,7 +32,7 @@ public class PrivateServerCfgInfo {
 		this.password = password;
 	}
 
-	public IServerId getServerId() {
+	public ServerId getServerId() {
 		return serverId;
 	}
 

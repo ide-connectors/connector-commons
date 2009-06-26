@@ -128,17 +128,17 @@ public final class JDomXStreamUtil {
 		xStream.registerConverter(new Converter() {
 
 			public void marshal(final Object source, final HierarchicalStreamWriter writer, final MarshallingContext context) {
-				ServerId value = (ServerId) source;
-				writer.setValue(value.getStringId());
+				ServerIdImpl value = (ServerIdImpl) source;
+				writer.setValue(value.getId());
 			}
 
 			public Object unmarshal(final HierarchicalStreamReader reader, final UnmarshallingContext context) {
-				return new ServerId(reader.getValue());
+				return new ServerIdImpl(reader.getValue());
 			}
 
 			@SuppressWarnings({"RawUseOfParameterizedType", "unchecked"})
 			public boolean canConvert(final Class type) {
-				return type.equals(ServerId.class);
+				return type.equals(ServerIdImpl.class);
 			}
 		});
 		return xStream;

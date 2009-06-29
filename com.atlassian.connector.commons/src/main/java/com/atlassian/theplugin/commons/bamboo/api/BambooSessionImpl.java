@@ -25,7 +25,9 @@ import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
+import com.atlassian.theplugin.commons.util.StringUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -755,7 +757,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 	@Override
 	protected void adjustHttpHeader(HttpMethod method) {
-		// Bamboo does not require custom headers
+		method.addRequestHeader(new Header("Authorization", getAuthHeaderValue()));
 	}
 
 	@Override
@@ -768,4 +770,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 	}
 
+    private String getAuthHeaderValue() {
+        return "Basic " + StringUtil.encode(getUsername() + ":" + getPassword());
+    }
 }

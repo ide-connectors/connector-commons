@@ -22,6 +22,7 @@ public class FishEyeServerCfg extends ServerCfg implements FishEyeServer {
 		super(enabled, name, serverId);
 	}
 
+
 	protected FishEyeServerCfg(final FishEyeServerCfg other) {
 		super(other);
 	}

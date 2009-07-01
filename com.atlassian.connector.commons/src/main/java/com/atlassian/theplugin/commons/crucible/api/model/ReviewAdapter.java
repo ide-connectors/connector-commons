@@ -52,14 +52,16 @@ public class ReviewAdapter {
 	private List<CustomFieldDef> metricDefinitions;
 
 	@SuppressWarnings("serial")
-	private final Map<String, ReviewFileContent> fetchedFilesCache = Collections.synchronizedMap(new LinkedHashMap<String, ReviewFileContent>() {
+	private final Map<String, ReviewFileContent> fetchedFilesCache = Collections.synchronizedMap(
+			new LinkedHashMap<String, ReviewFileContent>() {
 		@Override
 		protected boolean removeEldestEntry(final Map.Entry<String, ReviewFileContent> eldest) {
 			return (size() > 100);
 		}
 	});
 
-	private final Map<String, ReviewFileContentProvider> contentProviders = Collections.synchronizedMap(new HashMap<String, ReviewFileContentProvider>());
+	private final Map<String, ReviewFileContentProvider> contentProviders = Collections.synchronizedMap(
+			new HashMap<String, ReviewFileContentProvider>());
 
 	private static final int HASHCODE_MAGIC = 31;
 

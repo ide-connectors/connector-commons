@@ -16,6 +16,11 @@
 package com.atlassian.theplugin.commons.cfg;
 
 public class ServerCfgFactoryException extends Exception {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 267587258839389682L;
+
 	public ServerCfgFactoryException(final String message) {
 		super(message);
 	}

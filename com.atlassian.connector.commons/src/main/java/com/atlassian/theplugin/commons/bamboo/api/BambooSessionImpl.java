@@ -19,16 +19,32 @@ package com.atlassian.theplugin.commons.bamboo.api;
 import com.atlassian.theplugin.commons.BambooFileInfo;
 import com.atlassian.theplugin.commons.BambooFileInfoImpl;
 import com.atlassian.theplugin.commons.ServerType;
-import com.atlassian.theplugin.commons.bamboo.*;
+import com.atlassian.theplugin.commons.bamboo.BambooBuild;
+import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
+import com.atlassian.theplugin.commons.bamboo.BambooChangeSetImpl;
+import com.atlassian.theplugin.commons.bamboo.BambooPlan;
+import com.atlassian.theplugin.commons.bamboo.BambooProject;
+import com.atlassian.theplugin.commons.bamboo.BambooProjectInfo;
+import com.atlassian.theplugin.commons.bamboo.BuildDetails;
+import com.atlassian.theplugin.commons.bamboo.BuildDetailsInfo;
+import com.atlassian.theplugin.commons.bamboo.BuildStatus;
+import com.atlassian.theplugin.commons.bamboo.TestDetailsInfo;
+import com.atlassian.theplugin.commons.bamboo.TestResult;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
-import com.atlassian.theplugin.commons.remoteapi.*;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.StringUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
+
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
 import org.jdom.Document;
@@ -46,7 +62,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Communication stub for Bamboo REST API.
@@ -92,9 +113,11 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 	/**
 	 * For testing purposes, shouldn't be public
-	 *
-	 * @param url bamboo server url
-	 * @throws RemoteApiMalformedUrlException malformed url
+	 * 
+	 * @param url
+	 *            bamboo server url
+	 * @throws RemoteApiMalformedUrlException
+	 *             malformed url
 	 */
 	BambooSessionImpl(String url) throws RemoteApiMalformedUrlException {
 		this(new ServerData(new ServerCfg(true, "name", url, new ServerIdImpl()) {
@@ -110,10 +133,13 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 
 	/**
 	 * Public constructor for BambooSessionImpl.
-	 *
-	 * @param serverData The server configuration for this session
-	 * @param callback   The callback needed for preparing HttpClient calls
-	 * @throws RemoteApiMalformedUrlException malformed url
+	 * 
+	 * @param serverData
+	 *            The server configuration for this session
+	 * @param callback
+	 *            The callback needed for preparing HttpClient calls
+	 * @throws RemoteApiMalformedUrlException
+	 *             malformed url
 	 */
 	public BambooSessionImpl(ServerData serverData, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
 		super(serverData, callback);
@@ -129,11 +155,13 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	 * MalformedURLException or JDOMException), the
 	 * {@link com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException} is actually thrown. This may be
 	 * used as a hint that the password is invalid.
-	 *
-	 * @param name	  username defined on Bamboo server instance
-	 * @param aPassword for username
+	 * 
+	 * @param name
+	 *            username defined on Bamboo server instance
+	 * @param aPassword
+	 *            for username
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException
-	 *          on connection or authentication errors
+	 *             on connection or authentication errors
 	 */
 	public void login(String name, char[] aPassword) throws RemoteApiLoginException {
 		String loginUrl;
@@ -214,7 +242,6 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 			}
 
 			XPath xpath = XPath.newInstance("/response/bambooBuildNumber");
-			@SuppressWarnings("unchecked")
 			Element element = (Element) xpath.selectSingleNode(doc);
 			if (element != null) {
 				String bNo = element.getText();
@@ -291,8 +318,9 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	 * plan.
 	 * <p/>
 	 * Returned structure contains either the information about the build or an error message if the connection fails.
-	 *
-	 * @param planKey ID of the plan to get info about
+	 * 
+	 * @param planKey
+	 *            ID of the plan to get info about
 	 * @return Information about the last build or error message
 	 */
 	@NotNull
@@ -695,9 +723,11 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	 * wseliga: I have no idea why this method silently returns null in case of parsing problem. For now, I am going to
 	 * leave it as it is to avoid hell of the problems, should it be really necessary (and I am now a few days before
 	 * 2.0.0 final release)
-	 *
-	 * @param date		 string to parse
-	 * @param errorMessage message used during logging
+	 * 
+	 * @param date
+	 *            string to parse
+	 * @param errorMessage
+	 *            message used during logging
 	 * @return parsed date
 	 */
 	@Nullable

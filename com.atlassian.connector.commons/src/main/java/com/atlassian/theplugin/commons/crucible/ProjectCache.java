@@ -29,16 +29,19 @@ import java.util.Map;
  */
 public class ProjectCache {
 	private Map<String, CrucibleProject> projects = new HashMap<String, CrucibleProject>();
-	private CrucibleSessionImpl session;
+
+	private final CrucibleSessionImpl session;
 
 	public ProjectCache(CrucibleSessionImpl session) {
 		this.session = session;
 	}
 
 	/**
-	 * @param projectKey key of the searched project
+	 * @param projectKey
+	 *            key of the searched project
 	 * @return CrucibleProject if found or null otherwise
-	 * @throws RemoteApiException in case of connection problems
+	 * @throws RemoteApiException
+	 *             in case of connection problems
 	 */
 	public CrucibleProject getProject(String projectKey) throws RemoteApiException {
 
@@ -59,7 +62,7 @@ public class ProjectCache {
 	}
 
 	private Map<String, CrucibleProject> getProjectsFromServer() throws RemoteApiException {
-		List<CrucibleProject> list = session.getProjects();
+		List<CrucibleProject> list = session.getProjectsFromServer();
 
 		Map<String, CrucibleProject> map = new HashMap<String, CrucibleProject>(list.size() + 1, 1);
 

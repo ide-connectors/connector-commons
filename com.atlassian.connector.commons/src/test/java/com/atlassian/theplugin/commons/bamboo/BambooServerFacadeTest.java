@@ -16,10 +16,24 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
-import com.atlassian.theplugin.bamboo.api.bamboomock.*;
+import com.atlassian.theplugin.bamboo.api.bamboomock.AddCommentToBuildCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.AddLabelToBuildCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetailsResultCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.ExecuteBuildCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LogoutCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.ProjectListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.Util;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
-import com.atlassian.theplugin.commons.cfg.*;
+import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+import com.atlassian.theplugin.commons.cfg.Server;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
+import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
@@ -33,7 +47,7 @@ import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.remoteapi.ErrorResponse;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
-import junit.framework.TestCase;
+
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
@@ -41,7 +55,13 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import junit.framework.TestCase;
 
 /**
  * {@link com.atlassian.theplugin.commons.bamboo.BambooServerFacadeImpl} test.
@@ -49,14 +69,21 @@ import java.util.*;
 public class BambooServerFacadeTest extends TestCase {
 
 	private static DateTimeFormatter buildDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+
 	private static final String USER_NAME = "someUser";
+
 	private static final String PASSWORD = "somePassword";
+
 	private static final String PLAN_ID = "TP-DEF"; // always the same - mock does the logic
 
 	private org.mortbay.jetty.Server httpServer;
+
 	private JettyMockServer mockServer;
+
 	private String mockBaseUrl;
+
 	private BambooServerFacade testedBambooServerFacade;
+
 	private BambooServerCfg bambooServerCfg;
 
 	@Override
@@ -104,15 +131,16 @@ public class BambooServerFacadeTest extends TestCase {
 	}
 
 	public void testGetSessionTwoTheSameServers() throws RemoteApiException {
-		BambooServerFacadeImpl facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(), new BambooSessionFactory() {
-			public BambooSession createSession(final ServerData serverData, final HttpSessionCallback callback) throws
-					RemoteApiException {
-				BambooSession session = EasyMock.createMock(BambooSession.class);
-				EasyMock.expect(session.isLoggedIn()).andReturn(true).anyTimes();
-				EasyMock.replay(session);
-				return session;
-			}
-		});
+		BambooServerFacadeImpl facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(),
+				new BambooSessionFactory() {
+					public BambooSession createSession(final ServerData serverData, final HttpSessionCallback callback)
+							throws RemoteApiException {
+						BambooSession session = EasyMock.createMock(BambooSession.class);
+						EasyMock.expect(session.isLoggedIn()).andReturn(true).anyTimes();
+						EasyMock.replay(session);
+						return session;
+					}
+				});
 
 		BambooServerCfg server1 = createBambooServerCfg("http://atlassian.com", "", "");
 		BambooServerCfg server1clone = createBambooServerCfg("http://atlassian.com", "", "");
@@ -121,7 +149,8 @@ public class BambooServerFacadeTest extends TestCase {
 		assertEquals(facade.getSession(getServerData(server1)), facade.getSession(getServerData(server1)));
 
 		// servers with different serverId should have different sessions event if url, username and password are equals
-		TestUtil.assertNotEquals(facade.getSession(getServerData(server1)), facade.getSession(getServerData(server1clone)));
+		TestUtil.assertNotEquals(facade.getSession(getServerData(server1)),
+				facade.getSession(getServerData(server1clone)));
 		TestUtil.assertNotEquals(facade.getSession(getServerData(server1)), facade.getSession(getServerData(server2)));
 	}
 
@@ -135,8 +164,8 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("WRONG"));
 
 		Collection<BambooBuild> plans = testedBambooServerFacade.getSubscribedPlansResults(
-				getServerData(bambooServerCfg), bambooServerCfg.getPlans(),
-				bambooServerCfg.isUseFavourites(), bambooServerCfg.getTimezoneOffset());
+				getServerData(bambooServerCfg), bambooServerCfg.getPlans(), bambooServerCfg.isUseFavourites(),
+				bambooServerCfg.getTimezoneOffset());
 
 		assertNotNull(plans);
 		assertEquals(3, plans.size());
@@ -162,8 +191,8 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("bt"));
 
 		final Collection<BambooBuild> plans = testedBambooServerFacade.getSubscribedPlansResults(
-				getServerData(bambooServerCfg), bambooServerCfg.getPlans(),
-				bambooServerCfg.isUseFavourites(), bambooServerCfg.getTimezoneOffset());
+				getServerData(bambooServerCfg), bambooServerCfg.getPlans(), bambooServerCfg.isUseFavourites(),
+				bambooServerCfg.getTimezoneOffset());
 		assertNotNull(plans);
 		assertEquals(3, plans.size());
 		Date completedDate = parseBuildDate("2008-12-12 03:08:10");
@@ -184,16 +213,15 @@ public class BambooServerFacadeTest extends TestCase {
 		implTestBuildCompletedDate(-5);
 	}
 
-	private BambooBuild createBambooBuildInfo(BambooServerCfg serverCfg,
-			String planKey, String planName, DateTime buildCompletionDate) {
-		return new BambooBuildInfo.Builder(planKey, planName, getServerData(serverCfg), null, 123,
-				BuildStatus.UNKNOWN)
-				.completionTime(buildCompletionDate.toDate())
+	private BambooBuild createBambooBuildInfo(BambooServerCfg serverCfg, String planKey, String planName,
+			DateTime buildCompletionDate) {
+		return new BambooBuildInfo.Builder(planKey, planName, getServerData(serverCfg), null, 123, BuildStatus.UNKNOWN).completionTime(
+				buildCompletionDate.toDate())
 				.build();
 	}
 
-	public void testBuildCompletedDateWithTimeZoneForFavouritesMinus()
-			throws RemoteApiException, ServerPasswordNotProvidedException {
+	public void testBuildCompletedDateWithTimeZoneForFavouritesMinus() throws RemoteApiException,
+			ServerPasswordNotProvidedException {
 		final BambooSession mockSession = EasyMock.createMock(BambooSession.class);
 		BambooServerFacade facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(), new BambooSessionFactory() {
 			public BambooSession createSession(final ServerData serverData, final HttpSessionCallback callback)
@@ -212,7 +240,9 @@ public class BambooServerFacadeTest extends TestCase {
 
 		List<BambooPlan> plans = MiscUtil.buildArrayList(plan1, plan2, plan3);
 		EasyMock.expect(mockSession.listPlanNames()).andReturn(plans).anyTimes();
-		EasyMock.expect(mockSession.getFavouriteUserPlans()).andReturn(MiscUtil.buildArrayList("pl", "keyb")).anyTimes();
+		EasyMock.expect(mockSession.getFavouriteUserPlans())
+				.andReturn(MiscUtil.buildArrayList("pl", "keyb"))
+				.anyTimes();
 		EasyMock.expect(mockSession.isLoggedIn()).andReturn(true).anyTimes();
 		EasyMock.expect(mockSession.getLatestBuildForPlan(key1, true, -7)).andAnswer(new IAnswer<BambooBuild>() {
 			public BambooBuild answer() throws Throwable {
@@ -233,13 +263,12 @@ public class BambooServerFacadeTest extends TestCase {
 		EasyMock.replay(mockSession);
 		bambooServerCfg.setUseFavourites(true);
 
-
 		getAndVerifyDates(facade, buildDate1, buildDate3, -7);
 		EasyMock.verify(mockSession);
 	}
 
-	public void testBuildCompletedDateWithTimeZoneForFavouritesPlus()
-			throws RemoteApiException, ServerPasswordNotProvidedException {
+	public void testBuildCompletedDateWithTimeZoneForFavouritesPlus() throws RemoteApiException,
+			ServerPasswordNotProvidedException {
 		final BambooSession mockSession = EasyMock.createMock(BambooSession.class);
 		BambooServerFacade facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(), new BambooSessionFactory() {
 			public BambooSession createSession(final ServerData serverData, final HttpSessionCallback callback)
@@ -255,10 +284,11 @@ public class BambooServerFacadeTest extends TestCase {
 		final String key3 = "keyb";
 		final DateTime buildDate3 = new DateTime(2009, 3, 27, 1, 9, 0, 0);
 		final BambooPlan plan3 = new BambooPlan("planname3", key3, false);
-		int timeZoneOffset = 0;
 		List<BambooPlan> plans = MiscUtil.buildArrayList(plan1, plan2, plan3);
 		EasyMock.expect(mockSession.listPlanNames()).andReturn(plans).anyTimes();
-		EasyMock.expect(mockSession.getFavouriteUserPlans()).andReturn(MiscUtil.buildArrayList("pl", "keyb")).anyTimes();
+		EasyMock.expect(mockSession.getFavouriteUserPlans())
+				.andReturn(MiscUtil.buildArrayList("pl", "keyb"))
+				.anyTimes();
 		EasyMock.expect(mockSession.isLoggedIn()).andReturn(true).anyTimes();
 		EasyMock.expect(mockSession.getLatestBuildForPlan(key1, true, 2)).andAnswer(new IAnswer<BambooBuild>() {
 			public BambooBuild answer() throws Throwable {
@@ -279,7 +309,6 @@ public class BambooServerFacadeTest extends TestCase {
 		EasyMock.replay(mockSession);
 		bambooServerCfg.setUseFavourites(true);
 
-		timeZoneOffset = 2;
 		getAndVerifyDates(facade, buildDate1, buildDate3, 2);
 		EasyMock.verify(mockSession);
 	}
@@ -305,8 +334,8 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD, LoginCallback.ALWAYS_FAIL));
 		bambooServerCfg.setPassword(PASSWORD);
 		Collection<BambooBuild> plans = testedBambooServerFacade.getSubscribedPlansResults(
-				getServerData(bambooServerCfg), bambooServerCfg.getPlans(),
-				bambooServerCfg.isUseFavourites(), bambooServerCfg.getTimezoneOffset());
+				getServerData(bambooServerCfg), bambooServerCfg.getPlans(), bambooServerCfg.isUseFavourites(),
+				bambooServerCfg.getTimezoneOffset());
 		assertNotNull(plans);
 		assertEquals(3, plans.size());
 		Iterator<BambooBuild> iterator = plans.iterator();
@@ -332,9 +361,8 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/login.action", new ErrorResponse(400, ""));
 		mockServer.expect("/api/rest/login.action", new ErrorResponse(400, ""));
 		// connection error, just report without asking for the pass
-		Collection<BambooBuild> plans = testedBambooServerFacade
-				.getSubscribedPlansResults(getServerData(server), server.getPlans(),
-						server.isUseFavourites(), server.getTimezoneOffset());
+		Collection<BambooBuild> plans = testedBambooServerFacade.getSubscribedPlansResults(getServerData(server),
+				server.getPlans(), server.isUseFavourites(), server.getTimezoneOffset());
 		assertNotNull(plans);
 		assertEquals(3, plans.size());
 		Iterator<BambooBuild> iterator = plans.iterator();
@@ -361,8 +389,7 @@ public class BambooServerFacadeTest extends TestCase {
 		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/listProjectNames.action", new ProjectListCallback());
 
-		Collection<BambooProject> projects = testedBambooServerFacade.getProjectList(
-				getServerData(bambooServerCfg));
+		Collection<BambooProject> projects = testedBambooServerFacade.getProjectList(getServerData(bambooServerCfg));
 		Util.verifyProjectListResult(projects);
 
 		mockServer.verify();
@@ -413,13 +440,13 @@ public class BambooServerFacadeTest extends TestCase {
 
 	/**
 	 * Regression for https://studio.atlassian.com/browse/ACC-40
-	 *
+	 * 
 	 * @throws Exception
 	 */
 	public void testConnectionTestInvalidUrlIncludesPassword() throws Exception {
 		try {
-			testedBambooServerFacade
-					.testServerConnection(getServerData(createBambooServerCfg("http://invalid url", USER_NAME, PASSWORD)));
+			testedBambooServerFacade.testServerConnection(getServerData(createBambooServerCfg("http://invalid url",
+					USER_NAME, PASSWORD)));
 			fail("Should throw RemoteApiLoginException");
 		} catch (RemoteApiException e) {
 			assertFalse("Message should not include users's password", e.getMessage().contains(PASSWORD));
@@ -439,8 +466,7 @@ public class BambooServerFacadeTest extends TestCase {
 				testedBambooServerFacade.testServerConnection(new ServerData(serverCfg, "", ""));
 			}
 		});
-//
-//
+
 		mockServer.expect("/api/rest/login.action", new LoginCallback("", "", LoginCallback.ALWAYS_FAIL));
 		TestUtil.assertThrows(RemoteApiLoginException.class, new IAction() {
 			public void run() throws Throwable {
@@ -469,19 +495,20 @@ public class BambooServerFacadeTest extends TestCase {
 
 	private ServerCfg createServerCfg() {
 		return new ServerCfg(true, "name", mockBaseUrl, new ServerIdImpl()) {
+			@Override
 			public ServerType getServerType() {
 				return null;
 			}
 
+			@Override
 			public ServerCfg getClone() {
 				return null;
 			}
 		};
 	}
 
-
-	public void testBambooConnectionWithEmptyPlan()
-			throws RemoteApiLoginException, CloneNotSupportedException, ServerPasswordNotProvidedException {
+	public void testBambooConnectionWithEmptyPlan() throws RemoteApiLoginException, CloneNotSupportedException,
+			ServerPasswordNotProvidedException {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
@@ -490,8 +517,7 @@ public class BambooServerFacadeTest extends TestCase {
 		bambooServerCfg.getSubscribedPlans().clear();
 		BambooServerFacade facade = BambooServerFacadeImpl.getInstance(LoggerImpl.getInstance());
 		Collection<BambooBuild> plans = facade.getSubscribedPlansResults(getServerData(bambooServerCfg),
-				bambooServerCfg.getPlans(), bambooServerCfg.isUseFavourites(),
-				bambooServerCfg.getTimezoneOffset());
+				bambooServerCfg.getPlans(), bambooServerCfg.isUseFavourites(), bambooServerCfg.getTimezoneOffset());
 		assertEquals(0, plans.size());
 
 		mockServer.verify();
@@ -504,8 +530,7 @@ public class BambooServerFacadeTest extends TestCase {
 		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/addLabelToBuildResults.action", new AddLabelToBuildCallback(label));
 
-		testedBambooServerFacade.addLabelToBuild(getServerData(bambooServerCfg),
-				"TP-DEF", 100, label);
+		testedBambooServerFacade.addLabelToBuild(getServerData(bambooServerCfg), "TP-DEF", 100, label);
 
 		mockServer.verify();
 	}
@@ -517,8 +542,7 @@ public class BambooServerFacadeTest extends TestCase {
 		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/addLabelToBuildResults.action", new AddLabelToBuildCallback(label));
 
-		testedBambooServerFacade.addLabelToBuild(getServerData(bambooServerCfg), "TP-DEF", 100,
-				label);
+		testedBambooServerFacade.addLabelToBuild(getServerData(bambooServerCfg), "TP-DEF", 100, label);
 
 		mockServer.verify();
 	}
@@ -528,12 +552,11 @@ public class BambooServerFacadeTest extends TestCase {
 
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
-		mockServer.expect("/api/rest/addLabelToBuildResults.action",
-				new AddLabelToBuildCallback(label, "200", AddLabelToBuildCallback.NON_EXIST_FAIL));
+		mockServer.expect("/api/rest/addLabelToBuildResults.action", new AddLabelToBuildCallback(label, "200",
+				AddLabelToBuildCallback.NON_EXIST_FAIL));
 
 		try {
-			testedBambooServerFacade.addLabelToBuild(getServerData(bambooServerCfg),
-					"TP-DEF", 200, label);
+			testedBambooServerFacade.addLabelToBuild(getServerData(bambooServerCfg), "TP-DEF", 200, label);
 			fail();
 		} catch (RemoteApiException e) {
 			// expected
@@ -549,8 +572,7 @@ public class BambooServerFacadeTest extends TestCase {
 		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/addCommentToBuildResults.action", new AddCommentToBuildCallback(label));
 
-		testedBambooServerFacade.addCommentToBuild(getServerData(bambooServerCfg), "TP-DEF", 100,
-				label);
+		testedBambooServerFacade.addCommentToBuild(getServerData(bambooServerCfg), "TP-DEF", 100, label);
 
 		mockServer.verify();
 	}
@@ -562,8 +584,7 @@ public class BambooServerFacadeTest extends TestCase {
 		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/addCommentToBuildResults.action", new AddCommentToBuildCallback(label));
 
-		testedBambooServerFacade.addCommentToBuild(getServerData(bambooServerCfg), "TP-DEF", 100,
-				label);
+		testedBambooServerFacade.addCommentToBuild(getServerData(bambooServerCfg), "TP-DEF", 100, label);
 
 		mockServer.verify();
 	}
@@ -573,12 +594,11 @@ public class BambooServerFacadeTest extends TestCase {
 
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
-		mockServer.expect("/api/rest/addCommentToBuildResults.action",
-				new AddCommentToBuildCallback(label, "200", AddCommentToBuildCallback.NON_EXIST_FAIL));
+		mockServer.expect("/api/rest/addCommentToBuildResults.action", new AddCommentToBuildCallback(label, "200",
+				AddCommentToBuildCallback.NON_EXIST_FAIL));
 
 		try {
-			testedBambooServerFacade.addCommentToBuild(getServerData(bambooServerCfg), "TP-DEF",
-					200, label);
+			testedBambooServerFacade.addCommentToBuild(getServerData(bambooServerCfg), "TP-DEF", 200, label);
 			fail();
 		} catch (RemoteApiException e) {
 			// expected
@@ -600,7 +620,8 @@ public class BambooServerFacadeTest extends TestCase {
 	public void testFailedExecuteBuild() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
-		mockServer.expect("/api/rest/executeBuild.action", new ExecuteBuildCallback(ExecuteBuildCallback.NON_EXIST_FAIL));
+		mockServer.expect("/api/rest/executeBuild.action",
+				new ExecuteBuildCallback(ExecuteBuildCallback.NON_EXIST_FAIL));
 
 		try {
 			testedBambooServerFacade.executeBuild(getServerData(bambooServerCfg), "TP-DEF");
@@ -614,11 +635,10 @@ public class BambooServerFacadeTest extends TestCase {
 	public void testGetBuildDetails() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
-		mockServer.expect("/api/rest/getBuildResultsDetails.action",
-				new BuildDetailsResultCallback("buildResult-3Commit-FailedTests-SuccessfulTests.xml", "100"));
+		mockServer.expect("/api/rest/getBuildResultsDetails.action", new BuildDetailsResultCallback(
+				"buildResult-3Commit-FailedTests-SuccessfulTests.xml", "100"));
 
-		BuildDetails details = testedBambooServerFacade
-				.getBuildDetails(getServerData(bambooServerCfg), "TP-DEF", 100);
+		BuildDetails details = testedBambooServerFacade.getBuildDetails(getServerData(bambooServerCfg), "TP-DEF", 100);
 		assertEquals(3, details.getCommitInfo().size());
 		assertEquals(2, details.getFailedTestDetails().size());
 		assertEquals(117, details.getSuccessfulTestDetails().size());
@@ -629,8 +649,8 @@ public class BambooServerFacadeTest extends TestCase {
 	public void testGetBuildDetailsNonExistingBuild() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
-		mockServer.expect("/api/rest/getBuildResultsDetails.action",
-				new BuildDetailsResultCallback("buildNotExistsResponse.xml", "200"));
+		mockServer.expect("/api/rest/getBuildResultsDetails.action", new BuildDetailsResultCallback(
+				"buildNotExistsResponse.xml", "200"));
 
 		try {
 			testedBambooServerFacade.getBuildDetails(getServerData(bambooServerCfg), "TP-DEF", 200);
@@ -638,7 +658,6 @@ public class BambooServerFacadeTest extends TestCase {
 		} catch (RemoteApiException e) {
 			// expected
 		}
-
 
 		mockServer.verify();
 	}

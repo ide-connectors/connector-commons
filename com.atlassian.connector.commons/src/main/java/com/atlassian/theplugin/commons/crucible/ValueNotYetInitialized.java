@@ -24,6 +24,11 @@ package com.atlassian.theplugin.commons.crucible;
  * To change this template use File | Settings | File Templates.
  */
 public class ValueNotYetInitialized extends Exception {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3244409028034171839L;
+
 	public ValueNotYetInitialized(String s) {
 		super(s);
 	}

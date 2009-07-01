@@ -21,13 +21,15 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTable;
-import junit.framework.Assert;
 
 import java.io.IOException;
 import java.util.List;
 
+import junit.framework.Assert;
+
 class ResponseWrapper {
-	private HtmlPage thePage;
+	private final HtmlPage thePage;
+
 	private HtmlTable theTable;
 
 	ResponseWrapper(String htmlPage) throws IOException {
@@ -40,10 +42,9 @@ class ResponseWrapper {
 		return thePage;
 	}
 
-
 	public HtmlTable getTheTable() throws Exception {
 		if (theTable == null) {
-			List tables = thePage.getByXPath("html/body/table");
+			List<?> tables = thePage.getByXPath("html/body/table");
 			Assert.assertEquals(1, tables.size());
 			theTable = (HtmlTable) tables.get(0);
 		}

@@ -27,6 +27,11 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
  */
 public class CrucibleException extends RemoteApiException {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7182791443222497268L;
+
 	public CrucibleException(String message) {
 		super(message);
 	}

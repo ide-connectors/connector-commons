@@ -23,6 +23,11 @@ import org.jetbrains.annotations.Nullable;
  */
 public class RemoteApiException extends Exception {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8518437777396192588L;
+
 	@Nullable
 	public String getServerStackTrace() {
 		return serverStackTrace;

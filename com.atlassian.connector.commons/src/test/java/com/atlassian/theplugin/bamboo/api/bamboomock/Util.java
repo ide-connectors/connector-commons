@@ -16,28 +16,26 @@
 
 package com.atlassian.theplugin.bamboo.api.bamboomock;
 
+import static junit.framework.Assert.assertEquals;
+
 import com.atlassian.theplugin.commons.bamboo.BambooBuild;
+import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildStatus;
-import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.util.ResourceUtil;
-import com.atlassian.theplugin.remoteapi.ErrorResponse;
-import junit.framework.Assert;
-import static junit.framework.Assert.assertEquals;
+
+import org.apache.commons.httpclient.HttpStatus;
 
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Date;
+import java.util.Iterator;
 
-import org.apache.commons.httpclient.HttpStatus;
+import junit.framework.Assert;
 
 public abstract class Util {
 
 	public static final String RESOURCE_BASE_1_2_4 = "/mock/bamboo/1_2_4/api/rest/";
-	private static final String HTTP_400_TEXT = "Bad Request";
-	private static final int HTTP_400 = 400;
-
 
 	private Util() {
 	}
@@ -81,13 +79,15 @@ public abstract class Util {
 	public static void verifyErrorBuildResult(BambooBuild build) {
 		Assert.assertSame(BuildStatus.UNKNOWN, build.getStatus());
 		Assert.assertTrue(build.getPollingTime().getTime() - System.currentTimeMillis() < 5000);
-		Assert.assertEquals("The user does not have sufficient permissions to perform this action.\n", build.getErrorMessage());
+		Assert.assertEquals("The user does not have sufficient permissions to perform this action.\n",
+				build.getErrorMessage());
 	}
 
 	public static void verifyLoginErrorBuildResult(BambooBuild build) {
 		Assert.assertSame(BuildStatus.UNKNOWN, build.getStatus());
 		Assert.assertTrue(build.getPollingTime().getTime() - System.currentTimeMillis() < 5000);
-		Assert.assertEquals("The user does not have sufficient permissions to perform this action.\n", build.getErrorMessage());
+		Assert.assertEquals("The user does not have sufficient permissions to perform this action.\n",
+				build.getErrorMessage());
 	}
 
 	public static void verifyError400BuildResult(BambooBuild build) {
@@ -95,16 +95,12 @@ public abstract class Util {
 		Assert.assertTrue(build.getPollingTime().getTime() - System.currentTimeMillis() < 5000);
 		final String errorMessage = build.getErrorMessage();
 		Assert.assertNotNull(errorMessage);
-		Assert.assertTrue(errorMessage.startsWith(
-				"HTTP " + HttpStatus.SC_BAD_REQUEST + " (" + HttpStatus.getStatusText(HttpStatus.SC_BAD_REQUEST) + ")"));
+		Assert.assertTrue(errorMessage.startsWith("HTTP " + HttpStatus.SC_BAD_REQUEST + " ("
+				+ HttpStatus.getStatusText(HttpStatus.SC_BAD_REQUEST) + ")"));
 	}
 
-
-	private static final String[][] expectedProjects = {
-			{ "PO", "Project One" },
-			{ "PT", "Project Two" },
-			{ "PEMPTY", "Project Three - Empty" }
-	};
+	private static final String[][] expectedProjects = { { "PO", "Project One" }, { "PT", "Project Two" },
+			{ "PEMPTY", "Project Three - Empty" } };
 
 	public static void verifyProjectListResult(Collection<BambooProject> projects) {
 		Assert.assertEquals(expectedProjects.length, projects.size());
@@ -117,13 +113,9 @@ public abstract class Util {
 		}
 	}
 
-
-	private static final String[][] expectedPlans = {
-			{ "PO-FP", "First Project - First Plan", "true" },
-			{ "PO-SECPLAN", "First Project - Second Plan", "true" },
-			{ "PO-TP", "First Project - Third Plan", "true" },
-			{ "PT-TOP", "Second Project - The Only Plan", "false" }
-	};
+	private static final String[][] expectedPlans = { { "PO-FP", "First Project - First Plan", "true" },
+			{ "PO-SECPLAN", "First Project - Second Plan", "true" }, { "PO-TP", "First Project - Third Plan", "true" },
+			{ "PT-TOP", "Second Project - The Only Plan", "false" } };
 
 	public static void verifyPlanListResult(Collection<BambooPlan> plans) {
 		assertEquals(expectedPlans.length, plans.size());
@@ -136,10 +128,8 @@ public abstract class Util {
 		}
 	}
 
-	private static final String[][] expectedFavouritePlans = {
-			{ "PO-FP", "First Project - First Plan" },
-			{ "PT-TOP", "Second Project - The Only Plan" }
-	};
+	private static final String[][] expectedFavouritePlans = { { "PO-FP", "First Project - First Plan" },
+			{ "PT-TOP", "Second Project - The Only Plan" } };
 
 	public static void verifyFavouriteListResult(Collection<String> plans) {
 		assertEquals(expectedFavouritePlans.length, plans.size());
@@ -150,12 +140,9 @@ public abstract class Util {
 		}
 	}
 
-	private static final String[][] expectedPlansWithFavourites = {
-			{ "PO-FP", "First Project - First Plan", "true" },
+	private static final String[][] expectedPlansWithFavourites = { { "PO-FP", "First Project - First Plan", "true" },
 			{ "PO-SECPLAN", "First Project - Second Plan", "false" },
-			{ "PO-TP", "First Project - Third Plan", "false" },
-			{ "PT-TOP", "Second Project - The Only Plan", "true" }
-	};
+			{ "PO-TP", "First Project - Third Plan", "false" }, { "PT-TOP", "Second Project - The Only Plan", "true" } };
 
 	public static void verifyPlanListWithFavouritesResult(Collection<BambooPlan> plans) {
 		assertEquals(expectedPlansWithFavourites.length, plans.size());

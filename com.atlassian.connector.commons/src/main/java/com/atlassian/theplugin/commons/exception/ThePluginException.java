@@ -18,6 +18,11 @@ package com.atlassian.theplugin.commons.exception;
 
 public class ThePluginException extends Exception {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1809913885448081088L;
+
 	public ThePluginException(String message) {
 		super(message);
 	}

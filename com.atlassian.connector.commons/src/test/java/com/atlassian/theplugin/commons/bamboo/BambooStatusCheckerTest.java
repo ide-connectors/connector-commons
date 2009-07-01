@@ -29,9 +29,7 @@ import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.Logger;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
 import org.mockito.Mockito;
@@ -41,13 +39,20 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.TimerTask;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 /**
  * BambooStatusChecker Tester.
  */
 public class BambooStatusCheckerTest extends TestCase {
 	private static final String USER_NAME = "someUser";
+
 	private static final String PASSWORD = "somePassword";
+
 	private static final String PLAN_ID = "TP-DEF"; // always the same - mock does the logic
+
 	private Logger logger;
 
 	public BambooStatusCheckerTest(String name) {
@@ -65,8 +70,7 @@ public class BambooStatusCheckerTest extends TestCase {
 
 		BambooStatusChecker checker = new BambooStatusChecker(
 //				null, MockBambooCfgManager.createBambooTestConfiguration(),
-				null, Mockito.mock(ProjectCfgManager.class),
-				new PluginConfigurationBean(), null, logger);
+				null, Mockito.mock(ProjectCfgManager.class), new PluginConfigurationBean(), null, logger);
 		assertEquals(1000 * 60 * 10, checker.getInterval());
 	}
 
@@ -143,7 +147,8 @@ public class BambooStatusCheckerTest extends TestCase {
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());
 
-		Mockito.when(cfg.getServerData(server)).thenReturn(new ServerData(server, server.getUserName(), server.getPassword()));
+		Mockito.when(cfg.getServerData(server)).thenReturn(
+				new ServerData(server, server.getUserName(), server.getPassword()));
 		task.run();
 		assertEquals(1, r2.lastStatuses.size());
 
@@ -183,10 +188,6 @@ public class BambooStatusCheckerTest extends TestCase {
 			Collection<BambooBuild> ret = lastStatuses;
 			lastStatuses = null;
 			return ret;
-		}
-
-		public Collection<BambooBuild> getLastStatuses() {
-			return lastStatuses;
 		}
 
 		public void resetState() {

@@ -25,6 +25,11 @@ package com.atlassian.theplugin.commons.exception;
  */
 public class IncorrectVersionException extends ThePluginException {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7685605767646337323L;
+
 	public IncorrectVersionException(String message, Throwable throwable) {
 		super(message, throwable);
 	}

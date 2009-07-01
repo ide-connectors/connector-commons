@@ -15,38 +15,50 @@
  */
 package com.atlassian.theplugin.commons.bamboo;
 
+import static org.easymock.EasyMock.createStrictMock;
+
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.configuration.BambooConfigurationBean;
 import com.atlassian.theplugin.commons.configuration.BambooTooltipOption;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
-import junit.framework.TestCase;
+
 import org.easymock.EasyMock;
-import static org.easymock.EasyMock.createStrictMock;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+
+import junit.framework.TestCase;
 
 /**
  * @author Jacek Jaroczynski
  */
 public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 	private BambooStatusDisplay displayMock;
+
 	private BambooStatusTooltipListener tooltipListener;
+
 	private static final String DEFAULT_PLAN_KEY = "PL-DEF";
+
 	private static final String DEFAULT_BUILD_NAME = "Build";
+
 	private static final String DEFAULT_PROJECT_NAME = "Project";
+
 	private static final String DEFAULT_ERROR_MESSAGE = "Error message";
+
 	private static final HashSet<String> COMMITERS = new HashSet<String>(Arrays.asList("jjaroczynski", "unknown"));
+
 	private static final String LOGGED_USER_JJ = "jjaroczynski";
+
 	private static final String LOGGED_USER_US = "user";
+
 	private static final String LOGGED_USER_UN = "unknown";
-	private static final ServerId ServerID = new ServerIdImpl();
+
 	private PluginConfigurationBean conf;
+
 	private BambooConfigurationBean bean;
 
 	@Override
@@ -61,7 +73,6 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 		bean.setBambooTooltipOption(BambooTooltipOption.ALL_FAULIRES_AND_FIRST_SUCCESS);
 	}
 
-
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
@@ -69,7 +80,6 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 		displayMock = null;
 		tooltipListener = null;
 	}
-
 
 	public void testOnlyMyOn() {
 
@@ -130,10 +140,12 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 
 	public static BambooBuildInfo generateBuildInfo(BuildStatus status, int buildNumber, String loggedUser) {
 		ServerData server = new ServerData(new ServerCfg(true, "name", new ServerIdImpl()) {
+			@Override
 			public ServerType getServerType() {
 				return null;
 			}
 
+			@Override
 			public ServerCfg getClone() {
 				return null;
 			}
@@ -143,15 +155,15 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 				DEFAULT_PROJECT_NAME, buildNumber, status).enabled(true).commiters(COMMITERS);
 
 		switch (status) {
-			case UNKNOWN:
-				builder.errorMessage(DEFAULT_ERROR_MESSAGE);
-				break;
-			case SUCCESS:
-				builder.startTime(new Date());
-				break;
-			case FAILURE:
-				builder.startTime(new Date());
-				break;
+		case UNKNOWN:
+			builder.errorMessage(DEFAULT_ERROR_MESSAGE);
+			break;
+		case SUCCESS:
+			builder.startTime(new Date());
+			break;
+		case FAILURE:
+			builder.startTime(new Date());
+			break;
 		}
 
 		return builder.build();

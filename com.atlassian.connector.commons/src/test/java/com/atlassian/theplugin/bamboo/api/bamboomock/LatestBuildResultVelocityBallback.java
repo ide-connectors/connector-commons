@@ -15,24 +15,24 @@
  */
 package com.atlassian.theplugin.bamboo.api.bamboomock;
 
-import org.ddsteps.mock.httpserver.JettyMockServer;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+
+import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
-import org.apache.velocity.VelocityContext;
+import org.ddsteps.mock.httpserver.JettyMockServer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.assertEquals;
-
-import java.util.Properties;
 import java.io.OutputStreamWriter;
-import java.io.StringWriter;
+import java.util.Properties;
 
 public class LatestBuildResultVelocityBallback implements JettyMockServer.Callback {
 
 	private final String buildKey;
+
 	private final int buildNumber;
 
 	public LatestBuildResultVelocityBallback(final String buildKey, int buildNumber) {
@@ -67,11 +67,11 @@ public class LatestBuildResultVelocityBallback implements JettyMockServer.Callba
 		context.put("buildNumber", buildNumber);
 
 		final OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), "UTF-8");
-		velocityEngine.mergeTemplate("/mock/bamboo/1_2_4/api/rest/latestBuildResultResponse.vm", "UTF-8", context, writer);
+		velocityEngine.mergeTemplate("/mock/bamboo/1_2_4/api/rest/latestBuildResultResponse.vm", "UTF-8", context,
+				writer);
 		writer.flush();
 		response.getOutputStream().flush();
 
 	}
 
 }
-

@@ -27,7 +27,9 @@ import java.util.regex.MatchResult;
  */
 public class ProductVersionUtil implements Serializable {
 	public static final String SPECIAL_DEV_VERSION = "${project.version}, SVN:${buildNumber}";
+
 	public static final ProductVersionUtil NULL_VERSION = initNullVersion();
+
 	private static final long serialVersionUID = 1846608052207718100L;
 
 	private static ProductVersionUtil initNullVersion() {
@@ -64,8 +66,11 @@ public class ProductVersionUtil implements Serializable {
 	}
 
 	private static final String PATTERN = "^(\\d+)\\.(\\d+)(\\.(\\d+))?(.+)?$";
+
 	private static final int MAJOR_TOKEN_GRP = 1;
+
 	private static final int MINOR_TOKEN_GRP = 2;
+
 	private static final int MICRO_TOKEN_GRP = 4;
 
 	private void tokenize(final String aVersion) throws IncorrectVersionException {
@@ -73,8 +78,7 @@ public class ProductVersionUtil implements Serializable {
 		s.findInLine(PATTERN);
 		try {
 			MatchResult result = s.match();
-			versionNumber = new VersionNumber(
-					Integer.valueOf(result.group(MAJOR_TOKEN_GRP)),
+			versionNumber = new VersionNumber(Integer.valueOf(result.group(MAJOR_TOKEN_GRP)),
 					Integer.valueOf(result.group(MINOR_TOKEN_GRP)),
 					result.group(MICRO_TOKEN_GRP) != null ? Integer.valueOf(result.group(MICRO_TOKEN_GRP)) : -1);
 		} catch (IllegalStateException ex) {
@@ -130,18 +134,15 @@ public class ProductVersionUtil implements Serializable {
 
 	private static class VersionNumber {
 
-		private int major;
-		private int minor;
-		private int micro;
+		private final int major;
+
+		private final int minor;
+
+		private final int micro;
+
 		private static final int PRIME = 31;
 
-
-		public enum AlphaNum {
-			SNAPSHOT, ALPHA, BETA, NONE;
-		}
-
-		public VersionNumber(int major, int minor, int micro)
-				throws IncorrectVersionException {
+		public VersionNumber(int major, int minor, int micro) throws IncorrectVersionException {
 			this.major = major;
 			this.minor = minor;
 			this.micro = micro;

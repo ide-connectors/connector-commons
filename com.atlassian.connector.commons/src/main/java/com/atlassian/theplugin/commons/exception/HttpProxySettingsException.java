@@ -24,6 +24,11 @@ package com.atlassian.theplugin.commons.exception;
  * To change this template use File | Settings | File Templates.
  */
 public class HttpProxySettingsException extends Exception {
+		/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2091368578815429676L;
+
 		public HttpProxySettingsException(String message, Throwable throwable) {
 		super(message, throwable);
 	}

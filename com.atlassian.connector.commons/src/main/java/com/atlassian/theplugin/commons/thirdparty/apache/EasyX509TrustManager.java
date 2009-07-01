@@ -26,42 +26,38 @@ package com.atlassian.theplugin.commons.thirdparty.apache;
  *
  */
 
-
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
+
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
 
 /**
  * <p>
- * EasyX509TrustManager unlike default {@link X509TrustManager} accepts
- * self-signed certificates.
+ * EasyX509TrustManager unlike default {@link X509TrustManager} accepts self-signed certificates.
  * </p>
  * <p>
- * This trust manager SHOULD NOT be used for productive systems
- * due to security reasons, unless it is a concious decision and
- * you are perfectly aware of security implications of accepting
- * self-signed certificates
+ * This trust manager SHOULD NOT be used for productive systems due to security reasons, unless it is a concious
+ * decision and you are perfectly aware of security implications of accepting self-signed certificates
  * </p>
- *
+ * 
  * @author <a href="mailto:adrian.sutton@ephox.com">Adrian Sutton</a>
  * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
  *         <p/>
  *         <p>
- *         DISCLAIMER: HttpClient developers DO NOT actively support this component.
- *         The component is provided as a reference material, which may be inappropriate
- *         for use without additional customization.
+ *         DISCLAIMER: HttpClient developers DO NOT actively support this component. The component is provided as a
+ *         reference material, which may be inappropriate for use without additional customization.
  *         </p>
  */
 
 public class EasyX509TrustManager implements X509TrustManager {
 	private X509TrustManager standardTrustManager = null;
+
 	//private Logger logger;
 
 	/**
@@ -103,14 +99,13 @@ public class EasyX509TrustManager implements X509TrustManager {
 				standardTrustManager.checkServerTrusted(certificates, authType);
 			}
 		} catch (CertificateExpiredException e) {
-			e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+			e.printStackTrace(); //To change body of catch statement use File | Settings | File Templates.
 			throw e;
 		} catch (CertificateException e) {
-			e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+			e.printStackTrace(); //To change body of catch statement use File | Settings | File Templates.
 			throw e;
 		}
 	}
-
 
 	/**
 	 * @see javax.net.ssl.X509TrustManager#getAcceptedIssuers()

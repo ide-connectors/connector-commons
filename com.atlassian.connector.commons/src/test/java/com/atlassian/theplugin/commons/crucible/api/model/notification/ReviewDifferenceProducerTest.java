@@ -16,7 +16,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.UserBean;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
 import com.atlassian.theplugin.commons.util.MiscUtil;
-import junit.framework.TestCase;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,19 +25,28 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import junit.framework.TestCase;
+
 public class ReviewDifferenceProducerTest extends TestCase {
 
 	final PermIdBean reviewId1 = new PermIdBean("CR-1");
+
 	final PermIdBean newItem1 = new PermIdBean("CRF:11");
+
 	final PermIdBean newCommentId1 = new PermIdBean("CMT:11");
+
 	final PermIdBean newVCommentId1 = new PermIdBean("CMT:12");
 
 	final PermIdBean reviewId2 = new PermIdBean("CR-2");
+
 	final PermIdBean newItem2 = new PermIdBean("CRF:21");
+
 	final PermIdBean newCommentId2 = new PermIdBean("CMT:21");
+
 	final PermIdBean newVCommentId2 = new PermIdBean("CMT:22");
 
 	final Reviewer reviewer3 = prepareReviewer("scott", "Scott", false);
+
 	final Reviewer reviewer4 = prepareReviewer("alice", "Alice", false);
 
 	private ReviewBean prepareReview() {
@@ -93,8 +101,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		review1.setGeneralComments(new ArrayList<GeneralComment>());
 		review1.setPermId(reviewId1);
 		review1.setState(state);
-		review1.setReviewers(MiscUtil.<Reviewer>buildHashSet(prepareReviewer("bob", "Bob", false),
-				prepareReviewer("alice", "Alice", false)));
+		review1.setReviewers(MiscUtil.<Reviewer> buildHashSet(prepareReviewer("bob", "Bob", false), prepareReviewer(
+				"alice", "Alice", false)));
 		review1.getGeneralComments().add(prepareGeneralComment("message", newCommentId1, commentsDate, null));
 		review1.getGeneralComments().add(prepareGeneralComment("message2", newCommentId2, commentsDate, null));
 		List<VersionedComment> vComments = new ArrayList<VersionedComment>();
@@ -160,7 +168,6 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertTrue(p.isShortEqual());
 		assertTrue(p.isFilesEqual());
 	}
-
 
 	public void testSameGeneralComments() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
@@ -258,8 +265,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		Date commentDate = new Date();
 		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
 		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
-		review1.getGeneralComments().get(0).getReplies()
-				.add(prepareGeneralComment("reply", new PermIdBean("CMT:41"), new Date(), null));
+		review1.getGeneralComments().get(0).getReplies().add(
+				prepareGeneralComment("reply", new PermIdBean("CMT:41"), new Date(), null));
 
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
@@ -276,14 +283,14 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
 		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
 		Date replyDate = new Date();
-		review.getGeneralComments().get(0).getReplies()
-				.add(prepareGeneralComment("reply", new PermIdBean("CMT:41"), replyDate, null));
-		review.getGeneralComments().get(0).getReplies()
-				.add(prepareGeneralComment("reply2", new PermIdBean("CMT:42"), replyDate, null));
-		review1.getGeneralComments().get(0).getReplies()
-				.add(prepareGeneralComment("reply", new PermIdBean("CMT:41"), replyDate, null));
-		review1.getGeneralComments().get(0).getReplies()
-				.add(prepareGeneralComment("reply2", new PermIdBean("CMT:42"), replyDate, null));
+		review.getGeneralComments().get(0).getReplies().add(
+				prepareGeneralComment("reply", new PermIdBean("CMT:41"), replyDate, null));
+		review.getGeneralComments().get(0).getReplies().add(
+				prepareGeneralComment("reply2", new PermIdBean("CMT:42"), replyDate, null));
+		review1.getGeneralComments().get(0).getReplies().add(
+				prepareGeneralComment("reply", new PermIdBean("CMT:41"), replyDate, null));
+		review1.getGeneralComments().get(0).getReplies().add(
+				prepareGeneralComment("reply2", new PermIdBean("CMT:42"), replyDate, null));
 
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
@@ -308,8 +315,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		Date commentDate = new Date();
 		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
 		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
-		review.getGeneralComments().get(0).getReplies()
-				.add(prepareGeneralComment("reply", new PermIdBean("CMT:41"), new Date(), null));
+		review.getGeneralComments().get(0).getReplies().add(
+				prepareGeneralComment("reply", new PermIdBean("CMT:41"), new Date(), null));
 
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
@@ -444,7 +451,6 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(CrucibleNotificationType.REMOVED_VERSIONED_COMMENT, notifications.get(3).getType());
 	}
 
-
 	public void testAddedVersionedCommentReply() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
@@ -452,8 +458,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
 
 		Iterator<CrucibleFileInfo> iter = review1.getFiles().iterator();
-		iter.next().getVersionedComments().get(0).getReplies()
-				.add(prepareVersionedComment("reply", new PermIdBean("CMT:41"), commentDate, null));
+		iter.next().getVersionedComments().get(0).getReplies().add(
+				prepareVersionedComment("reply", new PermIdBean("CMT:41"), commentDate, null));
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
@@ -470,12 +476,12 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
 
 		Iterator<CrucibleFileInfo> iter = review.getFiles().iterator();
-		iter.next().getVersionedComments().get(0).getReplies()
-				.add(prepareVersionedComment("reply", new PermIdBean("CMT:41"), commentDate, null));
+		iter.next().getVersionedComments().get(0).getReplies().add(
+				prepareVersionedComment("reply", new PermIdBean("CMT:41"), commentDate, null));
 
 		Iterator<CrucibleFileInfo> iter1 = review1.getFiles().iterator();
-		iter1.next().getVersionedComments().get(0).getReplies()
-				.add(prepareVersionedComment("updated reply", new PermIdBean("CMT:41"), commentDate, null));
+		iter1.next().getVersionedComments().get(0).getReplies().add(
+				prepareVersionedComment("updated reply", new PermIdBean("CMT:41"), commentDate, null));
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
@@ -492,8 +498,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
 
 		Iterator<CrucibleFileInfo> iter = review.getFiles().iterator();
-		iter.next().getVersionedComments().get(0).getReplies()
-				.add(prepareVersionedComment("reply", new PermIdBean("CMT:41"), commentDate, null));
+		iter.next().getVersionedComments().get(0).getReplies().add(
+				prepareVersionedComment("reply", new PermIdBean("CMT:41"), commentDate, null));
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
@@ -587,19 +593,14 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		void handle(ReviewBean r1, ReviewBean r2, String s1, String s2);
 	}
 
-	private final String[][] stringPairs = {
-			{"abc", "bcde"},
-			{"", "abc"},
-			{"abc", ""},
-			{"abc", "abc"},
-			{"", ""},
-	};
+	private final String[][] stringPairs = { { "abc", "bcde" }, { "", "abc" }, { "abc", "" }, { "abc", "abc" },
+			{ "", "" }, };
 
 	private void testHelper(final CrucibleNotificationType notificationType, MyCallback myCallback) {
 		final ReviewBean r1 = prepareReview();
 		final ReviewBean r2 = prepareReview();
-		final ReviewDifferenceProducer p = new ReviewDifferenceProducer(
-				new ReviewAdapter(r1, null), new ReviewAdapter(r2, null));
+		final ReviewDifferenceProducer p = new ReviewDifferenceProducer(new ReviewAdapter(r1, null), new ReviewAdapter(
+				r2, null));
 
 		for (String[] stringPair : stringPairs) {
 			final String s1 = stringPair[0];
@@ -653,7 +654,6 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		});
 	}
 
-
 	public void testSummmaryChanged() {
 		testHelper(CrucibleNotificationType.SUMMARY_CHANGED, new MyCallback() {
 			public void handle(final ReviewBean r1, final ReviewBean r2, final String s1, final String s2) {
@@ -672,9 +672,9 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		});
 	}
 
-
 	private static class Pair<T, E> {
 		private final T first;
+
 		private final E second;
 
 		public Pair(final T first, final E second) {
@@ -683,7 +683,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		}
 	}
 
-
+	@SuppressWarnings("unchecked")
 	public void testReviewersChanged() {
 		final ReviewBean r1 = prepareReview();
 		final ReviewBean r2 = prepareReview();
@@ -692,17 +692,16 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		final Reviewer rv3 = new ReviewerBean("user3", true);
 
 		Collection<Pair<Set<Reviewer>, Set<Reviewer>>> reviewers = MiscUtil.buildArrayList(
-				new Pair<Set<Reviewer>, Set<Reviewer>>(MiscUtil.buildHashSet(rv1), MiscUtil.<Reviewer>buildHashSet()),
+				new Pair<Set<Reviewer>, Set<Reviewer>>(MiscUtil.buildHashSet(rv1), MiscUtil.<Reviewer> buildHashSet()),
 				new Pair<Set<Reviewer>, Set<Reviewer>>(MiscUtil.buildHashSet(rv1), MiscUtil.buildHashSet(rv1)),
 				new Pair<Set<Reviewer>, Set<Reviewer>>(MiscUtil.buildHashSet(rv1), MiscUtil.buildHashSet(rv2)),
 				new Pair<Set<Reviewer>, Set<Reviewer>>(MiscUtil.buildHashSet(rv1, rv2), MiscUtil.buildHashSet(rv1)),
 				new Pair<Set<Reviewer>, Set<Reviewer>>(MiscUtil.buildHashSet(rv1, rv2), MiscUtil.buildHashSet(rv2, rv3)),
-				new Pair<Set<Reviewer>, Set<Reviewer>>(MiscUtil.buildHashSet(rv1, rv2, rv3), 
-						MiscUtil.buildHashSet(rv2, rv3, rv1))
-		);
+				new Pair<Set<Reviewer>, Set<Reviewer>>(MiscUtil.buildHashSet(rv1, rv2, rv3), MiscUtil.buildHashSet(rv2,
+						rv3, rv1)));
 
-		final ReviewDifferenceProducer p = new ReviewDifferenceProducer(new ReviewAdapter(r1, null),
-				new ReviewAdapter(r2, null));
+		final ReviewDifferenceProducer p = new ReviewDifferenceProducer(new ReviewAdapter(r1, null), new ReviewAdapter(
+				r2, null));
 		for (Pair<Set<Reviewer>, Set<Reviewer>> reviewersPair : reviewers) {
 			r1.setReviewers(reviewersPair.first);
 			r2.setReviewers(reviewersPair.second);

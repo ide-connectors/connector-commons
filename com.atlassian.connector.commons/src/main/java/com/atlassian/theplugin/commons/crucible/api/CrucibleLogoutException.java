@@ -24,6 +24,11 @@ package com.atlassian.theplugin.commons.crucible.api;
  * To change this template use File | Settings | File Templates.
  */
 public class CrucibleLogoutException extends CrucibleException {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7986280612625311572L;
+
 	public CrucibleLogoutException(String message) {
 		super(message);
 	}

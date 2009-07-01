@@ -20,6 +20,11 @@ package com.atlassian.theplugin.commons.exception;
  * Exception thrown when the user has not provided any password for the server and this causes login error.
  */
 public class ServerPasswordNotProvidedException extends Exception {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7341075432154812914L;
+
 	public ServerPasswordNotProvidedException(Throwable e) {
 		super("Server password not provided", e);
 	}

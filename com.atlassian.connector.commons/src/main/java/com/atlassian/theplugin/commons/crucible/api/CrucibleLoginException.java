@@ -25,6 +25,11 @@ package com.atlassian.theplugin.commons.crucible.api;
  */
 public class CrucibleLoginException extends CrucibleException {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6540462604944046571L;
+
 	public CrucibleLoginException(String message) {
 		super(message);
 	}

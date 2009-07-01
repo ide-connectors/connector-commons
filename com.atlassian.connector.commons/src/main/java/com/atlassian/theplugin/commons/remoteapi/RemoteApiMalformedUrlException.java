@@ -21,6 +21,11 @@ package com.atlassian.theplugin.commons.remoteapi;
  */
 public class RemoteApiMalformedUrlException extends RemoteApiException {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3783282730078381957L;
+
 	public RemoteApiMalformedUrlException(String message) {
 		super(message);
 	}

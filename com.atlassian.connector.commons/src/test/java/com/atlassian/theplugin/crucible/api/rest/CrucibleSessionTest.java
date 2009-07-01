@@ -24,20 +24,39 @@ import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.PermIdBean;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewBean;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.State;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.UserBean;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
-import com.atlassian.theplugin.crucible.api.rest.cruciblemock.*;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CreateReviewCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetProjectsCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetRepositoriesCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetReviewersCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetReviewsCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.MalformedResponseCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.Util;
 import com.atlassian.theplugin.remoteapi.ErrorResponse;
-import junit.framework.TestCase;
+
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.mortbay.jetty.Server;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
@@ -46,16 +65,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import junit.framework.TestCase;
 
 /**
  * Test case for {#link BambooSessionImpl}
  */
 public class CrucibleSessionTest extends TestCase {
 	private static final String USER_NAME = "someUser";
+
 	private static final String PASSWORD = "somePassword";
 
 	private Server server;
+
 	private JettyMockServer mockServer;
+
 	private String mockBaseUrl;
 
 	@Override
@@ -80,8 +103,8 @@ public class CrucibleSessionTest extends TestCase {
 
 	public void testSuccessCrucibleLogin() throws Exception {
 
-		String[] usernames = {"user", "+-=&;<>", "", "a;&username=other", "!@#$%^&*()_-+=T "};
-		String[] passwords = {"password", "+-=&;<>", "", "&password=other", ",./';[]\t\\ |}{\":><?"};
+		String[] usernames = { "user", "+-=&;<>", "", "a;&username=other", "!@#$%^&*()_-+=T " };
+		String[] passwords = { "password", "+-=&;<>", "", "&password=other", ",./';[]\t\\ |}{\":><?" };
 
 		for (int i = 0; i < usernames.length; ++i) {
 			mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(usernames[i], passwords[i]));
@@ -155,6 +178,7 @@ public class CrucibleSessionTest extends TestCase {
 		}
 	}
 
+	@SuppressWarnings("null")
 	public void testWrongUrlCrucibleLogin() throws Exception {
 		ErrorResponse error = new ErrorResponse(400, "Bad Request/reason phrase");
 		mockServer.expect("/wrongurl/rest-service/auth-v1/login", error);
@@ -177,6 +201,7 @@ public class CrucibleSessionTest extends TestCase {
 		assertFalse(exception.getMessage().contains(error.getErrorMessage()));
 	}
 
+	@SuppressWarnings("null")
 	public void testNonExistingServerCrucibleLogin() throws Exception {
 		RemoteApiLoginException exception = null;
 
@@ -218,6 +243,7 @@ public class CrucibleSessionTest extends TestCase {
 		tryMalformedUrl("http://loca:lhost/path");
 	}
 
+	@SuppressWarnings("null")
 	private void tryMalformedUrl(final String url) {
 		RemoteApiException exception = null;
 		try {
@@ -235,6 +261,7 @@ public class CrucibleSessionTest extends TestCase {
 		assertEquals("Malformed server URL: " + url, exception.getMessage());
 	}
 
+	@SuppressWarnings("null")
 	public void testOutOfRangePort() {
 		String url = "http://localhost:80808";
 		RemoteApiException exception = null;
@@ -250,9 +277,9 @@ public class CrucibleSessionTest extends TestCase {
 		assertTrue("MalformedURLException expected", exception.getCause() instanceof IOException);
 	}
 
-
 	public void testWrongUserCrucibleLogin() throws Exception {
-		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD, LoginCallback.ALWAYS_FAIL));
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD,
+				LoginCallback.ALWAYS_FAIL));
 
 		try {
 			CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -265,7 +292,6 @@ public class CrucibleSessionTest extends TestCase {
 
 		mockServer.verify();
 	}
-
 
 	public void testWrongParamsCrucibleLogin() throws Exception {
 		try {
@@ -295,7 +321,8 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testFailedCrucibleLogin() throws RemoteApiException {
-		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD, LoginCallback.ALWAYS_FAIL));
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD,
+				LoginCallback.ALWAYS_FAIL));
 		try {
 			createCrucibleSession(mockBaseUrl, null, null);
 		} catch (RemoteApiException e) {
@@ -503,7 +530,7 @@ public class CrucibleSessionTest extends TestCase {
 
 	public void testGetEmptyReviewers() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/rest-service/reviews-v1/PR-1/reviewers", new GetReviewersCallback(new User[]{}));
+		mockServer.expect("/rest-service/reviews-v1/PR-1/reviewers", new GetReviewersCallback(new User[] {}));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
@@ -628,7 +655,6 @@ public class CrucibleSessionTest extends TestCase {
 
 		mockServer.verify();
 	}
-
 
 	public void testCreateReviewFromPatch() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
@@ -789,14 +815,14 @@ public class CrucibleSessionTest extends TestCase {
 		return review;
 	}
 
-
 	private CrucibleSessionImpl createCrucibleSession(String url) throws RemoteApiException {
 		CrucibleServerCfg serverCfg = new CrucibleServerCfg(url, new ServerIdImpl());
 		serverCfg.setUrl(url);
 		return new CrucibleSessionImpl(createServerData(serverCfg), new HttpSessionCallbackImpl());
 	}
 
-	private CrucibleSessionImpl createCrucibleSession(String url, String username, String password) throws RemoteApiException {
+	private CrucibleSessionImpl createCrucibleSession(String url, String username, String password)
+			throws RemoteApiException {
 		final CrucibleServerCfg serverCfg = new CrucibleServerCfg("mockcrucibleservercfg", new ServerIdImpl());
 		serverCfg.setUrl(url);
 		serverCfg.setUsername(username);
@@ -822,7 +848,8 @@ public class CrucibleSessionTest extends TestCase {
 			}
 		}
 		assertNotNull(fileInfo);
-		final List<VersionedComment> vcs = fileInfo.getVersionedComments();
+		final List<VersionedComment> vcs = fileInfo != null ? fileInfo.getVersionedComments() : null;
+		assertNotNull(vcs);
 		assertEquals(2, vcs.size());
 
 		//		<toLineRange>14, 17-19, 25-35</toLineRange>
@@ -835,8 +862,7 @@ public class CrucibleSessionTest extends TestCase {
 		assertTrue(vc1.isToLineInfo());
 		assertEquals(14, vc1.getToStartLine());
 		assertEquals(35, vc1.getToEndLine());
-		assertEquals(new IntRanges(new IntRange(14), new IntRange(17, 19), new IntRange(25, 35)),
-				vc1.getToLineRanges());
+		assertEquals(new IntRanges(new IntRange(14), new IntRange(17, 19), new IntRange(25, 35)), vc1.getToLineRanges());
 		assertNull(vc1.getFromLineRanges());
 
 		//		<toLineRange>3-5</toLineRange>
@@ -894,14 +920,12 @@ public class CrucibleSessionTest extends TestCase {
 		assertEquals(new IntRanges(new IntRange(65, 66), new IntRange(80), new IntRange(82)), vc2.getToLineRanges());
 	}
 
-
 	private Review getReview(final PermId permId, final String resource, int numRepos) throws RemoteApiException {
 		final int size = 4;
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/" + permId.getId() + "/details", new JettyMockServer.Callback() {
 			public void onExpectedRequest(final String target, final HttpServletRequest request,
-					final HttpServletResponse response)
-					throws Exception {
+					final HttpServletResponse response) throws Exception {
 				Util.copyResource(response.getOutputStream(), resource);
 				response.getOutputStream().flush();
 			}

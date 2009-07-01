@@ -21,44 +21,61 @@ import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.gargoylesoftware.htmlunit.html.HtmlTableCell;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
 import org.easymock.EasyMock;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * StausIconBambooListener Tester.
- *
+ * 
  * @author <Authors name>
  * @version 1.0
- * @since <pre>01/30/2008</pre>
+ * @since <pre>
+ * 01 / 30 / 2008
+ * </pre>
  */
 public class HtmlBambooStatusListenerTest extends TestCase {
 
 	private StatusListenerResultCatcher output;
+
 	private StatusIconBambooListener testedListener;
 
 	private static final String DEFAULT_PLAN_KEY = "PLAN-ID";
+
 	private static final int DEFAULT_BUILD_NO = 777;
+
 	private static final String DEFAULT_PLAN_NAME = "Default Plan";
+
 	private static final String DEFAULT_ERROR_MESSAGE = "default error message";
+
 	private static final String DEFAULT_SERVER_URL = "http://test.atlassian.com/bamboo";
+
 	private static final String DEFAULT_PROJECT_NAME = "ThePlugin";
+
 	private static final String DEFAULT_PLAN_KEY_2 = "PLAN2-ID";
-	private static final ServerData BAMBOO = new ServerData(
-			new ServerCfg(true, "name", DEFAULT_SERVER_URL, new ServerIdImpl()) {
-				public ServerType getServerType() {
-					return null;
-				}
 
-				public ServerCfg getClone() {
-					return null;
-				}
-			}, "username", "password");
+	private static final ServerData BAMBOO = new ServerData(new ServerCfg(true, "name", DEFAULT_SERVER_URL,
+			new ServerIdImpl()) {
+		@Override
+		public ServerType getServerType() {
+			return null;
+		}
 
+		@Override
+		public ServerCfg getClone() {
+			return null;
+		}
+	}, "username", "password");
 
 	@Override
 	protected void tearDown() throws Exception {
@@ -248,7 +265,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void testSuccessRow(HtmlTableRow tableRow) throws Exception {
+	public void testSuccessRow(HtmlTableRow tableRow) throws Exception {
 		List<HtmlTableCell> cells = tableRow.getCells();
 		assertEquals(3, cells.size());
 
@@ -262,7 +279,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void testDisabledSuccessRow(HtmlTableRow tableRow) throws Exception {
+	public void testDisabledSuccessRow(HtmlTableRow tableRow) throws Exception {
 		List<HtmlTableCell> cells = tableRow.getCells();
 		assertEquals(3, cells.size());
 
@@ -284,7 +301,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void testFailedRow(HtmlTableRow tableRow) throws Exception {
+	public void testFailedRow(HtmlTableRow tableRow) throws Exception {
 		List<HtmlTableCell> cells = tableRow.getCells();
 		assertEquals(3, cells.size());
 
@@ -297,7 +314,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void testDisabledFailedRow(HtmlTableRow tableRow) throws Exception {
+	public void testDisabledFailedRow(HtmlTableRow tableRow) throws Exception {
 		List<HtmlTableCell> cells = tableRow.getCells();
 		assertEquals(3, cells.size());
 
@@ -310,7 +327,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void testErrorRow(HtmlTableRow tableRow) throws Exception {
+	public void testErrorRow(HtmlTableRow tableRow) throws Exception {
 		List<HtmlTableCell> cells = tableRow.getCells();
 		assertEquals(3, cells.size());
 
@@ -328,15 +345,15 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 				DEFAULT_PROJECT_NAME, DEFAULT_BUILD_NO, status).enabled(true).pollingTime(new Date());
 
 		switch (status) {
-			case UNKNOWN:
-				builder.errorMessage(DEFAULT_ERROR_MESSAGE);
-				break;
-			case SUCCESS:
-				builder.startTime(new Date());
-				break;
-			case FAILURE:
-				builder.startTime(new Date());
-				break;
+		case UNKNOWN:
+			builder.errorMessage(DEFAULT_ERROR_MESSAGE);
+			break;
+		case SUCCESS:
+			builder.startTime(new Date());
+			break;
+		case FAILURE:
+			builder.startTime(new Date());
+			break;
 		}
 
 		return builder.build();
@@ -347,17 +364,17 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 				DEFAULT_PROJECT_NAME, DEFAULT_BUILD_NO, status).enabled(false).pollingTime(new Date());
 
 		switch (status) {
-			case UNKNOWN:
-				builder.errorMessage(DEFAULT_ERROR_MESSAGE);
-				break;
-			case SUCCESS:
-				builder.startTime(new Date());
-				break;
-			case FAILURE:
-				builder.startTime(new Date());
-				break;
-			default:
-				break;
+		case UNKNOWN:
+			builder.errorMessage(DEFAULT_ERROR_MESSAGE);
+			break;
+		case SUCCESS:
+			builder.startTime(new Date());
+			break;
+		case FAILURE:
+			builder.startTime(new Date());
+			break;
+		default:
+			break;
 		}
 
 		return builder.build();
@@ -368,17 +385,17 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 				DEFAULT_PROJECT_NAME, DEFAULT_BUILD_NO, status).pollingTime(new Date());
 
 		switch (status) {
-			case UNKNOWN:
-				builder.errorMessage(DEFAULT_ERROR_MESSAGE);
-				break;
-			case SUCCESS:
-				builder.startTime(new Date());
-				break;
-			case FAILURE:
-				builder.startTime(new Date());
-				break;
-			default:
-				break;
+		case UNKNOWN:
+			builder.errorMessage(DEFAULT_ERROR_MESSAGE);
+			break;
+		case SUCCESS:
+			builder.startTime(new Date());
+			break;
+		case FAILURE:
+			builder.startTime(new Date());
+			break;
+		default:
+			break;
 		}
 
 		return builder.build();
@@ -388,11 +405,10 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		return new TestSuite(HtmlBambooStatusListenerTest.class);
 	}
 
-
 	static class StatusListenerResultCatcher implements BambooStatusDisplay {
 		private BuildStatus buildStatus;
+
 		private String htmlPage;
-		private ResponseWrapper response;
 
 		private int count;
 
@@ -403,7 +419,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 			++count;
 
 			try {
-				response = new ResponseWrapper(info.toHtml());
+				new ResponseWrapper(info.toHtml());
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -414,4 +430,3 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		}
 	}
 }
-

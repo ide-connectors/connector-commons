@@ -21,6 +21,11 @@ package com.atlassian.theplugin.commons.remoteapi;
  */
 public class RemoteApiLoginException extends RemoteApiException {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8934096881165492444L;
+
 	public RemoteApiLoginException(String message) {
 		super(message);
 	}

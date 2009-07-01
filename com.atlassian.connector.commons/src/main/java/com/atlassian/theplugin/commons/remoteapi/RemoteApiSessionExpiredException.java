@@ -21,6 +21,11 @@ package com.atlassian.theplugin.commons.remoteapi;
  */
 public class RemoteApiSessionExpiredException extends RemoteApiException {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4881606643316502502L;
+
 	public RemoteApiSessionExpiredException(String message) {
 		super(message);
 	}

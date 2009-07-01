@@ -6,6 +6,11 @@ package com.atlassian.theplugin.commons.crucible.api.content;
  * Time: 12:57:37 PM
  */
 public class ReviewFileContentException extends Exception {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6060229636851982549L;
+
 	public ReviewFileContentException() {
 	}
 

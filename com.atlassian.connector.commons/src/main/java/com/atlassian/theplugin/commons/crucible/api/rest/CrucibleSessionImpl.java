@@ -169,7 +169,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	/**
 	 * Public constructor for CrucibleSessionImpl.
-	 *
+	 * 
 	 * @param serverData
 	 *            The server fisheye configuration for this session
 	 * @param callback
@@ -184,7 +184,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		projectCache = new ProjectCache(this);
 
 	}
-
 
 	public void login() throws RemoteApiLoginException {
 		loginCalled = true;
@@ -621,7 +620,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	/**
 	 * Retrieves projects from cache (reduces server calls)
-	 *
+	 * 
 	 * @return list of Crucible Projects
 	 * @throws RemoteApiException
 	 *             thrown in case of connection problems
@@ -632,7 +631,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	/**
 	 * Retrieves projects directly from server ommiting cache
-	 *
+	 * 
 	 * @return list of Crucible projects
 	 * @throws RemoteApiException
 	 *             thrown in case of connection problems
@@ -642,7 +641,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		return getProjectsFromServer();
 	}
 
-	private List<CrucibleProject> getProjectsFromServer() throws RemoteApiException {
+	public List<CrucibleProject> getProjectsFromServer() throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException("Calling method without calling login() first");
 		}
@@ -1532,10 +1531,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	public List<CustomFieldDef> getMetrics(int version) throws RemoteApiException {
 		String key = Integer.toString(version);
 		if (!metricsDefinitions.containsKey(key)) {
-            // workaround for ACC-31
-            if (!isLoggedIn()) {
-                throw new IllegalStateException("Calling method without calling login() first");
-            }
+			// workaround for ACC-31
+			if (!isLoggedIn()) {
+				throw new IllegalStateException("Calling method without calling login() first");
+			}
 
 			String requestUrl = getBaseUrl() + REVIEW_SERVICE + METRICS + "/" + Integer.toString(version);
 			try {

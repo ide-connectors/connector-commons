@@ -7,7 +7,7 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.remoteapi.ErrorResponse;
-import junit.framework.TestCase;
+
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.mortbay.jetty.Server;
 
@@ -15,27 +15,32 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 
+import junit.framework.TestCase;
+
 /**
  * User: pmaruszak
  */
 public abstract class AbstractSessionTest extends TestCase {
 	protected static final String USER_NAME = "someUser";
+
 	protected static final String PASSWORD = "somePassword";
 
 	private Server server;
+
 	protected JettyMockServer mockServer;
+
 	protected String mockBaseUrl;
 
 	@Override
 	protected void setUp() throws Exception {
-        ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
+		ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
 
-        server = new Server(0);
-		server.start();		
+		server = new Server(0);
+		server.start();
 
 		mockBaseUrl = "http://localhost:" + server.getConnectors()[0].getLocalPort();
 		mockServer = new JettyMockServer(server);
-    }
+	}
 
 	@Override
 	protected void tearDown() throws Exception {
@@ -43,7 +48,6 @@ public abstract class AbstractSessionTest extends TestCase {
 		mockBaseUrl = null;
 		server.stop();
 	}
-
 
 	private void tryMalformedUrl(final String url) {
 		try {
@@ -53,8 +57,7 @@ public abstract class AbstractSessionTest extends TestCase {
 		} catch (RemoteApiException exception) {
 
 			assertNotNull("Exception expected", exception);
-			assertTrue("MalformedURLExceptionException expected",
-					exception.getCause() instanceof MalformedURLException);
+			assertTrue("MalformedURLExceptionException expected", exception.getCause() instanceof MalformedURLException);
 			assertEquals("Malformed server URL: " + url, exception.getMessage());
 		}
 
@@ -86,6 +89,7 @@ public abstract class AbstractSessionTest extends TestCase {
 		tryMalformedUrl("http://loca:lhost/path");
 	}
 
+	@SuppressWarnings("null")
 	public void testWrongUrlLogin() throws Exception {
 		ErrorResponse error = new ErrorResponse(400, "Bad Request/reason phrase");
 		mockServer.expect("/wrongurl" + getLoginUrl(), error);
@@ -115,11 +119,11 @@ public abstract class AbstractSessionTest extends TestCase {
 		} catch (RemoteApiLoginException exception) {
 			assertNotNull("Exception should have a cause", exception.getCause());
 			assertSame("UnknownHostException expected", UnknownHostException.class, exception.getCause().getClass());
-			assertEquals("Checking exception message", "Unknown host: non.existing.server.utest", exception.getMessage());
+			assertEquals("Checking exception message", "Unknown host: non.existing.server.utest",
+					exception.getMessage());
 		}
 
 	}
-
 
 	public void testWrongUserLogin() throws Exception {
 		mockServer.expect(getLoginUrl(), getLoginCallback(true));
@@ -136,6 +140,7 @@ public abstract class AbstractSessionTest extends TestCase {
 	}
 
 	protected abstract JettyMockServer.Callback getLoginCallback(boolean isFail);
+
 	protected abstract String getLoginUrl();
 
 }

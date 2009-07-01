@@ -16,6 +16,9 @@
 
 package com.atlassian.theplugin.crucible;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
+
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
@@ -25,23 +28,40 @@ import com.atlassian.theplugin.commons.crucible.CrucibleServerFacade;
 import com.atlassian.theplugin.commons.crucible.CrucibleServerFacadeImpl;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewBean;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.State;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.UserBean;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
 import com.atlassian.theplugin.remoteapi.ErrorResponse;
-import junit.framework.TestCase;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
 import org.mortbay.jetty.Server;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import junit.framework.TestCase;
 
 public class CrucibleServerFacadeTest extends TestCase {
 	private static final User VALID_LOGIN = new UserBean("validLogin");
@@ -128,7 +148,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 	/**
 	 * Regression test for https://studio.atlassian.com/browse/PLE-514
-	 *
+	 * 
 	 * @throws Exception
 	 */
 	public void testConnectionTestFailedHttp404() throws Exception {
@@ -145,8 +165,8 @@ public class CrucibleServerFacadeTest extends TestCase {
 			fail("testServerConnection failed");
 		} catch (RemoteApiException e) {
 			assertTrue("Must include HTTP 404", e.getMessage().contains("HTTP 404"));
-			assertTrue("Must contain " + HttpStatus.getStatusText(HttpStatus.SC_NOT_FOUND),
-					e.getMessage().contains(HttpStatus.getStatusText(HttpStatus.SC_NOT_FOUND)));
+			assertTrue("Must contain " + HttpStatus.getStatusText(HttpStatus.SC_NOT_FOUND), e.getMessage().contains(
+					HttpStatus.getStatusText(HttpStatus.SC_NOT_FOUND)));
 			assertFalse("Should not include \\n", e.getMessage().contains("\n"));
 		}
 
@@ -156,7 +176,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 	/**
 	 * Regression for https://studio.atlassian.com/browse/ACC-40
-	 *
+	 * 
 	 * @throws Exception
 	 */
 	public void testConnectionTestInvalidUrlIncludesPassword() throws Exception {
@@ -559,10 +579,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 				return null;
 			}
 
-			public List<VersionedComment> getVersionedComments() throws ValueNotYetInitialized {
-				return null;
-			}
-
 			@Override
 			public Set<CrucibleFileInfo> getFiles() {
 				return null;
@@ -576,18 +592,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 			@Override
 			public EnumSet<CrucibleAction> getActions() throws ValueNotYetInitialized {
 				return null;
-			}
-
-			public CrucibleServerCfg getServer() {
-				return null;
-			}
-
-			public String getReviewUrl() {
-				return null;
-			}
-
-			public Review getInnerReviewObject() {
-				return this;
 			}
 
 			@Override
@@ -680,14 +684,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 				return null;
 			}
 
-			public String getReviewUrl() {
-				return null;
-			}
-
-			public Review getInnerReviewObject() {
-				return null;
-			}
-
 			@Override
 			public void setGeneralComments(final List<GeneralComment> generalComments) {
 				// not implemented
@@ -719,10 +715,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 				return null;
 			}
 
-			public List<VersionedComment> getVersionedComments() throws ValueNotYetInitialized {
-				return null;
-			}
-
 			@Override
 			public Set<CrucibleFileInfo> getFiles() {
 				return null;
@@ -735,10 +727,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 			@Override
 			public EnumSet<CrucibleAction> getActions() throws ValueNotYetInitialized {
-				return null;
-			}
-
-			public CrucibleServerCfg getServer() {
 				return null;
 			}
 

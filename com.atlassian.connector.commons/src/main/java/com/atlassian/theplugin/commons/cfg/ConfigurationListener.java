@@ -16,6 +16,8 @@
 
 package com.atlassian.theplugin.commons.cfg;
 
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
+
 public interface ConfigurationListener {
 	void configurationUpdated(final ProjectConfiguration aProjectConfiguration);
 
@@ -41,7 +43,15 @@ public interface ConfigurationListener {
 	 *
 	 * @param newServer added server
 	 */
-	void serverAdded(ServerCfg newServer);
+//	void serverAdded(ServerCfg newServer);
+
+	/**
+	 * Called in case new server has been added.
+	 * It notifies also about DISABLED servers.
+	 *
+	 * @param serverData added server
+	 */
+	void serverAdded(final ServerData serverData);
 
 	/**
 	 * Called in case server has been removed from configuration.
@@ -49,14 +59,22 @@ public interface ConfigurationListener {
 	 *
 	 * @param oldServer removed server
 	 */
-	void serverRemoved(ServerCfg oldServer);
+//	void serverRemoved(ServerCfg oldServer);
+
+	/**
+	 * Called in case server has been removed from configuration.
+	 * It notifies also about DISABLED servers.
+	 *
+	 * @param serverData removed server
+	 */
+	void serverRemoved(final ServerData serverData);
 
 	/**
 	 * Called in case server has been enabled
 	 *
-	 * @param serverId id of enabled server
+	 * @param serverData enabled server
 	 */
-	void serverEnabled(ServerId serverId);
+	void serverEnabled(ServerData serverData);
 
 	/**
 	 * Called in case server has been disabled

@@ -15,6 +15,8 @@
  */
 package com.atlassian.theplugin.commons.bamboo;
 
+import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.gargoylesoftware.htmlunit.html.HtmlTableCell;
@@ -46,8 +48,16 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 	private static final String DEFAULT_SERVER_URL = "http://test.atlassian.com/bamboo";
 	private static final String DEFAULT_PROJECT_NAME = "ThePlugin";
 	private static final String DEFAULT_PLAN_KEY_2 = "PLAN2-ID";
-	private static final ServerData BAMBOO = new ServerData("mybamboo", new ServerIdImpl(),
-			"username", "password", DEFAULT_SERVER_URL);
+	private static final ServerData BAMBOO = new ServerData(
+			new ServerCfg(true, "name", DEFAULT_SERVER_URL, new ServerIdImpl()) {
+				public ServerType getServerType() {
+					return null;
+				}
+
+				public ServerCfg getClone() {
+					return null;
+				}
+			}, "username", "password");
 
 
 	@Override

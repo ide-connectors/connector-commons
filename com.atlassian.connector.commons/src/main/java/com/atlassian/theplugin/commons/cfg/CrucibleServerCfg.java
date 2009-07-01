@@ -60,6 +60,10 @@ public class CrucibleServerCfg extends ServerCfg {
 				public boolean isUseDefaultCredentials() {
 					return CrucibleServerCfg.this.isUseDefaultCredentials();
 				}
+
+				public ServerType getServerType() {
+					return ServerType.FISHEYE_SERVER;
+				}
 			};
 		}
 		return fishEyeView;

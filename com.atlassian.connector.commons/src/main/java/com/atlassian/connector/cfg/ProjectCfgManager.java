@@ -75,11 +75,11 @@ public interface ProjectCfgManager {
 
 	boolean removeProjectConfigurationListener(ConfigurationListener configurationListener);
 
-	ServerCfg getServer(ServerData serverData);
-
 	boolean isDefaultJiraServerValid();
 
-	ServerData getServerData(ServerId serverId);
-
 	Collection<FishEyeServerCfg> getAllFishEyeServers();
+
+	Collection<ServerData> getAllEnabledServerss(final ServerType serverType);
+
+	Collection<ServerData> getAllServerss(final ServerType serverType);
 }

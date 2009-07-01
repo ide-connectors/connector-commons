@@ -15,6 +15,8 @@
  */
 package com.atlassian.theplugin.commons.bamboo;
 
+import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.configuration.BambooConfigurationBean;
@@ -127,7 +129,15 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 	}
 
 	public static BambooBuildInfo generateBuildInfo(BuildStatus status, int buildNumber, String loggedUser) {
-		ServerData server = new ServerData("name", ServerID, loggedUser, "", "");
+		ServerData server = new ServerData(new ServerCfg(true, "name", new ServerIdImpl()) {
+			public ServerType getServerType() {
+				return null;
+			}
+
+			public ServerCfg getClone() {
+				return null;
+			}
+		}, loggedUser, "");
 
 		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_BUILD_NAME, server,
 				DEFAULT_PROJECT_NAME, buildNumber, status).enabled(true).commiters(COMMITERS);

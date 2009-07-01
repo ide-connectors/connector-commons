@@ -16,6 +16,8 @@
 
 package com.atlassian.theplugin.crucible;
 
+import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
@@ -58,8 +60,15 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 	private static ServerData createCrucibleTestConfiguration(String serverUrl, boolean isPassInitialized) {
 		// TODO wseliga how to handle it???
 		// server.transientSetIsConfigInitialized(isPassInitialized);
-		return new ServerData("TestServer", new ServerIdImpl(), USER_NAME, isPassInitialized ? PASSWORD : "",
-				serverUrl);
+		return new ServerData(new ServerCfg(true, "", serverUrl, new ServerIdImpl()) {
+			public ServerType getServerType() {
+				return null;
+			}
+
+			public ServerCfg getClone() {
+				return null;
+			}
+		}, USER_NAME, isPassInitialized ? PASSWORD : "");
 	}
 
 	@Override
@@ -109,11 +118,8 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 
 	public void testConnectionTestFailedNullUser() throws Exception {
 		try {
-			ServerData server = new ServerData(crucibleServerCfg.getName(),
-					crucibleServerCfg.getServerId(),
-					null,
-					crucibleServerCfg.getPassword(),
-					crucibleServerCfg.getUrl());
+			ServerData server = new ServerData(createServerCfg(), null, crucibleServerCfg.getPassword());
+
 			testedCrucibleServerFacade.testServerConnection(server);
 			fail();
 		} catch (RemoteApiLoginException e) {
@@ -121,13 +127,21 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 		}
 	}
 
+	private ServerCfg createServerCfg() {
+		return new ServerCfg(true, crucibleServerCfg.getName(), crucibleServerCfg.getUrl(), new ServerIdImpl()) {
+			public ServerType getServerType() {
+				return null;
+			}
+
+			public ServerCfg getClone() {
+				return null;
+			}
+		};
+	}
+
 	public void testConnectionTestFailedNullPassword() throws Exception {
 		try {
-			ServerData server = new ServerData(crucibleServerCfg.getName(),
-					crucibleServerCfg.getServerId(),
-					crucibleServerCfg.getUserName(),
-					null,
-					crucibleServerCfg.getUrl());
+			ServerData server = new ServerData(createServerCfg(), crucibleServerCfg.getUserName(), null);
 			testedCrucibleServerFacade.testServerConnection(server);
 			fail();
 		} catch (RemoteApiLoginException e) {
@@ -137,11 +151,9 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 
 	public void testConnectionTestFailedEmptyUrl() throws Exception {
 		try {
-			ServerData server = new ServerData(crucibleServerCfg.getName(),
-					crucibleServerCfg.getServerId(),
-					crucibleServerCfg.getUserName(),
-					crucibleServerCfg.getPassword(),
-					null);
+			final ServerCfg server1 = createServerCfg();
+			server1.setUrl(null);
+			ServerData server = new ServerData(server1, crucibleServerCfg.getUserName(), crucibleServerCfg.getPassword());
 			testedCrucibleServerFacade.testServerConnection(server);
 			fail();
 		} catch (RemoteApiMalformedUrlException e) {

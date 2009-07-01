@@ -1,6 +1,7 @@
 package com.atlassian.theplugin.commons.fisheye;
 
 import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
 import com.atlassian.theplugin.commons.fisheye.api.rest.FishEyeRestSession;
@@ -53,7 +54,15 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
 	 * @throws RemoteApiMalformedUrlException
 	 */
 	FishEyeSession getSession(String url) throws RemoteApiMalformedUrlException {
-		ServerData serverCfg = new ServerData("", new ServerIdImpl(), "", "", url);
+		ServerData serverCfg = new ServerData(new ServerCfg(true, "name", url, new ServerIdImpl()) {
+			public ServerType getServerType() {
+				return null;
+			}
+
+			public ServerCfg getClone() {
+				return null;
+			}
+		}, "", "");
 		return new FishEyeRestSession(serverCfg, callback);
 
 	}

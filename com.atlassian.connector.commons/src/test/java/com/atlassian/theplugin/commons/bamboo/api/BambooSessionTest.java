@@ -18,7 +18,9 @@ package com.atlassian.theplugin.commons.bamboo.api;
 
 import com.atlassian.theplugin.api.AbstractSessionTest;
 import com.atlassian.theplugin.bamboo.api.bamboomock.*;
+import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.bamboo.*;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
@@ -176,7 +178,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		ServerData bambooServerCfg = new ServerData("mybamboo", new ServerIdImpl(), "", "", mockBaseUrl);
+		ServerData bambooServerCfg = createServerData();
 		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new HttpSessionCallbackImpl());
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", false, timezoneOffset);
@@ -190,6 +192,18 @@ public class BambooSessionTest extends AbstractSessionTest {
 		assertEquals(expectedDate.toDate(), build.getStartDate());
 
 		mockServer.verify();
+	}
+
+	private ServerData createServerData() {
+		return new ServerData(new ServerCfg(true, "mybamboo", mockBaseUrl, new ServerIdImpl()) {
+			public ServerType getServerType() {
+				return null;
+			}
+
+			public ServerCfg getClone() {
+				return null;
+			}
+		}, "", "");
 	}
 
 	public void testGetLatestBuildForNeverExecutedPlan() throws RemoteApiException {
@@ -209,7 +223,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		Date now = new Date();
-		ServerData bambooServerCfg = new ServerData("mybamboo", new ServerIdImpl(), "", "", mockBaseUrl);
+		ServerData bambooServerCfg = createServerData();
 		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new HttpSessionCallbackImpl());
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		final BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", 0);
@@ -246,7 +260,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 				"/mock/bamboo/2_1_5/api/rest/getLatestBuildForPlanResponse.xml"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		ServerData bambooServerCfg = new ServerData("mybamboo", new ServerIdImpl(), "", "", mockBaseUrl);
+		ServerData bambooServerCfg = createServerData();
 		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new HttpSessionCallbackImpl());
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", timezoneOffset);
@@ -781,8 +795,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/listProjectNames.action", new ProjectListCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new AutoRenewBambooSession(new ServerData("mockbamboo", new ServerIdImpl(),
-				"", "", mockBaseUrl), new HttpSessionCallbackImpl());
+		BambooSession apiHandler = new AutoRenewBambooSession(createServerData(), new HttpSessionCallbackImpl());
 
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		apiHandler.listProjectNames();

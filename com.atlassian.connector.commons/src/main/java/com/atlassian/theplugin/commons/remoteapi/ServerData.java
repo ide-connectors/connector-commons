@@ -15,6 +15,7 @@
  */
 package com.atlassian.theplugin.commons.remoteapi;
 
+import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.cfg.Server;
 import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.cfg.UserCfg;
@@ -24,19 +25,14 @@ import org.jetbrains.annotations.NotNull;
  * @author pmaruszak
  */
 public final class ServerData {
-	private final String name;
-	private final ServerId serverId;
+	private Server server;
 	private final String userName;
 	private final String password;
-	private final String url;
 
-	public ServerData(final String serverName, final ServerId serverId, final String userName, final String password,
-			final String url) {
-		this.name = serverName;
-		this.serverId = serverId;
+	public ServerData(final Server server, final String userName, final String password) {
+		this.server = server;
 		this.userName = userName;
 		this.password = password;
-		this.url = url;
 	}
 
 	public String getUserName() {
@@ -48,15 +44,24 @@ public final class ServerData {
 	}
 
 	public String getUrl() {
-		return url;
+		return server.getUrl();
 	}
 
 	public ServerId getServerId() {
-		return serverId;
+		return server.getServerId();
 	}
 
 	public String getName() {
-		return name;
+		return server.getName();
+	}
+
+
+	public boolean isEnabled() {
+		return server.isEnabled();
+	}
+
+	public ServerType getServerType() {
+		return server.getServerType();
 	}
 
 	@Override
@@ -70,10 +75,16 @@ public final class ServerData {
 
 		final ServerData that = (ServerData) o;
 
-		if (serverId != null ? !serverId.equals(that.serverId) : that.serverId != null) {
+		if (getServerId() != null ? !getServerId().equals(that.getServerId()) : that.getServerId() != null) {
 			return false;
 		}
-		if (url != null ? !url.equals(that.url) : that.url != null) {
+		if (getUrl() != null ? !getUrl().equals(that.getUrl()) : that.getUrl() != null) {
+			return false;
+		}
+		if (password != null ? !password.equals(that.password) : that.password != null) {
+			return false;
+		}
+		if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
 			return false;
 		}
 
@@ -83,17 +94,18 @@ public final class ServerData {
 	@Override
 	public int hashCode() {
 		int result;
-		result = (name != null ? name.hashCode() : 0);
-		result = 31 * result + (serverId != null ? serverId.hashCode() : 0);
+		// todo do we want to use name for hashCode and Equals???
+//		result = (name != null ? name.hashCode() : 0);
+		result = (getServerId() != null ? getServerId().hashCode() : 0);
 		result = 31 * result + (userName != null ? userName.hashCode() : 0);
 		result = 31 * result + (password != null ? password.hashCode() : 0);
-		result = 31 * result + (url != null ? url.hashCode() : 0);
+		result = 31 * result + (getUrl() != null ? getUrl().hashCode() : 0);
 		return result;
 	}
 
-	public ServerData withCredentials(String newUsername, String newPassword) {
-		return new ServerData(name, serverId, newUsername, newPassword, url);
-	}
+//	public ServerData withCredentials(String newUsername, String newPassword) {
+//		return new ServerData(name, serverId, newUsername, newPassword, url);
+//	}
 
 
 	@NotNull
@@ -108,8 +120,7 @@ public final class ServerData {
 			userName = server.getUserName();
 			password = server.getPassword();
 		}
-		return new ServerData(server.getName(), server.getServerId(), userName,
-				password, server.getUrl());
+		return new ServerData(server, userName, password);
 
 	}
 }

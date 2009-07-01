@@ -15,6 +15,8 @@
  */
 package com.atlassian.theplugin.commons.cfg;
 
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
+
 /**
  * @author Jacek Jaroczynski
  */
@@ -35,13 +37,19 @@ public abstract class ConfigurationListenerAdapter implements ConfigurationListe
 	public void serverNameChanged(ServerId serverId) {
 	}
 
-	public void serverAdded(ServerCfg newServer) {
+//	public void serverAdded(ServerCfg newServer) {
+//	}
+
+	public void serverAdded(final ServerData serverData) {
 	}
 
-	public void serverRemoved(ServerCfg oldServer) {
+//	public void serverRemoved(ServerCfg oldServer) {
+//	}
+
+	public void serverRemoved(final ServerData serverData) {
 	}
 
-	public void serverEnabled(ServerId serverId) {
+	public void serverEnabled(ServerData serverData) {
 	}
 
 	public void serverDisabled(ServerId serverId) {

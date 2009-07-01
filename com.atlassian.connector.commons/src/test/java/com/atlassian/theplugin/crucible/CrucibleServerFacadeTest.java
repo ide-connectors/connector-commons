@@ -17,6 +17,7 @@
 package com.atlassian.theplugin.crucible;
 
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
@@ -832,8 +833,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		}
 	}
 
-	private ServerData getServerData(final com.atlassian.theplugin.commons.cfg.Server serverCfg) {
-		return new ServerData(serverCfg.getName(), serverCfg.getServerId(), serverCfg.getUserName(),
-				serverCfg.getPassword(), serverCfg.getUrl());
+	private ServerData getServerData(final ServerCfg serverCfg) {
+		return new ServerData(serverCfg, serverCfg.getUserName(), serverCfg.getPassword());
 	}
 }

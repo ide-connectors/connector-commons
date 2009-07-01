@@ -922,8 +922,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	private ServerData createServerData(ServerCfg serverCfg) {
-		return new ServerData(serverCfg.getName(), serverCfg.getServerId(), serverCfg.getUserName(),
-				serverCfg.getPassword(), serverCfg.getUrl());
+		return new ServerData(serverCfg, serverCfg.getUserName(), serverCfg.getPassword());
 	}
 
 }

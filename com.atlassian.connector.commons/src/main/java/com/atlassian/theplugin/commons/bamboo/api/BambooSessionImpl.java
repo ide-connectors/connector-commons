@@ -18,7 +18,9 @@ package com.atlassian.theplugin.commons.bamboo.api;
 
 import com.atlassian.theplugin.commons.BambooFileInfo;
 import com.atlassian.theplugin.commons.BambooFileInfoImpl;
+import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.bamboo.*;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.remoteapi.*;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
@@ -95,7 +97,15 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 	 * @throws RemoteApiMalformedUrlException malformed url
 	 */
 	BambooSessionImpl(String url) throws RemoteApiMalformedUrlException {
-		this(new ServerData("unknown", new ServerIdImpl(), "", "", url), new HttpSessionCallbackImpl());
+		this(new ServerData(new ServerCfg(true, "name", url, new ServerIdImpl()) {
+			public ServerType getServerType() {
+				return null;
+			}
+
+			public ServerCfg getClone() {
+				return null;
+			}
+		}, "", ""), new HttpSessionCallbackImpl());
 	}
 
 	/**
@@ -770,7 +780,7 @@ public class BambooSessionImpl extends AbstractHttpSession implements BambooSess
 		}
 	}
 
-    private String getAuthHeaderValue() {
-        return "Basic " + StringUtil.encode(getUsername() + ":" + getPassword());
-    }
+	private String getAuthHeaderValue() {
+		return "Basic " + StringUtil.encode(getUsername() + ":" + getPassword());
+	}
 }

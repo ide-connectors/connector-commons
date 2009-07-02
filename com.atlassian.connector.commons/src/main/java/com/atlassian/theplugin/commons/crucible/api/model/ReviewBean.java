@@ -17,14 +17,10 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.EnumSet;
-import java.util.Collection;
+import java.util.*;
 
 
 public class ReviewBean implements Review {

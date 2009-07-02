@@ -1,11 +1,10 @@
 package com.atlassian.theplugin.crucible.api.rest.cruciblemock;
 
+import static junit.framework.Assert.assertTrue;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import static junit.framework.Assert.assertTrue;
 
 public class VersionInfoCallback implements JettyMockServer.Callback {
 	private boolean cru16;

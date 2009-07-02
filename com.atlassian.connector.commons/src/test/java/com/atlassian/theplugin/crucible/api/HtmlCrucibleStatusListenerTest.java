@@ -23,11 +23,10 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTable;
+import junit.framework.Assert;
 
 import java.io.IOException;
 import java.util.List;
-
-import junit.framework.Assert;
 
 class StatusListenerResultCatcher implements CrucibleStatusDisplay {
 	public String htmlPage;

@@ -16,8 +16,8 @@
 package com.atlassian.theplugin.commons.util;
 
 import org.jdom.Document;
-import org.jdom.output.XMLOutputter;
 import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
 import java.io.IOException;
 

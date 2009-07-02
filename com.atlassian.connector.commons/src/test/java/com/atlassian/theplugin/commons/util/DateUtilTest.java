@@ -16,7 +16,6 @@
 
 package com.atlassian.theplugin.commons.util;
 
-import com.atlassian.theplugin.commons.util.DateUtil;
 import junit.framework.TestCase;
 import org.joda.time.*;
 

@@ -16,8 +16,8 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class CustomFieldDefBean implements CustomFieldDef {
     private CustomFieldValueType type;

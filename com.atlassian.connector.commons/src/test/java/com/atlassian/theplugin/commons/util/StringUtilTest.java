@@ -15,14 +15,13 @@
  */
 package com.atlassian.theplugin.commons.util;
 
+import com.spartez.util.junit3.IAction;
+import com.spartez.util.junit3.TestUtil;
 import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.IOException;
-
-import com.spartez.util.junit3.TestUtil;
-import com.spartez.util.junit3.IAction;
+import java.io.InputStream;
 
 /**
  * StringUtil Tester.

@@ -17,7 +17,6 @@ package com.atlassian.theplugin.bamboo.api.bamboomock;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
-
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
@@ -25,7 +24,6 @@ import org.ddsteps.mock.httpserver.JettyMockServer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.OutputStreamWriter;
 import java.util.Properties;
 

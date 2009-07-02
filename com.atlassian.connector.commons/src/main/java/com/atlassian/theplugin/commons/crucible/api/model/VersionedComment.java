@@ -17,7 +17,6 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.connector.commons.misc.IntRanges;
-
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;

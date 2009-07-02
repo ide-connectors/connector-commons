@@ -16,22 +16,19 @@
 
 package com.atlassian.theplugin.bamboo.api.bamboomock;
 
-import static junit.framework.Assert.assertEquals;
-
 import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildStatus;
 import com.atlassian.theplugin.commons.util.ResourceUtil;
-
+import junit.framework.Assert;
+import static junit.framework.Assert.assertEquals;
 import org.apache.commons.httpclient.HttpStatus;
 
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-
-import junit.framework.Assert;
 
 public abstract class Util {
 

@@ -15,11 +15,10 @@
  */
 package com.atlassian.connector.commons.misc;
 
-import junit.framework.TestCase;
-import com.spartez.util.junit3.TestUtil;
-import com.spartez.util.junit3.IAction;
-
 import static com.atlassian.connector.commons.misc.IntRangesTest.*;
+import com.spartez.util.junit3.IAction;
+import com.spartez.util.junit3.TestUtil;
+import junit.framework.TestCase;
 
 public class IntRangesParserTest extends TestCase {
 	public void testParse() {

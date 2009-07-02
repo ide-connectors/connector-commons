@@ -4,13 +4,11 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProjectBean;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-
+import junit.framework.TestCase;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 public class ProjectCacheTest extends TestCase {
 	private ProjectCache projectCache;

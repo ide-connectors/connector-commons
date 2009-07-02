@@ -15,8 +15,8 @@
  */
 package com.atlassian.theplugin.commons.cfg;
 
-import junit.framework.TestCase;
 import com.spartez.util.junit3.TestUtil;
+import junit.framework.TestCase;
 
 /**
  * ProjectId Tester.

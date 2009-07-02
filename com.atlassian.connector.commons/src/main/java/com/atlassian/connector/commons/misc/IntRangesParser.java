@@ -15,11 +15,10 @@
  */
 package com.atlassian.connector.commons.misc;
 
+import com.atlassian.theplugin.commons.util.MiscUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-
-import com.atlassian.theplugin.commons.util.MiscUtil;
 
 public final class IntRangesParser {
 	private IntRangesParser() {

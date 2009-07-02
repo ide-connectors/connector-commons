@@ -16,14 +16,13 @@
 
 package com.atlassian.theplugin.crucible.api.rest.cruciblemock;
 
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.UserBean;
 import static junit.framework.Assert.*;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.atlassian.theplugin.commons.crucible.api.model.User;
-import com.atlassian.theplugin.commons.crucible.api.model.UserBean;
 
 public class LoginCallback implements JettyMockServer.Callback {
 

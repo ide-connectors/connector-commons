@@ -16,17 +16,7 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
-import com.atlassian.theplugin.bamboo.api.bamboomock.AddCommentToBuildCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.AddLabelToBuildCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetailsResultCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.ExecuteBuildCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.LogoutCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.ProjectListCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.Util;
+import com.atlassian.theplugin.bamboo.api.bamboomock.*;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
 import com.atlassian.theplugin.commons.cfg.*;
@@ -40,7 +30,7 @@ import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.remoteapi.ErrorResponse;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
-
+import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
@@ -48,13 +38,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
-import junit.framework.TestCase;
+import java.util.*;
 
 /**
  * {@link com.atlassian.theplugin.commons.bamboo.BambooServerFacadeImpl} test.

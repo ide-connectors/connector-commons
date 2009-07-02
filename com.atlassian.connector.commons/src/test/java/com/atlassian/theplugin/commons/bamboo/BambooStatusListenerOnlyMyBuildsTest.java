@@ -15,8 +15,6 @@
  */
 package com.atlassian.theplugin.commons.bamboo;
 
-import static org.easymock.EasyMock.createStrictMock;
-
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
@@ -24,15 +22,13 @@ import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.configuration.BambooConfigurationBean;
 import com.atlassian.theplugin.commons.configuration.BambooTooltipOption;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
-
+import junit.framework.TestCase;
 import org.easymock.EasyMock;
+import static org.easymock.EasyMock.createStrictMock;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
-
-import junit.framework.TestCase;
 
 /**
  * @author Jacek Jaroczynski

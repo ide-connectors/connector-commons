@@ -15,9 +15,9 @@
  */
 package com.atlassian.connector.commons.misc;
 
-import junit.framework.TestCase;
-import com.spartez.util.junit3.TestUtil;
 import com.spartez.util.junit3.IAction;
+import com.spartez.util.junit3.TestUtil;
+import junit.framework.TestCase;
 
 import java.util.Collections;
 

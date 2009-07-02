@@ -16,8 +16,8 @@
 package com.atlassian.theplugin.commons.util;
 
 import static com.atlassian.theplugin.commons.util.MiscUtil.isModified;
-import com.spartez.util.junit3.TestUtil;
 import com.spartez.util.junit3.IAction;
+import com.spartez.util.junit3.TestUtil;
 import junit.framework.TestCase;
 
 import java.util.Collection;

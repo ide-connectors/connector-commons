@@ -15,15 +15,10 @@
  */
 package com.atlassian.connector.commons.misc;
 
-import org.jetbrains.annotations.NotNull;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collections;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * This class is immutable

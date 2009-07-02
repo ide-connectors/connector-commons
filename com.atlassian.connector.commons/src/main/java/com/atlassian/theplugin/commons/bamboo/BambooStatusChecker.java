@@ -95,7 +95,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 
 			// collect build info from each server
 			final Collection<BambooBuild> newServerBuildsStatus = new ArrayList<BambooBuild>();
-			for (BambooServerCfg server : cfgManager.getAllEnabledBambooServers()) {
+			for (BambooServerData server : cfgManager.getAllEnabledBambooServerss()) {
 				try {
 
 					Date newRun = new Date();
@@ -108,8 +108,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 					LoggerImpl.getInstance().debug(sb.toString());
 
 					newServerBuildsStatus.addAll(bambooServerFacade.getSubscribedPlansResults(
-							cfgManager.getServerData(server), server.getPlans(), server.isUseFavourites(),
-							server.getTimezoneOffset()));
+							server, server.getPlans(), server.isUseFavourites(), server.getTimezoneOffset()));
 					lastActionRun = newRun;
 
 				} catch (ServerPasswordNotProvidedException exception) {
@@ -149,7 +148,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 	}
 
 	public boolean canSchedule() {
-		return cfgManager != null && !cfgManager.getAllEnabledBambooServers().isEmpty();
+		return cfgManager != null && !cfgManager.getAllEnabledBambooServerss().isEmpty();
 	}
 
 	public long getInterval() {

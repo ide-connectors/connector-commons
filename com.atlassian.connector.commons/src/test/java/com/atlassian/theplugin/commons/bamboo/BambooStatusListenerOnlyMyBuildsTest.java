@@ -20,6 +20,7 @@ import static org.easymock.EasyMock.createStrictMock;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
+import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.configuration.BambooConfigurationBean;
 import com.atlassian.theplugin.commons.configuration.BambooTooltipOption;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
@@ -139,7 +140,7 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 	}
 
 	public static BambooBuildInfo generateBuildInfo(BuildStatus status, int buildNumber, String loggedUser) {
-		ServerData server = new ServerData(new ServerCfg(true, "name", new ServerIdImpl()) {
+		BambooServerData server = new BambooServerData(new ServerCfg(true, "name", new ServerIdImpl()) {
 			@Override
 			public ServerType getServerType() {
 				return null;
@@ -149,7 +150,7 @@ public class BambooStatusListenerOnlyMyBuildsTest extends TestCase {
 			public ServerCfg getClone() {
 				return null;
 			}
-		}, loggedUser, "");
+		}, new UserCfg(loggedUser, ""));
 
 		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(DEFAULT_PLAN_KEY, DEFAULT_BUILD_NAME, server,
 				DEFAULT_PROJECT_NAME, buildNumber, status).enabled(true).commiters(COMMITERS);

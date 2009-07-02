@@ -35,7 +35,7 @@ public class BambooBuildAdapter extends ConfigurationListenerAdapter {
 		this.build = build;
 	}
 
-	public ServerData getServer() {
+	public BambooServerData getServer() {
 		// todo return updated server instead of old server from build object
 		return build.getServer();
 	}

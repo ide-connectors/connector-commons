@@ -24,15 +24,40 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author pmaruszak
  */
-public final class ServerData {
+public class ServerData {
 	private Server server;
 	private final String userName;
 	private final String password;
 
+	/**
+	 * That constructor should not be used as it is not compatible with default credentials.
+	 * UnitTest useages should be removed and replaced by other mechanism.
+	 * @param server
+	 * @param userName
+	 * @param password
+	 */
+	@Deprecated
 	public ServerData(final Server server, final String userName, final String password) {
 		this.server = server;
 		this.userName = userName;
 		this.password = password;
+	}
+
+	public ServerData(@NotNull Server server, @NotNull UserCfg defaultCredentials) {
+		this.server = server;
+
+		if (server.isUseDefaultCredentials()) {
+			this.userName = defaultCredentials.getUserName();
+			this.password = defaultCredentials.getPassword();
+		} else {
+			this.userName = server.getUserName();
+			this.password = server.getPassword();
+		}
+	}
+
+
+	protected Server getServer() {
+		return server;
 	}
 
 	public String getUserName() {
@@ -101,26 +126,5 @@ public final class ServerData {
 		result = 31 * result + (password != null ? password.hashCode() : 0);
 		result = 31 * result + (getUrl() != null ? getUrl().hashCode() : 0);
 		return result;
-	}
-
-//	public ServerData withCredentials(String newUsername, String newPassword) {
-//		return new ServerData(name, serverId, newUsername, newPassword, url);
-//	}
-
-
-	@NotNull
-	public static ServerData create(@NotNull Server server, @NotNull UserCfg defaultCredentials) {
-		final String userName;
-		final String password;
-
-		if (server.isUseDefaultCredentials()) {
-			userName = defaultCredentials.getUserName();
-			password = defaultCredentials.getPassword();
-		} else {
-			userName = server.getUserName();
-			password = server.getPassword();
-		}
-		return new ServerData(server, userName, password);
-
 	}
 }

@@ -27,29 +27,29 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 
 public interface BambooServerFacade extends ProductServerFacade {
-	Collection<BambooProject> getProjectList(ServerData bambooServer)
+	Collection<BambooProject> getProjectList(BambooServerData bambooServer)
 			throws ServerPasswordNotProvidedException, RemoteApiException;
 
-	Collection<BambooPlan> getPlanList(ServerData bambooServer)
+	Collection<BambooPlan> getPlanList(BambooServerData bambooServer)
 			throws ServerPasswordNotProvidedException, RemoteApiException;
 
-	Collection<BambooBuild> getSubscribedPlansResults(ServerData bambooServer, final Collection<SubscribedPlan> plans,
+	Collection<BambooBuild> getSubscribedPlansResults(BambooServerData bambooServer, final Collection<SubscribedPlan> plans,
 			boolean isUseFavourities, int timezoneOffset)
 			throws ServerPasswordNotProvidedException;
 
-	BuildDetails getBuildDetails(ServerData bambooServer, @NotNull String planKey, int buildNumber)
+	BuildDetails getBuildDetails(BambooServerData bambooServer, @NotNull String planKey, int buildNumber)
 			throws ServerPasswordNotProvidedException, RemoteApiException;
 
-	void addLabelToBuild(ServerData bambooServer, @NotNull String planKey, int buildNumber, String buildComment)
+	void addLabelToBuild(BambooServerData bambooServer, @NotNull String planKey, int buildNumber, String buildComment)
 			throws ServerPasswordNotProvidedException, RemoteApiException;
 
-	void addCommentToBuild(ServerData bambooServer, @NotNull String planKey, int buildNumber, String buildComment)
+	void addCommentToBuild(BambooServerData bambooServer, @NotNull String planKey, int buildNumber, String buildComment)
 			throws ServerPasswordNotProvidedException, RemoteApiException;
 
-	void executeBuild(ServerData bambooServer, @NotNull String planKey)
+	void executeBuild(BambooServerData bambooServer, @NotNull String planKey)
 			throws ServerPasswordNotProvidedException, RemoteApiException;
 
-	String getBuildLogs(ServerData bambooServer, @NotNull String planKey, int buildNumber)
+	String getBuildLogs(BambooServerData bambooServer, @NotNull String planKey, int buildNumber)
 			throws ServerPasswordNotProvidedException, RemoteApiException;
 
 	void setCallback(HttpSessionCallback callback);
@@ -70,7 +70,7 @@ public interface BambooServerFacade extends ProductServerFacade {
 	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException
 	 *          when invoked for Server that has not had the password set yet
 	 */
-	Collection<BambooBuild> getRecentBuildsForPlans(ServerData bambooServer, String planKey, final int timezoneOffset)
+	Collection<BambooBuild> getRecentBuildsForPlans(BambooServerData bambooServer, String planKey, final int timezoneOffset)
 			throws ServerPasswordNotProvidedException;
 
 	/**
@@ -86,8 +86,8 @@ public interface BambooServerFacade extends ProductServerFacade {
 	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException
 	 *          when invoked for Server that has not had the password set yet
 	 */
-	Collection<BambooBuild> getRecentBuildsForUser(ServerData bambooServer, final int timezoneOffset)
+	Collection<BambooBuild> getRecentBuildsForUser(BambooServerData bambooServer, final int timezoneOffset)
 			throws ServerPasswordNotProvidedException;
 
-	boolean isBamboo2(ServerData serverData);
+	boolean isBamboo2(BambooServerData serverData);
 }

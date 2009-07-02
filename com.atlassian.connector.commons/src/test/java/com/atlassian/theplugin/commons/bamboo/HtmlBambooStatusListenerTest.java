@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.bamboo;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
+import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.gargoylesoftware.htmlunit.html.HtmlTableCell;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
@@ -64,7 +65,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 
 	private static final String DEFAULT_PLAN_KEY_2 = "PLAN2-ID";
 
-	private static final ServerData BAMBOO = new ServerData(new ServerCfg(true, "name", DEFAULT_SERVER_URL,
+	private static final BambooServerData BAMBOO = new BambooServerData(new ServerCfg(true, "name", DEFAULT_SERVER_URL,
 			new ServerIdImpl()) {
 		@Override
 		public ServerType getServerType() {
@@ -75,7 +76,7 @@ public class HtmlBambooStatusListenerTest extends TestCase {
 		public ServerCfg getClone() {
 			return null;
 		}
-	}, "username", "password");
+	}, new UserCfg("username", "password"));
 
 	@Override
 	protected void tearDown() throws Exception {

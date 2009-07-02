@@ -20,6 +20,7 @@ import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.bamboo.*;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
+import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
@@ -151,7 +152,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		EasyMock.expectLastCall();
 		EasyMock.expect(mockDelegate.getLatestBuildForPlan("planKey", 0)).andReturn(
 				new BambooBuildInfo.Builder("planKey", null,
-						new ServerData(new ServerCfg(true, "mybamboo", "", new ServerIdImpl()) {
+						new BambooServerData(new ServerCfg(true, "mybamboo", "", new ServerIdImpl()) {
 							public ServerType getServerType() {
 								return null;
 							}
@@ -159,7 +160,7 @@ public class AutoRenewBambooSessionTest extends TestCase {
 							public ServerCfg getClone() {
 								return null;
 							}
-						}, "", ""), null, 123, BuildStatus.SUCCESS)
+						}, new UserCfg("", "")), null, 123, BuildStatus.SUCCESS)
 						.build());
 
 

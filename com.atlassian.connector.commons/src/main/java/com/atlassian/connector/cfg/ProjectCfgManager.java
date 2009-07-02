@@ -17,6 +17,7 @@
 package com.atlassian.connector.cfg;
 
 import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.bamboo.BambooServerData;
 import com.atlassian.theplugin.commons.cfg.*;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import org.jetbrains.annotations.NotNull;
@@ -25,9 +26,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 
 public interface ProjectCfgManager {
-	@NotNull
-	ServerData getServerData(@NotNull Server serverCfg);
-
 	Collection<BambooServerCfg> getAllEnabledBambooServers();
 
 	Collection<ServerCfg> getAllServers();
@@ -82,4 +80,8 @@ public interface ProjectCfgManager {
 	Collection<ServerData> getAllEnabledServerss(final ServerType serverType);
 
 	Collection<ServerData> getAllServerss(final ServerType serverType);
+
+	ServerData getJiraServerr(ServerId serverId);
+
+	Collection<BambooServerData> getAllEnabledBambooServerss();
 }

@@ -29,18 +29,11 @@ import com.atlassian.theplugin.bamboo.api.bamboomock.ProjectListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.Util;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
-import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
-import com.atlassian.theplugin.commons.cfg.Server;
-import com.atlassian.theplugin.commons.cfg.ServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
-import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
+import com.atlassian.theplugin.commons.cfg.*;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
+import com.atlassian.theplugin.commons.remoteapi.*;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
@@ -133,12 +126,17 @@ public class BambooServerFacadeTest extends TestCase {
 	public void testGetSessionTwoTheSameServers() throws RemoteApiException {
 		BambooServerFacadeImpl facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(),
 				new BambooSessionFactory() {
-					public BambooSession createSession(final ServerData serverData, final HttpSessionCallback callback)
+					public BambooSession createSession(final BambooServerData serverData, final HttpSessionCallback callback)
 							throws RemoteApiException {
 						BambooSession session = EasyMock.createMock(BambooSession.class);
 						EasyMock.expect(session.isLoggedIn()).andReturn(true).anyTimes();
 						EasyMock.replay(session);
 						return session;
+					}
+
+					public ProductSession createLoginSession(final ServerData serverData, final HttpSessionCallback callback)
+							throws RemoteApiMalformedUrlException {
+						return null;
 					}
 				});
 
@@ -224,9 +222,14 @@ public class BambooServerFacadeTest extends TestCase {
 			ServerPasswordNotProvidedException {
 		final BambooSession mockSession = EasyMock.createMock(BambooSession.class);
 		BambooServerFacade facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(), new BambooSessionFactory() {
-			public BambooSession createSession(final ServerData serverData, final HttpSessionCallback callback)
+			public BambooSession createSession(final BambooServerData serverData, final HttpSessionCallback callback)
 					throws RemoteApiException {
 				return mockSession;
+			}
+
+			public ProductSession createLoginSession(final ServerData serverData, final HttpSessionCallback callback)
+					throws RemoteApiMalformedUrlException {
+				return null;
 			}
 		});
 
@@ -271,9 +274,14 @@ public class BambooServerFacadeTest extends TestCase {
 			ServerPasswordNotProvidedException {
 		final BambooSession mockSession = EasyMock.createMock(BambooSession.class);
 		BambooServerFacade facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(), new BambooSessionFactory() {
-			public BambooSession createSession(final ServerData serverData, final HttpSessionCallback callback)
+			public BambooSession createSession(final BambooServerData serverData, final HttpSessionCallback callback)
 					throws RemoteApiException {
 				return mockSession;
+			}
+
+			public ProductSession createLoginSession(final ServerData serverData, final HttpSessionCallback callback)
+					throws RemoteApiMalformedUrlException {
+				return null;
 			}
 		});
 
@@ -670,7 +678,7 @@ public class BambooServerFacadeTest extends TestCase {
 		}
 	}
 
-	private ServerData getServerData(final Server serverCfg) {
-		return new ServerData(serverCfg, serverCfg.getUserName(), serverCfg.getPassword());
+	private BambooServerData getServerData(final Server serverCfg) {
+		return new BambooServerData(serverCfg, new UserCfg(serverCfg.getUserName(), serverCfg.getPassword()));
 	}
 }

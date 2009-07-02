@@ -27,7 +27,7 @@ import java.util.Set;
  * Build information retrieved from Bamboo server.
  */
 public interface BambooBuild {
-	ServerData getServer();
+	BambooServerData getServer();
 
 	String getServerUrl();
 

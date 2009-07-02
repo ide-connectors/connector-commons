@@ -25,6 +25,7 @@ import com.atlassian.theplugin.commons.UIActionScheduler;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
+import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
@@ -136,8 +137,9 @@ public class BambooStatusCheckerTest extends TestCase {
 
 		JettyMockServer mockServer = new JettyMockServer(httpServer);
 //		addServer(config, mockBaseUrl);
-		final BambooServerCfg server = getServer(mockBaseUrl);
-		Mockito.when(cfg.getAllEnabledBambooServers()).thenReturn(Arrays.asList(server));
+		final BambooServerCfg s = getServer(mockBaseUrl);
+		final BambooServerData server = new BambooServerData(s, new UserCfg(s.getUserName(), s.getPassword())) ;
+		Mockito.when(cfg.getAllEnabledBambooServerss()).thenReturn(Arrays.asList(server));
 
 		assertTrue(checker.canSchedule()); // config not empty
 
@@ -147,8 +149,8 @@ public class BambooStatusCheckerTest extends TestCase {
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());
 
-		Mockito.when(cfg.getServerData(server)).thenReturn(
-				new ServerData(server, server.getUserName(), server.getPassword()));
+//		Mockito.when(cfg.getServerData(server)).thenReturn(
+//				new ServerData(server, server.getUserName(), server.getPassword()));
 		task.run();
 		assertEquals(1, r2.lastStatuses.size());
 

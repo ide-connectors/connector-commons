@@ -1,0 +1,179 @@
+/**
+ * Copyright (C) 2008 Atlassian
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.atlassian.theplugin.commons.bamboo.api;
+
+import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
+import com.atlassian.theplugin.commons.remoteapi.*;
+import com.atlassian.theplugin.commons.util.UrlUtil;
+import com.atlassian.theplugin.commons.util.StringUtil;
+import com.atlassian.theplugin.commons.bamboo.BambooServerData;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.xpath.XPath;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.Header;
+
+import java.util.List;
+import java.net.MalformedURLException;
+import java.net.UnknownHostException;
+import java.net.URLEncoder;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
+/**
+ * @author Jacek Jaroczynski
+ */
+public class LoginBambooSession extends AbstractHttpSession implements ProductSession {
+
+	protected String authToken;
+
+	private static final String AUTHENTICATION_ERROR_MESSAGE = "User not authenticated yet, or session timed out";
+	private static final String LOGIN_ACTION = "/api/rest/login.action";
+	private static final String LOGOUT_ACTION = "/api/rest/logout.action";
+
+	public LoginBambooSession(final ServerData serverData, final HttpSessionCallback callback)
+			throws RemoteApiMalformedUrlException {
+		super(serverData, callback);
+	}
+
+	/**
+	 * Connects to Bamboo server instance. On successful login authentication token is returned from server and stored
+	 * in Bamboo session for subsequent calls.
+	 * <p/>
+	 * The exception returned may have the getCause() examined for to get the actual exception reason.<br>
+	 * If the exception is caused by a valid error response from the server (no IOEXception, UnknownHostException,
+	 * MalformedURLException or JDOMException), the
+	 * {@link com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException} is actually thrown. This may be
+	 * used as a hint that the password is invalid.
+	 *
+	 * @param name
+	 *            username defined on Bamboo server instance
+	 * @param aPassword
+	 *            for username
+	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException
+	 *             on connection or authentication errors
+	 */
+	public void login(String name, char[] aPassword) throws RemoteApiLoginException {
+		String loginUrl;
+
+		if (name == null || aPassword == null) {
+			throw new RemoteApiLoginException("Corrupted configuration. Username or Password null");
+		}
+		String pass = String.valueOf(aPassword);
+		loginUrl = getBaseUrl() + LOGIN_ACTION + "?username=" + UrlUtil.encodeUrl(name) + "&password="
+				+ UrlUtil.encodeUrl(pass) + "&os_username=" + UrlUtil.encodeUrl(name) + "&os_password="
+				+ UrlUtil.encodeUrl(pass);
+
+		try {
+			Document doc = retrieveGetResponse(loginUrl);
+			String exception = getExceptionMessages(doc);
+			if (null != exception) {
+				throw new RemoteApiLoginFailedException(exception);
+			}
+
+			@SuppressWarnings("unchecked")
+			final List<Element> elements = XPath.newInstance("/response/auth").selectNodes(doc);
+			if (elements == null || elements.size() == 0) {
+				throw new RemoteApiLoginException("Server did not return any authentication token");
+			}
+			if (elements.size() != 1) {
+				throw new RemoteApiLoginException("Server returned unexpected number of authentication tokens ("
+						+ elements.size() + ")");
+			}
+			this.authToken = elements.get(0).getText();
+		} catch (MalformedURLException e) {
+			throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
+		} catch (UnknownHostException e) {
+			throw new RemoteApiLoginException("Unknown host: " + e.getMessage(), e);
+		} catch (IOException e) {
+			throw new RemoteApiLoginException(e.getMessage(), e);
+		} catch (JDOMException e) {
+			throw new RemoteApiLoginException("Server returned malformed response", e);
+		} catch (RemoteApiSessionExpiredException e) {
+			throw new RemoteApiLoginException("Session expired", e);
+		} catch (IllegalArgumentException e) {
+			throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
+		}
+
+	}
+
+	public void logout() {
+		if (!isLoggedIn()) {
+			return;
+		}
+
+		try {
+			String logoutUrl = getBaseUrl() + LOGOUT_ACTION + "?auth=" + URLEncoder.encode(authToken, "UTF-8");
+			retrieveGetResponse(logoutUrl);
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("URLEncoding problem", e);
+		} catch (IOException e) {
+			/* ignore errors on logout */
+		} catch (JDOMException e) {
+			/* ignore errors on logout */
+		} catch (RemoteApiSessionExpiredException e) {
+			/* ignore errors on logout */
+		}
+
+		authToken = null;
+		client = null;
+	}
+
+	public boolean isLoggedIn() {
+		return authToken != null;
+	}
+
+	@Override
+	protected void preprocessResult(Document doc) throws JDOMException, RemoteApiSessionExpiredException {
+		String error = getExceptionMessages(doc);
+		if (error != null) {
+			if (error.startsWith(AUTHENTICATION_ERROR_MESSAGE)) {
+				throw new RemoteApiSessionExpiredException("Session expired.");
+			}
+		}
+	}
+
+	protected static String getExceptionMessages(Document doc) throws JDOMException {
+		XPath xpath = XPath.newInstance("/errors/error");
+		@SuppressWarnings("unchecked")
+		List<Element> elements = xpath.selectNodes(doc);
+
+		if (elements != null && elements.size() > 0) {
+			StringBuffer exceptionMsg = new StringBuffer();
+			for (Element e : elements) {
+				exceptionMsg.append(e.getText());
+				exceptionMsg.append("\n");
+			}
+			return exceptionMsg.toString();
+		} else {
+			/* no exception */
+			return null;
+		}
+	}
+
+	@Override
+	protected void adjustHttpHeader(HttpMethod method) {
+        //do not do it here it's forbidden and breakes ACE
+		//method.addRequestHeader(new Header("Authorization", getAuthHeaderValue()));
+	}
+
+
+//	private String getAuthHeaderValue() {
+//		return "Basic " + StringUtil.encode(getUsername() + ":" + getPassword());
+//	}
+}

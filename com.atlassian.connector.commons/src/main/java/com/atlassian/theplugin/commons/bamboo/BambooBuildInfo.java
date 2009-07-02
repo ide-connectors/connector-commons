@@ -24,7 +24,7 @@ import java.util.*;
 
 public final class BambooBuildInfo implements BambooBuild {
 	private final Date pollingTime;
-	private final ServerData server;
+	private final BambooServerData server;
 	private final String projectName;
 	private final String planName;
 	@NotNull
@@ -51,7 +51,7 @@ public final class BambooBuildInfo implements BambooBuild {
 	private final Set<String> commiters;
 
 
-	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull ServerData serverData,
+	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerData serverData,
 			@NotNull Date pollingTime, @Nullable String projectName, boolean isEnabled, @Nullable Integer number,
 			@NotNull BuildStatus status, @Nullable String reason, @Nullable Date startDate,
 			@Nullable String testSummary, @Nullable String commitComment, final int testsPassedCount,
@@ -84,7 +84,7 @@ public final class BambooBuildInfo implements BambooBuild {
 		}
 	}
 
-	public ServerData getServer() {
+	public BambooServerData getServer() {
 		return server;
 	}
 
@@ -225,7 +225,7 @@ public final class BambooBuildInfo implements BambooBuild {
 	public static class Builder {
 		private final String planKey;
 		private final String planName;
-		private final ServerData serverData;
+		private final BambooServerData serverData;
 		private final String projectName;
 		private final Integer buildNumber;
 		@NotNull
@@ -249,7 +249,7 @@ public final class BambooBuildInfo implements BambooBuild {
 		private String durationDescription;
 		private Throwable exception;
 
-		public Builder(@NotNull String planKey, @NotNull ServerData serverData, @NotNull BuildStatus state) {
+		public Builder(@NotNull String planKey, @NotNull BambooServerData serverData, @NotNull BuildStatus state) {
 			this.planKey = planKey;
 			this.serverData = serverData;
 			this.buildState = state;
@@ -258,7 +258,7 @@ public final class BambooBuildInfo implements BambooBuild {
 			buildNumber = null;
 		}
 
-		public Builder(@NotNull String planKey, @Nullable String planName, @NotNull ServerData serverData,
+		public Builder(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerData serverData,
 				@Nullable String projectName, @Nullable Integer buildNumber, @NotNull BuildStatus state) {
 			this.planKey = planKey;
 			this.planName = planName;

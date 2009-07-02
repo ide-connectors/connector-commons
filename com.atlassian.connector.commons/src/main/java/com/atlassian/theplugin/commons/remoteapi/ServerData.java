@@ -92,7 +92,7 @@ public class ServerData {
 
 	@Override
 	/**
-	 * Beware when overriding this method. It usens instance of instead of getClass().
+	 * Beware when overriding this method. It uses instanceof instead of getClass().
 	 * Remember to keep 'symmetry'
 	 */
 	public boolean equals(final Object o) {

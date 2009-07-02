@@ -18,36 +18,16 @@ package com.atlassian.connector.cfg;
 
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.bamboo.BambooServerData;
-import com.atlassian.theplugin.commons.cfg.*;
+import com.atlassian.theplugin.commons.cfg.ConfigurationListener;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerId;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
 public interface ProjectCfgManager {
-	Collection<BambooServerCfg> getAllEnabledBambooServers();
 
-	Collection<ServerCfg> getAllServers();
-
-	Collection<ServerCfg> getAllServers(ServerType serverType);
-
-	Collection<ServerCfg> getAllEnabledServers();
-
-	Collection<ServerCfg> getAllEnabledServers(ServerType serverType);
-
-	Collection<ServerCfg> getAllEnabledServersWithDefaultCredentials();
-
-	Collection<ServerCfg> getAllEnabledServersWithDefaultCredentials(ServerType serverType);
-
-	Collection<BambooServerCfg> getAllBambooServers();
-
-	Collection<JiraServerCfg> getAllJiraServers();
-
-	Collection<CrucibleServerCfg> getAllCrucibleServers();
-
-	Collection<JiraServerCfg> getAllEnabledJiraServers();
-
-	Collection<CrucibleServerCfg> getAllEnabledCrucibleServers();
 
 	@Nullable
 	ServerData getDefaultJiraServer();
@@ -66,6 +46,7 @@ public interface ProjectCfgManager {
 
 	String getFishEyeProjectPath();
 
+	@Deprecated
 	ServerCfg getServer(ServerId serverId);
 
 	void addProjectConfigurationListener(ConfigurationListener configurationListener);
@@ -74,7 +55,7 @@ public interface ProjectCfgManager {
 
 	boolean isDefaultJiraServerValid();
 
-	Collection<FishEyeServerCfg> getAllFishEyeServers();
+	Collection<ServerData> getAllFishEyeServerss();
 
 	Collection<ServerData> getAllEnabledServerss(final ServerType serverType);
 
@@ -83,4 +64,32 @@ public interface ProjectCfgManager {
 	ServerData getJiraServerr(ServerId serverId);
 
 	Collection<BambooServerData> getAllEnabledBambooServerss();
+
+	ServerData getServerr(ServerId serverId);
+
+	@Nullable
+	ServerData getEnabledServerr(ServerId serverId);
+
+	ServerData getEnabledJiraServerr(ServerId serverId);
+
+	ServerData getCrucibleServerr(ServerId serverId);
+
+	ServerData getEnabledCrucibleServerr(ServerId serverId);
+
+	Collection<ServerData> getAllServerss();
+
+	Collection<ServerData> getAllJiraServerss();
+
+	Collection<ServerData> getAllCrucibleServerss();
+
+	Collection<ServerData> getAllEnabledJiraServerss();
+
+	Collection<ServerData> getAllEnabledCrucibleServerss();
+
+	Collection<ServerData> getAllEnabledServerss();
+
+	Collection<BambooServerData> getAllBambooServerss();
+
+	@Deprecated
+	Collection<ServerCfg> getAllEnabledServers(ServerType serverType);
 }

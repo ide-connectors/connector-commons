@@ -32,6 +32,7 @@ public class ServerData {
 	/**
 	 * That constructor should not be used as it is not compatible with default credentials.
 	 * UnitTest useages should be removed and replaced by other mechanism.
+	 *
 	 * @param server
 	 * @param userName
 	 * @param password
@@ -90,11 +91,15 @@ public class ServerData {
 	}
 
 	@Override
+	/**
+	 * Beware when overriding this method. It usens instance of instead of getClass().
+	 * Remember to keep 'symmetry'
+	 */
 	public boolean equals(final Object o) {
 		if (this == o) {
 			return true;
 		}
-		if (o == null || getClass() != o.getClass()) {
+		if (o == null || !(o instanceof ServerData)) { //getClass() != o.getClass()) {
 			return false;
 		}
 

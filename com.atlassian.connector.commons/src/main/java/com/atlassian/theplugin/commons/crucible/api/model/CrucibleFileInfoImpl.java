@@ -300,6 +300,12 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 		if (repositoryName != null ? !repositoryName.equals(that.repositoryName) : that.repositoryName != null) {
 			return false;
 		}
+		if (oldFileDescriptor != null ? !oldFileDescriptor.equals(that.oldFileDescriptor) : that.oldFileDescriptor != null) {
+			return false;
+		}
+		if (fileDescriptor != null ? !fileDescriptor.equals(that.fileDescriptor) : that.fileDescriptor != null) {
+			return false;
+		}
 
 		return true;
 	}
@@ -308,6 +314,8 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 		///CLOVER:OFF
 		int result;
 		result = (repositoryName != null ? repositoryName.hashCode() : 0);
+		result = HASH_NUMBER * result + (fileDescriptor != null ? fileDescriptor.hashCode() : 0);
+		result = HASH_NUMBER * result + (oldFileDescriptor != null ? oldFileDescriptor.hashCode() : 0);
 		result = HASH_NUMBER * result + (fileType != null ? fileType.hashCode() : 0);
 		result = HASH_NUMBER * result + permId.hashCode();
 		return result;

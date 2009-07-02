@@ -3,6 +3,11 @@ package com.atlassian.theplugin.commons.crucible.api.model.notification;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.model.*;
 import com.atlassian.theplugin.commons.util.MiscUtil;
+import com.atlassian.theplugin.commons.VersionedVirtualFile;
+import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
+import com.atlassian.theplugin.commons.cfg.UserCfg;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import junit.framework.TestCase;
 
 import java.util.*;
@@ -70,7 +75,9 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	private CrucibleFileInfo prepareCrucibleFileInfo(final PermId permId, final Date date,
 			final List<VersionedComment> comments) {
-		CrucibleFileInfoImpl bean = new CrucibleFileInfoImpl(null, null, permId);
+		VersionedVirtualFile oldFileInfo = new VersionedVirtualFile("http://old.file", "1.1");
+		VersionedVirtualFile newFileInfo = new VersionedVirtualFile("http://new.file", "1.3");
+		CrucibleFileInfoImpl bean = new CrucibleFileInfoImpl(newFileInfo, oldFileInfo, permId);
 		bean.setCommitDate(date);
 		bean.setVersionedComments(comments);
 		return bean;
@@ -99,7 +106,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		review1.setFilesAndVersionedComments(files1, null);
 
-		return new ReviewAdapter(review1, null);
+		return new ReviewAdapter(review1, new ServerData(
+				new CrucibleServerCfg("Name", new ServerIdImpl()), new UserCfg("", "", false)));
 	}
 
 	public void testSameReviewsWithoutFiles() throws ValueNotYetInitialized {
@@ -694,5 +702,30 @@ public class ReviewDifferenceProducerTest extends TestCase {
 				assertEquals(msg, CrucibleNotificationType.REVIEWERS_CHANGED, diff.get(0).getType());
 			}
 		}
+	}
+
+	/**
+	 * Both reviews are the same, except on has file with different revisions
+	 * @throws ValueNotYetInitialized
+ 	 */
+	public void testRevisionChanged() throws ValueNotYetInitialized {
+		final Date dt = new Date();
+		final ReviewAdapter r1 = prepareReview1(State.REVIEW, dt);
+		final ReviewAdapter r2 = prepareReview1(State.REVIEW, dt);
+		for (CrucibleFileInfo file : r1.getFiles()) {
+			file.getOldFileDescriptor().setRevision(
+					file.getOldFileDescriptor().getRevision() + ".23");
+		}
+
+		final ReviewDifferenceProducer p = new ReviewDifferenceProducer(r1, r2);
+		final List<CrucibleNotification> diff = p.getDiff();
+		assertNotNull(diff);
+		assertEquals(4, diff.size());
+		assertTrue(p.isShortEqual());
+		assertFalse(p.isFilesEqual());
+		assertEquals(CrucibleNotificationType.NEW_REVIEW_ITEM, diff.get(0).getType());
+		assertEquals(CrucibleNotificationType.NEW_REVIEW_ITEM, diff.get(1).getType());
+		assertEquals(CrucibleNotificationType.REMOVED_REVIEW_ITEM, diff.get(2).getType());
+		assertEquals(CrucibleNotificationType.REMOVED_REVIEW_ITEM, diff.get(3).getType());
 	}
 }

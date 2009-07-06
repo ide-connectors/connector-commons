@@ -14,28 +14,28 @@ import java.util.*;
 
 public class ReviewDifferenceProducerTest extends TestCase {
 
-	final PermIdBean reviewId1 = new PermIdBean("CR-1");
+	final PermId reviewId1 = new PermId("CR-1");
 
-	final PermIdBean newItem1 = new PermIdBean("CRF:11");
+	final PermId newItem1 = new PermId("CRF:11");
 
-	final PermIdBean newCommentId1 = new PermIdBean("CMT:11");
+	final PermId newCommentId1 = new PermId("CMT:11");
 
-	final PermIdBean newVCommentId1 = new PermIdBean("CMT:12");
+	final PermId newVCommentId1 = new PermId("CMT:12");
 
-	final PermIdBean reviewId2 = new PermIdBean("CR-2");
+	final PermId reviewId2 = new PermId("CR-2");
 
-	final PermIdBean newItem2 = new PermIdBean("CRF:21");
+	final PermId newItem2 = new PermId("CRF:21");
 
-	final PermIdBean newCommentId2 = new PermIdBean("CMT:21");
+	final PermId newCommentId2 = new PermId("CMT:21");
 
-	final PermIdBean newVCommentId2 = new PermIdBean("CMT:22");
+	final PermId newVCommentId2 = new PermId("CMT:22");
 
 	final Reviewer reviewer3 = prepareReviewer("scott", "Scott", false);
 
 	final Reviewer reviewer4 = prepareReviewer("alice", "Alice", false);
 
-	private ReviewBean prepareReview() {
-		return new ReviewBean("http://bogus", "TEST", reviewer3, reviewer4);
+	private Review prepareReview() {
+		return new Review("http://bogus", "TEST", reviewer3, reviewer4);
 	}
 
 	private Reviewer prepareReviewer(String userName, String displayName, boolean completed) {
@@ -79,7 +79,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	}
 
 	private ReviewAdapter prepareReview1(State state, Date commentsDate) throws ValueNotYetInitialized {
-		ReviewBean review1 = prepareReview();
+		Review review1 = prepareReview();
 		review1.setGeneralComments(new ArrayList<GeneralComment>());
 		review1.setPermId(reviewId1);
 		review1.setState(state);
@@ -249,7 +249,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
 		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
 		review1.getGeneralComments().get(0).getReplies().add(
-				prepareGeneralComment("reply", new PermIdBean("CMT:41"), new Date(), null));
+				prepareGeneralComment("reply", new PermId("CMT:41"), new Date(), null));
 
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
@@ -267,13 +267,13 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
 		Date replyDate = new Date();
 		review.getGeneralComments().get(0).getReplies().add(
-				prepareGeneralComment("reply", new PermIdBean("CMT:41"), replyDate, null));
+				prepareGeneralComment("reply", new PermId("CMT:41"), replyDate, null));
 		review.getGeneralComments().get(0).getReplies().add(
-				prepareGeneralComment("reply2", new PermIdBean("CMT:42"), replyDate, null));
+				prepareGeneralComment("reply2", new PermId("CMT:42"), replyDate, null));
 		review1.getGeneralComments().get(0).getReplies().add(
-				prepareGeneralComment("reply", new PermIdBean("CMT:41"), replyDate, null));
+				prepareGeneralComment("reply", new PermId("CMT:41"), replyDate, null));
 		review1.getGeneralComments().get(0).getReplies().add(
-				prepareGeneralComment("reply2", new PermIdBean("CMT:42"), replyDate, null));
+				prepareGeneralComment("reply2", new PermId("CMT:42"), replyDate, null));
 
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
@@ -299,7 +299,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
 		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
 		review.getGeneralComments().get(0).getReplies().add(
-				prepareGeneralComment("reply", new PermIdBean("CMT:41"), new Date(), null));
+				prepareGeneralComment("reply", new PermId("CMT:41"), new Date(), null));
 
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
@@ -442,7 +442,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		Iterator<CrucibleFileInfo> iter = review1.getFiles().iterator();
 		iter.next().getVersionedComments().get(0).getReplies().add(
-				prepareVersionedComment("reply", new PermIdBean("CMT:41"), commentDate, null));
+				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
@@ -460,11 +460,11 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		Iterator<CrucibleFileInfo> iter = review.getFiles().iterator();
 		iter.next().getVersionedComments().get(0).getReplies().add(
-				prepareVersionedComment("reply", new PermIdBean("CMT:41"), commentDate, null));
+				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
 
 		Iterator<CrucibleFileInfo> iter1 = review1.getFiles().iterator();
 		iter1.next().getVersionedComments().get(0).getReplies().add(
-				prepareVersionedComment("updated reply", new PermIdBean("CMT:41"), commentDate, null));
+				prepareVersionedComment("updated reply", new PermId("CMT:41"), commentDate, null));
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
@@ -482,7 +482,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		Iterator<CrucibleFileInfo> iter = review.getFiles().iterator();
 		iter.next().getVersionedComments().get(0).getReplies().add(
-				prepareVersionedComment("reply", new PermIdBean("CMT:41"), commentDate, null));
+				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
@@ -582,15 +582,15 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	}
 
 	private interface MyCallback {
-		void handle(ReviewBean r1, ReviewBean r2, String s1, String s2);
+		void handle(Review r1, Review r2, String s1, String s2);
 	}
 
 	private final String[][] stringPairs = { { "abc", "bcde" }, { "", "abc" }, { "abc", "" }, { "abc", "abc" },
 			{ "", "" }, };
 
 	private void testHelper(final CrucibleNotificationType notificationType, MyCallback myCallback) {
-		final ReviewBean r1 = prepareReview();
-		final ReviewBean r2 = prepareReview();
+		final Review r1 = prepareReview();
+		final Review r2 = prepareReview();
 		final ReviewDifferenceProducer p = new ReviewDifferenceProducer(new ReviewAdapter(r1, null), new ReviewAdapter(
 				r2, null));
 
@@ -611,7 +611,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	public void testStatementOfObjectivesChanged() {
 		testHelper(CrucibleNotificationType.STATEMENT_OF_OBJECTIVES_CHANGED, new MyCallback() {
-			public void handle(final ReviewBean r1, final ReviewBean r2, final String s1, final String s2) {
+			public void handle(final Review r1, final Review r2, final String s1, final String s2) {
 				r1.setDescription(s1);
 				r2.setDescription(s2);
 			}
@@ -621,7 +621,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	public void testNameChanged() {
 		testHelper(CrucibleNotificationType.NAME_CHANGED, new MyCallback() {
-			public void handle(final ReviewBean r1, final ReviewBean r2, final String s1, final String s2) {
+			public void handle(final Review r1, final Review r2, final String s1, final String s2) {
 				r1.setName(s1);
 				r2.setName(s2);
 			}
@@ -630,7 +630,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	public void testModeratorChanged() {
 		testHelper(CrucibleNotificationType.MODERATOR_CHANGED, new MyCallback() {
-			public void handle(final ReviewBean r1, final ReviewBean r2, final String s1, final String s2) {
+			public void handle(final Review r1, final Review r2, final String s1, final String s2) {
 				r1.setModerator(new User(s1));
 				r2.setModerator(new User(s2));
 			}
@@ -639,7 +639,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	public void testAuthorChanged() {
 		testHelper(CrucibleNotificationType.AUTHOR_CHANGED, new MyCallback() {
-			public void handle(final ReviewBean r1, final ReviewBean r2, final String s1, final String s2) {
+			public void handle(final Review r1, final Review r2, final String s1, final String s2) {
 				r1.setAuthor(new User(s1));
 				r2.setAuthor(new User(s2));
 			}
@@ -648,7 +648,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	public void testSummmaryChanged() {
 		testHelper(CrucibleNotificationType.SUMMARY_CHANGED, new MyCallback() {
-			public void handle(final ReviewBean r1, final ReviewBean r2, final String s1, final String s2) {
+			public void handle(final Review r1, final Review r2, final String s1, final String s2) {
 				r1.setSummary(s1);
 				r2.setSummary(s2);
 			}
@@ -657,7 +657,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	public void testProjectChanged() {
 		testHelper(CrucibleNotificationType.PROJECT_CHANGED, new MyCallback() {
-			public void handle(final ReviewBean r1, final ReviewBean r2, final String s1, final String s2) {
+			public void handle(final Review r1, final Review r2, final String s1, final String s2) {
 				r1.setProjectKey(s1);
 				r2.setProjectKey(s2);
 			}
@@ -677,8 +677,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	@SuppressWarnings("unchecked")
 	public void testReviewersChanged() {
-		final ReviewBean r1 = prepareReview();
-		final ReviewBean r2 = prepareReview();
+		final Review r1 = prepareReview();
+		final Review r2 = prepareReview();
 		final Reviewer rv1 = new Reviewer("user1", true);
 		final Reviewer rv2 = new Reviewer("user2", true);
 		final Reviewer rv3 = new Reviewer("user3", true);

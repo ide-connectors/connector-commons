@@ -53,32 +53,27 @@ public final class CrucibleRestXmlHelper {
 		return node.getChildren(childName);
 	}
 
-	public static CrucibleProjectBean parseProjectNode(Element projectNode) {
-		CrucibleProjectBean project = new CrucibleProjectBean();
-
-		project.setId(getChildText(projectNode, "id"));
-		project.setKey(getChildText(projectNode, "key"));
-		project.setName(getChildText(projectNode, "name"));
-
-		return project;
+	public static CrucibleProject parseProjectNode(Element projectNode) {
+		return new CrucibleProject(
+				getChildText(projectNode, "id"),
+				getChildText(projectNode, "key"),
+				getChildText(projectNode, "name"));
 	}
 
-	public static RepositoryBean parseRepositoryNode(Element repoNode) {
-		RepositoryBean repo = new RepositoryBean();
-		repo.setName(getChildText(repoNode, "name"));
-		repo.setType(getChildText(repoNode, "type"));
-		repo.setEnabled(Boolean.parseBoolean(getChildText(repoNode, "enabled")));
-		return repo;
+	public static Repository parseRepositoryNode(Element repoNode) {
+		return new Repository(
+				getChildText(repoNode, "name"),
+				getChildText(repoNode, "type"),
+				Boolean.parseBoolean(getChildText(repoNode, "enabled")));
 	}
 
-	public static SvnRepositoryBean parseSvnRepositoryNode(Element repoNode) {
-		SvnRepositoryBean repo = new SvnRepositoryBean();
-		repo.setName(getChildText(repoNode, "name"));
-		repo.setType(getChildText(repoNode, "type"));
-		repo.setEnabled(Boolean.parseBoolean(getChildText(repoNode, "enabled")));
-		repo.setUrl(getChildText(repoNode, "url"));
-		repo.setPath(getChildText(repoNode, "path"));
-		return repo;
+	public static SvnRepository parseSvnRepositoryNode(Element repoNode) {
+		return new SvnRepository(
+				getChildText(repoNode, "name"),
+				getChildText(repoNode, "type"),
+				Boolean.parseBoolean(getChildText(repoNode, "enabled")),
+				getChildText(repoNode, "url"),
+				getChildText(repoNode, "path"));
 	}
 
 	public static User parseUserNode(Element repoNode) {
@@ -116,7 +111,7 @@ public final class CrucibleRestXmlHelper {
 		}
 	}
 
-	private static void parseReview(Element reviewNode, ReviewBean review) {
+	private static void parseReview(Element reviewNode, Review review) {
 		if (reviewNode.getChild("author") != null) {
 			review.setAuthor(parseUserNode(reviewNode.getChild("author")));
 		}
@@ -140,7 +135,7 @@ public final class CrucibleRestXmlHelper {
 		review.setAllowReviewerToJoin(Boolean.parseBoolean(getChildText(reviewNode, "allowReviewersToJoin")));
 
 		if (reviewNode.getChild("permaId") != null) {
-			PermIdBean permId = new PermIdBean(reviewNode.getChild("permaId").getChild("id").getText());
+			PermId permId = new PermId(reviewNode.getChild("permaId").getChild("id").getText());
 			review.setPermId(permId);
 		}
 		review.setSummary(getChildText(reviewNode, "summary"));
@@ -152,14 +147,14 @@ public final class CrucibleRestXmlHelper {
 		}
 	}
 
-	public static ReviewBean parseReviewNode(String serverUrl, Element reviewNode) {
-		ReviewBean review = new ReviewBean(serverUrl);
+	public static Review parseReviewNode(String serverUrl, Element reviewNode) {
+		Review review = new Review(serverUrl);
 		parseReview(reviewNode, review);
 		return review;
 	}
 
-	public static ReviewBean parseDetailedReviewNode(String serverUrl, String myUserName, Element reviewNode) {
-		ReviewBean review = new ReviewBean(serverUrl);
+	public static Review parseDetailedReviewNode(String serverUrl, String myUserName, Element reviewNode) {
+		Review review = new Review(serverUrl);
 		parseReview(reviewNode, review);
 
 		List<Element> reviewersNode = getChildElements(reviewNode, "reviewers");
@@ -473,7 +468,7 @@ public final class CrucibleRestXmlHelper {
 			}
 		}
 		if (reviewItemNode.getChild("permId") != null) {
-			PermIdBean permId = new PermIdBean(reviewItemNode.getChild("permId").getChild("id").getText());
+			PermId permId = new PermId(reviewItemNode.getChild("permId").getChild("id").getText());
 			reviewItem.setFilePermId(permId);
 		}
 
@@ -520,7 +515,7 @@ public final class CrucibleRestXmlHelper {
 		for (Element reviewId : reviewIds) {
 			List<Element> ids = getChildElements(reviewId, "id");
 			for (Element id : ids) {
-				commentBean.setReviewItemId(new PermIdBean(id.getText()));
+				commentBean.setReviewItemId(new PermId(id.getText()));
 				break;
 			}
 			break;
@@ -572,14 +567,14 @@ public final class CrucibleRestXmlHelper {
 		commentBean.setDeleted(Boolean.parseBoolean(getChildText(reviewCommentNode, "deleted")));
 		commentBean.setCreateDate(parseDateTime(getChildText(reviewCommentNode, "createDate")));
 
-		PermIdBean permId = null;
+		PermId permId = null;
 		if (reviewCommentNode.getChild("permaId") != null) {
-			permId = new PermIdBean(reviewCommentNode.getChild("permaId").getChild("id").getText());
+			permId = new PermId(reviewCommentNode.getChild("permaId").getChild("id").getText());
 			commentBean.setPermId(permId);
 		}
 		// try old way
 		if (commentBean.getPermId() == null) {
-			permId = new PermIdBean(getChildText(reviewCommentNode, "permaIdAsString"));
+			permId = new PermId(getChildText(reviewCommentNode, "permaIdAsString"));
 			commentBean.setPermId(permId);
 		}
 
@@ -694,7 +689,7 @@ public final class CrucibleRestXmlHelper {
 		}
 
 		if (reviewCommentNode.getChild("reviewItemId") != null) {
-			PermIdBean reviewItemId = new PermIdBean(reviewCommentNode.getChild("reviewItemId").getChild("id").getText());
+			PermId reviewItemId = new PermId(reviewCommentNode.getChild("reviewItemId").getChild("id").getText());
 			comment.setReviewItemId(reviewItemId);
 
 		}

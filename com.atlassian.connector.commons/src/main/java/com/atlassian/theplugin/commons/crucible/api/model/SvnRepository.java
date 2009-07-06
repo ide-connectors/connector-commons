@@ -16,7 +16,23 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-public interface SvnRepository extends Repository {
-	String getUrl();
-	String getPath();
+public class SvnRepository extends Repository {
+
+	private final String url;
+	private final String path;
+
+	public SvnRepository(String name, String type, boolean enabled, String url, String path) {
+		super(name, type, enabled);
+		this.url = url;
+		this.path = path;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
 }

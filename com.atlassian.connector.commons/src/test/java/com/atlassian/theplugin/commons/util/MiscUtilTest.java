@@ -28,8 +28,8 @@ public class MiscUtilTest extends TestCase {
         assertTrue(isModified("abc", null));
         assertTrue(isModified(null, "abc"));
         assertFalse(isModified("abc", "abc"));
-        assertFalse(isModified(new Integer(1), new Integer(1)));
-        assertTrue(isModified(new Integer(1), new Integer(2)));
+        assertFalse(isModified(1, 1));
+        assertTrue(isModified(1, 2));
     }
 
 	public void testBuildArrayList() {

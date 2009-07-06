@@ -1,7 +1,6 @@
 package com.atlassian.theplugin.commons.crucible;
 
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProjectBean;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import junit.framework.TestCase;
@@ -95,22 +94,14 @@ public class ProjectCacheTest extends TestCase {
 	}
 
 	private List<CrucibleProject> createProjectsList() {
-
-		CrucibleProjectBean project1 = new CrucibleProjectBean();
-		project1.setKey("A");
-		CrucibleProjectBean project2 = new CrucibleProjectBean();
-		project2.setKey("B");
+		CrucibleProject project1 = new CrucibleProject("id-1", "A", "A");
+		CrucibleProject project2 = new CrucibleProject("id-2", "B", "B");
 		return Arrays.asList((CrucibleProject) project1, (CrucibleProject) project2);
-
 	}
 
 	private List<CrucibleProject> createProjectsList2() {
-
-		CrucibleProjectBean project1 = new CrucibleProjectBean();
-		project1.setKey("C");
-		CrucibleProjectBean project2 = new CrucibleProjectBean();
-		project2.setKey("D");
+		CrucibleProject project1 = new CrucibleProject("id-3", "C", "C");
+		CrucibleProject project2 = new CrucibleProject("id-4", "D", "D");
 		return Arrays.asList((CrucibleProject) project1, (CrucibleProject) project2);
-
 	}
 }

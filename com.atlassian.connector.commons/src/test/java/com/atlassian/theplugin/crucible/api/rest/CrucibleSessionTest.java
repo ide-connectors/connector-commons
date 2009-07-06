@@ -513,7 +513,7 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		PermIdBean permId = new PermIdBean("PR-1");
+		PermId permId = new PermId("PR-1");
 		List<Reviewer> reviewers = apiHandler.getReviewers(permId);
 		assertEquals(0, reviewers.size());
 		mockServer.verify();
@@ -530,7 +530,7 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		PermIdBean permId = new PermIdBean("PR-1");
+		PermId permId = new PermId("PR-1");
 		List<Reviewer> result = apiHandler.getReviewers(permId);
 		assertEquals(3, result.size());
 		assertEquals(result.get(0).getUserName(), "bob");
@@ -545,7 +545,7 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		PermIdBean permId = new PermIdBean("PR-2");
+		PermId permId = new PermId("PR-2");
 		try {
 			apiHandler.getReviewers(permId);
 			fail();
@@ -562,7 +562,7 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		PermIdBean permId = new PermIdBean("PR-1");
+		PermId permId = new PermId("PR-1");
 		try {
 			apiHandler.getReviewers(permId);
 			fail();
@@ -574,7 +574,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testCreateReview() throws Exception {
-		ReviewBean review = createReviewRequest();
+		Review review = createReviewRequest();
 
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
@@ -596,7 +596,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testCreateReviewMalformedResponse() throws Exception {
-		ReviewBean review = createReviewRequest();
+		Review review = createReviewRequest();
 
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
@@ -614,7 +614,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testCreateReviewErrorResponse() throws Exception {
-		ReviewBean review = createReviewRequest();
+		Review review = createReviewRequest();
 
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
@@ -638,7 +638,7 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		ReviewBean review = createReviewRequest();
+		Review review = createReviewRequest();
 		Review response = apiHandler.createReviewFromPatch(review, "patch text");
 		assertEquals(review.getAuthor(), response.getAuthor());
 		assertEquals(review.getCreator(), response.getCreator());
@@ -658,7 +658,7 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		ReviewBean review = createReviewRequest();
+		Review review = createReviewRequest();
 		Review response = apiHandler.createReviewFromPatch(review, null);
 		assertEquals(review.getAuthor(), response.getAuthor());
 		assertEquals(review.getCreator(), response.getCreator());
@@ -678,7 +678,7 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		ReviewBean review = createReviewRequest();
+		Review review = createReviewRequest();
 		Review response = apiHandler.createReviewFromPatch(review, "");
 		assertEquals(review.getAuthor(), response.getAuthor());
 		assertEquals(review.getCreator(), response.getCreator());
@@ -699,7 +699,7 @@ public class CrucibleSessionTest extends TestCase {
 
 		apiHandler.login();
 		try {
-			ReviewBean review = createReviewRequest();
+			Review review = createReviewRequest();
 			apiHandler.createReviewFromPatch(review, "patch text");
 			fail();
 		} catch (RemoteApiException e) {
@@ -780,8 +780,8 @@ public class CrucibleSessionTest extends TestCase {
 		mockServer.verify();
 	}
 
-	private ReviewBean createReviewRequest() {
-		ReviewBean review = new ReviewBean(mockBaseUrl);
+	private Review createReviewRequest() {
+		Review review = new Review(mockBaseUrl);
 		review.setAuthor(new User("autor", ""));
 		review.setCreator(new User("creator", ""));
 		review.setDescription("description");
@@ -807,7 +807,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetReviewDetailsWithAddedFile() throws Exception {
-		PermId permId = new PermIdBean("CR-4");
+		PermId permId = new PermId("CR-4");
 
 		final Review review = getReview(permId, "reviewDetailsResponse-withAddedFile.xml", 2);
 		assertNotNull(review);
@@ -856,7 +856,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetReviewDetails() throws Exception {
-		PermId permId = new PermIdBean("TST-9");
+		PermId permId = new PermId("TST-9");
 
 		final Review review = getReview(permId, "reviewDetailsResponse.xml", 1);
 		assertNotNull(review);

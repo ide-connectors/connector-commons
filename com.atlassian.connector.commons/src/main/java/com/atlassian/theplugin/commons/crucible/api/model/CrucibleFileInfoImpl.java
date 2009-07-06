@@ -277,7 +277,7 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 		this.commitType = commitType;
 	}
 
-	public void setFilePermId(final PermIdBean aPermId) {
+	public void setFilePermId(final PermId aPermId) {
 		this.permId = aPermId;
 	}
 

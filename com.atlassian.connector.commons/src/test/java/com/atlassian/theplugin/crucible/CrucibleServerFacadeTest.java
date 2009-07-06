@@ -218,12 +218,8 @@ public class CrucibleServerFacadeTest extends TestCase {
 //			fail("recording mock failed for login");
 //		}
 
-		PermId permId = new PermId() {
-			public String getId() {
-				return "permId";
-			}
-		};
-
+		PermId permId = new PermId("permId");
+		
 		Review review = prepareReviewData(VALID_LOGIN, "name", State.DRAFT, permId);
 
 		crucibleSessionMock.getAllReviews();
@@ -287,7 +283,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		crucibleSessionMock.createReview(EasyMock.isA(Review.class));
 		CrucibleServerCfg server = prepareServerBean();
-		Review response = new ReviewBean(server.getUrl());
+		Review response = new Review(server.getUrl());
 
 		EasyMock.expectLastCall().andReturn(response);
 
@@ -346,7 +342,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		crucibleSessionMock.createReviewFromPatch(EasyMock.isA(Review.class), EasyMock.eq("some patch"));
 		CrucibleServerCfg server = prepareServerBean();
-		Review response = new ReviewBean(server.getUrl());
+		Review response = new Review(server.getUrl());
 		EasyMock.expectLastCall().andReturn(response);
 
 		replay(crucibleSessionMock);
@@ -402,12 +398,8 @@ public class CrucibleServerFacadeTest extends TestCase {
 //			fail("recording mock failed for login");
 //		}
 
-		PermId permId = new PermId() {
-			public String getId() {
-				return "permId";
-			}
-		};
-
+		PermId permId = new PermId("permId");
+		
 		Review review = prepareReviewData(VALID_LOGIN, "name", State.DRAFT, permId);
 
 		crucibleSessionMock.getAllReviews();
@@ -484,7 +476,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 	}
 
 	private Review prepareReviewData(final String name, final State state) {
-		return new ReviewBean("http://bogus.server", "TEST", VALID_LOGIN, VALID_LOGIN) {
+		return new Review("http://bogus.server", "TEST", VALID_LOGIN, VALID_LOGIN) {
 			@Override
 			public User getCreator() {
 				return VALID_LOGIN;
@@ -507,11 +499,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 			@Override
 			public PermId getPermId() {
-				return new PermId() {
-					public String getId() {
-						return "permId";
-					}
-				};
+				return new PermId("permId");
 			}
 
 			@Override
@@ -603,7 +591,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 	}
 
 	private Review prepareReviewData(final User user, final String name, final State state, final PermId permId) {
-		return new ReviewBean("http://bogus.server", "TEST", user, user) {
+		return new Review("http://bogus.server", "TEST", user, user) {
 			@Override
 			public User getCreator() {
 				return user;
@@ -727,35 +715,11 @@ public class CrucibleServerFacadeTest extends TestCase {
 	}
 
 	private CrucibleProject prepareProjectData(final int i) {
-		return new CrucibleProject() {
-			public String getId() {
-				return Integer.toString(i);
-			}
-
-			public String getKey() {
-				return "CR" + Integer.toString(i);
-			}
-
-			public String getName() {
-				return "Name" + Integer.toString(i);
-			}
-		};
+		return new CrucibleProject(Integer.toString(i), "CR" + Integer.toString(i), "Name" + Integer.toString(i));
 	}
 
 	private Repository prepareRepositoryData(final int i) {
-		return new Repository() {
-			public String getName() {
-				return "RepoName" + Integer.toString(i);
-			}
-
-			public String getType() {
-				return "svn";
-			}
-
-			public boolean isEnabled() {
-				return false;
-			}
-		};
+		return new Repository("RepoName" + Integer.toString(i), "svn", false);
 	}
 
 	public void _testCreateReviewHardcoded() throws ServerPasswordNotProvidedException {

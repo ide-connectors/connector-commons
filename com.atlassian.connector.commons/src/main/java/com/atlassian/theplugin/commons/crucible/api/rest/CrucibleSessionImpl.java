@@ -511,8 +511,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	private ReviewBean prepareDetailReview(Element element) throws RemoteApiException {
-		final ReviewBean review = CrucibleRestXmlHelper.parseDetailedReviewNode(getBaseUrl(), getUsername(), element);
+	private Review prepareDetailReview(Element element) throws RemoteApiException {
+		final Review review = CrucibleRestXmlHelper.parseDetailedReviewNode(getBaseUrl(), getUsername(), element);
 
 		review.setProject(projectCache.getProject(review.getProjectKey()));
 
@@ -707,7 +707,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			List<Element> elements = xpath.selectNodes(doc);
 			Set<CrucibleFileInfo> reviewItems = new HashSet<CrucibleFileInfo>();
 
-			Review changeSet = new ReviewBean(getBaseUrl());
+			Review changeSet = new Review(getBaseUrl());
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
 					CrucibleFileInfo fileInfo = CrucibleRestXmlHelper.parseReviewItemNode(changeSet, element);

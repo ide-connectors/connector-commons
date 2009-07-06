@@ -210,9 +210,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 
 	public Review addPatchToReview(ServerData server, PermId permId, String repository, String patch)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
-		CrucibleSession session = getSession(server);
-		Review review = session.addPatchToReview(permId, repository, patch);
-		return review;
+		return getSession(server).addPatchToReview(permId, repository, patch);
 	}
 
 	public Review addItemsToReview(ServerData server, PermId permId, Collection<UploadItem> items)

@@ -17,7 +17,7 @@
 package com.atlassian.theplugin.crucible;
 
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
-import com.atlassian.theplugin.commons.crucible.api.model.ReviewBean;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -52,20 +52,10 @@ public class ReviewDataInfoImplTest extends TestCase {
     }
 
 	public void testNotEquals() throws Exception {
-		ReviewBean r1 = new ReviewBean("http://bogus.server", "TEST", new User("author"), new User("moderator"));
-        r1.setPermId(new PermId() {
-
-            public String getId() {
-                return "ID";
-            }
-        });
-		ReviewBean r2 = new ReviewBean("http://bogus.server", "TEST", new User("author"), new User("moderator"));
-        r2.setPermId(new PermId() {
-
-            public String getId() {
-                return "ID-2";
-            }
-        });
+		Review r1 = new Review("http://bogus.server", "TEST", new User("author"), new User("moderator"));
+        r1.setPermId(new PermId("ID"));
+		Review r2 = new Review("http://bogus.server", "TEST", new User("author"), new User("moderator"));
+        r2.setPermId(new PermId("ID-2"));
 
 		assertEquals(r1, r1);
 

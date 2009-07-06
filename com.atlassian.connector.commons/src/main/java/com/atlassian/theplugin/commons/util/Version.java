@@ -148,7 +148,7 @@ public class Version implements Serializable {
 
 
 		public enum AlphaNum {
-			SNAPSHOT, ALPHA, BETA, NONE;			
+			SNAPSHOT, ALPHA, BETA, NONE			
 		}
 
 		public VersionNumber(int major, int minor, int micro, String alphaNum, String alphaNumValue, int buildNo)

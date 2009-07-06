@@ -16,6 +16,8 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import java.io.Serializable;
+
 /**
  * Created by IntelliJ IDEA.
  * User: mwent
@@ -23,6 +25,37 @@ package com.atlassian.theplugin.commons.crucible.api.model;
  * Time: 13:43:40
  * To change this template use File | Settings | File Templates.
  */
-public interface PermId {
-	String getId();
+public class PermId implements Serializable {
+	private final String id;
+
+	public PermId(String id) {
+		this.id = id;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+    @Override
+	public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        PermId that = (PermId) o;
+
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+	public int hashCode() {
+        return (id != null ? id.hashCode() : 0);
+    }
 }

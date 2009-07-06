@@ -16,10 +16,12 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
+import java.io.Serializable;
+
 /**
  * This class is immutable
  */
-public class BambooPlan {
+public class BambooPlan implements Serializable {
 	private final String name;
 	private final String key;
 	private final boolean favourite;

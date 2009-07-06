@@ -16,10 +16,60 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-public interface CrucibleProject {
-	String getId();
+import java.io.Serializable;
 
-	String getKey();
+public class CrucibleProject implements Serializable {
+	private final String id;
+	private final String key;
+	private final String name;
+	private static final int HASH_INT = 31;
 
-	String getName();
+	public CrucibleProject(String id, String key, String name) {
+		this.id = id;
+		this.key = key;
+		this.name = name;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		CrucibleProject that = (CrucibleProject) o;
+
+		if (id != null ? !id.equals(that.id) : that.id != null) {
+			return false;
+		}
+		if (key != null ? !key.equals(that.key) : that.key != null) {
+			return false;
+		}
+		if (name != null ? !name.equals(that.name) : that.name != null) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public int hashCode() {
+		int result;
+		result = (id != null ? id.hashCode() : 0);
+		result = HASH_INT * result + (key != null ? key.hashCode() : 0);
+		result = HASH_INT * result + (name != null ? name.hashCode() : 0);
+		return result;
+	}
 }

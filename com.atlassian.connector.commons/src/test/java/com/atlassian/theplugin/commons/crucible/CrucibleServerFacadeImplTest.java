@@ -50,8 +50,8 @@ public class CrucibleServerFacadeImplTest extends TestCase {
 				return mock;
 			}
 		};
-		Review review = new ReviewBean(SERVER_DATA.getUrl());
-		review.setPermId(new PermIdBean("CR-123"));
+		Review review = new Review(SERVER_DATA.getUrl());
+		review.setPermId(new PermId("CR-123"));
 		review.setReviewers(MiscUtil.<Reviewer>buildHashSet());
 		final ArrayList<String> newReviewers = MiscUtil.buildArrayList("wseliga", "mwent");
 		EasyMock.expect(mock.getReview(review.getPermId())).andReturn(review);

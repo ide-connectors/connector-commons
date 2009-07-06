@@ -379,6 +379,18 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 		}
 	}
 
+    public BambooBuild getBuildForPlanAndNumber(BambooServerData bambooServer, @NotNull String planKey,
+                                                final int buildNumber, final int timezoneOffset)
+            throws ServerPasswordNotProvidedException, RemoteApiException {
+        try {
+            BambooSession api = getSession(bambooServer);
+            return api.getBuildForPlanAndNumber(planKey, buildNumber, timezoneOffset);
+        } catch (RemoteApiException e) {
+            loger.info("Bamboo exception: " + e.getMessage());
+            throw e;
+        }
+    }
+
 	/**
 	 * @param bambooServer
 	 *            server data

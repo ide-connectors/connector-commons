@@ -39,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 import java.io.IOException;
 import java.util.*;
@@ -71,8 +72,10 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 	private static final String GET_BAMBOO_BUILD_NUMBER_ACTION = "/api/rest/getBambooBuildNumber.action";
 
-
-
+    //
+    // Bamboo 2.3 REST API
+    //
+    private static final String GET_BUILD_BY_NUMBER_ACTION = "/rest/api/latest/build";
 
 
 	private static final String BUILD_COMPLETED_DATE_ELEM = "buildCompletedDate";
@@ -82,8 +85,10 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	private static final String BUILD_FAILED = "Failed";
 
 	private final BambooServerData serverData;
+    private static final int BAMBOO_23_BUILD_NUMBER = 1308;
+    private static final String CANNOT_PARSE_BUILD_TIME = "Cannot parse buildTime.";
 
-	/**
+    /**
 	 * For testing purposes, shouldn't be public
 	 *
 	 * @param url
@@ -263,7 +268,50 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		}
 	}
 
-	public Collection<BambooBuild> getRecentBuildsForPlan(@NotNull final String planKey, final int timezoneOffset)
+    @NotNull
+    public BambooBuild getBuildForPlanAndNumber(@NotNull String planKey, final int buildNumber, final int timezoneOffset)
+            throws RemoteApiException {
+
+        // try recent build first, as this API is availablke in older Bamboos also
+        Collection<BambooBuild> recentBuilds = getRecentBuildsForPlan(planKey, timezoneOffset);
+        try {
+            for (BambooBuild recentBuild : recentBuilds) {
+                if (recentBuild.getNumber() == buildNumber) {
+                    return recentBuild;
+                }
+            }
+        } catch (UnsupportedOperationException e) {
+            // oh well, it can actually happen for disabled builds. Let's just gobble this
+        }
+
+        // well, it is an old build, let's try to use new API
+        int bambooBuild = getBamboBuildNumber();
+        if (bambooBuild < BAMBOO_23_BUILD_NUMBER) {
+            throw new RemoteApiException(BAMBOO_VERSION_2_3_REQUIRED);
+        }
+        String buildResultUrl = getBaseUrl() + GET_BUILD_BY_NUMBER_ACTION + "/" + UrlUtil.encodeUrl(planKey)
+                + "/" + buildNumber + "?auth=" + UrlUtil.encodeUrl(authToken);
+
+        try {
+            Document doc = retrieveGetResponse(buildResultUrl);
+            String exception = getExceptionMessages(doc);
+            if (null != exception) {
+                return constructBuildErrorInfo(buildResultUrl, exception, new Date());
+            }
+
+            @SuppressWarnings("unchecked")
+            final List<Element> elements = XPath.newInstance("/build").selectNodes(doc);
+            Element el = elements.get(0);
+            return constructBuildItemFromNewApi(el, new Date(), planKey);
+
+        } catch (IOException e) {
+            throw new RemoteApiException(e);
+        } catch (JDOMException e) {
+            throw new RemoteApiException(e);
+        }
+    }
+
+    public Collection<BambooBuild> getRecentBuildsForPlan(@NotNull final String planKey, final int timezoneOffset)
 			throws RemoteApiException {
 		String buildResultUrl = getBaseUrl() + RECENT_BUILDS_FOR_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
 				+ "&buildKey=" + UrlUtil.encodeUrl(planKey);
@@ -553,7 +601,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		final String projectName = getChildText(buildItemNode, "projectName");
 		final int buildNumber = parseInt(getChildText(buildItemNode, "buildNumber"));
 		final String relativeBuildDate = getChildText(buildItemNode, "buildRelativeBuildDate");
-		final Date startTime = parseBuildDate(getChildText(buildItemNode, "buildTime"), "Cannot parse buildTime.",
+		final Date startTime = parseBuildDate(getChildText(buildItemNode, "buildTime"), CANNOT_PARSE_BUILD_TIME,
 				timezoneOffset);
 		final String buildCompletedDateStr = getChildText(buildItemNode, BUILD_COMPLETED_DATE_ELEM);
 		final Date completionTime = (buildCompletedDateStr != null && buildCompletedDateStr.length() > 0) ? parseDateUniversal(
@@ -578,6 +626,31 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 				.commiters(commiters)
 				.build();
 	}
+
+    private BambooBuild constructBuildItemFromNewApi(Element el, Date pollingTime, String planKey)
+            throws RemoteApiException {
+
+        String planName = null;
+
+        List<BambooPlan> plans = listPlanNames();
+        for (BambooPlan plan : plans) {
+            if (plan.getPlanKey().equals(planKey)) {
+                planName = plan.getPlanName();
+                break;
+            }
+        }
+
+        BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(planKey, planName, serverData, null,
+                parseInt(el.getAttributeValue("number")), getStatus(el.getAttributeValue("state")));
+        builder.testsFailedCount(parseInt(getChildText(el, "failedTestCount")));
+        builder.testsPassedCount(parseInt(getChildText(el, "successfulTestCount")));
+        builder.completionTime(parseNewApiBuildTime(getChildText(el, "buildCompletedTime")));
+        builder.startTime(parseNewApiBuildTime(getChildText(el, "buildStartedTime")));
+        builder.reason(getChildText(el, "buildReason"));
+        builder.pollingTime(pollingTime);
+
+        return builder.build();
+    }
 
 	@NotNull
 	private BuildStatus getStatus(@Nullable String stateStr) {
@@ -608,6 +681,8 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 	private static DateTimeFormatter commitDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
 
+    private static DateTimeFormatter newApiDateFormat = ISODateTimeFormat.dateTime();
+
 	/**
 	 * Parses date without timezone info
 	 * <p/>
@@ -637,6 +712,10 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	private Date parseCommitTime(String date) {
 		return commitDateFormat.parseDateTime(date).toDate();
 	}
+
+    private Date parseNewApiBuildTime(String dateTime) {
+        return newApiDateFormat.parseDateTime(dateTime).toDate();
+    }
 
 	private String getChildText(Element node, String childName) {
 		final Element child = node.getChild(childName);

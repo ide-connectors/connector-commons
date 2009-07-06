@@ -31,7 +31,16 @@ import javax.servlet.http.HttpServletResponse;
  * To change this template use File | Settings | File Templates.
  */
 public class BamboBuildNumberCalback implements JettyMockServer.Callback {
-	public void onExpectedRequest(String target, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    private String fullPath;
+
+    public BamboBuildNumberCalback() {
+    }
+
+    public BamboBuildNumberCalback(String fullPath) {
+        this.fullPath = fullPath;
+    }
+
+    public void onExpectedRequest(String target, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		assertTrue(request.getPathInfo().endsWith("/api/rest/getBambooBuildNumber.action"));
 
 		final String[] authTokens = request.getParameterValues("auth");
@@ -41,7 +50,11 @@ public class BamboBuildNumberCalback implements JettyMockServer.Callback {
 		final String authToken = authTokens[0];
 
 		assertEquals(LoginCallback.AUTH_TOKEN, authToken);
-		Util.copyResource(response.getOutputStream(), "bambooBuildNumberResponse.xml");
+        if (fullPath == null) {
+		    Util.copyResource(response.getOutputStream(), "bambooBuildNumberResponse.xml");
+        } else {
+            Util.copyResourceWithFullPath(response.getOutputStream(), fullPath);
+        }
 		response.getOutputStream().flush();
 	}
 }

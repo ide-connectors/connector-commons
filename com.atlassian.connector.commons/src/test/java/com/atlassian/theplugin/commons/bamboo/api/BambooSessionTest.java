@@ -306,8 +306,21 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.verify();
 	}
 
-    public void testgetBuildForPlanAndNumber() throws Exception {
+    public void testBuildForPlanAndNumber() throws Exception {
+        mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+        mockServer.expect("/api/rest/getRecentlyCompletedBuildResultsForBuild.action",
+                new RecentCompletedBuildResultsCallback());
+        mockServer.expect("/api/rest/getBambooBuildNumber.action",
+                new BamboBuildNumberCalback("/mock/bamboo/2_3/api/rest/bambooBuildNumberResponse.xml"));
+        mockServer.expect("/rest/api/latest/build/TP-DEF/140", new BuildForPlanAndNumberCallback());
+        mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
+        mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
+        BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+        apiHandler.login(USER_NAME, PASSWORD.toCharArray());
+        BambooBuild build = apiHandler.getBuildForPlanAndNumber("TP-DEF", 140, 0);
+        apiHandler.logout();
+        Util.verifySuccessfulBuildResult(build, mockBaseUrl);
     }
 
 	public void testBuildForNonExistingPlan() throws Exception {

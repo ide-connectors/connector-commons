@@ -87,9 +87,9 @@ public interface ConfigurationListener {
 	 * Called in case server has been changed
 	 * ServerCfg.equals is used to determine the change
 	 *
-	 * @param serverId id of changed server
+	 * @param serverData changed server
 	 */
-	void serverDataChanged(ServerId serverId);
+	void serverDataChanged(ServerData serverData);
 
 	/**
 	 * Called in case something in the JIRA servers list has been changed

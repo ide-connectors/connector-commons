@@ -28,7 +28,7 @@ public abstract class ConfigurationListenerAdapter implements ConfigurationListe
 	public void projectUnregistered() {
 	}
 
-	public void serverDataChanged(ServerId serverId) {
+	public void serverDataChanged(ServerData serverData) {
 	}
 
 	public void serverConnectionDataChanged(ServerId serverId) {

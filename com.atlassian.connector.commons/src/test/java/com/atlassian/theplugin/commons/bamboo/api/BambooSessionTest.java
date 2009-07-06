@@ -306,6 +306,10 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.verify();
 	}
 
+    public void testgetBuildForPlanAndNumber() throws Exception {
+
+    }
+
 	public void testBuildForNonExistingPlan() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("WRONG"));

@@ -81,45 +81,39 @@ public final class CrucibleRestXmlHelper {
 		return repo;
 	}
 
-	public static UserBean parseUserNode(Element repoNode) {
-		UserBean userDataBean = new UserBean();
-
+	public static User parseUserNode(Element repoNode) {
 		CrucibleVersion version = CrucibleVersion.CRUCIBLE_15;
 		Element userName = repoNode.getChild("userName");
 		if (userName != null && !userName.getText().equals("")) {
 			version = CrucibleVersion.CRUCIBLE_16;
 		}
 		if (version == CrucibleVersion.CRUCIBLE_15) {
-			userDataBean.setUserName(repoNode.getText());
-			userDataBean.setDisplayName(userDataBean.getUserName());
+			return new User(repoNode.getText(), repoNode.getText());
 		} else {
-			userDataBean.setUserName(getChildText(repoNode, "userName"));
-			userDataBean.setDisplayName(getChildText(repoNode, "displayName"));
+			return new User(getChildText(repoNode, "userName"),
+					getChildText(repoNode, "displayName"));
 		}
-		return userDataBean;
 	}
 
 	public static CrucibleAction parseActionNode(Element element) {
 		return CrucibleAction.fromValue(getChildText(element, "name"));
 	}
 
-	public static ReviewerBean parseReviewerNode(Element reviewerNode) {
-		ReviewerBean reviewerBean = new ReviewerBean();
-
+	public static Reviewer parseReviewerNode(Element reviewerNode) {
 		CrucibleVersion version = CrucibleVersion.CRUCIBLE_15;
 		Element userName = reviewerNode.getChild("userName");
 		if (userName != null && !userName.getText().equals("")) {
 			version = CrucibleVersion.CRUCIBLE_16;
 		}
 		if (version == CrucibleVersion.CRUCIBLE_15) {
-			reviewerBean.setUserName(reviewerNode.getText());
-			reviewerBean.setDisplayName(reviewerBean.getUserName());
+			return new Reviewer(reviewerNode.getText(),
+					reviewerNode.getText());
 		} else {
-			reviewerBean.setUserName(getChildText(reviewerNode, "userName"));
-			reviewerBean.setDisplayName(getChildText(reviewerNode, "displayName"));
-			reviewerBean.setCompleted(Boolean.parseBoolean(getChildText(reviewerNode, "completed")));
+			return new Reviewer(
+					getChildText(reviewerNode, "userName"),
+					getChildText(reviewerNode, "displayName"),
+					Boolean.parseBoolean(getChildText(reviewerNode, "completed")));
 		}
-		return reviewerBean;
 	}
 
 	private static void parseReview(Element reviewNode, ReviewBean review) {
@@ -562,7 +556,7 @@ public final class CrucibleRestXmlHelper {
 
 		boolean isDraft = Boolean.parseBoolean(getChildText(reviewCommentNode, "draft"));
 		for (Element element : getChildElements(reviewCommentNode, "user")) {
-			UserBean commentAuthor = parseUserNode(element);
+			User commentAuthor = parseUserNode(element);
 
 			// drop comments in draft state where I am the author - bug PL-772 and PL-900
 			if (isDraft && !commentAuthor.getUserName().equals(myUserName)) {

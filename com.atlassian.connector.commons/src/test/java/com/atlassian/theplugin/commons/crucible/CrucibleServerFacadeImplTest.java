@@ -63,7 +63,7 @@ public class CrucibleServerFacadeImplTest extends TestCase {
 
 		EasyMock.reset(mock);
 		review.setReviewers(MiscUtil.<Reviewer>buildHashSet(
-				new ReviewerBean("wseliga", true), new ReviewerBean("jgorycki", false), new ReviewerBean("sginter", true)));
+				new Reviewer("wseliga", true), new Reviewer("jgorycki", false), new Reviewer("sginter", true)));
 		final ArrayList<String> newReviewers2 = MiscUtil.buildArrayList("jgorycki", "mwent", "pmaruszak");
 		EasyMock.expect(mock.getReview(review.getPermId())).andReturn(review);
 		mock.addReviewers(review.getPermId(), MiscUtil.buildHashSet("mwent", "pmaruszak"));

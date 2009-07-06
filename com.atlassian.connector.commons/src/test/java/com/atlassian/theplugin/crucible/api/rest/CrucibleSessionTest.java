@@ -520,13 +520,10 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetReviewers() throws Exception {
-		UserBean[] reviewers = new UserBean[3];
-		reviewers[0] = new UserBean();
-		reviewers[0].setUserName("bob");
-		reviewers[1] = new UserBean();
-		reviewers[1].setUserName("alice");
-		reviewers[2] = new UserBean();
-		reviewers[2].setUserName("steve");
+		User[] reviewers = new User[3];
+		reviewers[0] = new User("bob");
+		reviewers[1] = new User("alice");
+		reviewers[2] = new User("steve");
 
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/PR-1/reviewers", new GetReviewersCallback(reviewers));
@@ -785,10 +782,10 @@ public class CrucibleSessionTest extends TestCase {
 
 	private ReviewBean createReviewRequest() {
 		ReviewBean review = new ReviewBean(mockBaseUrl);
-		review.setAuthor(new UserBean("autor", ""));
-		review.setCreator(new UserBean("creator", ""));
+		review.setAuthor(new User("autor", ""));
+		review.setCreator(new User("creator", ""));
 		review.setDescription("description");
-		review.setModerator(new UserBean("moderator", ""));
+		review.setModerator(new User("moderator", ""));
 		review.setName("name");
 		review.setProjectKey("PR");
 		return review;

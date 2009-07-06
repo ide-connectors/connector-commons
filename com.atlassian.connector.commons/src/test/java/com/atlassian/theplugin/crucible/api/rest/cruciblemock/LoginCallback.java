@@ -17,7 +17,6 @@
 package com.atlassian.theplugin.crucible.api.rest.cruciblemock;
 
 import com.atlassian.theplugin.commons.crucible.api.model.User;
-import com.atlassian.theplugin.commons.crucible.api.model.UserBean;
 import static junit.framework.Assert.*;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 
@@ -38,7 +37,7 @@ public class LoginCallback implements JettyMockServer.Callback {
 	}
 
 	public LoginCallback(String expectedUserName, String expectedPassword, boolean alwaysFail) {
-		this.expectedUser = new UserBean(expectedUserName);
+		this.expectedUser = new User(expectedUserName);
 		this.expectedPassword = expectedPassword;
 
 		fail = alwaysFail;

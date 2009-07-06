@@ -16,6 +16,24 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-public interface Reviewer extends User {
-    boolean isCompleted();
+public class Reviewer extends User {
+    private boolean completed;
+
+	public Reviewer(final String userName, final boolean completed) {
+		super(userName);
+		this.completed = completed;
+	}
+
+	public Reviewer(final String userName, final String displayName, final boolean completed) {
+		super(userName, displayName);
+		this.completed = completed;
+	}
+
+	public Reviewer(final String userName, final String displayName) {
+		super(userName, displayName);
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
 }

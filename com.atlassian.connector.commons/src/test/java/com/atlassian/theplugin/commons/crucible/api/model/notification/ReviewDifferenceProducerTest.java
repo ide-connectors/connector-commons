@@ -38,13 +38,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		return new ReviewBean("http://bogus", "TEST", reviewer3, reviewer4);
 	}
 
-	private ReviewerBean prepareReviewer(String userName, String displayName, boolean completed) {
-		ReviewerBean reviewer = new ReviewerBean();
-		reviewer.setUserName(userName);
-		reviewer.setDisplayName(displayName);
-		reviewer.setCompleted(completed);
-
-		return reviewer;
+	private Reviewer prepareReviewer(String userName, String displayName, boolean completed) {
+		return new Reviewer(userName, displayName, completed);
 	}
 
 	private GeneralComment prepareGeneralComment(final String message, final PermId permId, final Date date,
@@ -550,7 +545,10 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		// complete reviewer1
 		Iterator<Reviewer> iter = review1.getReviewers().iterator();
-		((ReviewerBean) iter.next()).setCompleted(true);
+		Reviewer reviewer = iter.next();
+		review1.getReviewers().remove(reviewer);
+		review1.getReviewers().add(new Reviewer(reviewer.getUserName(), reviewer.getDisplayName(), true));
+
 		p = new ReviewDifferenceProducer(review, review1);
 		notifications = p.getDiff();
 		assertEquals(1, notifications.size());
@@ -558,7 +556,13 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertTrue(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.REVIEWER_COMPLETED, notifications.get(0).getType());
 
-		((ReviewerBean) iter.next()).setCompleted(true);
+		// complete all reviewers
+		Reviewer[] reviewers = review1.getReviewers().toArray(new Reviewer[review1.getReviewers().size()]);
+		review1.getReviewers().clear();
+		for (Reviewer r : reviewers) {
+			review1.getReviewers().add(new Reviewer(r.getUserName(), r.getDisplayName(), true));
+		}
+
 		p = new ReviewDifferenceProducer(review, review1);
 		notifications = p.getDiff();
 		assertEquals(3, notifications.size());
@@ -627,8 +631,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testModeratorChanged() {
 		testHelper(CrucibleNotificationType.MODERATOR_CHANGED, new MyCallback() {
 			public void handle(final ReviewBean r1, final ReviewBean r2, final String s1, final String s2) {
-				r1.setModerator(new UserBean(s1));
-				r2.setModerator(new UserBean(s2));
+				r1.setModerator(new User(s1));
+				r2.setModerator(new User(s2));
 			}
 		});
 	}
@@ -636,8 +640,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testAuthorChanged() {
 		testHelper(CrucibleNotificationType.AUTHOR_CHANGED, new MyCallback() {
 			public void handle(final ReviewBean r1, final ReviewBean r2, final String s1, final String s2) {
-				r1.setAuthor(new UserBean(s1));
-				r2.setAuthor(new UserBean(s2));
+				r1.setAuthor(new User(s1));
+				r2.setAuthor(new User(s2));
 			}
 		});
 	}
@@ -675,9 +679,9 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testReviewersChanged() {
 		final ReviewBean r1 = prepareReview();
 		final ReviewBean r2 = prepareReview();
-		final Reviewer rv1 = new ReviewerBean("user1", true);
-		final Reviewer rv2 = new ReviewerBean("user2", true);
-		final Reviewer rv3 = new ReviewerBean("user3", true);
+		final Reviewer rv1 = new Reviewer("user1", true);
+		final Reviewer rv2 = new Reviewer("user2", true);
+		final Reviewer rv3 = new Reviewer("user3", true);
 
 		Collection<Pair<Set<Reviewer>, Set<Reviewer>>> reviewers = MiscUtil.buildArrayList(
 				new Pair<Set<Reviewer>, Set<Reviewer>>(MiscUtil.buildHashSet(rv1), MiscUtil.<Reviewer> buildHashSet()),

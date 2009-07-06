@@ -44,7 +44,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 public class CrucibleServerFacadeTest extends TestCase {
-	private static final User VALID_LOGIN = new UserBean("validLogin");
+	private static final User VALID_LOGIN = new User("validLogin");
 
 	private static final String VALID_PASSWORD = "validPassword";
 
@@ -205,7 +205,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 	}
 
 	public void testChangedCredentials() throws Exception {
-		User validLogin2 = new UserBean(VALID_LOGIN.getUserName() + 2);
+		User validLogin2 = new User(VALID_LOGIN.getUserName() + 2);
 		String validPassword2 = VALID_PASSWORD + 2;
 		getSessionsFromFacade().put(VALID_URL + validLogin2.getUserName() + validPassword2, crucibleSessionMock);
 

@@ -16,10 +16,68 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-public interface User {
-    String getUserName();
+import java.io.Serializable;
 
-    String getDisplayName();
+/**
+ * User abstraction.
+ */
+public class User implements Serializable {
+    private static final int HASH_MAGIC = 31;
 
-    int compareTo(User that);
+    protected String userName;
+	protected String displayName;
+
+    public User(String userName) {
+        this.userName = userName;
+    }
+
+    public User(String userName, String displayName) {
+        this.userName = userName;
+        this.displayName = displayName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public String getDisplayName() {
+		if (displayName == null) {
+			return userName;
+		}
+		return displayName;
+    }
+
+    @Override
+	public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        User userBean = (User) o;
+
+        if (displayName != null ? !displayName.equals(userBean.displayName) : userBean.displayName != null) {
+            return false;
+        }
+
+        if (userName != null ? !userName.equals(userBean.userName) : userBean.userName != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+	public int hashCode() {
+        int result;
+        result = (userName != null ? userName.hashCode() : 0);
+        result = HASH_MAGIC * result + (displayName != null ? displayName.hashCode() : 0);
+        return result;
+    }
+
+    public int compareTo(User that) {
+        return this.userName.compareTo(that.getUserName());
+    }
 }

@@ -33,8 +33,6 @@ import java.util.List;
  */
 public interface BambooSession extends ProductSession {
 
-    static final String BAMBOO_VERSION_2_3_REQUIRED = "Bamboo version >= 2.3 required for this feature to work";
-
 	int getBamboBuildNumber() throws RemoteApiException;
 
 	@NotNull

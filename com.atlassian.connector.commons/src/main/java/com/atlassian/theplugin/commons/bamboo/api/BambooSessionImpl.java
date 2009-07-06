@@ -26,6 +26,7 @@ import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiBadServerVersionException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
@@ -287,7 +288,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
         // well, it is an old build, let's try to use new API
         int bambooBuild = getBamboBuildNumber();
         if (bambooBuild < BAMBOO_23_BUILD_NUMBER) {
-            throw new RemoteApiException(BAMBOO_VERSION_2_3_REQUIRED);
+            throw new RemoteApiBadServerVersionException("Bamboo version 2.3 or newer required");
         }
         String buildResultUrl = getBaseUrl() + GET_BUILD_BY_NUMBER_ACTION + "/" + UrlUtil.encodeUrl(planKey)
                 + "/" + buildNumber + "?auth=" + UrlUtil.encodeUrl(authToken);

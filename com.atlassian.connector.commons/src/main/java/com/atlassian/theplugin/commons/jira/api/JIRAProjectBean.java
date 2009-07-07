@@ -90,7 +90,7 @@ public class JIRAProjectBean implements JIRAProject {
 		return lead;
 	}
 
-	@Transient
+	//@Transient
 	public String getQueryStringFragment() {
 		return "pid=" + id;
 	}

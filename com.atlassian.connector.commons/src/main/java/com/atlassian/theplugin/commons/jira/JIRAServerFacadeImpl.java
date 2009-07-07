@@ -47,7 +47,6 @@ public final class JIRAServerFacadeImpl implements JIRAServerFacade {
 
 	public static synchronized JIRAServerFacade getInstance(Logger logger) {
         JIRAServerFacadeImpl.logger = logger;
-        assert (logger != null);
 
 		if (instance == null) {
 			instance = new JIRAServerFacadeImpl();

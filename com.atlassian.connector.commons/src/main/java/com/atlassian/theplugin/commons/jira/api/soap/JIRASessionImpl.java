@@ -252,8 +252,10 @@ public class JIRASessionImpl implements JIRASession {
 							+ "Probably there is no 'SecurityLevel' on JIRA (non enterprise version of JIRA).", e);
             }
 		} catch (ClassCastException e) {
-			logger.warn(
+            if (logger != null) {
+		    	logger.warn(
                     "Soap method 'getSecurityLevel' thrown ClassCastException. Probably some JIRA error.", e);
+            }
 		} catch (Exception e) {
             // PL-1492 and PL-1609
             if (e instanceof SAXException && logger != null) {

@@ -41,6 +41,7 @@ public class ConnectorTrustManager implements X509TrustManager {
 			Collections.synchronizedCollection(new HashSet<String>());
 
 	private final GeneralConfigurationBean configuration;
+    private CertMessageDialog certMessageDialog;
     private MessageDialogFactory messageDialogFactory;
     private X509TrustManager standardTrustManager;
 
@@ -54,10 +55,10 @@ public class ConnectorTrustManager implements X509TrustManager {
 	}
 
 
-    public ConnectorTrustManager(GeneralConfigurationBean configuration,  MessageDialogFactory messageDialogFactory)
+    public ConnectorTrustManager(GeneralConfigurationBean configuration,  CertMessageDialog certMessageDialog)
                 throws NoSuchAlgorithmException, KeyStoreException {
 		this.configuration = configuration;
-        this.messageDialogFactory = messageDialogFactory;
+        this.certMessageDialog = certMessageDialog;
 
         TrustManagerFactory factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 		factory.init((KeyStore) null);
@@ -127,7 +128,6 @@ public class ConnectorTrustManager implements X509TrustManager {
                     final String message1 = message;
                     EventQueue.invokeAndWait(new Runnable() {
                         public void run() {
-                            CertMessageDialog certMessageDialog = messageDialogFactory.getMessageDialog();
                             if (certMessageDialog != null) {
                                 certMessageDialog.show(server, message1, chain);
                                 if (certMessageDialog.isOK()) {

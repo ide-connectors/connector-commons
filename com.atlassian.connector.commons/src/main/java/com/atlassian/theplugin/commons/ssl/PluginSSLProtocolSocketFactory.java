@@ -46,8 +46,7 @@ public class PluginSSLProtocolSocketFactory extends EasySSLProtocolSocketFactory
 	private static final int DEFAULT_PROXY_PORT = 80;
     private Logger logger;
     private static GeneralConfigurationBean generalConfigurationBean;
-    private static MessageDialogFactory messageDialogFactory;
-    private static ConnectorTrustManager connectorTrustManager;
+    private static CertMessageDialog certMessageDialog;
 
     public PluginSSLProtocolSocketFactory(Hashtable attributes) {
 		this();
@@ -56,7 +55,7 @@ public class PluginSSLProtocolSocketFactory extends EasySSLProtocolSocketFactory
 
 	private PluginSSLProtocolSocketFactory() {
 		try {
-			trustManager = new ConnectorTrustManager(generalConfigurationBean, messageDialogFactory);
+			trustManager = new ConnectorTrustManager(generalConfigurationBean, certMessageDialog);
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} catch (KeyStoreException e) {
@@ -70,9 +69,9 @@ public class PluginSSLProtocolSocketFactory extends EasySSLProtocolSocketFactory
 	}
 
 	public static void initializeSocketFactory(GeneralConfigurationBean generalConfigurationBean,
-                                               MessageDialogFactory messageDialogFactory) {
+                                               CertMessageDialog certMessageDialog) {
         PluginSSLProtocolSocketFactory.generalConfigurationBean = generalConfigurationBean;
-        PluginSSLProtocolSocketFactory.messageDialogFactory = messageDialogFactory;
+        PluginSSLProtocolSocketFactory.certMessageDialog = certMessageDialog;
         Protocol.registerProtocol("https", new Protocol(
 				"https", (ProtocolSocketFactory) new PluginSSLProtocolSocketFactory(),
 				EasySSLProtocolSocketFactory.SSL_PORT));

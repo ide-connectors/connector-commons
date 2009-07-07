@@ -135,7 +135,7 @@
 		<testResult testClass="com.atlassian.theplugin.crucible.api.rest.CrucibleSessionTest" testMethod="testCreateReview"
 					duration="0.019">
 		</testResult>
-		<testResult testClass="com.atlassian.theplugin.commons.jira.api.JIRAIssueBeanTest" testMethod="testFromXml" duration="0.002">
+		<testResult testClass="com.atlassian.theplugin.jira.api.JIRAIssueBeanTest" testMethod="testFromXml" duration="0.002">
 		</testResult>
 		<testResult testClass="com.atlassian.theplugin.commons.bamboo.BambooStatusListenerTest"
 					testMethod="testSingleBuildFailed" duration="0.029">
@@ -187,7 +187,7 @@
 		<testResult testClass="com.atlassian.theplugin.crucible.api.rest.CrucibleSessionTest" testMethod="testGetEmptyReviewers"
 					duration="0.111">
 		</testResult>
-		<testResult testClass="com.atlassian.theplugin.commons.jira.api.JIRARssClientTest" testMethod="testAssignedIssues"
+		<testResult testClass="com.atlassian.theplugin.jira.api.JIRARssClientTest" testMethod="testAssignedIssues"
 					duration="0.207">
 		</testResult>
 		<testResult testClass="com.atlassian.theplugin.crucible.CrucibleServerFacadeConnectionTest"

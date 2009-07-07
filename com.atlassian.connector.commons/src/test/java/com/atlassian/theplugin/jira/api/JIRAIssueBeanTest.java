@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.atlassian.theplugin.commons.jira.api;
+package com.atlassian.theplugin.jira.api;
 
 import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.jira.api.JIRAIssueBean;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;

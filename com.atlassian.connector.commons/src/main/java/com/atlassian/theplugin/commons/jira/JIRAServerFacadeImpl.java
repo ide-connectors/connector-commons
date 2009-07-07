@@ -39,15 +39,13 @@ import java.util.WeakHashMap;
 public final class JIRAServerFacadeImpl implements JIRAServerFacade {
 
 	private HttpSessionCallback callback;
-    public static Logger logger;
+    private static Logger logger;
 
     private JIRAServerFacadeImpl() {
 		this.callback = new HttpSessionCallbackImpl();
 	}
 
-	public static synchronized JIRAServerFacade getInstance(Logger logger) {
-        JIRAServerFacadeImpl.logger = logger;
-
+	public static synchronized JIRAServerFacade getInstance() {
 		if (instance == null) {
 			instance = new JIRAServerFacadeImpl();
 		}
@@ -113,7 +111,11 @@ public final class JIRAServerFacadeImpl implements JIRAServerFacade {
 		return ServerType.JIRA_SERVER;
 	}
 
-	public List<JIRAIssue> getIssues(ServerData server,
+    public static void setLogger(Logger logger) {
+        JIRAServerFacadeImpl.logger = logger;
+    }
+
+    public List<JIRAIssue> getIssues(ServerData server,
 			List<JIRAQueryFragment> query,
 			String sort,
 			String sortOrder,

@@ -20,11 +20,12 @@ import com.atlassian.theplugin.commons.jira.api.*;
 import com.atlassian.theplugin.commons.jira.api.rss.JIRAException;
 import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
+import com.atlassian.theplugin.commons.util.Logger;
 
 import java.util.Calendar;
 import java.util.List;
 
-public interface JIRAServerFacade extends ProductServerFacade {
+public interface JIRAServerFacade extends ProductServerFacade {    
 	List<JIRAIssue> getIssues(ServerData server, List<JIRAQueryFragment> query,
 			String sort,
 			String sortOrder,

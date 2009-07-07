@@ -26,7 +26,8 @@ public abstract class JIRAServerModelImpl implements JIRAServerModel {
 	private boolean changed = false;
 
 	public JIRAServerModelImpl(Logger logger) {
-		facade = JIRAServerFacadeImpl.getInstance(logger);
+		facade = JIRAServerFacadeImpl.getInstance();
+        JIRAServerFacadeImpl.setLogger(logger);
 	}
 
 	// for unit testing

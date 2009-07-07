@@ -41,7 +41,7 @@ public class JIRARssClientTest extends TestCase {
 	private String mostRecentUrl;
 
 	public void testAssignedIssues() throws Exception {
-		JIRARssClient rss = getClasspathJIRARssClient("http://www.server.com", null, null, "/jira/api/assignedIssues.xml");
+		JIRARssClient rss = getClasspathJIRARssClient("http://www.server.com", null, null, "/jira/assignedIssues.xml");
 /*
         // first try unauthenticated and test the URL is correct
         rss.getAssignedIssues("anyone");
@@ -78,7 +78,7 @@ public class JIRARssClientTest extends TestCase {
 			protected Document retrieveGetResponse(String urlString)
 					throws IOException, JDOMException, RemoteApiSessionExpiredException {
 				SAXBuilder builder = new SAXBuilder();
-				InputStream is = JIRARssClientTest.class.getResourceAsStream("/jira/api/PL-863.xml");
+				InputStream is = JIRARssClientTest.class.getResourceAsStream("/jira/PL-863.xml");
 				Document doc = builder.build(is);
 				preprocessResult(doc);
 				return doc;
@@ -111,7 +111,7 @@ public class JIRARssClientTest extends TestCase {
 			protected Document retrieveGetResponse(String urlString)
 					throws IOException, JDOMException, RemoteApiSessionExpiredException {
 				SAXBuilder builder = new SAXBuilder();
-				InputStream is = JIRARssClientTest.class.getResourceAsStream("/jira/api/PL-941.xml");
+				InputStream is = JIRARssClientTest.class.getResourceAsStream("/jira/PL-941.xml");
 				Document doc = builder.build(is);
 				preprocessResult(doc);
 				return doc;

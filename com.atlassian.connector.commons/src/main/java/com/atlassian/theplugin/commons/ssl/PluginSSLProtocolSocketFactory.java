@@ -70,8 +70,11 @@ public class PluginSSLProtocolSocketFactory extends EasySSLProtocolSocketFactory
 
 	public static void initializeSocketFactory(GeneralConfigurationBean generalConfigurationBean,
                                                CertMessageDialog certMessageDialog) {
+
+        // CHECKSTYLE:OFF
         PluginSSLProtocolSocketFactory.generalConfigurationBean = generalConfigurationBean;
         PluginSSLProtocolSocketFactory.certMessageDialog = certMessageDialog;
+        // CHECKSTYLE:ON
         Protocol.registerProtocol("https", new Protocol(
 				"https", (ProtocolSocketFactory) new PluginSSLProtocolSocketFactory(),
 				EasySSLProtocolSocketFactory.SSL_PORT));

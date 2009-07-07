@@ -45,15 +45,13 @@ public class PluginSSLProtocolSocketFactory extends EasySSLProtocolSocketFactory
 	private X509TrustManager trustManager;
 	private static final int DEFAULT_PROXY_PORT = 80;
     private Logger logger;
-    private static GeneralConfigurationBean generalConfigurationBean;
-    private static CertMessageDialog certMessageDialog;
 
     public PluginSSLProtocolSocketFactory(Hashtable attributes) {
-		this();
+		this(null, null);
 	}
 
 
-	private PluginSSLProtocolSocketFactory() {
+	private PluginSSLProtocolSocketFactory(GeneralConfigurationBean generalConfigurationBean, CertMessageDialog certMessageDialog) {
 		try {
 			trustManager = new ConnectorTrustManager(generalConfigurationBean, certMessageDialog);
 		} catch (NoSuchAlgorithmException e) {
@@ -71,12 +69,8 @@ public class PluginSSLProtocolSocketFactory extends EasySSLProtocolSocketFactory
 	public static void initializeSocketFactory(GeneralConfigurationBean generalConfigurationBean,
                                                CertMessageDialog certMessageDialog) {
 
-        // CHECKSTYLE:OFF
-        PluginSSLProtocolSocketFactory.generalConfigurationBean = generalConfigurationBean;
-        PluginSSLProtocolSocketFactory.certMessageDialog = certMessageDialog;
-        // CHECKSTYLE:ON
         Protocol.registerProtocol("https", new Protocol(
-				"https", (ProtocolSocketFactory) new PluginSSLProtocolSocketFactory(),
+				"https", (ProtocolSocketFactory) new PluginSSLProtocolSocketFactory(generalConfigurationBean, certMessageDialog),
 				EasySSLProtocolSocketFactory.SSL_PORT));
 		try {
 			Class.forName(SocketFactoryFactory.class.getCanonicalName());

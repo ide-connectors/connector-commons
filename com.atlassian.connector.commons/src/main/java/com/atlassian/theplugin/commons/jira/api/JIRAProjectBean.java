@@ -16,8 +16,6 @@
 
 package com.atlassian.theplugin.commons.jira.api;
 
-import com.intellij.util.xmlb.annotations.Transient;
-
 import java.util.HashMap;
 import java.util.Map;
 

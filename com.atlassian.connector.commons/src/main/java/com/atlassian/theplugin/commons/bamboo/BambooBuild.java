@@ -85,7 +85,7 @@ public interface BambooBuild {
 	/**
 	 * Relative build completion date on Bamboo server. Unfortunately it does not respect calling client timezone,
 	 * so in most cases it's useless. Instead it's preferable to use {@link #getCompletionDate()} and then use
-	 * some utility method like {@link com.atlassian.theplugin.commons.util.DateUtil#getRelativeBuildTime(java.util.Date)}
+	 * some utility method like {@link com.atlassian.theplugin.commons.util.DateUtil#getRelativePastDate(java.util.Date)}
 	 * to transform Date to relative string describing relative date.
 	 *
 	 * @return human readable string like "2 months ago"

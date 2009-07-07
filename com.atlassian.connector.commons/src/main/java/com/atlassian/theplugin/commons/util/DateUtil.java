@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,24 +22,24 @@ import java.util.Date;
 
 /**
  * @author lguminski
- * Taken from the Bamboo project.
+ *         Taken from the Bamboo project.
  */
 public abstract class DateUtil {
 	private static final String PRIOR_TEXT = "ago";
 	public static final int SECONDS_IN_MINUTE = 60;
 	public static final int MILISECONDS_IN_SECOND = 1000;
 
-    private DateUtil() {        
-    }
+	private DateUtil() {
+	}
 
-	public static String getRelativeBuildTime(Date someDate) {
+	public static String getRelativePastDate(Date someDate) {
 
 		if (someDate != null) {
 			return DateUtil.getRelativePastDate(new Date(), someDate);
 		}
 		return "Unknown";
 	}
-	
+
 	public static String getRelativePastDate(Date comparedTo, Date someDate) {
 		if (someDate != null) {
 			Period period = new Period(someDate.getTime(), comparedTo.getTime());

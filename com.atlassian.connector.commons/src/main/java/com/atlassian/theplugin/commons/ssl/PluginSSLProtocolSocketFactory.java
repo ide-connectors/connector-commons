@@ -44,7 +44,7 @@ import java.util.Hashtable;
 public class PluginSSLProtocolSocketFactory extends EasySSLProtocolSocketFactory implements SecureSocketFactory {
 	private X509TrustManager trustManager;
 	private static final int DEFAULT_PROXY_PORT = 80;
-    Logger logger;
+    private Logger logger;
     private static GeneralConfigurationBean generalConfigurationBean;
     private static MessageDialogFactory messageDialogFactory;
     private static ConnectorTrustManager connectorTrustManager;
@@ -155,7 +155,7 @@ public class PluginSSLProtocolSocketFactory extends EasySSLProtocolSocketFactory
 			out.flush();
 			InputStream tunnelInputStream = tunnel.getInputStream();
 
-			if (logger !=null) {
+			if (logger != null) {
                 logger.debug(Messages.getMessage("isNull00", "tunnelInputStream",
 					"" + (tunnelInputStream
 							== null)));
@@ -196,14 +196,14 @@ public class PluginSSLProtocolSocketFactory extends EasySSLProtocolSocketFactory
 			// End of condensed reflective tunnel handshake method
 			sslSocket = super.createSocket(tunnel, host, port, true);
 
-			if (logger !=null) {
+			if (logger != null) {
                     logger.debug(Messages.getMessage("setupTunnel00", tcp.getProxyHost(), "" + tunnelPort));
              }
 
 		}
 
 		((SSLSocket) sslSocket).startHandshake();
-        if (logger != null ) {
+        if (logger != null) {
 		    logger.debug(Messages.getMessage("createdSSL00"));
         }
 		return sslSocket;

@@ -39,7 +39,7 @@ import java.util.WeakHashMap;
 public final class JIRAServerFacadeImpl implements JIRAServerFacade {
 
 	private HttpSessionCallback callback;
-    private static Logger logger;
+    public static Logger logger;
 
     private JIRAServerFacadeImpl() {
 		this.callback = new HttpSessionCallbackImpl();

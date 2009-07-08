@@ -75,6 +75,15 @@ public class CrucibleServerCfg extends ServerCfg {
 
 	public CrucibleServerCfg(final CrucibleServerCfg other) {
 		super(other);
+		copyLocal(other);
+	}
+
+	public void copy(final CrucibleServerCfg other) {
+		super.copy(other);
+		copyLocal(other);
+	}
+
+	private void copyLocal(final CrucibleServerCfg other) {
 		isFisheyeInstance = other.isFisheyeInstance();
 	}
 

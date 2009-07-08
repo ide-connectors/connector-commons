@@ -45,16 +45,18 @@ public class PluginSSLProtocolSocketFactory extends EasySSLProtocolSocketFactory
 	private X509TrustManager trustManager;
 	private static final int DEFAULT_PROXY_PORT = 80;
     private Logger logger;
+    private static GeneralConfigurationBean generalConfigurationBean;
+    private static CertMessageDialog certMessageDialog;
 
     public PluginSSLProtocolSocketFactory(Hashtable attributes) {
-		this(null, null);
+		this();
 	}
 
 
-	private PluginSSLProtocolSocketFactory(GeneralConfigurationBean generalConfigurationBean,
-                                           CertMessageDialog certMessageDialog) {
+	private PluginSSLProtocolSocketFactory() {
 		try {
-			trustManager = new ConnectorTrustManager(generalConfigurationBean, certMessageDialog);
+			trustManager = new ConnectorTrustManager(PluginSSLProtocolSocketFactory.generalConfigurationBean,
+                                PluginSSLProtocolSocketFactory.certMessageDialog);
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} catch (KeyStoreException e) {
@@ -67,12 +69,13 @@ public class PluginSSLProtocolSocketFactory extends EasySSLProtocolSocketFactory
 		return trustManager;
 	}
 
-	public static void initializeSocketFactory(GeneralConfigurationBean generalConfigurationBean,
-                                               CertMessageDialog certMessageDialog) {
+	public static void initializeSocketFactory(GeneralConfigurationBean generalConfiguration,
+                                               CertMessageDialog dialog) {
+        PluginSSLProtocolSocketFactory.generalConfigurationBean = generalConfiguration;
+        PluginSSLProtocolSocketFactory.certMessageDialog = dialog;
 
         Protocol.registerProtocol("https", new Protocol(
-				"https", (ProtocolSocketFactory) new PluginSSLProtocolSocketFactory(generalConfigurationBean,
-                        certMessageDialog),
+				"https", (ProtocolSocketFactory) new PluginSSLProtocolSocketFactory(),
 				EasySSLProtocolSocketFactory.SSL_PORT));
 		try {
 			Class.forName(SocketFactoryFactory.class.getCanonicalName());

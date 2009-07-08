@@ -23,19 +23,26 @@ public enum ServerType {
 	BAMBOO_SERVER("Bamboo Servers", "Bamboo", "http://www.atlassian.com/software/bamboo/"),
 	CRUCIBLE_SERVER("Crucible Servers", "Crucible", "http://www.atlassian.com/software/crucible/"),
 	JIRA_SERVER("JIRA Servers", "JIRA", "http://www.atlassian.com/software/jira/"),
-	FISHEYE_SERVER("FishEye Servers", "FishEye", "http://www.atlassian.com/software/fisheye/");
+	FISHEYE_SERVER("FishEye Servers", "FishEye", "http://www.atlassian.com/software/fisheye/"),
+    JIRA_STUDIO_SERVER("JIRA Studio Servers", "JIRA Studio", "http://www.atlassian.com/studio/", true);
 
 	private final String name;
 	private String shortName;
 	private final String infoUrl;
+    private boolean pseudoServer;
 
-	ServerType(final String name, final String shortName, final String infoUrl) {
-		this.name = name;
-		this.shortName = shortName;
-		this.infoUrl = infoUrl;
+    ServerType(final String name, final String shortName, final String infoUrl) {
+        this(name, shortName, infoUrl, false);
 	}
 
-	public String getShortName() {
+    ServerType(final String name, final String shortName, final String infoUrl, boolean pseudoServer) {
+        this.name = name;
+        this.shortName = shortName;
+        this.infoUrl = infoUrl;
+        this.pseudoServer = pseudoServer;
+    }
+
+    public String getShortName() {
 		return shortName;
 	}
 
@@ -43,7 +50,11 @@ public enum ServerType {
 		return infoUrl;
 	}
 
-	@Override
+    public boolean isPseudoServer() {
+        return pseudoServer;
+    }
+
+    @Override
 	public String toString() {
 		return name;
 	}

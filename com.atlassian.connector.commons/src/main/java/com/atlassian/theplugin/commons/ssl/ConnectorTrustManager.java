@@ -42,7 +42,6 @@ public class ConnectorTrustManager implements X509TrustManager {
 
 	private final GeneralConfigurationBean configuration;
     private CertMessageDialog certMessageDialog;
-    private MessageDialogFactory messageDialogFactory;
     private X509TrustManager standardTrustManager;
 
 	private static ThreadLocal<String> url = new ThreadLocal<String>();

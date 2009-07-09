@@ -53,6 +53,12 @@
 	</build>
 	<dependencies>
         <dependency>
+			<groupId>org.ddsteps</groupId>
+			<artifactId>ddsteps-httpserver-mock</artifactId>
+			<version>1.0-m1</version>
+			<scope>test</scope>
+		</dependency>
+        <dependency>
 			<groupId>axis</groupId>
 			<artifactId>axis</artifactId>
 			<version>1.4</version>

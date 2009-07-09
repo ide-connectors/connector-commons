@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.atlassian.theplugin.remoteapi;
+package com.atlassian.theplugin.commons.remoteapi;
 
 import org.ddsteps.mock.httpserver.JettyMockServer;
 

@@ -44,15 +44,6 @@ public class BambooServerCfg extends ServerCfg {
 
 	public BambooServerCfg(final BambooServerCfg other) {
 		super(other);
-		copyLocal(other);
-	}
-
-	public void copy(final BambooServerCfg other) {
-		super.copy(other);
-		copyLocal(other);
-	}
-
-	private void copyLocal(final BambooServerCfg other) {
 		isUseFavourites = other.isUseFavourites();
 		isBamboo2 = other.isBamboo2();
 		// shallow copy of SubscribedPlan objects is enough as they are immutable

@@ -43,10 +43,6 @@ public abstract class ServerCfg implements Server {
 
 
 	protected ServerCfg(final ServerCfg other) {
-		copy(other);
-	}
-
-	public void copy(final ServerCfg other) {
 		serverId = other.getServerId(); // shallow copy here as it's immutable
 		isEnabled = other.isEnabled();
 		name = other.getName();

@@ -60,7 +60,7 @@ public class BambooServerCfgTest extends TestCase {
 
 	public void testEquals() {
 		assertEquals(bamboo1, bamboo1);
-		assertFalse(bamboo1.equals(null));
+		assertNotNull(bamboo1);
 		assertEquals(bamboo1, bamboo1sameId);
 		assertNotEquals(bamboo1, bamboo2);
 
@@ -118,5 +118,4 @@ public class BambooServerCfgTest extends TestCase {
 		assertEquals(bamboo1, clone);
 		assertNotSame(bamboo1, clone);
 	}
-
 }

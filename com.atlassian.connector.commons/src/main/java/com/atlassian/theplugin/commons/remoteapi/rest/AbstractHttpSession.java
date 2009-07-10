@@ -48,9 +48,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * Communication stub for lightweight XML based APIs. This method should be tread-safe (at least it is used in this
@@ -84,7 +84,7 @@ public abstract class AbstractHttpSession {
 	private static ThreadLocal<URL> url = new ThreadLocal<URL>();
 
 	// TODO: replace this with a proper cache to ensure automatic purging. Responses can get quite large.
-	private final Map<String, CacheRecord> cache = new HashMap<String, CacheRecord>();
+	private final Map<String, CacheRecord> cache = new WeakHashMap<String, CacheRecord>();
 
 	/**
 	 * This class holds an HTTP response body, together with its last modification time and Etag.

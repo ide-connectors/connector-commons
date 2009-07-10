@@ -18,7 +18,7 @@ package com.atlassian.theplugin.commons.bamboo;
 
 import com.atlassian.connector.cfg.ProjectCfgManager;
 import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallbackNew;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
 import com.atlassian.theplugin.commons.UIActionScheduler;
@@ -135,7 +135,7 @@ public class BambooStatusCheckerTest extends TestCase {
 		JettyMockServer mockServer = new JettyMockServer(httpServer);
 //		addServer(config, mockBaseUrl);
 		final BambooServerCfg s = getServer(mockBaseUrl);
-		final BambooServerData server = new BambooServerData(s, new UserCfg(s.getUserName(), s.getPassword())) ;
+		final BambooServerData server = new BambooServerData(s, new UserCfg(s.getUserName(), s.getPassword()));
 		Mockito.when(cfg.getAllEnabledBambooServerss()).thenReturn(Arrays.asList(server));
 
 		assertTrue(checker.canSchedule()); // config not empty
@@ -144,7 +144,7 @@ public class BambooStatusCheckerTest extends TestCase {
 		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
-		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());
+		mockServer.expect("/rest/api/latest/plan/TP-DEF", new LatestBuildResultCallbackNew());
 
 //		Mockito.when(cfg.getServerData(server)).thenReturn(
 //				new ServerData(server, server.getUserName(), server.getPassword()));

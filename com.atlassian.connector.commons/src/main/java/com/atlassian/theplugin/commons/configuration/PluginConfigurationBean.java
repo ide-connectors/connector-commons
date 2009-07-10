@@ -90,7 +90,7 @@ public class PluginConfigurationBean implements PluginConfiguration {
 		return jiraConfiguration;
 	}
 
-	/**
+    /**
 	 * For storage purposes.
 	 * <p/>
 	 * Does not use the JDK1.5 'return a subclass' due to problem with XML serialization.

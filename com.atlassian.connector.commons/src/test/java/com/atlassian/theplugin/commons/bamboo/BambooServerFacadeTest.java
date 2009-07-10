@@ -197,8 +197,9 @@ public class BambooServerFacadeTest extends TestCase {
 
 	private BambooBuild createBambooBuildInfo(BambooServerCfg serverCfg, String planKey, String planName,
 			DateTime buildCompletionDate) {
-		return new BambooBuildInfo.Builder(planKey, planName, getServerData(serverCfg), null, 123, BuildStatus.UNKNOWN).completionTime(
-				buildCompletionDate.toDate())
+		return new BambooBuildInfo.Builder(planKey, planName, getServerData(serverCfg), null, 123, BuildStatus.UNKNOWN)
+				.completionTime(
+						buildCompletionDate.toDate())
 				.build();
 	}
 
@@ -234,7 +235,7 @@ public class BambooServerFacadeTest extends TestCase {
 		EasyMock.expect(mockSession.getLatestBuildForPlan(key1, true, -7)).andAnswer(new IAnswer<BambooBuild>() {
 			public BambooBuild answer() throws Throwable {
 				synchronized (bambooServerCfg) {
-					return createBambooBuildInfo(bambooServerCfg, key1, plan1.getPlanName(),
+					return createBambooBuildInfo(bambooServerCfg, key1, plan1.getName(),
 							buildDate1.plusHours(bambooServerCfg.getTimezoneOffset()));
 				}
 			}
@@ -242,7 +243,7 @@ public class BambooServerFacadeTest extends TestCase {
 		EasyMock.expect(mockSession.getLatestBuildForPlan(key3, false, -7)).andAnswer(new IAnswer<BambooBuild>() {
 			public BambooBuild answer() throws Throwable {
 				synchronized (bambooServerCfg) {
-					return createBambooBuildInfo(bambooServerCfg, key3, plan3.getPlanName(),
+					return createBambooBuildInfo(bambooServerCfg, key3, plan3.getName(),
 							buildDate3.plusHours(bambooServerCfg.getTimezoneOffset()));
 				}
 			}
@@ -285,7 +286,7 @@ public class BambooServerFacadeTest extends TestCase {
 		EasyMock.expect(mockSession.getLatestBuildForPlan(key1, true, 2)).andAnswer(new IAnswer<BambooBuild>() {
 			public BambooBuild answer() throws Throwable {
 				synchronized (bambooServerCfg) {
-					return createBambooBuildInfo(bambooServerCfg, key1, plan1.getPlanName(),
+					return createBambooBuildInfo(bambooServerCfg, key1, plan1.getName(),
 							buildDate1.plusHours(bambooServerCfg.getTimezoneOffset()));
 				}
 			}
@@ -293,7 +294,7 @@ public class BambooServerFacadeTest extends TestCase {
 		EasyMock.expect(mockSession.getLatestBuildForPlan(key3, false, 2)).andAnswer(new IAnswer<BambooBuild>() {
 			public BambooBuild answer() throws Throwable {
 				synchronized (bambooServerCfg) {
-					return createBambooBuildInfo(bambooServerCfg, key3, plan3.getPlanName(),
+					return createBambooBuildInfo(bambooServerCfg, key3, plan3.getName(),
 							buildDate3.plusHours(bambooServerCfg.getTimezoneOffset()));
 				}
 			}
@@ -432,7 +433,7 @@ public class BambooServerFacadeTest extends TestCase {
 
 	/**
 	 * Regression for https://studio.atlassian.com/browse/ACC-40
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void testConnectionTestInvalidUrlIncludesPassword() throws Exception {

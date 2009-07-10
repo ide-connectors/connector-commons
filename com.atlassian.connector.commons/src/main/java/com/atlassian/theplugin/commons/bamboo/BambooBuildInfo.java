@@ -48,9 +48,6 @@ public final class BambooBuildInfo implements BambooBuild {
 	private final Date startDate;
 	private final Date completionDate;
 	private final Set<String> commiters;
-	private boolean inQueue;
-	private boolean building;
-
 
 	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerData serverData,
 			@NotNull Date pollingTime, @Nullable String projectName, boolean isEnabled, @Nullable Integer number,
@@ -58,10 +55,8 @@ public final class BambooBuildInfo implements BambooBuild {
 			@Nullable String testSummary, @Nullable String commitComment, final int testsPassedCount,
 			final int testsFailedCount, @Nullable Date completionDate, @Nullable String errorMessage,
 			final Throwable exception, @Nullable String relativeBuildDate, @Nullable String durationDescription,
-			@Nullable Collection<String> commiters, boolean inQueue, boolean building) {
+			@Nullable Collection<String> commiters) {
 		this.exception = exception;
-		this.inQueue = inQueue;
-		this.building = building;
 		this.pollingTime = new Date(pollingTime.getTime());
 		this.planKey = planKey;
 		this.planName = planName;
@@ -180,14 +175,6 @@ public final class BambooBuildInfo implements BambooBuild {
 		return exception;
 	}
 
-	public boolean isBuilding() {
-		return building;
-	}
-
-	public boolean isInQueue() {
-		return inQueue;
-	}
-
 	public int getTestsPassed() {
 		return this.testsPassedCount;
 	}
@@ -259,8 +246,6 @@ public final class BambooBuildInfo implements BambooBuild {
 		@Nullable
 		private String durationDescription;
 		private Throwable exception;
-		private boolean building;
-		private boolean inQueue;
 
 		public Builder(@NotNull String planKey, @NotNull BambooServerData serverData, @NotNull BuildStatus state) {
 			this.planKey = planKey;
@@ -353,22 +338,10 @@ public final class BambooBuildInfo implements BambooBuild {
 			return this;
 		}
 
-		public Builder building(boolean aBuilding) {
-			this.building = aBuilding;
-			return this;
-		}
-
-		public Builder inQueue(boolean aInQueue) {
-			this.inQueue = aInQueue;
-			return this;
-		}
-
-
 		public BambooBuildInfo build() {
 			return new BambooBuildInfo(planKey, planName, serverData, pollingTime, projectName,
 					isEnabled, buildNumber, buildState, buildReason, startTime, testSummary, commitComment, testsPassedCount,
-					testsFailedCount, completionTime, message, exception, relativeBuildDate, durationDescription, commiters,
-					inQueue, building);
+					testsFailedCount, completionTime, message, exception, relativeBuildDate, durationDescription, commiters);
 		}
 	}
 }

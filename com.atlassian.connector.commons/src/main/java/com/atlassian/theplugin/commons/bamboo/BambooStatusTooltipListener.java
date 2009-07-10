@@ -68,13 +68,9 @@ public class BambooStatusTooltipListener implements BambooStatusListener {
 					// if the build was reported then check it, if not then skip it
 
 					switch (currentBuild.getStatus()) {
-
 						case FAILURE:
-
 							BambooBuild prevBuild = prevBuildStatuses.get(getBuildMapKey(currentBuild));
-
 							if (prevBuildStatuses.containsKey(getBuildMapKey(currentBuild))) {
-
 								if (prevBuild.getStatus() == BuildStatus.SUCCESS
 										|| (prevBuild.getStatus() == BuildStatus.FAILURE
 										&& currentBuild.isValid() && prevBuild.isValid()
@@ -94,6 +90,8 @@ public class BambooStatusTooltipListener implements BambooStatusListener {
 							prevBuildStatuses.put(getBuildMapKey(currentBuild), currentBuild);
 							break;
 						case UNKNOWN:
+						case BUILDING:
+						case IN_QUEUE:
 							// no action here
 							break;
 						case SUCCESS:

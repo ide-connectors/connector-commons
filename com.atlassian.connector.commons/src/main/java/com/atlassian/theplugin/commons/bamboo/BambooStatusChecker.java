@@ -47,7 +47,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 	private static StringBuffer sb = new StringBuffer();
 	private static final String NAME = "Atlassian Bamboo checker";
 
-//	private BambooCfgManager bambooCfgManager;
+	//	private BambooCfgManager bambooCfgManager;
 	private final BambooServerFacade bambooServerFacade;
 	private ProjectCfgManager cfgManager;
 	private final PluginConfiguration pluginConfiguration;
@@ -86,7 +86,7 @@ public final class BambooStatusChecker implements SchedulableChecker {
 	private void doRun() {
 		try {
 
-            final List<Exception> generalProblems = new ArrayList<Exception>();
+			final List<Exception> generalProblems = new ArrayList<Exception>();
 
 			// collect build info from each server
 			final Collection<BambooBuild> newServerBuildsStatus = new ArrayList<BambooBuild>();
@@ -102,13 +102,13 @@ public final class BambooStatusChecker implements SchedulableChecker {
 							.append(dateFormat.format((newRun.getTime() - lastActionRun.getTime())));
 					LoggerImpl.getInstance().debug(sb.toString());
 
-					newServerBuildsStatus.addAll(bambooServerFacade.getSubscribedPlansResults(
+					newServerBuildsStatus.addAll(bambooServerFacade.getSubscribedPlansResultsNew(
 							server, server.getPlans(), server.isUseFavourites(), server.getTimezoneOffset()));
 					lastActionRun = newRun;
 
 				} catch (ServerPasswordNotProvidedException exception) {
 					actionScheduler.invokeLater(missingPasswordHandler);
-                    generalProblems.add(exception);
+					generalProblems.add(exception);
 				}
 			}
 

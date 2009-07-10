@@ -99,8 +99,4 @@ public interface BambooBuild {
 	Date getPollingTime();
 
 	Throwable getException();
-
-	boolean isBuilding();
-
-	boolean isInQueue();
 }

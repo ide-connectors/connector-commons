@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,10 @@ public class BambooPlan implements Serializable {
 	private final String key;
 	private final boolean favourite;
 	private final boolean enabled;
+	private String projectName = "";
+	private String projectKey = "";
+	private Integer averageBuildTime;
+	private PlanState state = PlanState.STANDING;
 
 	public BambooPlan(String name, String key) {
 		this(name, key, true);
@@ -42,12 +46,31 @@ public class BambooPlan implements Serializable {
 		this.favourite = isFavourite;
 	}
 
+	public BambooPlan(final String name, final String key, final boolean enabled, final Boolean favourite,
+			final String projectName, final String projectKey, final Integer averageBuildTime, final Boolean inQueue,
+			final Boolean building) {
+		this(name, key, enabled, favourite);
 
-	public String getPlanName() {
+
+		this.projectName = projectName;
+		this.projectKey = projectKey;
+		this.averageBuildTime = averageBuildTime;
+
+		if (building) {
+			this.state = PlanState.BUILDING;
+		} else if (inQueue) {
+			this.state = PlanState.IN_QUEUE;
+		} else {
+			this.state = PlanState.STANDING;
+		}
+	}
+
+
+	public String getName() {
 		return this.name;
 	}
 
-	public String getPlanKey() {
+	public String getKey() {
 		return this.key;
 	}
 
@@ -57,7 +80,7 @@ public class BambooPlan implements Serializable {
 
 	/**
 	 * Returns copy of this object with favourit information set.
-	 * 
+	 *
 	 * @param isFavourite requested favourit state
 	 * @return copy of this object
 	 */
@@ -69,21 +92,37 @@ public class BambooPlan implements Serializable {
 		return enabled;
 	}
 
+	public String getProjectName() {
+		return projectName;
+	}
+
+	public String getProjectKey() {
+		return projectKey;
+	}
+
+	public Integer getAverageBuildTime() {
+		return averageBuildTime;
+	}
+
+	public PlanState getState() {
+		return state;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
-            return true;
-        }
+			return true;
+		}
 		if (!(o instanceof BambooPlan)) {
-            return false;
-        }
+			return false;
+		}
 
 		BambooPlan that = (BambooPlan) o;
 
 		//noinspection RedundantIfStatement
 		if (key != null ? !key.equals(that.key) : that.key != null) {
-            return false;
-        }
+			return false;
+		}
 
 		return true;
 	}
@@ -91,5 +130,9 @@ public class BambooPlan implements Serializable {
 	@Override
 	public int hashCode() {
 		return (key != null ? key.hashCode() : 0);
+	}
+
+	public enum PlanState {
+		BUILDING, IN_QUEUE, STANDING
 	}
 }

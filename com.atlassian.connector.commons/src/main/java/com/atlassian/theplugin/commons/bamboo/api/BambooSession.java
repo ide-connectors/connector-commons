@@ -65,9 +65,9 @@ public interface BambooSession extends ProductSession {
 	BambooBuild getLatestBuildForPlan(@NotNull String planKey, boolean isPlanEnabled, final int timezoneOffset)
 			throws RemoteApiException;
 
-    @NotNull
-    BambooBuild getBuildForPlanAndNumber(@NotNull String planKey, final int buildNumber, final int timezoneOffset)
-            throws RemoteApiException;
+	@NotNull
+	BambooBuild getBuildForPlanAndNumber(@NotNull String planKey, final int buildNumber, final int timezoneOffset)
+			throws RemoteApiException;
 
 	@NotNull
 	List<String> getFavouriteUserPlans() throws RemoteApiException;
@@ -94,4 +94,8 @@ public interface BambooSession extends ProductSession {
 	Collection<BambooBuild> getRecentBuildsForPlan(@NotNull String planKey, int timezoneOffset) throws RemoteApiException;
 
 	Collection<BambooBuild> getRecentBuildsForUser(final int timezoneOffset) throws RemoteApiException;
+
+	@NotNull
+	BambooBuild getLatestBuildForPlanNew(@NotNull String planKey, boolean isPlanEnabled,
+			int timezoneOffset) throws RemoteApiException;
 }

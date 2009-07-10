@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,10 +33,10 @@ import java.util.Iterator;
 public abstract class Util {
 
 	public static final String RESOURCE_BASE_1_2_4 = "/mock/bamboo/1_2_4/api/rest/";
-    public static final String RESOURCE_BASE_2_1_5 = "/mock/bamboo/2_1_5/api/rest/";
-    public static final String RESOURCE_BASE_2_3 = "/mock/bamboo/2_3/api/rest/";
+	public static final String RESOURCE_BASE_2_1_5 = "/mock/bamboo/2_1_5/api/rest/";
+	public static final String RESOURCE_BASE_2_3 = "/mock/bamboo/2_3/api/rest/";
 
-    private Util() {
+	private Util() {
 	}
 
 	public static void copyResource(OutputStream outputStream, String resource) {
@@ -98,8 +98,8 @@ public abstract class Util {
 				+ HttpStatus.getStatusText(HttpStatus.SC_BAD_REQUEST) + ")"));
 	}
 
-	private static final String[][] expectedProjects = { { "PO", "Project One" }, { "PT", "Project Two" },
-			{ "PEMPTY", "Project Three - Empty" } };
+	private static final String[][] expectedProjects = {{"PO", "Project One"}, {"PT", "Project Two"},
+			{"PEMPTY", "Project Three - Empty"}};
 
 	public static void verifyProjectListResult(Collection<BambooProject> projects) {
 		Assert.assertEquals(expectedProjects.length, projects.size());
@@ -112,23 +112,23 @@ public abstract class Util {
 		}
 	}
 
-	private static final String[][] expectedPlans = { { "PO-FP", "First Project - First Plan", "true" },
-			{ "PO-SECPLAN", "First Project - Second Plan", "true" }, { "PO-TP", "First Project - Third Plan", "true" },
-			{ "PT-TOP", "Second Project - The Only Plan", "false" } };
+	private static final String[][] expectedPlans = {{"PO-FP", "First Project - First Plan", "true"},
+			{"PO-SECPLAN", "First Project - Second Plan", "true"}, {"PO-TP", "First Project - Third Plan", "true"},
+			{"PT-TOP", "Second Project - The Only Plan", "false"}};
 
 	public static void verifyPlanListResult(Collection<BambooPlan> plans) {
 		assertEquals(expectedPlans.length, plans.size());
 		Iterator<BambooPlan> iterator = plans.iterator();
 		for (String[] pair : expectedPlans) {
 			BambooPlan plan = iterator.next();
-			assertEquals(pair[0], plan.getPlanKey());
-			assertEquals(pair[1], plan.getPlanName());
+			assertEquals(pair[0], plan.getKey());
+			assertEquals(pair[1], plan.getName());
 			assertEquals(Boolean.parseBoolean(pair[2]), plan.isEnabled());
 		}
 	}
 
-	private static final String[][] expectedFavouritePlans = { { "PO-FP", "First Project - First Plan" },
-			{ "PT-TOP", "Second Project - The Only Plan" } };
+	private static final String[][] expectedFavouritePlans = {{"PO-FP", "First Project - First Plan"},
+			{"PT-TOP", "Second Project - The Only Plan"}};
 
 	public static void verifyFavouriteListResult(Collection<String> plans) {
 		assertEquals(expectedFavouritePlans.length, plans.size());
@@ -139,17 +139,17 @@ public abstract class Util {
 		}
 	}
 
-	private static final String[][] expectedPlansWithFavourites = { { "PO-FP", "First Project - First Plan", "true" },
-			{ "PO-SECPLAN", "First Project - Second Plan", "false" },
-			{ "PO-TP", "First Project - Third Plan", "false" }, { "PT-TOP", "Second Project - The Only Plan", "true" } };
+	private static final String[][] expectedPlansWithFavourites = {{"PO-FP", "First Project - First Plan", "true"},
+			{"PO-SECPLAN", "First Project - Second Plan", "false"},
+			{"PO-TP", "First Project - Third Plan", "false"}, {"PT-TOP", "Second Project - The Only Plan", "true"}};
 
 	public static void verifyPlanListWithFavouritesResult(Collection<BambooPlan> plans) {
 		assertEquals(expectedPlansWithFavourites.length, plans.size());
 		Iterator<BambooPlan> iterator = plans.iterator();
 		for (String[] pair : expectedPlansWithFavourites) {
 			BambooPlan plan = iterator.next();
-			assertEquals(pair[0], plan.getPlanKey());
-			assertEquals(pair[1], plan.getPlanName());
+			assertEquals(pair[0], plan.getKey());
+			assertEquals(pair[1], plan.getName());
 			if ("true".equalsIgnoreCase(pair[2])) {
 				Assert.assertTrue(plan.isFavourite());
 			}

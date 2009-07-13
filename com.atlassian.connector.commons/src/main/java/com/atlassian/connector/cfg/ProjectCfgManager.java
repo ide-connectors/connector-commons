@@ -92,4 +92,6 @@ public interface ProjectCfgManager {
 
 	@Deprecated
 	Collection<ServerCfg> getAllEnabledServers(ServerType serverType);
+
+    Collection<ServerData> getAllEnabledCrucibleServersContainingFisheye();
 }

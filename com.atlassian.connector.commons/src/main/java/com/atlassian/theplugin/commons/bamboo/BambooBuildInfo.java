@@ -101,7 +101,7 @@ public final class BambooBuildInfo implements BambooBuild {
 
 	public String getResultUrl() {
 		String url = getServerUrl() + "/browse/" + this.planKey;
-		if (this.getStatus() != BuildStatus.UNKNOWN || this.number != null) {
+		if (this.getStatus() != BuildStatus.UNKNOWN && this.number != null) {
 			url += "-" + this.number;
 		}
 

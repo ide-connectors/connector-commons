@@ -187,6 +187,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 	private void writeXml(final Element rootElement, final StringWriter writer) throws IOException {
 		final Format prettyFormat = Format.getPrettyFormat();
 		prettyFormat.setLineSeparator("\n");
+		prettyFormat.setIndent("\t");
 		new XMLOutputter(prettyFormat).output(rootElement, writer);
 	}
 

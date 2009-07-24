@@ -39,9 +39,9 @@ import java.util.WeakHashMap;
 public final class JIRAServerFacadeImpl implements JIRAServerFacade {
 
 	private HttpSessionCallback callback;
-    private static Logger logger;
+	private static Logger logger;
 
-    private JIRAServerFacadeImpl() {
+	private JIRAServerFacadeImpl() {
 		this.callback = new HttpSessionCallbackImpl();
 	}
 
@@ -111,11 +111,11 @@ public final class JIRAServerFacadeImpl implements JIRAServerFacade {
 		return ServerType.JIRA_SERVER;
 	}
 
-    public static void setLogger(Logger logger) {
-        JIRAServerFacadeImpl.logger = logger;
-    }
+	public static void setLogger(Logger logger) {
+		JIRAServerFacadeImpl.logger = logger;
+	}
 
-    public List<JIRAIssue> getIssues(ServerData server,
+	public List<JIRAIssue> getIssues(ServerData server,
 			List<JIRAQueryFragment> query,
 			String sort,
 			String sortOrder,
@@ -269,6 +269,14 @@ public final class JIRAServerFacadeImpl implements JIRAServerFacade {
 			return soap.getVersions(projectKey);
 		} catch (RemoteApiException e) {
 			soapSessions.remove(getSoapSessionKey(server));
+			if (e == null) {
+				logger.warn("PL-1710: e is null");
+			} else if (e.getMessage() == null) {
+				logger.warn("PL-1710: e.getMessage() is null");
+			}
+			if (e == null || e.getMessage() == null) {
+				throw new JIRAException("Cannot retrieve versions from the server", e);
+			}
 			throw new JIRAException(e.getMessage(), e);
 		}
 	}

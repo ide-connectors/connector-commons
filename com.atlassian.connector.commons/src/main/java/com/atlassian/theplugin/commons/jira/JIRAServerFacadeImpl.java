@@ -274,9 +274,9 @@ public final class JIRAServerFacadeImpl implements JIRAServerFacade {
 			} else if (e.getMessage() == null) {
 				logger.warn("PL-1710: e.getMessage() is null");
 			}
-			if (e == null || e.getMessage() == null) {
-				throw new JIRAException("Cannot retrieve versions from the server", e);
-			}
+//			if (e == null || e.getMessage() == null) {
+//				throw new JIRAException("Cannot retrieve versions from the server", e);
+//			}
 			throw new JIRAException(e.getMessage(), e);
 		}
 	}

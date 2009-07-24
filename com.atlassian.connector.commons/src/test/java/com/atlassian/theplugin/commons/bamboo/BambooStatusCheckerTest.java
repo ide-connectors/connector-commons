@@ -146,7 +146,6 @@ public class BambooStatusCheckerTest extends TestCase {
 		assertEquals(1, r2.lastStatuses.size());
 
 		mockServer.verify();
-
 		httpServer.stop();
 	}
 

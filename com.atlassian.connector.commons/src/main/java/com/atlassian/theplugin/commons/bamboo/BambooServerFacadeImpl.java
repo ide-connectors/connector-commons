@@ -79,6 +79,22 @@ public final class BambooServerFacadeImpl implements BambooServerFacade {
 		return false;
 	}
 
+	public boolean isBamboo2M9(final BambooServerData bambooServerData) {
+		{
+			BambooSession session;
+			try {
+				session = getSession(bambooServerData);
+				if (session != null && session.getBamboBuildNumber() >= 1313) {
+					return true;
+				}
+
+			} catch (RemoteApiException e) {
+				//not important == false
+			}
+			return false;
+		}
+	}
+
 	// package scope for test purposes
 	synchronized BambooSession getSession(BambooServerData server) throws RemoteApiException {
 		// @todo old server will stay on map - remove them !!!

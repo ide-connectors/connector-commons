@@ -48,6 +48,10 @@ public class BambooServerData extends ServerData {
 		return getServer().isBamboo2();
 	}
 
+	public boolean isBamboo2M9() {
+		return getServer().isBamboo2M9();
+	}
+
 	protected BambooServerCfg getServer() {
 		return (BambooServerCfg) super.getServer();
 	}

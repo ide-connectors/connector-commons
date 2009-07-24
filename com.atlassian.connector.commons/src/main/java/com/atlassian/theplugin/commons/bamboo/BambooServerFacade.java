@@ -94,6 +94,8 @@ public interface BambooServerFacade extends ProductServerFacade {
 
 	boolean isBamboo2(BambooServerData serverData);
 
+	boolean isBamboo2M9(final BambooServerData bambooServerData);
+
 	Collection<BambooBuild> getSubscribedPlansResultsNew(BambooServerData bambooServer,
 			Collection<SubscribedPlan> plans, boolean isUseFavourities, int timezoneOffset)
 			throws ServerPasswordNotProvidedException;

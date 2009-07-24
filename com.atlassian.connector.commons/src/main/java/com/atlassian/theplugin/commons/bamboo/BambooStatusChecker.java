@@ -102,8 +102,14 @@ public final class BambooStatusChecker implements SchedulableChecker {
 							.append(dateFormat.format((newRun.getTime() - lastActionRun.getTime())));
 					LoggerImpl.getInstance().debug(sb.toString());
 
-					newServerBuildsStatus.addAll(bambooServerFacade.getSubscribedPlansResultsNew(
-							server, server.getPlans(), server.isUseFavourites(), server.getTimezoneOffset()));
+					if (server.isBamboo2M9()) {
+						newServerBuildsStatus.addAll(bambooServerFacade.getSubscribedPlansResultsNew(
+								server, server.getPlans(), server.isUseFavourites(), server.getTimezoneOffset()));
+					} else {
+						newServerBuildsStatus.addAll(bambooServerFacade.getSubscribedPlansResults(
+								server, server.getPlans(), server.isUseFavourites(), server.getTimezoneOffset()));
+					}
+
 					lastActionRun = newRun;
 
 				} catch (ServerPasswordNotProvidedException exception) {

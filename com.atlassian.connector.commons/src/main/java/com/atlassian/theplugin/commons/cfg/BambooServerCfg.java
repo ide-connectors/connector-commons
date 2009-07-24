@@ -26,8 +26,9 @@ public class BambooServerCfg extends ServerCfg {
 
 	private boolean isUseFavourites;
 	private boolean isBamboo2;
-	private Collection<SubscribedPlan> plans = MiscUtil.buildArrayList();
+	private boolean isBamboo2M9;
 
+	private Collection<SubscribedPlan> plans = MiscUtil.buildArrayList();
 	private int timezoneOffset;
 
 	public BambooServerCfg(final String name, final ServerIdImpl serverId) {
@@ -46,6 +47,7 @@ public class BambooServerCfg extends ServerCfg {
 		super(other);
 		isUseFavourites = other.isUseFavourites();
 		isBamboo2 = other.isBamboo2();
+		isBamboo2M9 = other.isBamboo2M9();
 		// shallow copy of SubscribedPlan objects is enough as they are immutable
 		plans = MiscUtil.buildArrayList(other.getPlans());
 		timezoneOffset = other.timezoneOffset;
@@ -131,6 +133,14 @@ public class BambooServerCfg extends ServerCfg {
 		return isBamboo2;
 	}
 
+	public void setIsBamboo2M9(final boolean bamboo2M9) {
+		isBamboo2M9 = bamboo2M9;
+	}
+
+	public boolean isBamboo2M9() {
+		return isBamboo2M9;
+	}
+
 	public Collection<SubscribedPlan> getPlans() {
 		return plans;
 	}
@@ -171,5 +181,4 @@ public class BambooServerCfg extends ServerCfg {
 			}
 		}
 	}
-
 }

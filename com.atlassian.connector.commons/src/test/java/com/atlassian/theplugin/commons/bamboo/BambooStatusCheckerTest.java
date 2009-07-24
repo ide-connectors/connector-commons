@@ -17,10 +17,7 @@
 package com.atlassian.theplugin.commons.bamboo;
 
 import com.atlassian.connector.cfg.ProjectCfgManager;
-import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallbackNew;
-import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.*;
 import com.atlassian.theplugin.commons.UIActionScheduler;
 import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
@@ -141,19 +138,45 @@ public class BambooStatusCheckerTest extends TestCase {
 		assertTrue(checker.canSchedule()); // config not empty
 
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
-		mockServer.expect("/rest/api/latest/plan/TP-DEF", new LatestBuildResultCallbackNew());
+		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());
 
-//		Mockito.when(cfg.getServerData(server)).thenReturn(
-//				new ServerData(server, server.getUserName(), server.getPassword()));
 		task.run();
 		assertEquals(1, r2.lastStatuses.size());
 
 		mockServer.verify();
-		httpServer.stop();
 
+		httpServer.stop();
+	}
+
+	public void testLoginNew() throws Exception {
+		ProjectCfgManager cfg = Mockito.mock(ProjectCfgManager.class);
+		BambooStatusChecker checker = new BambooStatusChecker(null, cfg, null, null, logger);
+		TimerTask task = checker.newTimerTask();
+
+		org.mortbay.jetty.Server httpServer = new org.mortbay.jetty.Server(0);
+		httpServer.start();
+
+		String mockBaseUrl = "http://localhost:" + httpServer.getConnectors()[0].getLocalPort();
+
+		JettyMockServer mockServer = new JettyMockServer(httpServer);
+		final BambooServerCfg s = getServer(mockBaseUrl);
+		final BambooServerData server = new BambooServerData(s, new UserCfg(s.getUserName(), s.getPassword()));
+		s.setIsBamboo2M9(true);
+		Mockito.when(cfg.getAllEnabledBambooServerss()).thenReturn(Arrays.asList(server));
+
+		assertTrue(checker.canSchedule()); // config not empty
+
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
+		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
+		mockServer.expect("/rest/api/latest/plan/TP-DEF", new LatestBuildResultCallbackNew());
+
+		task.run();
+		mockServer.verify();
+
+		httpServer.stop();
 	}
 
 	private static BambooServerCfg getServer(String url) {

@@ -23,6 +23,7 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredExceptio
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.UrlUtil;
+import com.atlassian.theplugin.commons.util.XmlUtil;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
@@ -162,7 +163,8 @@ public abstract class AbstractHttpSession {
 
 		final SAXBuilder builder = new SAXBuilder();
 		final Document doc = builder.build(new ByteArrayInputStream(doConditionalGet(urlString)));
-//		XmlUtil.printXml(doc);
+        //@todo: Comment it's only for  PL-1719 debug purposes
+		XmlUtil.printXml(doc);
 		preprocessResult(doc);
 		return doc;
 	}

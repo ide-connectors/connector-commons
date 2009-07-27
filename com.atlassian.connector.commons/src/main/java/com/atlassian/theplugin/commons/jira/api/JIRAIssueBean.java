@@ -123,7 +123,7 @@ public class JIRAIssueBean implements JIRAIssue {
 		} catch (NumberFormatException ex) {
 			this.statusId = 0;
 		}
-		this.priority = getTextSafely(e, "priority");
+		this.priority = getTextSafety(e, "priority", "Unknown");
 		this.priorityUrl = getAttributeSafely(e, "priority", "iconUrl");
 		try {
 			this.priorityId = Long.parseLong(getAttributeSafely(e, "priority", "id"));
@@ -219,6 +219,12 @@ public class JIRAIssueBean implements JIRAIssue {
 			}
 		}
 	}
+
+    private String getTextSafety(Element e, String name, String defaultName) {
+        String text = getTextSafely(e, name);
+
+        return text != null ? text : defaultName;
+    }
 
 	private String getTextSafely(Element e, String name) {
 		Element child = e.getChild(name);

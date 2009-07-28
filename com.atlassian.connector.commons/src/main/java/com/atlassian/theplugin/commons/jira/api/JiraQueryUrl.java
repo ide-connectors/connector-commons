@@ -26,8 +26,9 @@ import java.util.List;
  */
 
 public final class JiraQueryUrl {
-    private final static String ISSUE_NAVIGATOR = "/secure/IssueNavigator.jspa?refreshFilter=false&reset=update&show=View+%3E%3E";
-    private final static String ISSUE_RSS = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?";
+    private static final String ISSUE_NAVIGATOR =
+            "/secure/IssueNavigator.jspa?refreshFilter=false&reset=update&show=View+%3E%3E";
+    private static final String ISSUE_RSS = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?";
     private String serverUrl = null;
     private List<JIRAQueryFragment> queryFragments = null;
     private String sortBy = null;

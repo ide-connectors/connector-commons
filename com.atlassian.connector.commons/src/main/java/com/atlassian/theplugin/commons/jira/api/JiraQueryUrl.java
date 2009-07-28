@@ -26,8 +26,8 @@ import java.util.List;
  */
 
 public final class JiraQueryUrl {
-    private static String ISSUE_NAVIGATOR = "/secure/IssueNavigator.jspa?refreshFilter=false&reset=update&show=View+%3E%3E";
-    private static String ISSUE_RSS = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?";
+    private final static String ISSUE_NAVIGATOR = "/secure/IssueNavigator.jspa?refreshFilter=false&reset=update&show=View+%3E%3E";
+    private final static String ISSUE_RSS = "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?";
     private String serverUrl = null;
     private List<JIRAQueryFragment> queryFragments = null;
     private String sortBy = null;
@@ -46,42 +46,42 @@ public final class JiraQueryUrl {
         private String userName = null;
         private String serverUrl;
 
-        public Builder serverUrl(String serverUrl) {
-            this.serverUrl = serverUrl;
+        public Builder serverUrl(String server) {
+            this.serverUrl = server;
             return this;
         }
 
-        public Builder queryFragments(List<JIRAQueryFragment> queryFragments) {
-            this.queryFragments = queryFragments;
+        public Builder queryFragments(List<JIRAQueryFragment> fragmentList) {
+            this.queryFragments = fragmentList;
             return this;
         }
 
-        public Builder sortBy(String sortBy) {
-            this.sortBy = sortBy;
+        public Builder sortBy(String sort) {
+            this.sortBy = sort;
             return this;
         }
 
-        public Builder sortOrder(String sortOrder) {
-            this.sortOrder = sortOrder;
+        public Builder sortOrder(String sortOdr) {
+            this.sortOrder = sortOdr;
             return this;
         }
 
-        public Builder start(int start) {
-            this.start = start;
+        public Builder start(int strt) {
+            this.start = strt;
             return this;
         }
 
-        public Builder max(int max) {
-            this.max = max;
+        public Builder max(int mx) {
+            this.max = mx;
             return this;
         }
 
-        public Builder userName(String userName) {
-            this.userName = userName;
+        public Builder userName(String username) {
+            this.userName = username;
             return this;
         }
 
-        public JiraQueryUrl build(){
+        public JiraQueryUrl build() {
             return new JiraQueryUrl(this);
         }
     }

@@ -68,6 +68,17 @@ public class JIRARssClient extends AbstractHttpSession {
 			String sortBy,
 			String sortOrder, int start, int max) throws JIRAException {
 
+       /* JiraQueryUrl queryUrl = new JiraQueryUrl.Builder()
+                                .serverUrl(getBaseUrl())
+                                .userName(getUsername())
+                                .queryFragments(fragments)
+                                .sortBy(sortBy)
+                                .sortOrder(sortOrder)
+                                .start(start)
+                                .max(max)
+                                .build();
+
+        queryUrl.buildRssSearchUrl();*/
 		StringBuilder url = new StringBuilder(getBaseUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?");
 
 

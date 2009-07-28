@@ -23,7 +23,6 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredExceptio
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.UrlUtil;
-import com.atlassian.theplugin.commons.util.XmlUtil;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
@@ -164,12 +163,12 @@ public abstract class AbstractHttpSession {
 		final SAXBuilder builder = new SAXBuilder();
 		final Document doc = builder.build(new ByteArrayInputStream(doConditionalGet(urlString)));
         //@todo: Comment it's only for  PL-1719 debug purposes
-		XmlUtil.printXml(doc);
+		//XmlUtil.printXml(doc);
 		preprocessResult(doc);
 		return doc;
 	}
 
-	/**
+	/**                                                                                                    PayPal
 	 * This method should be use to fetch standard non-XML text resources (like Bamboo build logs), when there is no
 	 * intention to parse them by XML and you want to respect HTTP encoding standards (e.g. ISO-8859-1 if there is no
 	 * charset info set in the response header. This method does not cache results, nor it supports conditional get.

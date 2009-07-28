@@ -440,7 +440,8 @@ public class JIRASessionImpl implements JIRASession {
 			}
 			return versionsList;
 		} catch (RemoteException e) {
-			throw new RemoteApiException(e.toString(), e);
+			throw new RemoteApiException(
+                    e.toString() != null ? e.toString() : "Cannot fetch project '" + projectKey + "' versions", e);
 		}
 	}
 

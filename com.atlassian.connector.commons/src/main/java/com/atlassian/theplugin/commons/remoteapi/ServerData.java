@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author pmaruszak
  */
-public class ServerData {
+public class ServerData implements Comparable {
 	private Server server;
 	private final String userName;
 	private final String password;
@@ -132,4 +132,12 @@ public class ServerData {
 		result = 31 * result + (getUrl() != null ? getUrl().hashCode() : 0);
 		return result;
 	}
+
+    public int compareTo(Object o) {
+        	if (!(o instanceof ServerData)) {
+			return 0;
+		}
+		ServerDataComparator c = new ServerDataComparator();
+		return c.compare(this, (ServerData) o);
+    }
 }

@@ -16,13 +16,20 @@
 
 package com.atlassian.theplugin.commons.bamboo.api;
 
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.BambooFileInfo;
 import com.atlassian.theplugin.commons.BambooFileInfoImpl;
-import com.atlassian.theplugin.commons.ServerType;
-import com.atlassian.theplugin.commons.bamboo.*;
-import com.atlassian.theplugin.commons.cfg.ServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
-import com.atlassian.theplugin.commons.cfg.UserCfg;
+import com.atlassian.theplugin.commons.bamboo.BambooBuild;
+import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
+import com.atlassian.theplugin.commons.bamboo.BambooChangeSetImpl;
+import com.atlassian.theplugin.commons.bamboo.BambooPlan;
+import com.atlassian.theplugin.commons.bamboo.BambooProject;
+import com.atlassian.theplugin.commons.bamboo.BambooProjectInfo;
+import com.atlassian.theplugin.commons.bamboo.BuildDetails;
+import com.atlassian.theplugin.commons.bamboo.BuildDetailsInfo;
+import com.atlassian.theplugin.commons.bamboo.BuildStatus;
+import com.atlassian.theplugin.commons.bamboo.TestDetailsInfo;
+import com.atlassian.theplugin.commons.bamboo.TestResult;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiBadServerVersionException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
@@ -41,9 +48,13 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Communication stub for Bamboo REST API.
@@ -86,7 +97,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 	private static final String BUILD_FAILED = "Failed";
 
-	private final BambooServerData serverData;
+	private final ConnectionCfg serverData;
 	private static final int BAMBOO_23_BUILD_NUMBER = 1308;
 	private static final String CANNOT_PARSE_BUILD_TIME = "Cannot parse buildTime.";
 
@@ -97,15 +108,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	 * @throws RemoteApiMalformedUrlException malformed url
 	 */
 	BambooSessionImpl(String url) throws RemoteApiMalformedUrlException {
-		this(new BambooServerData(new ServerCfg(true, "name", url, new ServerIdImpl()) {
-			public ServerType getServerType() {
-				return null;
-			}
-
-			public ServerCfg getClone() {
-				return null;
-			}
-		}, new UserCfg("", "")), new HttpSessionCallbackImpl());
+		this(new ConnectionCfg("", url, "", ""), new HttpSessionCallbackImpl());
 	}
 
 	/**
@@ -115,7 +118,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	 * @param callback   The callback needed for preparing HttpClient calls
 	 * @throws RemoteApiMalformedUrlException malformed url
 	 */
-	public BambooSessionImpl(BambooServerData serverData, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
+	public BambooSessionImpl(ConnectionCfg serverData, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
 		super(serverData, callback);
 		this.serverData = serverData;
 	}

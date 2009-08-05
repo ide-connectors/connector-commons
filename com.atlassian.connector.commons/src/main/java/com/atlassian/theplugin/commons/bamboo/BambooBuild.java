@@ -16,9 +16,9 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.Date;
 import java.util.Set;
 
@@ -26,7 +26,7 @@ import java.util.Set;
  * Build information retrieved from Bamboo server.
  */
 public interface BambooBuild {
-	BambooServerData getServer();
+	ConnectionCfg getServer();
 
 	String getServerUrl();
 

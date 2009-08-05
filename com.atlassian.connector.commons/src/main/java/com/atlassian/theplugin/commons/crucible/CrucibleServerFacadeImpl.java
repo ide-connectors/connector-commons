@@ -16,26 +16,48 @@
 
 package com.atlassian.theplugin.commons.crucible;
 
+import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.connector.commons.crucible.CrucibleServerFacade2;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleLoginException;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCache;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCacheImpl;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import java.util.*;
-
-public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
+public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	private final Map<String, CrucibleSession> sessions = new HashMap<String, CrucibleSession>();
 
 	private static CrucibleServerFacadeImpl instance;
@@ -49,7 +71,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		this.callback = new HttpSessionCallbackImpl();
 	}
 
-	public static synchronized CrucibleServerFacade getInstance() {
+	public static synchronized CrucibleServerFacade2 getInstance() {
 		if (instance == null) {
 			instance = new CrucibleServerFacadeImpl(CrucibleUserCacheImpl.getInstance());
 		}
@@ -64,7 +86,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		return ServerType.CRUCIBLE_SERVER;
 	}
 
-	protected synchronized CrucibleSession getSession(ServerData server) throws RemoteApiException,
+	protected synchronized CrucibleSession getSession(ConnectionCfg server) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		String key = server.getUrl() + server.getUserName() + server.getPassword();
 		CrucibleSession session = sessions.get(key);
@@ -89,7 +111,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		return session;
 	}
 
-	private <T extends CommentBean> void fixUserName(ServerData server, T comment) {
+	private <T extends CommentBean> void fixUserName(ConnectionCfg server, T comment) {
 		User u = comment.getAuthor();
 		if (u.getDisplayName() == null || u.getDisplayName().length() == 0) {
 			User newU = userCache.getUser(server, u.getUserName(), true);
@@ -100,12 +122,12 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	}
 
 	@Nullable
-	public String getDisplayName(@NotNull final ServerData server, @NotNull String username) {
+	public String getDisplayName(@NotNull final ConnectionCfg server, @NotNull String username) {
 		final User user = userCache.getUser(server, username, true);
 		return user != null ? user.getDisplayName() : null;
 	}
 
-	public CrucibleProject getProject(@NotNull final ServerData server, @NotNull final String projectKey)
+	public CrucibleProject getProject(@NotNull final ConnectionCfg server, @NotNull final String projectKey)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		final List<CrucibleProject> projects = getProjects(server);
 		for (CrucibleProject project : projects) {
@@ -116,20 +138,20 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		return null;
 	}
 
-	public boolean checkContentUrlAvailable(final ServerData server) throws RemoteApiException,
+	public boolean checkContentUrlAvailable(final ConnectionCfg server) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.checkContentUrlAvailable();
 	}
 
-	public Review createReviewFromUpload(@NotNull final ServerData server, @NotNull final Review review,
+	public Review createReviewFromUpload(@NotNull final ConnectionCfg server, @NotNull final Review review,
 			@NotNull final Collection<UploadItem> uploadItems) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.createReviewFromUpload(review, uploadItems);
 	}
 
-	public byte[] getFileContent(@NotNull final ServerData server, @NotNull final String contentUrl)
+	public byte[] getFileContent(@NotNull final ConnectionCfg server, @NotNull final String contentUrl)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getFileContent(contentUrl);
@@ -139,7 +161,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	 * For testing Only
 	 */
 //	public void testServerConnection(String url, String userName, String password) throws RemoteApiException {
-//		ServerData serverData = new ServerData("unknown", new ServerId(), userName, password, url);
+	// ConnectionCfg serverData = new ConnectionCfg("unknown", new ServerId(), userName, password, url);
 //		testServerConnection(serverData);
 //	}
 
@@ -149,7 +171,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	 *                            if Crucible version is not supported
 	 * @throws RemoteApiException if it's not possible to authenticate user on specified server
 	 */
-	public void testServerConnection(ServerData serverCfg) throws RemoteApiException {
+	public void testServerConnection(ConnectionCfg serverCfg) throws RemoteApiException {
 		final CrucibleSession session = new CrucibleSessionImpl(serverCfg, callback);
 		session.login();
 		try {
@@ -183,13 +205,13 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	 * @throws com.atlassian.theplugin.commons.crucible.api.CrucibleException
 	 *          in case of createReview error or CrucibleLoginException in case of login error
 	 */
-	public Review createReview(ServerData server, Review review) throws RemoteApiException,
+	public Review createReview(ConnectionCfg server, Review review) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.createReview(review);
 	}
 
-	public Review createReviewFromRevision(ServerData server, Review review, List<String> revisions)
+	public Review createReviewFromRevision(ConnectionCfg server, Review review, List<String> revisions)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		Review newReview = null;
@@ -198,7 +220,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		return newReview;
 	}
 
-	public Review addRevisionsToReview(ServerData server, PermId permId, String repository, List<String> revisions)
+	public Review addRevisionsToReview(ConnectionCfg server, PermId permId, String repository, List<String> revisions)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		Review review = null;
@@ -208,25 +230,25 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		return review;
 	}
 
-	public Review addPatchToReview(ServerData server, PermId permId, String repository, String patch)
+	public Review addPatchToReview(ConnectionCfg server, PermId permId, String repository, String patch)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		return getSession(server).addPatchToReview(permId, repository, patch);
 	}
 
-	public Review addItemsToReview(ServerData server, PermId permId, Collection<UploadItem> items)
+	public Review addItemsToReview(ConnectionCfg server, PermId permId, Collection<UploadItem> items)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		session.addItemsToReview(permId, items);
 		return session.getReview(permId);
 	}
 
-	public void addReviewers(ServerData server, PermId permId, Set<String> userNames) throws RemoteApiException,
+	public void addReviewers(ConnectionCfg server, PermId permId, Set<String> userNames) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		session.addReviewers(permId, userNames);
 	}
 
-	public void removeReviewer(ServerData server, PermId permId, String userName) throws RemoteApiException,
+	public void removeReviewer(ConnectionCfg server, PermId permId, String userName) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		session.removeReviewer(permId, userName);
@@ -241,7 +263,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		return false;
 	}
 
-	public void setReviewers(@NotNull final ServerData server, @NotNull final PermId permId,
+	public void setReviewers(@NotNull final ConnectionCfg server, @NotNull final PermId permId,
 			@NotNull final Collection<String> aUsernames) throws RemoteApiException, ServerPasswordNotProvidedException {
 		final Set<String> reviewersForAdd = MiscUtil.buildHashSet();
 		final Set<String> reviewersForRemove = MiscUtil.buildHashSet();
@@ -275,43 +297,43 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		}
 	}
 
-	public Review approveReview(ServerData server, PermId permId) throws RemoteApiException,
+	public Review approveReview(ConnectionCfg server, PermId permId) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.approveReview(permId);
 	}
 
-	public Review submitReview(ServerData server, PermId permId) throws RemoteApiException,
+	public Review submitReview(ConnectionCfg server, PermId permId) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.submitReview(permId);
 	}
 
-	public Review summarizeReview(ServerData server, PermId permId) throws RemoteApiException,
+	public Review summarizeReview(ConnectionCfg server, PermId permId) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.summarizeReview(permId);
 	}
 
-	public Review abandonReview(ServerData server, PermId permId) throws RemoteApiException,
+	public Review abandonReview(ConnectionCfg server, PermId permId) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.abandonReview(permId);
 	}
 
-	public Review closeReview(ServerData server, PermId permId, String summary) throws RemoteApiException,
+	public Review closeReview(ConnectionCfg server, PermId permId, String summary) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.closeReview(permId, summary);
 	}
 
-	public Review recoverReview(ServerData server, PermId permId) throws RemoteApiException,
+	public Review recoverReview(ConnectionCfg server, PermId permId) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.recoverReview(permId);
 	}
 
-	public Review reopenReview(ServerData server, PermId permId) throws RemoteApiException,
+	public Review reopenReview(ConnectionCfg server, PermId permId) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.reopenReview(permId);
@@ -323,7 +345,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 //		return session.rejectReview(permId);
 //	}
 
-	public void completeReview(ServerData server, PermId permId, boolean complete) throws RemoteApiException,
+	public void completeReview(ConnectionCfg server, PermId permId, boolean complete) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		session.completeReview(permId, complete);
@@ -339,38 +361,16 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	 * @throws com.atlassian.theplugin.commons.crucible.api.CrucibleException
 	 *          in case of createReview error or CrucibleLoginException in case of login error
 	 */
-	public Review createReviewFromPatch(ServerData server, Review review, String patch) throws RemoteApiException,
+	public Review createReviewFromPatch(ConnectionCfg server, Review review, String patch) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.createReviewFromPatch(review, patch);
 	}
 
-	public Set<CrucibleFileInfo> getFiles(ServerData server, PermId permId) throws RemoteApiException,
+	public Set<CrucibleFileInfo> getFiles(ConnectionCfg server, PermId permId) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getFiles(permId);
-	}
-
-	/**
-	 * Add info about files, versioned comments and general comments to the review
-	 *
-	 * @param reviewItem review to fill with details
-	 * @throws RemoteApiException
-	 * @throws ServerPasswordNotProvidedException
-	 *
-	 */
-	public void getDetailsForReview(final ReviewAdapter reviewItem)
-			throws RemoteApiException, ServerPasswordNotProvidedException {
-
-		reviewItem.setGeneralComments(getGeneralComments(reviewItem.getServerData(), reviewItem.getPermId()));
-
-		List<VersionedComment> comments;
-		comments = getVersionedComments(reviewItem.getServerData(), reviewItem.getPermId());
-
-		Set<CrucibleFileInfo> files;
-		files = getFiles(reviewItem.getServerData(), reviewItem.getPermId());
-
-		reviewItem.setFilesAndVersionedComments(files, comments);
 	}
 
 	//	public List<Comment> getComments(CrucibleServerCfg server, PermId permId)
@@ -379,31 +379,40 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 //		return session.getComments(permId);
 //	}
 
-	public List<GeneralComment> getGeneralComments(ServerData server, PermId permId) throws RemoteApiException,
+	public void fillDetailsForReview(ConnectionCfg server, Review review) throws RemoteApiException,
+			ServerPasswordNotProvidedException {
+		review.setGeneralComments(getGeneralComments(server, review.getPermId()));
+		List<VersionedComment> comments = getVersionedComments(server, review.getPermId());
+		Set<CrucibleFileInfo> files;
+		files = getFiles(server, review.getPermId());
+		review.setFilesAndVersionedComments(files, comments);
+	}
+
+	public List<GeneralComment> getGeneralComments(ConnectionCfg server, PermId permId) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getGeneralComments(permId);
 	}
 
-	public List<VersionedComment> getVersionedComments(ServerData server, PermId permId) throws RemoteApiException,
+	public List<VersionedComment> getVersionedComments(ConnectionCfg server, PermId permId) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getAllVersionedComments(permId);
 	}
 
-	public List<VersionedComment> getVersionedComments(ServerData server, PermId permId, PermId reviewItemId)
+	public List<VersionedComment> getVersionedComments(ConnectionCfg server, PermId permId, PermId reviewItemId)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getVersionedComments(permId, reviewItemId);
 	}
 
-	public List<GeneralComment> getReplies(ServerData server, PermId permId, PermId commentId)
+	public List<GeneralComment> getReplies(ConnectionCfg server, PermId permId, PermId commentId)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getReplies(permId, commentId);
 	}
 
-	public GeneralComment addGeneralComment(ServerData server, PermId permId, GeneralComment comment)
+	public GeneralComment addGeneralComment(ConnectionCfg server, PermId permId, GeneralComment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		GeneralCommentBean newComment = (GeneralCommentBean) session.addGeneralComment(permId, comment);
@@ -413,7 +422,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		return newComment;
 	}
 
-	public VersionedComment addVersionedComment(ServerData server, PermId permId, PermId riId, VersionedComment comment)
+	public VersionedComment addVersionedComment(ConnectionCfg server, PermId permId, PermId riId, VersionedComment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		VersionedCommentBean newComment = (VersionedCommentBean) session.addVersionedComment(permId, riId, comment);
@@ -423,25 +432,25 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		return newComment;
 	}
 
-	public void updateComment(ServerData server, PermId id, Comment comment) throws RemoteApiException,
+	public void updateComment(ConnectionCfg server, PermId id, Comment comment) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		session.updateComment(id, comment);
 	}
 
-	public void publishComment(ServerData server, PermId reviewId, PermId commentId) throws RemoteApiException,
+	public void publishComment(ConnectionCfg server, PermId reviewId, PermId commentId) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		session.publishComment(reviewId, commentId);
 	}
 
-	public void publishAllCommentsForReview(ServerData server, PermId reviewId) throws RemoteApiException,
+	public void publishAllCommentsForReview(ConnectionCfg server, PermId reviewId) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		session.publishComment(reviewId, null);
 	}
 
-	public GeneralComment addGeneralCommentReply(ServerData server, PermId id, PermId cId, GeneralComment comment)
+	public GeneralComment addGeneralCommentReply(ConnectionCfg server, PermId id, PermId cId, GeneralComment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		GeneralCommentBean newReply = (GeneralCommentBean) session.addGeneralCommentReply(id, cId, comment);
@@ -451,7 +460,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 		return newReply;
 	}
 
-	public VersionedComment addVersionedCommentReply(ServerData server, PermId id, PermId cId, VersionedComment comment)
+	public VersionedComment addVersionedCommentReply(ConnectionCfg server, PermId id, PermId cId, VersionedComment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		VersionedCommentBean newReply = (VersionedCommentBean) session.addVersionedCommentReply(id, cId, comment);
@@ -467,13 +476,13 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 //		session.updateReply(id, cId, rId, comment);
 //	}
 
-	public void removeComment(ServerData server, PermId id, Comment comment) throws RemoteApiException,
+	public void removeComment(ConnectionCfg server, PermId id, Comment comment) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		session.removeComment(id, comment);
 	}
 
-	public List<User> getUsers(ServerData server) throws RemoteApiException, ServerPasswordNotProvidedException {
+	public List<User> getUsers(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getUsers();
 	}
@@ -487,7 +496,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	 * @throws ServerPasswordNotProvidedException
 	 *
 	 */
-	public List<CrucibleProject> getProjects(ServerData server) throws RemoteApiException,
+	public List<CrucibleProject> getProjects(ConnectionCfg server) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getProjectsFromCache();
@@ -502,19 +511,19 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException
 	 *
 	 */
-	public List<Repository> getRepositories(ServerData server) throws RemoteApiException,
+	public List<Repository> getRepositories(ConnectionCfg server) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getRepositories();
 	}
 
-	public SvnRepository getRepository(ServerData server, String repoName) throws RemoteApiException,
+	public SvnRepository getRepository(ConnectionCfg server, String repoName) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getRepository(repoName);
 	}
 
-	public List<CustomFieldDef> getMetrics(ServerData server, int version) throws RemoteApiException,
+	public List<CustomFieldDef> getMetrics(ConnectionCfg server, int version) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getMetrics(version);
@@ -524,30 +533,30 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade {
 	 * @param server server object with Url, Login and Password to connect to
 	 * @return List of reviews (empty list in case there is no review)
 	 */
-	public List<Review> getAllReviews(ServerData server) throws RemoteApiException, ServerPasswordNotProvidedException {
+	public List<Review> getAllReviews(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getAllReviews();
 	}
 
-	public List<Review> getReviewsForFilter(ServerData server, PredefinedFilter filter) throws RemoteApiException,
+	public List<Review> getReviewsForFilter(ConnectionCfg server, PredefinedFilter filter) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getReviewsForFilter(filter);
 	}
 
-	public List<Review> getReviewsForCustomFilter(ServerData server, CustomFilter filter) throws RemoteApiException,
+	public List<Review> getReviewsForCustomFilter(ConnectionCfg server, CustomFilter filter) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getReviewsForCustomFilter(filter);
 	}
 
-	public Review getReview(ServerData server, PermId permId) throws RemoteApiException,
+	public Review getReview(ConnectionCfg server, PermId permId) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getReview(permId);
 	}
 
-	public List<Reviewer> getReviewers(ServerData server, PermId permId) throws RemoteApiException,
+	public List<Reviewer> getReviewers(ConnectionCfg server, PermId permId) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getReviewers(permId);

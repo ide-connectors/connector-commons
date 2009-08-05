@@ -16,23 +16,25 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
-import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 
 public class NewVersionedCommentNotification extends AbstractCommentNotification {
-	private VersionedComment comment;
+	private final VersionedComment comment;
 
-	public NewVersionedCommentNotification(final ReviewAdapter review, final VersionedComment comment, final User user,
+	public NewVersionedCommentNotification(final Review review, final VersionedComment comment, final User user,
 			final boolean isDraft) {
 		super(review, user, isDraft);
 		this.comment = comment;
 	}
 
+	@Override
 	public CrucibleNotificationType getType() {
 		return CrucibleNotificationType.NEW_VERSIONED_COMMENT;
 	}
 
+	@Override
 	public String getPresentationMessage() {
 		return "New comment added by " + comment.getAuthor().getDisplayName();
 	}

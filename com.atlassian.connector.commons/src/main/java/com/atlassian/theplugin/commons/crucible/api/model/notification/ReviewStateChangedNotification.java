@@ -16,18 +16,20 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
-import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.State;
 
 public class ReviewStateChangedNotification extends AbstractReviewNotification {
-	public ReviewStateChangedNotification(ReviewAdapter review, State oldState) {
+	public ReviewStateChangedNotification(Review review, State oldState) {
 		super(review);
 	}
 
+	@Override
 	public CrucibleNotificationType getType() {
 		return CrucibleNotificationType.REVIEW_STATE_CHANGED;
 	}
 
+	@Override
 	public String getPresentationMessage() {
 		return "Review changed state to " + review.getState().value();
 	}

@@ -16,18 +16,21 @@
 
 package com.atlassian.theplugin.commons.bamboo.api;
 
-import com.atlassian.theplugin.commons.ServerType;
-import com.atlassian.theplugin.commons.bamboo.*;
-import com.atlassian.theplugin.commons.cfg.ServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
-import com.atlassian.theplugin.commons.cfg.UserCfg;
+import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.theplugin.commons.bamboo.BambooBuild;
+import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
+import com.atlassian.theplugin.commons.bamboo.BambooChangeSet;
+import com.atlassian.theplugin.commons.bamboo.BambooPlan;
+import com.atlassian.theplugin.commons.bamboo.BambooProject;
+import com.atlassian.theplugin.commons.bamboo.BuildDetails;
+import com.atlassian.theplugin.commons.bamboo.BuildStatus;
+import com.atlassian.theplugin.commons.bamboo.TestDetails;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
-import junit.framework.TestCase;
 import org.easymock.EasyMock;
-
 import java.util.Arrays;
 import java.util.List;
+import junit.framework.TestCase;
 
 @SuppressWarnings({"ThrowableInstanceNeverThrown"})
 public class AutoRenewBambooSessionTest extends TestCase {
@@ -150,16 +153,8 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
 		EasyMock.expect(mockDelegate.getLatestBuildForPlan("planKey", 0)).andReturn(
-				new BambooBuildInfo.Builder("planKey", null,
-						new BambooServerData(new ServerCfg(true, "mybamboo", "", new ServerIdImpl()) {
-							public ServerType getServerType() {
-								return null;
-							}
-
-							public ServerCfg getClone() {
-								return null;
-							}
-						}, new UserCfg("", "")), null, 123, BuildStatus.SUCCESS)
+				new BambooBuildInfo.Builder("planKey", null, new ConnectionCfg("mybamboo", "", "", ""), null, 123,
+						BuildStatus.SUCCESS)
 						.build());
 
 

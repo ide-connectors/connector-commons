@@ -16,29 +16,49 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
-import com.atlassian.theplugin.bamboo.api.bamboomock.*;
-import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.connector.commons.api.BambooServerFacade2;
+import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.connector.commons.misc.ErrorResponse;
+import com.atlassian.theplugin.bamboo.api.bamboomock.AddCommentToBuildCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.AddLabelToBuildCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetailsResultCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.ExecuteBuildCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LogoutCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.ProjectListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.Util;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
-import com.atlassian.theplugin.commons.cfg.*;
+import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+import com.atlassian.theplugin.commons.cfg.Server;
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
+import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
-import com.atlassian.theplugin.commons.remoteapi.*;
+import com.atlassian.theplugin.commons.remoteapi.ProductSession;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
-import com.atlassian.theplugin.jira.model.ErrorResponse;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
-import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * {@link com.atlassian.theplugin.commons.bamboo.BambooServerFacadeImpl} test.
@@ -59,14 +79,14 @@ public class BambooServerFacadeTest extends TestCase {
 
 	private String mockBaseUrl;
 
-	private BambooServerFacade testedBambooServerFacade;
+	private BambooServerFacade2 testedBambooServerFacade;
 
 	private BambooServerCfg bambooServerCfg;
 
 	@Override
 	protected void setUp() throws Exception {
 		//log
-		// @TODO all remove it when ConfigurationFactory is not needed by HttpClientFactory 
+		// @TODO all remove it when ConfigurationFactory is not needed by HttpClientFactory
 		ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
 
 		httpServer = new org.mortbay.jetty.Server(0);
@@ -110,7 +130,7 @@ public class BambooServerFacadeTest extends TestCase {
 	public void testGetSessionTwoTheSameServers() throws RemoteApiException {
 		BambooServerFacadeImpl facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(),
 				new BambooSessionFactory() {
-					public BambooSession createSession(final BambooServerData serverData, final HttpSessionCallback callback)
+			public BambooSession createSession(final ConnectionCfg serverData, final HttpSessionCallback callback)
 							throws RemoteApiException {
 						BambooSession session = EasyMock.createMock(BambooSession.class);
 						EasyMock.expect(session.isLoggedIn()).andReturn(true).anyTimes();
@@ -118,7 +138,7 @@ public class BambooServerFacadeTest extends TestCase {
 						return session;
 					}
 
-					public ProductSession createLoginSession(final ServerData serverData, final HttpSessionCallback callback)
+			public ProductSession createLoginSession(final ConnectionCfg serverData, final HttpSessionCallback callback)
 							throws RemoteApiMalformedUrlException {
 						return null;
 					}
@@ -206,13 +226,13 @@ public class BambooServerFacadeTest extends TestCase {
 	public void testBuildCompletedDateWithTimeZoneForFavouritesMinus() throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		final BambooSession mockSession = EasyMock.createMock(BambooSession.class);
-		BambooServerFacade facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(), new BambooSessionFactory() {
-			public BambooSession createSession(final BambooServerData serverData, final HttpSessionCallback callback)
+		BambooServerFacade2 facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(), new BambooSessionFactory() {
+			public BambooSession createSession(final ConnectionCfg serverData, final HttpSessionCallback callback)
 					throws RemoteApiException {
 				return mockSession;
 			}
 
-			public ProductSession createLoginSession(final ServerData serverData, final HttpSessionCallback callback)
+			public ProductSession createLoginSession(final ConnectionCfg serverData, final HttpSessionCallback callback)
 					throws RemoteApiMalformedUrlException {
 				return null;
 			}
@@ -258,13 +278,13 @@ public class BambooServerFacadeTest extends TestCase {
 	public void testBuildCompletedDateWithTimeZoneForFavouritesPlus() throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		final BambooSession mockSession = EasyMock.createMock(BambooSession.class);
-		BambooServerFacade facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(), new BambooSessionFactory() {
-			public BambooSession createSession(final BambooServerData serverData, final HttpSessionCallback callback)
+		BambooServerFacade2 facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(), new BambooSessionFactory() {
+			public BambooSession createSession(final ConnectionCfg serverData, final HttpSessionCallback callback)
 					throws RemoteApiException {
 				return mockSession;
 			}
 
-			public ProductSession createLoginSession(final ServerData serverData, final HttpSessionCallback callback)
+			public ProductSession createLoginSession(final ConnectionCfg serverData, final HttpSessionCallback callback)
 					throws RemoteApiMalformedUrlException {
 				return null;
 			}
@@ -306,7 +326,7 @@ public class BambooServerFacadeTest extends TestCase {
 		EasyMock.verify(mockSession);
 	}
 
-	private Collection<BambooBuild> getAndVerifyDates(final BambooServerFacade facade, final DateTime buildDate1,
+	private Collection<BambooBuild> getAndVerifyDates(final BambooServerFacade2 facade, final DateTime buildDate1,
 			final DateTime buildDate3, final int hourOffset) throws ServerPasswordNotProvidedException {
 		synchronized (bambooServerCfg) {
 			bambooServerCfg.setTimezoneOffset(hourOffset);
@@ -450,54 +470,34 @@ public class BambooServerFacadeTest extends TestCase {
 
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
-		testedBambooServerFacade.testServerConnection(new ServerData(createServerCfg(), USER_NAME, PASSWORD));
+		testedBambooServerFacade.testServerConnection(new ConnectionCfg("name", mockBaseUrl, USER_NAME, PASSWORD));
 
 		TestUtil.assertThrows(RemoteApiMalformedUrlException.class, new IAction() {
 			public void run() throws Throwable {
-				final ServerCfg serverCfg = createServerCfg();
-				serverCfg.setUrl("");
-				testedBambooServerFacade.testServerConnection(new ServerData(serverCfg, "", ""));
+				testedBambooServerFacade.testServerConnection(new ConnectionCfg("name", "", "", ""));
 			}
 		});
 
 		mockServer.expect("/api/rest/login.action", new LoginCallback("", "", LoginCallback.ALWAYS_FAIL));
 		TestUtil.assertThrows(RemoteApiLoginException.class, new IAction() {
 			public void run() throws Throwable {
-				testedBambooServerFacade.testServerConnection(new ServerData(createServerCfg(), "", ""));
+				testedBambooServerFacade.testServerConnection(new ConnectionCfg("name", mockBaseUrl, "", ""));
 			}
 		});
 
 		TestUtil.assertThrows(RemoteApiMalformedUrlException.class, new IAction() {
 			public void run() throws Throwable {
-				final ServerCfg serverCfg = createServerCfg();
-				serverCfg.setUrl("");
-				testedBambooServerFacade.testServerConnection(new ServerData(serverCfg, USER_NAME, ""));
+				testedBambooServerFacade.testServerConnection(new ConnectionCfg("name", "", USER_NAME, ""));
 			}
 		});
 
 		TestUtil.assertThrows(RemoteApiMalformedUrlException.class, new IAction() {
 			public void run() throws Throwable {
-				final ServerCfg serverCfg = createServerCfg();
-				serverCfg.setUrl("");
-				testedBambooServerFacade.testServerConnection(new ServerData(serverCfg, "", PASSWORD));
+				testedBambooServerFacade.testServerConnection(new ConnectionCfg("name", "", "", PASSWORD));
 			}
 		});
 
 		mockServer.verify();
-	}
-
-	private ServerCfg createServerCfg() {
-		return new ServerCfg(true, "name", mockBaseUrl, new ServerIdImpl()) {
-			@Override
-			public ServerType getServerType() {
-				return null;
-			}
-
-			@Override
-			public ServerCfg getClone() {
-				return null;
-			}
-		};
 	}
 
 	public void testBambooConnectionWithEmptyPlan() throws RemoteApiLoginException, CloneNotSupportedException,
@@ -508,7 +508,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 
 		bambooServerCfg.getSubscribedPlans().clear();
-		BambooServerFacade facade = BambooServerFacadeImpl.getInstance(LoggerImpl.getInstance());
+		BambooServerFacade2 facade = BambooServerFacadeImpl.getInstance(LoggerImpl.getInstance());
 		Collection<BambooBuild> plans = facade.getSubscribedPlansResults(getServerData(bambooServerCfg),
 				bambooServerCfg.getPlans(), bambooServerCfg.isUseFavourites(), bambooServerCfg.getTimezoneOffset());
 		assertEquals(0, plans.size());
@@ -663,7 +663,8 @@ public class BambooServerFacadeTest extends TestCase {
 		}
 	}
 
-	private BambooServerData getServerData(final Server serverCfg) {
-		return new BambooServerData(serverCfg, new UserCfg(serverCfg.getUserName(), serverCfg.getPassword()));
+	private ConnectionCfg getServerData(final Server serverCfg) {
+		return new ConnectionCfg(serverCfg.getServerId().getId(), serverCfg.getUrl(), serverCfg.getUserName(), serverCfg
+				.getPassword());
 	}
 }

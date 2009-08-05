@@ -1,7 +1,7 @@
 package com.atlassian.theplugin.commons.remoteapi.rest;
 
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.exception.HttpProxySettingsException;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 
@@ -12,7 +12,7 @@ import org.apache.commons.httpclient.HttpMethod;
  */
 public interface HttpSessionCallback {
 
-	HttpClient getHttpClient(ServerData server) throws HttpProxySettingsException;
+	HttpClient getHttpClient(ConnectionCfg server) throws HttpProxySettingsException;
 
 	void configureHttpMethod(AbstractHttpSession session, HttpMethod method);
 

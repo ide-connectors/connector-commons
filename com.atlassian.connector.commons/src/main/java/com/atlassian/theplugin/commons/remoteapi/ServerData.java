@@ -15,6 +15,7 @@
  */
 package com.atlassian.theplugin.commons.remoteapi;
 
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.cfg.Server;
 import com.atlassian.theplugin.commons.cfg.ServerId;
@@ -24,14 +25,14 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author pmaruszak
  */
-public class ServerData implements Comparable {
-	private Server server;
+public class ServerData implements Comparable<ServerData> {
+	private final Server server;
 	private final String userName;
 	private final String password;
 
 	/**
-	 * That constructor should not be used as it is not compatible with default credentials.
-	 * UnitTest useages should be removed and replaced by other mechanism.
+	 * That constructor should not be used as it is not compatible with default credentials. UnitTest usages should be removed
+	 * and replaced by other mechanism.
 	 *
 	 * @param server
 	 * @param userName
@@ -133,11 +134,12 @@ public class ServerData implements Comparable {
 		return result;
 	}
 
-    public int compareTo(Object o) {
-        	if (!(o instanceof ServerData)) {
-			return 0;
-		}
+	public ConnectionCfg toConnectionCfg() {
+		return new ConnectionCfg(getServerId().getId(), getUrl(), getUserName(), getPassword());
+	}
+
+	public int compareTo(ServerData o) {
 		ServerDataComparator c = new ServerDataComparator();
-		return c.compare(this, (ServerData) o);
+		return c.compare(this, o);
     }
 }

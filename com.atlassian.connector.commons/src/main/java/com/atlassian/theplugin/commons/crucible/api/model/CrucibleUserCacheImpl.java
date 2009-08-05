@@ -1,17 +1,16 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.crucible.CrucibleServerFacadeImpl;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 
 public class CrucibleUserCacheImpl implements CrucibleUserCache {
-	private Map<ServerData, Map<String, User>> serverMap = new HashMap<ServerData, Map<String, User>>();
+	private final Map<ConnectionCfg, Map<String, User>> serverMap = new HashMap<ConnectionCfg, Map<String, User>>();
 
 	private static CrucibleUserCache instance;
 
@@ -22,7 +21,7 @@ public class CrucibleUserCacheImpl implements CrucibleUserCache {
 		return instance;
 	}
 
-	public User getUser(ServerData server, String userId, boolean fetchIfNotExist) {
+	public User getUser(ConnectionCfg server, String userId, boolean fetchIfNotExist) {
 		Map<String, User> userMap = serverMap.get(server);
 		if (userMap == null && fetchIfNotExist) {
 			userMap = new HashMap<String, User>();
@@ -45,7 +44,7 @@ public class CrucibleUserCacheImpl implements CrucibleUserCache {
 		return null;
 	}
 
-	public void addUser(ServerData server, User user) {
+	public void addUser(ConnectionCfg server, User user) {
 		Map<String, User> userMap = serverMap.get(server);
 		if (userMap == null) {
 			userMap = new HashMap<String, User>();

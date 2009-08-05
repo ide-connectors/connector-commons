@@ -16,6 +16,8 @@
 
 package com.atlassian.theplugin.crucible.api.rest;
 
+import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.connector.commons.misc.ErrorResponse;
 import com.atlassian.connector.commons.misc.IntRange;
 import com.atlassian.connector.commons.misc.IntRanges;
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
@@ -24,18 +26,29 @@ import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.State;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
-import com.atlassian.theplugin.crucible.api.rest.cruciblemock.*;
-import com.atlassian.theplugin.jira.model.ErrorResponse;
-import junit.framework.TestCase;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CreateReviewCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetProjectsCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetRepositoriesCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetReviewersCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetReviewsCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.MalformedResponseCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.Util;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.mortbay.jetty.Server;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -45,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import junit.framework.TestCase;
 
 /**
  * Test case for {#link BambooSessionImpl}
@@ -921,8 +935,9 @@ public class CrucibleSessionTest extends TestCase {
 		return review;
 	}
 
-	private ServerData createServerData(ServerCfg serverCfg) {
-		return new ServerData(serverCfg, serverCfg.getUserName(), serverCfg.getPassword());
+	private ConnectionCfg createServerData(ServerCfg serverCfg) {
+		return new ConnectionCfg(serverCfg.getServerId().getId(), serverCfg.getUrl(), serverCfg.getUserName(), serverCfg
+				.getPassword());
 	}
 
 }

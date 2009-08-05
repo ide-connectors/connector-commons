@@ -21,7 +21,6 @@ import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Collection;
 
 /**
@@ -52,6 +51,7 @@ public class BambooServerData extends ServerData {
 		return getServer().isBamboo2M9();
 	}
 
+	@Override
 	protected BambooServerCfg getServer() {
 		return (BambooServerCfg) super.getServer();
 	}

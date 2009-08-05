@@ -1,9 +1,9 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
+import com.atlassian.connector.commons.api.ConnectionCfg;
 
 public interface CrucibleUserCache {
-	User getUser(ServerData server, String userId, boolean fetchIfNotExist);
+	User getUser(ConnectionCfg server, String userId, boolean fetchIfNotExist);
 
-	void addUser(ServerData server, User user);
+	void addUser(ConnectionCfg server, User user);
 }

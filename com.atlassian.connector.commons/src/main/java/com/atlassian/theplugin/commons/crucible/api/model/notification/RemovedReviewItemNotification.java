@@ -16,18 +16,20 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
-import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
 
 public class RemovedReviewItemNotification extends AbstractReviewNotification {
 
-	public RemovedReviewItemNotification(ReviewAdapter review) {
-		super(review);
+	public RemovedReviewItemNotification(Review oldReview) {
+		super(oldReview);
 	}
 
+	@Override
 	public CrucibleNotificationType getType() {
 		return CrucibleNotificationType.REMOVED_REVIEW_ITEM;
 	}
 
+	@Override
 	public String getPresentationMessage() {
 		return "Review item removed";
 	}

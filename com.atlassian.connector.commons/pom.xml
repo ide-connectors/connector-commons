@@ -116,8 +116,18 @@
 			<version>7.0</version>
 			<classifier>7590</classifier>
 		</dependency>
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty</artifactId>
+            <version>7.0.0.pre5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty</artifactId>
+            <version>6.1.5</version>
+        </dependency>
 
-</dependencies>
+    </dependencies>
  <repositories>
          <repository>
                  <id>atlassian-public-repository</id>

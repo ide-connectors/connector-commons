@@ -1,26 +1,36 @@
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
-import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
-import com.atlassian.theplugin.commons.util.MiscUtil;
 import static com.atlassian.theplugin.commons.util.MiscUtil.isModified;
+import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.util.MiscUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This class is NOT thread-safe!
  */
 public class ReviewDifferenceProducer {
-	private final ReviewAdapter oldReview;
-	private final ReviewAdapter newReview;
+	private final Review oldReview;
+	private final Review newReview;
 	private final List<CrucibleNotification> notifications = new ArrayList<CrucibleNotification>();
 	private boolean shortEqual;
 	private boolean filesEqual;
 	private int changes;
 
-	public ReviewDifferenceProducer(@NotNull final ReviewAdapter oldReview, @NotNull final ReviewAdapter newReview) {
+	public ReviewDifferenceProducer(@NotNull final Review oldReview, @NotNull final Review newReview) {
 		this.oldReview = oldReview;
 		this.newReview = newReview;
 	}
@@ -234,7 +244,7 @@ public class ReviewDifferenceProducer {
 		}
 	}
 
-	private int checkGeneralReplies(ReviewAdapter review, GeneralComment oldComment, GeneralComment newComment) {
+	private int checkGeneralReplies(Review review, GeneralComment oldComment, GeneralComment newComment) {
 		int replyChanges = 0;
 		for (Comment reply : newComment.getReplies()) {
 			GeneralComment existingReply = null;
@@ -272,7 +282,7 @@ public class ReviewDifferenceProducer {
 		return replyChanges;
 	}
 
-	private int checkVersionedReplies(ReviewAdapter review, VersionedComment oldComment, VersionedComment newComment) {
+	private int checkVersionedReplies(Review review, VersionedComment oldComment, VersionedComment newComment) {
 		int replyChanges = 0;
 		for (Comment reply : newComment.getReplies()) {
 			VersionedComment existingReply = null;
@@ -310,14 +320,14 @@ public class ReviewDifferenceProducer {
 		return replyChanges;
 	}
 
-	private int checkComments(final ReviewAdapter oldReviewAdapter, final ReviewAdapter newReviewAdapter,
+	private int checkComments(final Review oldReview, final Review newReview,
 			final boolean checkFiles)
 			throws ValueNotYetInitialized {
 		int commentChanges = 0;
 
-		for (GeneralComment comment : newReviewAdapter.getGeneralComments()) {
+		for (GeneralComment comment : newReview.getGeneralComments()) {
 			GeneralComment existing = null;
-			for (GeneralComment oldComment : oldReviewAdapter.getGeneralComments()) {
+			for (GeneralComment oldComment : oldReview.getGeneralComments()) {
 				if (comment.getPermId().getId().equals(oldComment.getPermId().getId())) {
 					existing = oldComment;
 					break;
@@ -330,29 +340,29 @@ public class ReviewDifferenceProducer {
 					|| existing.isDraft() != comment.isDraft()) {
 				if (existing == null) {
 					commentChanges++;
-					notifications.add(new NewGeneralCommentNotification(newReviewAdapter, comment, comment.getAuthor(),
+					notifications.add(new NewGeneralCommentNotification(newReview, comment, comment.getAuthor(),
 							comment.isDraft()));
 				} else {
 					commentChanges++;
-					notifications.add(new UpdatedGeneralCommentNotification(newReviewAdapter, comment.getAuthor(),
+					notifications.add(new UpdatedGeneralCommentNotification(newReview, comment.getAuthor(),
 							comment.isDraft(), existing.isDraft()));
 				}
 			}
-			commentChanges += checkGeneralReplies(newReviewAdapter, existing, comment);
+			commentChanges += checkGeneralReplies(newReview, existing, comment);
 		}
 
 		List<GeneralComment> deletedGen = getDeletedComments(
-				oldReviewAdapter.getGeneralComments(), newReviewAdapter.getGeneralComments());
+				oldReview.getGeneralComments(), newReview.getGeneralComments());
 		for (GeneralComment gc : deletedGen) {
 			commentChanges++;
-			notifications.add(new RemovedGeneralCommentNotification(newReviewAdapter, gc, gc.getAuthor(), gc.isDraft()));
+			notifications.add(new RemovedGeneralCommentNotification(newReview, gc, gc.getAuthor(), gc.isDraft()));
 		}
 
 		if (checkFiles) {
-			for (CrucibleFileInfo fileInfo : newReviewAdapter.getFiles()) {
+			for (CrucibleFileInfo fileInfo : newReview.getFiles()) {
 				for (VersionedComment comment : fileInfo.getVersionedComments()) {
 					VersionedComment existing = null;
-					for (CrucibleFileInfo oldFile : oldReviewAdapter.getFiles()) {
+					for (CrucibleFileInfo oldFile : oldReview.getFiles()) {
 						if (oldFile.getPermId().equals(fileInfo.getPermId())) {
 							for (VersionedComment oldComment : oldFile.getVersionedComments()) {
 								if (comment.getPermId().getId().equals(oldComment.getPermId().getId())) {
@@ -369,21 +379,21 @@ public class ReviewDifferenceProducer {
 						if (existing == null) {
 							commentChanges++;
 							notifications
-									.add(new NewVersionedCommentNotification(newReviewAdapter, comment, comment.getAuthor(),
+									.add(new NewVersionedCommentNotification(newReview, comment, comment.getAuthor(),
 											comment.isDraft()));
 						} else {
 							commentChanges++;
 							notifications
-									.add(new UpdatedVersionedCommentNotification(newReviewAdapter, comment.getAuthor(),
+									.add(new UpdatedVersionedCommentNotification(newReview, comment.getAuthor(),
 											comment.isDraft(), existing.isDraft()));
 						}
 					}
-					commentChanges += checkVersionedReplies(newReviewAdapter, existing, comment);
+					commentChanges += checkVersionedReplies(newReview, existing, comment);
 				}
 			}
 
-			for (CrucibleFileInfo oldFile : oldReviewAdapter.getFiles()) {
-				for (CrucibleFileInfo newFile : newReviewAdapter.getFiles()) {
+			for (CrucibleFileInfo oldFile : oldReview.getFiles()) {
+				for (CrucibleFileInfo newFile : newReview.getFiles()) {
 					if (oldFile.getPermId().equals(newFile.getPermId())) {
 						List<VersionedComment> oldVersionedComments = new ArrayList<VersionedComment>();
 						List<VersionedComment> newVersionedComments = new ArrayList<VersionedComment>();
@@ -393,7 +403,7 @@ public class ReviewDifferenceProducer {
 								oldVersionedComments, newVersionedComments);
 						for (VersionedComment vc : deletedVcs) {
 							commentChanges++;
-							notifications.add(new RemovedVersionedCommentNotification(newReviewAdapter, vc, vc.getAuthor(),
+							notifications.add(new RemovedVersionedCommentNotification(newReview, vc, vc.getAuthor(),
 									vc.isDraft()));
 						}
 					}

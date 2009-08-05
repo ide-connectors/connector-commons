@@ -15,14 +15,15 @@
  */
 package com.atlassian.theplugin.commons.fisheye.api.rest;
 
-import com.atlassian.theplugin.commons.ServerType;
-import com.atlassian.theplugin.commons.cfg.ServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
-import com.atlassian.theplugin.commons.remoteapi.*;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
-import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.apache.commons.httpclient.HttpMethod;
@@ -31,7 +32,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSession {
-	static final String REST_BASE_URL = "/api/rest/";
+	private static final String REST_BASE_URL = "/api/rest/";
 
 	static final String LOGIN_ACTION = REST_BASE_URL + "login";
 
@@ -52,25 +52,6 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 	private boolean loggedIn;
 
 	/**
-	 * For testing purposes
-	 *
-	 * @param url
-	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
-	 *
-	 */
-	FishEyeRestSession(String url) throws RemoteApiMalformedUrlException {
-		this(new ServerData(new ServerCfg(true, "name", url, new ServerIdImpl()) {
-			public ServerType getServerType() {
-				return null;
-			}
-
-			public ServerCfg getClone() {
-				return null;
-			}
-		}, "", ""), new HttpSessionCallbackImpl());
-	}
-
-	/**
 	 * Public constructor for AbstractHttpSession
 	 *
 	 * @param server   The server configuration for this session
@@ -78,7 +59,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
 	 *          for malformed url
 	 */
-	public FishEyeRestSession(ServerData server, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
+	public FishEyeRestSession(ConnectionCfg server, HttpSessionCallback callback) throws RemoteApiMalformedUrlException {
 		super(server, callback);
 	}
 

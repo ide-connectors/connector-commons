@@ -16,24 +16,39 @@
 
 package com.atlassian.theplugin.commons.bamboo.api;
 
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.api.AbstractSessionTest;
-import com.atlassian.theplugin.bamboo.api.bamboomock.*;
-import com.atlassian.theplugin.commons.ServerType;
-import com.atlassian.theplugin.commons.bamboo.*;
-import com.atlassian.theplugin.commons.cfg.ServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
-import com.atlassian.theplugin.commons.cfg.UserCfg;
+import com.atlassian.theplugin.bamboo.api.bamboomock.AddCommentToBuildCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.AddLabelToBuildCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.BamboBuildNumberCalback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetailsResultCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.BuildForPlanAndNumberCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.ErrorMessageCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.ExecuteBuildCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultVelocityBallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LogoutCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.ProjectListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.RecentCompletedBuildResultsCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.Util;
+import com.atlassian.theplugin.commons.bamboo.BambooBuild;
+import com.atlassian.theplugin.commons.bamboo.BambooPlan;
+import com.atlassian.theplugin.commons.bamboo.BambooProject;
+import com.atlassian.theplugin.commons.bamboo.BuildDetails;
+import com.atlassian.theplugin.commons.bamboo.BuildStatus;
+import com.atlassian.theplugin.commons.bamboo.TestResult;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
-import junit.framework.Assert;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,6 +56,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
+import junit.framework.Assert;
 
 
 /**
@@ -178,7 +194,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooServerData bambooServerCfg = createServerData();
+		ConnectionCfg bambooServerCfg = createServerData();
 		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new HttpSessionCallbackImpl());
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", false, timezoneOffset);
@@ -194,16 +210,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.verify();
 	}
 
-	private BambooServerData createServerData() {
-		return new BambooServerData(new ServerCfg(true, "mybamboo", mockBaseUrl, new ServerIdImpl()) {
-			public ServerType getServerType() {
-				return null;
-			}
-
-			public ServerCfg getClone() {
-				return null;
-			}
-		}, new UserCfg("", ""));
+	private ConnectionCfg createServerData() {
+		return new ConnectionCfg("mybamboo", mockBaseUrl, "", "");
 	}
 
 	public void testGetLatestBuildForNeverExecutedPlan() throws RemoteApiException {
@@ -223,7 +231,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		Date now = new Date();
-		BambooServerData bambooServerCfg = createServerData();
+		ConnectionCfg bambooServerCfg = createServerData();
 		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new HttpSessionCallbackImpl());
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		final BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", 0);
@@ -260,7 +268,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 				"/mock/bamboo/2_1_5/api/rest/getLatestBuildForPlanResponse.xml"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooServerData bambooServerCfg = createServerData();
+		ConnectionCfg bambooServerCfg = createServerData();
 		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new HttpSessionCallbackImpl());
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", timezoneOffset);

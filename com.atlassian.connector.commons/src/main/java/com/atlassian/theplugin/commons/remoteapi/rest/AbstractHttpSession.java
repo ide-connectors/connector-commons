@@ -16,11 +16,11 @@
 
 package com.atlassian.theplugin.commons.remoteapi.rest;
 
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.exception.HttpProxySettingsException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.apache.commons.httpclient.HttpClient;
@@ -43,7 +43,6 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -64,10 +63,10 @@ public abstract class AbstractHttpSession {
 	private final HttpSessionCallback callback;
 
 	@NotNull
-	private final ServerData server;
+	private final ConnectionCfg server;
 
 	@NotNull
-	protected ServerData getServer() {
+	protected ConnectionCfg getServer() {
 		return server;
 	}
 
@@ -137,7 +136,7 @@ public abstract class AbstractHttpSession {
 
 	/**
 	 * Public constructor for AbstractHttpSession
-	 * 
+	 *
 	 * @param server
 	 *            server params used by this session
 	 * @param callback
@@ -145,7 +144,7 @@ public abstract class AbstractHttpSession {
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
 	 *             for malformed url
 	 */
-	public AbstractHttpSession(@NotNull ServerData server, @NotNull HttpSessionCallback callback)
+	public AbstractHttpSession(@NotNull ConnectionCfg server, @NotNull HttpSessionCallback callback)
 			throws RemoteApiMalformedUrlException {
 		this.server = server;
 		this.callback = callback;
@@ -172,7 +171,7 @@ public abstract class AbstractHttpSession {
 	 * This method should be use to fetch standard non-XML text resources (like Bamboo build logs), when there is no
 	 * intention to parse them by XML and you want to respect HTTP encoding standards (e.g. ISO-8859-1 if there is no
 	 * charset info set in the response header. This method does not cache results, nor it supports conditional get.
-	 * 
+	 *
 	 * @param urlString
 	 *            URL
 	 * @return response encoded as String. Encoding respects content type sent by the server in the response headers
@@ -222,7 +221,7 @@ public abstract class AbstractHttpSession {
 	/**
 	 * Use it only for retrieving XML information, as it will ignored content-type charset in response header (if such
 	 * present)
-	 * 
+	 *
 	 * @param urlString
 	 *            URL to retrieve data from
 	 * @return response as raw bytes (ignoring charset info in response headers). This is OK for XML parser, as servers
@@ -272,7 +271,7 @@ public abstract class AbstractHttpSession {
 					final String errorDescription = "HTTP " + method.getStatusCode() + " ("
 							+ HttpStatus.getStatusText(method.getStatusCode()) + ")";
 					LoggerImpl.getInstance().info(errorDescription + "\n" + method.getStatusText());
-					
+
 					throw createIOException(errorDescription, new Exception(method.getResponseBodyAsString()));
 				} else if (method.getStatusCode() != HttpStatus.SC_OK) {
 					final String errorDescription = "HTTP " + method.getStatusCode() + " ("
@@ -307,7 +306,7 @@ public abstract class AbstractHttpSession {
 
 	/**
 	 * Helper method needed because IOException in Java 1.5 does not have constructor taking "cause"
-	 * 
+	 *
 	 * @param message
 	 *            message
 	 * @param cause

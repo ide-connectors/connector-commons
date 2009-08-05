@@ -1,23 +1,20 @@
 package com.atlassian.theplugin.commons.fisheye;
 
-import com.atlassian.theplugin.commons.ServerType;
-import com.atlassian.theplugin.commons.cfg.ServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
+import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.connector.commons.fisheye.FishEyeServerFacade2;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.crucible.api.rest.CharArrayEquals;
-import junit.framework.TestCase;
 import org.easymock.EasyMock;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
-
 import java.util.Arrays;
 import java.util.Collection;
+import junit.framework.TestCase;
 
 /**
  * User: pmaruszak
@@ -26,7 +23,7 @@ public class FishEyeServerFacadeTest extends TestCase {
 
 	private static final String USER_NAME = "myname";
 	private static final String PASSWORD = "mypassword";
-	private String URL = "http://localhost:9001";
+	private final String URL = "http://localhost:9001";
 	private FishEyeSession fishEyeSessionMock;
 	private FishEyeServerFacadeImpl facade;
 
@@ -41,12 +38,7 @@ public class FishEyeServerFacadeTest extends TestCase {
 		facade = new FishEyeServerFacadeImpl() {
 
 			@Override
-			public FishEyeSession getSession(final String url) throws RemoteApiMalformedUrlException {
-				return fishEyeSessionMock;
-			}
-
-			@Override
-			public FishEyeSession getSession(ServerData server)
+			public FishEyeSession getSession(ConnectionCfg server)
 					throws RemoteApiMalformedUrlException {
 				return fishEyeSessionMock;
 			}
@@ -65,10 +57,8 @@ public class FishEyeServerFacadeTest extends TestCase {
 	}
 
 	public void testGetRepositories() throws ServerPasswordNotProvidedException, RemoteApiException {
-		ServerData server = prepareServerBean();
+		final ConnectionCfg server = new ConnectionCfg("id", URL, USER_NAME, PASSWORD);
 
-		facade.getSession(URL);
-		//fishEyeSessionMock.login(server.getUserName(), PASSWORD.toCharArray());
 		fishEyeSessionMock.login(EasyMock.eq(server.getUserName()), charArrayContains(PASSWORD.toCharArray()));
 
 
@@ -78,7 +68,7 @@ public class FishEyeServerFacadeTest extends TestCase {
 
 		replay(fishEyeSessionMock);
 
-		// test call		
+		// test call
 		Collection<String> ret = facade.getRepositories(server);
 		assertEquals(2, ret.size());
 
@@ -95,19 +85,6 @@ public class FishEyeServerFacadeTest extends TestCase {
 
 	}
 
-	private ServerData prepareServerBean() {
-		return new ServerData(new ServerCfg(true, "myname", URL, (new ServerIdImpl())) {
-			public ServerType getServerType() {
-				return null;
-			}
-
-			public ServerCfg getClone() {
-				return null;
-			}
-		}, USER_NAME, PASSWORD);
-
-	}
-
 	/**
 	 * Regression for https://studio.atlassian.com/browse/ACC-40
 	 *
@@ -115,17 +92,8 @@ public class FishEyeServerFacadeTest extends TestCase {
 	 */
 	public void testConnectionTestInvalidUrlIncludesPassword() throws Exception {
 		try {
-			FishEyeServerFacade facade = FishEyeServerFacadeImpl.getInstance();
-			facade.testServerConnection(
-					new ServerData(new ServerCfg(true, "myname", "http://invalid url", new ServerIdImpl()) {
-						public ServerType getServerType() {
-							return null;
-						}
-
-						public ServerCfg getClone() {
-							return null;
-						}
-					}, USER_NAME, PASSWORD));
+			FishEyeServerFacade2 facade = FishEyeServerFacadeImpl.getInstance();
+			facade.testServerConnection(new ConnectionCfg("id", "http://invalid url", USER_NAME, PASSWORD));
 			fail("Should throw RemoteApiLoginException");
 		} catch (RemoteApiException e) {
 			assertFalse("Message should not include users's password", e.getMessage().contains(PASSWORD));

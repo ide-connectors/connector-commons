@@ -1,22 +1,20 @@
 package com.atlassian.theplugin.commons.fisheye;
 
+import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.connector.commons.fisheye.FishEyeServerFacade2;
 import com.atlassian.theplugin.commons.ServerType;
-import com.atlassian.theplugin.commons.cfg.ServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
 import com.atlassian.theplugin.commons.fisheye.api.rest.FishEyeRestSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
-
 import java.util.Collection;
 
 /**
  * User: pmaruszak
  */
-public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
+public class FishEyeServerFacadeImpl implements FishEyeServerFacade2 {
 	private static FishEyeServerFacadeImpl instance;
 	private HttpSessionCallback callback;
 
@@ -24,7 +22,7 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
 		this.callback = new HttpSessionCallbackImpl();
 	}
 
-	public void testServerConnection(ServerData serverCfg) throws RemoteApiException {
+	public void testServerConnection(ConnectionCfg serverCfg) throws RemoteApiException {
 		FishEyeSession fishEyeSession = getSession(serverCfg);
 		fishEyeSession.login(serverCfg.getUserName(), serverCfg.getPassword().toCharArray());
 
@@ -46,33 +44,12 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade {
 		return instance;
 	}
 
-	/**
-	 * For testing Only
-	 *
-	 * @param url
-	 * @return
-	 * @throws RemoteApiMalformedUrlException
-	 */
-	FishEyeSession getSession(String url) throws RemoteApiMalformedUrlException {
-		ServerData serverCfg = new ServerData(new ServerCfg(true, "name", url, new ServerIdImpl()) {
-			public ServerType getServerType() {
-				return null;
-			}
-
-			public ServerCfg getClone() {
-				return null;
-			}
-		}, "", "");
-		return new FishEyeRestSession(serverCfg, callback);
-
-	}
-
-	public FishEyeSession getSession(ServerData server) throws RemoteApiMalformedUrlException {
+	public FishEyeSession getSession(ConnectionCfg server) throws RemoteApiMalformedUrlException {
 		return new FishEyeRestSession(server, callback);
 
 	}
 
-	public Collection<String> getRepositories(final ServerData server) throws RemoteApiException {
+	public Collection<String> getRepositories(final ConnectionCfg server) throws RemoteApiException {
 		FishEyeSession fishEyeSession = getSession(server);
 		Collection<String> repositories;
 

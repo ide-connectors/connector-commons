@@ -17,13 +17,13 @@
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
-import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractReviewNotification implements CrucibleNotification {
-	protected ReviewAdapter review;
+	protected Review review;
 
-	public AbstractReviewNotification(ReviewAdapter review) {
+	public AbstractReviewNotification(Review review) {
 		this.review = review;
 	}
 
@@ -35,7 +35,12 @@ public abstract class AbstractReviewNotification implements CrucibleNotification
 
 	@NotNull
 	public String getItemUrl() {
-		return review.getReviewUrl();
+		String baseUrl = review.getServerUrl();
+		while (baseUrl.length() > 0 && baseUrl.charAt(baseUrl.length() - 1) == '/') {
+			// quite ineffective, I know ...
+			baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+		}
+		return baseUrl + "/cru/" + review.getPermId().getId();
 	}
 
 	public abstract String getPresentationMessage();

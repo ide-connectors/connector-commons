@@ -1,16 +1,27 @@
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
-import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
-import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
-import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
-import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
-import com.atlassian.theplugin.commons.cfg.UserCfg;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
+import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfoImpl;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.State;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
+import com.atlassian.theplugin.commons.util.MiscUtil;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import junit.framework.TestCase;
-
-import java.util.*;
 
 public class ReviewDifferenceProducerTest extends TestCase {
 
@@ -78,7 +89,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		return bean;
 	}
 
-	private ReviewAdapter prepareReview1(State state, Date commentsDate) throws ValueNotYetInitialized {
+	private Review prepareReview1(State state, Date commentsDate) throws ValueNotYetInitialized {
 		Review review1 = prepareReview();
 		review1.setGeneralComments(new ArrayList<GeneralComment>());
 		review1.setPermId(reviewId1);
@@ -101,16 +112,17 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		review1.setFilesAndVersionedComments(files1, null);
 
-		return new ReviewAdapter(review1, new ServerData(
-				new CrucibleServerCfg("Name", new ServerIdImpl()), new UserCfg("", "", false)));
+		return review1;
+		// return new ReviewAdapter(review1, new ServerData(
+		// new CrucibleServerCfg("Name", new ServerIdImpl()), new UserCfg("", "", false)));
 	}
 
 	public void testSameReviewsWithoutFiles() throws ValueNotYetInitialized {
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
 		review.getFiles().clear();
 
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 
 		// test the same review - empty files collection
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review);
@@ -142,7 +154,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testSameReviews() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
 
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review);
 		List<CrucibleNotification> notifications = p.getDiff();
@@ -155,7 +167,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testSameGeneralComments() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
 
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review);
 		List<CrucibleNotification> notifications = p.getDiff();
@@ -167,8 +179,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	public void testNullGeneralComments() throws ValueNotYetInitialized {
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 		review.setGeneralComments(null);
 
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
@@ -191,8 +203,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testAddedGeneralComment() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 
 		// reset general for first review
 		review.getGeneralComments().clear();
@@ -208,8 +220,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testReviewItemAdded() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 		review.getFiles().clear();
 
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
@@ -229,8 +241,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testReviewItemRemoved() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 		review1.getFiles().clear();
 
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
@@ -246,8 +258,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testAddedGeneralCommentReply() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 		review1.getGeneralComments().get(0).getReplies().add(
 				prepareGeneralComment("reply", new PermId("CMT:41"), new Date(), null));
 
@@ -263,8 +275,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testUpdatedGeneralCommentReply() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 		Date replyDate = new Date();
 		review.getGeneralComments().get(0).getReplies().add(
 				prepareGeneralComment("reply", new PermId("CMT:41"), replyDate, null));
@@ -296,8 +308,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testRemovedGeneralCommentReply() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 		review.getGeneralComments().get(0).getReplies().add(
 				prepareGeneralComment("reply", new PermId("CMT:41"), new Date(), null));
 
@@ -313,8 +325,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testEditedGeneralComment() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 
 		// change general for second review
 		((GeneralCommentBean) review1.getGeneralComments().get(0)).setMessage("new message");
@@ -330,8 +342,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testRemovedGeneralComment() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 
 		// reset general for second review
 		review1.getGeneralComments().clear();
@@ -347,8 +359,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testAddedVersionedComment() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 
 		// reset versioned for first file review
 		Iterator<CrucibleFileInfo> iter = review.getFiles().iterator();
@@ -378,8 +390,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testEditedVersionedComment() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 
 		Iterator<CrucibleFileInfo> iter = review.getFiles().iterator();
 
@@ -406,8 +418,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testRemovedVersionedComment() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 
 		// reset versioned for first file review
 		Iterator<CrucibleFileInfo> iter = review1.getFiles().iterator();
@@ -437,8 +449,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testAddedVersionedCommentReply() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 
 		Iterator<CrucibleFileInfo> iter = review1.getFiles().iterator();
 		iter.next().getVersionedComments().get(0).getReplies().add(
@@ -455,8 +467,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testUpdatedVersionedCommentReply() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 
 		Iterator<CrucibleFileInfo> iter = review.getFiles().iterator();
 		iter.next().getVersionedComments().get(0).getReplies().add(
@@ -477,8 +489,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testRemovedVersionedCommentReply() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 
 		Iterator<CrucibleFileInfo> iter = review.getFiles().iterator();
 		iter.next().getVersionedComments().get(0).getReplies().add(
@@ -495,8 +507,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testStateChanges() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.DRAFT, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.DRAFT, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 		assertEquals(2, notifications.size());
@@ -524,8 +536,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	public void testReviewersChanges() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
-		ReviewAdapter review = prepareReview1(State.REVIEW, commentDate);
-		ReviewAdapter review1 = prepareReview1(State.REVIEW, commentDate);
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
 
 		// just add reviewer - no notification ???
 		review1.getReviewers().add(reviewer3);
@@ -591,8 +603,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	private void testHelper(final CrucibleNotificationType notificationType, MyCallback myCallback) {
 		final Review r1 = prepareReview();
 		final Review r2 = prepareReview();
-		final ReviewDifferenceProducer p = new ReviewDifferenceProducer(new ReviewAdapter(r1, null), new ReviewAdapter(
-				r2, null));
+		final ReviewDifferenceProducer p = new ReviewDifferenceProducer(r1, r2);
 
 		for (String[] stringPair : stringPairs) {
 			final String s1 = stringPair[0];
@@ -692,8 +703,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 				new Pair<Set<Reviewer>, Set<Reviewer>>(MiscUtil.buildHashSet(rv1, rv2, rv3), MiscUtil.buildHashSet(rv2,
 						rv3, rv1)));
 
-		final ReviewDifferenceProducer p = new ReviewDifferenceProducer(new ReviewAdapter(r1, null), new ReviewAdapter(
-				r2, null));
+		final ReviewDifferenceProducer p = new ReviewDifferenceProducer(r1, r2);
 		for (Pair<Set<Reviewer>, Set<Reviewer>> reviewersPair : reviewers) {
 			r1.setReviewers(reviewersPair.first);
 			r2.setReviewers(reviewersPair.second);
@@ -714,8 +724,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
  	 */
 	public void testRevisionChanged() throws ValueNotYetInitialized {
 		final Date dt = new Date();
-		final ReviewAdapter r1 = prepareReview1(State.REVIEW, dt);
-		final ReviewAdapter r2 = prepareReview1(State.REVIEW, dt);
+		final Review r1 = prepareReview1(State.REVIEW, dt);
+		final Review r2 = prepareReview1(State.REVIEW, dt);
 		for (CrucibleFileInfo file : r1.getFiles()) {
 			file.getOldFileDescriptor().setRevision(
 					file.getOldFileDescriptor().getRevision() + ".23");

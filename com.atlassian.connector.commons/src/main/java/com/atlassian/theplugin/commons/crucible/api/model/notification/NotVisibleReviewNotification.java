@@ -16,18 +16,20 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
-import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
 
 public class NotVisibleReviewNotification extends AbstractReviewNotification {
 
-	public NotVisibleReviewNotification(ReviewAdapter review) {
+	public NotVisibleReviewNotification(Review review) {
 		super(review);
 	}
 
+	@Override
 	public CrucibleNotificationType getType() {
 		return CrucibleNotificationType.NOT_VISIBLE_REVIEW;
 	}
 
+	@Override
 	public String getPresentationMessage() {
 		return review.getName();
 	}

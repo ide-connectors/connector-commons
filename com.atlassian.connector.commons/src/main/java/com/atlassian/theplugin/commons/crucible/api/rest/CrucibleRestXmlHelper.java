@@ -16,10 +16,10 @@
 
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
+import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
 import com.atlassian.connector.commons.misc.IntRangesParser;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.CrucibleVersion;
-import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
 import com.atlassian.theplugin.commons.crucible.api.model.*;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.CDATA;
@@ -28,7 +28,6 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
 import java.util.*;
 
 public final class CrucibleRestXmlHelper {
@@ -815,5 +814,9 @@ public final class CrucibleRestXmlHelper {
 		version.setBuildDate(getChildText(element, "buildDate"));
 		version.setReleaseNumber(getChildText(element, "releaseNumber"));
 		return version;
+	}
+
+	public static void main(String[] args) {
+		System.out.println(System.getenv());
 	}
 }

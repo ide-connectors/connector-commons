@@ -16,18 +16,20 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
-import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
 
 public class ReviewCompletedNotification extends AbstractReviewNotification {
 
-	public ReviewCompletedNotification(ReviewAdapter review) {
+	public ReviewCompletedNotification(Review review) {
 		super(review);
 	}
 
+	@Override
 	public CrucibleNotificationType getType() {
 		return CrucibleNotificationType.REVIEW_COMPLETED;
 	}
 
+	@Override
 	public String getPresentationMessage() {
 		return "All reviewers completed review";
 	}

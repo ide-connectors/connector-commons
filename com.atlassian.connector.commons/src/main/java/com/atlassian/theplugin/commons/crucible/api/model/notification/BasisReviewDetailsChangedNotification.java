@@ -15,14 +15,14 @@
  */
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
-import com.atlassian.theplugin.commons.crucible.api.model.ReviewAdapter;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import org.jetbrains.annotations.NotNull;
 
 public class BasisReviewDetailsChangedNotification extends AbstractReviewNotification {
 	private final CrucibleNotificationType notificationType;
 	private final String message;
 
-	public BasisReviewDetailsChangedNotification(@NotNull ReviewAdapter review,
+	public BasisReviewDetailsChangedNotification(@NotNull Review review,
 			@NotNull CrucibleNotificationType notificationType, @NotNull String message) {
 		super(review);
 		this.notificationType = notificationType;

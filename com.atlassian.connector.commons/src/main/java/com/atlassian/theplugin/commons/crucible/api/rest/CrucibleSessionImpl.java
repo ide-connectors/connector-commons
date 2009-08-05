@@ -16,14 +16,37 @@
 
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.ProjectCache;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.State;
+import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
 import com.atlassian.theplugin.commons.exception.IncorrectVersionException;
-import com.atlassian.theplugin.commons.remoteapi.*;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.ProductVersionUtil;
@@ -38,13 +61,19 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Communication stub for Crucible REST API.
@@ -136,7 +165,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	/**
 	 * Public constructor for CrucibleSessionImpl.
-	 * 
+	 *
 	 * @param serverData
 	 *            The server fisheye configuration for this session
 	 * @param callback
@@ -144,7 +173,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException
 	 *             when serverCfg configuration is invalid
 	 */
-	public CrucibleSessionImpl(ServerData serverData, HttpSessionCallback callback)
+	public CrucibleSessionImpl(ConnectionCfg serverData, HttpSessionCallback callback)
 			throws RemoteApiMalformedUrlException {
 		super(serverData, callback);
 
@@ -587,7 +616,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	/**
 	 * Retrieves projects from cache (reduces server calls)
-	 * 
+	 *
 	 * @return list of Crucible Projects
 	 * @throws RemoteApiException
 	 *             thrown in case of connection problems
@@ -598,7 +627,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	/**
 	 * Retrieves projects directly from server ommiting cache
-	 * 
+	 *
 	 * @return list of Crucible projects
 	 * @throws RemoteApiException
 	 *             thrown in case of connection problems

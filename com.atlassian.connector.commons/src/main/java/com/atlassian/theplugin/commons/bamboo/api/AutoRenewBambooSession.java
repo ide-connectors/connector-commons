@@ -16,13 +16,16 @@
 
 package com.atlassian.theplugin.commons.bamboo.api;
 
-import com.atlassian.theplugin.commons.bamboo.*;
+import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.theplugin.commons.bamboo.BambooBuild;
+import com.atlassian.theplugin.commons.bamboo.BambooPlan;
+import com.atlassian.theplugin.commons.bamboo.BambooProject;
+import com.atlassian.theplugin.commons.bamboo.BuildDetails;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -31,7 +34,7 @@ public class AutoRenewBambooSession implements BambooSession {
 	private String userName;
 	private char[] password;
 
-	public AutoRenewBambooSession(BambooServerData serverCfg, HttpSessionCallback callback) throws RemoteApiException {
+	public AutoRenewBambooSession(ConnectionCfg serverCfg, HttpSessionCallback callback) throws RemoteApiException {
 		this.delegate = new BambooSessionImpl(serverCfg, callback);
 	}
 

@@ -15,12 +15,14 @@
  */
 package com.atlassian.theplugin.commons.fisheye.api.rest;
 
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.api.AbstractSessionTest;
 import com.atlassian.theplugin.commons.fisheye.api.rest.mock.FishEyeLoginCallback;
 import com.atlassian.theplugin.commons.fisheye.api.rest.mock.FishEyeLogoutCallback;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 
 /**
@@ -47,7 +49,7 @@ public class FishEyeRestSessionTest extends AbstractSessionTest {
 
 	@Override
 	protected ProductSession getProductSession(final String url) throws RemoteApiMalformedUrlException {
-		return new FishEyeRestSession(url);
+		return createSession(url);
 	}
 
 	@Override
@@ -84,7 +86,7 @@ public class FishEyeRestSessionTest extends AbstractSessionTest {
 		mockServer.expect(FishEyeRestSession.LOGIN_ACTION, new FishEyeLoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect(FishEyeRestSession.LOGOUT_ACTION, new FishEyeLogoutCallback(FishEyeLoginCallback.AUTH_TOKEN));
 
-		FishEyeRestSession apiHandler = new FishEyeRestSession(mockBaseUrl + "/");
+		FishEyeRestSession apiHandler = createSession(mockBaseUrl + "/");
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		assertTrue(apiHandler.isLoggedIn());
 		apiHandler.logout();
@@ -95,7 +97,7 @@ public class FishEyeRestSessionTest extends AbstractSessionTest {
 
 	public void testNullParamsLogin() throws Exception {
 		try {
-			FishEyeRestSession apiHandler = new FishEyeRestSession(null);
+			FishEyeRestSession apiHandler = createSession(null);
 			apiHandler.login(null, null);
 			fail();
 		} catch (RemoteApiException ex) {
@@ -104,10 +106,14 @@ public class FishEyeRestSessionTest extends AbstractSessionTest {
 
 	public void testWrongParamsLogin() throws Exception {
 		try {
-			FishEyeRestSession apiHandler = new FishEyeRestSession("");
+			FishEyeRestSession apiHandler = createSession("");
 			apiHandler.login("", "".toCharArray());
 			fail();
 		} catch (RemoteApiException ex) {
 		}
+	}
+
+	private FishEyeRestSession createSession(String url) throws RemoteApiMalformedUrlException {
+		return new FishEyeRestSession(new ConnectionCfg("id", url, "", ""), new HttpSessionCallbackImpl());
 	}
 }

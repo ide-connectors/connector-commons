@@ -15,7 +15,12 @@
  */
 package com.atlassian.theplugin.commons.bamboo.api;
 
-import com.atlassian.theplugin.commons.remoteapi.*;
+import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.theplugin.commons.remoteapi.ProductSession;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.UrlUtil;
@@ -24,7 +29,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -43,7 +47,7 @@ public class LoginBambooSession extends AbstractHttpSession implements ProductSe
 	private static final String LOGIN_ACTION = "/api/rest/login.action";
 	private static final String LOGOUT_ACTION = "/api/rest/logout.action";
 
-	public LoginBambooSession(final ServerData serverData, final HttpSessionCallback callback)
+	public LoginBambooSession(final ConnectionCfg serverData, final HttpSessionCallback callback)
 			throws RemoteApiMalformedUrlException {
 		super(serverData, callback);
 	}

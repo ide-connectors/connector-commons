@@ -16,14 +16,18 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 
 public final class BambooBuildInfo implements BambooBuild {
 	private final Date pollingTime;
-	private final BambooServerData server;
+	private final ConnectionCfg server;
 	private final String projectName;
 	private final String planName;
 	@NotNull
@@ -49,7 +53,7 @@ public final class BambooBuildInfo implements BambooBuild {
 	private final Date completionDate;
 	private final Set<String> commiters;
 
-	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerData serverData,
+	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull ConnectionCfg serverData,
 			@NotNull Date pollingTime, @Nullable String projectName, boolean isEnabled, @Nullable Integer number,
 			@NotNull BuildStatus status, @Nullable String reason, @Nullable Date startDate,
 			@Nullable String testSummary, @Nullable String commitComment, final int testsPassedCount,
@@ -82,7 +86,7 @@ public final class BambooBuildInfo implements BambooBuild {
 		}
 	}
 
-	public BambooServerData getServer() {
+	public ConnectionCfg getServer() {
 		return server;
 	}
 
@@ -202,7 +206,7 @@ public final class BambooBuildInfo implements BambooBuild {
 	}
 
 	/**
-	 * @return wheather I'm one of the commiters to that build or not
+	 * @return whether I'm one of the commiters to that build or not
 	 */
 	public boolean isMyBuild() {
 		return commiters.contains(server.getUserName());
@@ -223,7 +227,7 @@ public final class BambooBuildInfo implements BambooBuild {
 	public static class Builder {
 		private final String planKey;
 		private final String planName;
-		private final BambooServerData serverData;
+		private final ConnectionCfg serverData;
 		private final String projectName;
 		private final Integer buildNumber;
 		@NotNull
@@ -247,7 +251,7 @@ public final class BambooBuildInfo implements BambooBuild {
 		private String durationDescription;
 		private Throwable exception;
 
-		public Builder(@NotNull String planKey, @NotNull BambooServerData serverData, @NotNull BuildStatus state) {
+		public Builder(@NotNull String planKey, @NotNull ConnectionCfg serverData, @NotNull BuildStatus state) {
 			this.planKey = planKey;
 			this.serverData = serverData;
 			this.buildState = state;
@@ -256,7 +260,7 @@ public final class BambooBuildInfo implements BambooBuild {
 			buildNumber = null;
 		}
 
-		public Builder(@NotNull String planKey, @Nullable String planName, @NotNull BambooServerData serverData,
+		public Builder(@NotNull String planKey, @Nullable String planName, @NotNull ConnectionCfg serverData,
 				@Nullable String projectName, @Nullable Integer buildNumber, @NotNull BuildStatus state) {
 			this.planKey = planKey;
 			this.planName = planName;

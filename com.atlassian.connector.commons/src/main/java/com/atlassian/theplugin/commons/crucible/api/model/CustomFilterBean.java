@@ -38,8 +38,9 @@ public class CustomFilterBean implements CustomFilter {
 	private static final int SHIFT_32 = 32;
 	public static final String FILTER_ID = "MANUAL_FILTER_ID";
 	private final String filterName = "Custom";
+    private boolean empty = false;
 
-	@Override
+    @Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -94,6 +95,7 @@ public class CustomFilterBean implements CustomFilter {
 	}
 
 	public void setState(State[] state) {
+
 		this.state = state;
 	}
 
@@ -225,4 +227,12 @@ public class CustomFilterBean implements CustomFilter {
 		}
 		return stateParam;
 	}
+
+    public boolean isEmpty() {
+        return empty;
+    }
+
+    public void setEmpty(boolean empty) {
+        this.empty = empty;
+    }
 }

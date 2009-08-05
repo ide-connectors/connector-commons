@@ -54,4 +54,6 @@ public interface CustomFilter extends CrucibleFilter {
 	ServerIdImpl getServerId();
 
 	String getStates();
+
+    boolean isEmpty();
 }

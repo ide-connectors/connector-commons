@@ -320,14 +320,14 @@ public class ReviewDifferenceProducer {
 		return replyChanges;
 	}
 
-	private int checkComments(final Review oldReview, final Review newReview,
+	private int checkComments(final Review anOldReview, final Review aNewReview,
 			final boolean checkFiles)
 			throws ValueNotYetInitialized {
 		int commentChanges = 0;
 
-		for (GeneralComment comment : newReview.getGeneralComments()) {
+		for (GeneralComment comment : aNewReview.getGeneralComments()) {
 			GeneralComment existing = null;
-			for (GeneralComment oldComment : oldReview.getGeneralComments()) {
+			for (GeneralComment oldComment : anOldReview.getGeneralComments()) {
 				if (comment.getPermId().getId().equals(oldComment.getPermId().getId())) {
 					existing = oldComment;
 					break;
@@ -340,29 +340,29 @@ public class ReviewDifferenceProducer {
 					|| existing.isDraft() != comment.isDraft()) {
 				if (existing == null) {
 					commentChanges++;
-					notifications.add(new NewGeneralCommentNotification(newReview, comment, comment.getAuthor(),
+					notifications.add(new NewGeneralCommentNotification(aNewReview, comment, comment.getAuthor(),
 							comment.isDraft()));
 				} else {
 					commentChanges++;
-					notifications.add(new UpdatedGeneralCommentNotification(newReview, comment.getAuthor(),
+					notifications.add(new UpdatedGeneralCommentNotification(aNewReview, comment.getAuthor(),
 							comment.isDraft(), existing.isDraft()));
 				}
 			}
-			commentChanges += checkGeneralReplies(newReview, existing, comment);
+			commentChanges += checkGeneralReplies(aNewReview, existing, comment);
 		}
 
 		List<GeneralComment> deletedGen = getDeletedComments(
-				oldReview.getGeneralComments(), newReview.getGeneralComments());
+				anOldReview.getGeneralComments(), aNewReview.getGeneralComments());
 		for (GeneralComment gc : deletedGen) {
 			commentChanges++;
-			notifications.add(new RemovedGeneralCommentNotification(newReview, gc, gc.getAuthor(), gc.isDraft()));
+			notifications.add(new RemovedGeneralCommentNotification(aNewReview, gc, gc.getAuthor(), gc.isDraft()));
 		}
 
 		if (checkFiles) {
-			for (CrucibleFileInfo fileInfo : newReview.getFiles()) {
+			for (CrucibleFileInfo fileInfo : aNewReview.getFiles()) {
 				for (VersionedComment comment : fileInfo.getVersionedComments()) {
 					VersionedComment existing = null;
-					for (CrucibleFileInfo oldFile : oldReview.getFiles()) {
+					for (CrucibleFileInfo oldFile : anOldReview.getFiles()) {
 						if (oldFile.getPermId().equals(fileInfo.getPermId())) {
 							for (VersionedComment oldComment : oldFile.getVersionedComments()) {
 								if (comment.getPermId().getId().equals(oldComment.getPermId().getId())) {
@@ -379,21 +379,21 @@ public class ReviewDifferenceProducer {
 						if (existing == null) {
 							commentChanges++;
 							notifications
-									.add(new NewVersionedCommentNotification(newReview, comment, comment.getAuthor(),
+									.add(new NewVersionedCommentNotification(aNewReview, comment, comment.getAuthor(),
 											comment.isDraft()));
 						} else {
 							commentChanges++;
 							notifications
-									.add(new UpdatedVersionedCommentNotification(newReview, comment.getAuthor(),
+									.add(new UpdatedVersionedCommentNotification(aNewReview, comment.getAuthor(),
 											comment.isDraft(), existing.isDraft()));
 						}
 					}
-					commentChanges += checkVersionedReplies(newReview, existing, comment);
+					commentChanges += checkVersionedReplies(aNewReview, existing, comment);
 				}
 			}
 
-			for (CrucibleFileInfo oldFile : oldReview.getFiles()) {
-				for (CrucibleFileInfo newFile : newReview.getFiles()) {
+			for (CrucibleFileInfo oldFile : anOldReview.getFiles()) {
+				for (CrucibleFileInfo newFile : aNewReview.getFiles()) {
 					if (oldFile.getPermId().equals(newFile.getPermId())) {
 						List<VersionedComment> oldVersionedComments = new ArrayList<VersionedComment>();
 						List<VersionedComment> newVersionedComments = new ArrayList<VersionedComment>();
@@ -403,7 +403,7 @@ public class ReviewDifferenceProducer {
 								oldVersionedComments, newVersionedComments);
 						for (VersionedComment vc : deletedVcs) {
 							commentChanges++;
-							notifications.add(new RemovedVersionedCommentNotification(newReview, vc, vc.getAuthor(),
+							notifications.add(new RemovedVersionedCommentNotification(aNewReview, vc, vc.getAuthor(),
 									vc.isDraft()));
 						}
 					}

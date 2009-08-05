@@ -225,7 +225,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (JDOMException e) {
 			throw new RemoteApiLoginException("Server:" + getBaseUrl() + " returned malformed response", e);
 		} catch (RemoteApiSessionExpiredException e) {
-			// Crucible does not return this exception
+			throw new RemoteApiLoginException("Remote session expired on server:" + getBaseUrl(), e);
 		} catch (IllegalArgumentException e) {
 			throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
 		}

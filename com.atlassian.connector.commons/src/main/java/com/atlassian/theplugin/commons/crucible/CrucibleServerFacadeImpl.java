@@ -30,25 +30,14 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
-import com.atlassian.theplugin.commons.util.TimeExpiringCache;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
-    private static final int CACHE_ITEM_TTL = 60 * 60 * 1000;
-    private static final int CACHE_ITEM_ACCESS_TIME_OUT = 30 * 60 * 1000;
-
-	//private final Map<String, CrucibleSession> sessions = new HashMap<String, CrucibleSession>();
-    private final TimeExpiringCache<String, CrucibleSession> sessionsCache =
-            new TimeExpiringCache<String, CrucibleSession>(CACHE_ITEM_TTL,
-                    CACHE_ITEM_ACCESS_TIME_OUT,
-                    TimeExpiringCache.DEFAULT_MAXIMUM_CACHE_CAPACITY,
-                    TimeExpiringCache.DEFAULT_TIMER_INTERVAL);
+	private final Map<String, CrucibleSession> sessions = new HashMap<String, CrucibleSession>();
 
 	private static CrucibleServerFacadeImpl instance;
 
@@ -79,7 +68,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	protected synchronized CrucibleSession getSession(ConnectionCfg server) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		String key = server.getUrl() + server.getUserName() + server.getPassword();
-		CrucibleSession session = sessionsCache.get(key);
+		CrucibleSession session = sessions.get(key);
 		if (session == null) {
 			try {
 				session = new CrucibleSessionImpl(server, callback);
@@ -87,7 +76,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 				if (!session.isLoggedIn()) {
 					session.login();
 				}
-				sessionsCache.put(key, session);
+				sessions.put(key, session);
 			} catch (RemoteApiMalformedUrlException e) {
 				if (server.getPassword().length() > 0 || !UrlUtil.isUrlValid(server.getUrl())) {
 					throw e;

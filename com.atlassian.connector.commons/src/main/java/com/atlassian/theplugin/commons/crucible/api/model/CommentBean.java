@@ -32,6 +32,7 @@ public abstract class CommentBean implements Comment {
 	private boolean defectApproved = false;
 	private User author = null;
 	private Date createDate = new Date();
+    private ReadState readState;
 
     private List<Comment> replies = new ArrayList<Comment>();
 
@@ -57,6 +58,7 @@ public abstract class CommentBean implements Comment {
 		setAuthor(bean.getAuthor());
 		setAuthor(bean.getAuthor());
 		setReply(bean.isReply());
+        setReadState(bean.getReadState());
 
 		if (bean.getCustomFields() != null) {
 			for (Map.Entry<String, CustomField> entry : bean.getCustomFields().entrySet()) {
@@ -163,7 +165,15 @@ public abstract class CommentBean implements Comment {
 		return customFields;
 	}
 
-	@Override
+    public ReadState getReadState() {
+        return readState;
+    }
+
+    public void setReadState(ReadState readState) {
+        this.readState = readState;
+    }
+
+    @Override
 	public String toString() {
 		return getMessage();
 	}
@@ -208,6 +218,9 @@ public abstract class CommentBean implements Comment {
 		if (permId != null ? !permId.equals(that.permId) : that.permId != null) {
 			return false;
 		}
+        if (readState != null ? !readState.equals(that.readState) : that.readState != null) {
+            return false;
+        }
 
 		return true;
 	}
@@ -224,6 +237,7 @@ public abstract class CommentBean implements Comment {
 		result = HASH_INT * result + (createDate != null ? createDate.hashCode() : 0);
 		result = HASH_INT * result + (isReply ? 1 : 0);
 		result = HASH_INT * result + (customFields != null ? customFields.hashCode() : 0);
+        result = HASH_INT * result + (readState.ordinal());
 		return result;
 	}
 }

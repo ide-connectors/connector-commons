@@ -133,4 +133,10 @@ public interface CrucibleSession {
 	boolean checkContentUrlAvailable();
 
 	void addItemsToReview(PermId permId, Collection<UploadItem> uploadItems) throws RemoteApiException;
+
+    void markCommentRead(PermId reviewId, PermId commentId) throws RemoteApiException;
+
+    void markCommentLeaveRead(PermId reviewId, PermId commentId) throws RemoteApiException;
+
+    void markAllCommentsRead(PermId reviewId) throws RemoteApiException;
 }

@@ -551,4 +551,21 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 		this.callback = callback;
 	}
 
+    public void markCommentRead(@NotNull ConnectionCfg server, PermId reviewId, PermId commentId)
+            throws RemoteApiException, ServerPasswordNotProvidedException {
+        CrucibleSession session = getSession(server);
+        session.markCommentRead(reviewId, commentId);
+    }
+
+    public void markCommentLeaveUnread(@NotNull ConnectionCfg server, PermId reviewId, PermId commentId)
+            throws RemoteApiException, ServerPasswordNotProvidedException {
+        CrucibleSession session = getSession(server);
+        session.markCommentLeaveRead(reviewId, commentId);
+    }
+
+    public void markAllCommentsRead(@NotNull ConnectionCfg server, PermId reviewId)
+            throws RemoteApiException, ServerPasswordNotProvidedException {
+        CrucibleSession session = getSession(server);
+        session.markAllCommentsRead(reviewId);
+    }
 }

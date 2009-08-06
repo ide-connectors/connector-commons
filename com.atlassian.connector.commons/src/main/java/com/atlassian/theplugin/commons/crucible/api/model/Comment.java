@@ -21,6 +21,13 @@ import java.util.List;
 import java.util.Map;
 
 public interface Comment {
+
+    enum ReadState {
+        READ,
+        UNREAD,
+        LEAVE_UNREAD
+    }
+
 	PermId getPermId();
 
 	String getMessage();
@@ -42,4 +49,6 @@ public interface Comment {
 	Date getCreateDate();
 
 	Map<String, CustomField> getCustomFields();
+
+    ReadState getReadState();
 }

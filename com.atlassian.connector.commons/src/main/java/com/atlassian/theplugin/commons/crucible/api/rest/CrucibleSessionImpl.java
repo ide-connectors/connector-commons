@@ -151,6 +151,12 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	private static final String ADD_FILE = "/addFile";
 
+    private static final String MARK_READ = "/markAsRead";
+
+    private static final String MARK_LEAVE_UNREAD = "/markAsLeaveUnread";
+
+    private static final String MARK_ALL_READ = "/markAllAsRead";
+
 	private String authToken;
 
 	private final Map<String, SvnRepository> repositories = new HashMap<String, SvnRepository>();
@@ -240,8 +246,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	public CrucibleVersionInfo getServerVersion() throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + VERSION;
 		try {
@@ -262,8 +268,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	private void updateMetricsMetadata(Review review) {
@@ -276,8 +284,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	public List<Review> getReviewsInStates(List<State> states) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		StringBuilder sb = new StringBuilder();
 		sb.append(getBaseUrl());
@@ -315,8 +323,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public List<Review> getAllReviews() throws RemoteApiException {
@@ -325,8 +335,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	public List<Review> getReviewsForFilter(PredefinedFilter filter) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		try {
 			String url = getBaseUrl() + REVIEW_SERVICE + FILTERED_REVIEWS + "/" + filter.getFilterUrl()
@@ -351,8 +361,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	private boolean checkCustomFiltersAsGet() {
@@ -395,8 +407,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	public List<Review> getReviewsForCustomFilter(CustomFilter filter) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		try {
 			Document doc;
@@ -422,8 +434,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			}
 			return reviews;
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	private Document getReviewsForCustomFilterAsPost(CustomFilter filter) throws RemoteApiException {
@@ -434,8 +448,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	private Document getReviewsForCustomFilterAsGet(CustomFilter filter) throws RemoteApiException {
@@ -450,14 +466,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public List<Review> getAllReviewsForFile(String repoName, String path) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		try {
 			String url = getBaseUrl() + REVIEW_SERVICE + SEARCH_REVIEWS + "/" + URLEncoder.encode(repoName, "UTF-8")
@@ -482,14 +500,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public Review getReview(PermId permId) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		try {
 			String url = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + DETAIL_REVIEW_INFO;
@@ -509,8 +529,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public void fillRepositoryData(CrucibleFileInfo fileInfo) throws RemoteApiException {
@@ -557,8 +579,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	public List<Reviewer> getReviewers(PermId permId) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + REVIEWERS;
 		try {
@@ -578,14 +600,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public List<User> getUsers() throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + USER_SERVICE;
 		try {
@@ -610,8 +634,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	/**
@@ -639,8 +665,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	public List<CrucibleProject> getProjectsFromServer() throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + PROJECTS_SERVICE;
 		try {
@@ -660,14 +686,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public List<Repository> getRepositories() throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + REPOSITORIES_SERVICE;
 		try {
@@ -687,14 +715,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public SvnRepository getRepository(String repoName) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		List<Repository> myRepositories = getRepositories();
 		for (Repository repository : myRepositories) {
@@ -714,18 +744,19 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 					} catch (IOException e) {
 						throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 					} catch (JDOMException e) {
-						throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-					}
+                        throwMalformedResponseReturned(e);
+                    }
 				}
 			}
 		}
+
 		return null;
 	}
 
 	public Set<CrucibleFileInfo> getFiles(PermId id) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + REVIEW_ITEMS;
 		try {
@@ -748,8 +779,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 //	public CrucibleFileInfo addItemToReview(Review review, NewReviewItem item) throws RemoteApiException {
@@ -781,8 +814,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	public List<GeneralComment> getGeneralComments(PermId id) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + GENERAL_COMMENTS;
 		try {
@@ -805,14 +838,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public List<VersionedComment> getAllVersionedComments(PermId id) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + VERSIONED_COMMENTS;
 		try {
@@ -835,14 +870,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public List<VersionedComment> getVersionedComments(PermId id, PermId reviewItemId) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		final String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + REVIEW_ITEMS + "/"
 				+ reviewItemId.getId() + COMMENTS;
@@ -866,14 +903,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public List<GeneralComment> getReplies(PermId id, PermId commentId) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + COMMENTS + "/" + commentId.getId()
 				+ REPLIES;
@@ -897,8 +936,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 //	public List<Comment> getComments(PermId id) throws RemoteApiException {
@@ -963,8 +1004,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	public GeneralComment addGeneralComment(PermId id, GeneralComment comment) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		Document request = CrucibleRestXmlHelper.prepareGeneralComment(comment);
 
@@ -985,14 +1026,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public void removeComment(PermId id, Comment comment) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + COMMENTS + "/"
 				+ comment.getPermId().getId();
 		try {
@@ -1000,14 +1043,14 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
 	}
 
 	public void updateComment(PermId id, Comment comment) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		Document request = CrucibleRestXmlHelper.prepareGeneralComment(comment);
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + COMMENTS + "/"
@@ -1016,14 +1059,14 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		try {
 			retrievePostResponse(requestUrl, request, false);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
 	}
 
 	public void publishComment(PermId reviewId, PermId commentId) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + reviewId.getId() + PUBLISH_COMMENTS;
 		if (commentId != null) {
@@ -1033,8 +1076,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		try {
 			retrievePostResponse(requestUrl, "", false);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		} catch (RemoteApiSessionExpiredException e) {
+            throwMalformedResponseReturned(e);
+        } catch (RemoteApiSessionExpiredException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		}
 	}
@@ -1042,8 +1085,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	public VersionedComment addVersionedComment(PermId id, PermId riId, VersionedComment comment)
 			throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		Document request = CrucibleRestXmlHelper.prepareVersionedComment(riId, comment);
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + REVIEW_ITEMS + "/" + riId.getId()
@@ -1063,15 +1106,17 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public GeneralComment addGeneralCommentReply(PermId id, PermId cId, GeneralComment comment)
 			throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		Document request = CrucibleRestXmlHelper.prepareGeneralComment(comment);
 
@@ -1097,15 +1142,17 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public VersionedComment addVersionedCommentReply(PermId id, PermId cId, VersionedComment comment)
 			throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		Document request = CrucibleRestXmlHelper.prepareGeneralComment(comment);
 
@@ -1131,15 +1178,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
 
+        return null;
 	}
 
 	public void updateReply(PermId id, PermId cId, PermId rId, GeneralComment comment) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		Document request = CrucibleRestXmlHelper.prepareGeneralComment(comment);
 
@@ -1149,21 +1197,21 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		try {
 			retrievePostResponse(requestUrl, request, false);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
 	}
 
 	public Review createReview(Review review) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 		return createReviewFromPatch(review, null);
 	}
 
 	public Review createReviewFromPatch(Review review, String patch) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		Document request = CrucibleRestXmlHelper.prepareCreateReviewNode(review, patch);
 		try {
@@ -1180,14 +1228,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public Review createReviewFromUpload(Review review, Collection<UploadItem> uploadItems) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 		Review newReview = createReviewFromPatch(review, null);
 
 		try {
@@ -1203,16 +1253,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 				retrievePostResponse(urlString, parts, true);
 			}
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
 
 		return newReview;
 	}
 
 	public Review createReviewFromRevision(Review review, List<String> revisions) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		Document request = CrucibleRestXmlHelper.prepareCreateReviewNode(review, revisions);
 
@@ -1231,14 +1281,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public byte[] getFileContent(String contentUrl) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		if (StringUtils.isBlank(contentUrl)) {
 			throw new RemoteApiException(getBaseUrl() + ": Content not accessible");
@@ -1254,8 +1306,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	public List<CrucibleAction> getAvailableActions(PermId permId) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + ACTIONS;
 		try {
@@ -1275,14 +1327,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public List<CrucibleAction> getAvailableTransitions(PermId permId) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + TRANSITIONS;
 		try {
@@ -1302,15 +1356,17 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public Review addRevisionsToReview(PermId permId, String repository, List<String> revisions)
 			throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		Document request = CrucibleRestXmlHelper.prepareAddChangesetNode(repository, revisions);
 
@@ -1329,14 +1385,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public Review addPatchToReview(PermId permId, String repository, String patch) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		Document request = CrucibleRestXmlHelper.prepareAddPatchNode(repository, patch);
 
@@ -1355,14 +1413,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public void addItemsToReview(PermId permId, Collection<UploadItem> uploadItems) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		try {
 			String urlString = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + ADD_FILE;
@@ -1377,14 +1437,14 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 				retrievePostResponse(urlString, parts, true);
 			}
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
 	}
 
 	public void addReviewers(PermId permId, Set<String> users) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + REVIEWERS;
 		String reviewers = "";
@@ -1398,14 +1458,14 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		try {
 			retrievePostResponse(requestUrl, reviewers, false);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
 	}
 
 	public void removeReviewer(PermId permId, String username) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + REVIEWERS + "/" + username;
 		try {
@@ -1413,14 +1473,72 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
 	}
 
-	private Review changeReviewState(PermId permId, String action) throws RemoteApiException {
+    private void throwMalformedResponseReturned(JDOMException e) throws RemoteApiException {
+        throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
+    }
+
+    private static void throwNotLoggedIn() {
+        throw new IllegalStateException("Calling method without calling login() first");
+    }
+
+    public void markCommentRead(PermId reviewId, PermId commentId) throws RemoteApiException {
+        if (!isLoggedIn()) {
+            throwNotLoggedIn();
+        }
+
+        String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + reviewId.getId()
+                + COMMENTS + "/" + commentId + MARK_READ;
+
+        try {
+            retrieveDeleteResponse(requestUrl, false);
+        } catch (IOException e) {
+            throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+        } catch (JDOMException e) {
+            throwMalformedResponseReturned(e);
+        }
+    }
+
+    public void markCommentLeaveRead(PermId reviewId, PermId commentId) throws RemoteApiException {
+        if (!isLoggedIn()) {
+            throwNotLoggedIn();
+        }
+
+        String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + reviewId.getId()
+                + COMMENTS + "/" + commentId + MARK_LEAVE_UNREAD;
+
+        try {
+            retrieveDeleteResponse(requestUrl, false);
+        } catch (IOException e) {
+            throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+        } catch (JDOMException e) {
+            throwMalformedResponseReturned(e);
+        }
+    }
+
+    public void markAllCommentsRead(PermId reviewId) throws RemoteApiException {
+        if (!isLoggedIn()) {
+            throwNotLoggedIn();
+        }
+
+        String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + reviewId.getId() + MARK_ALL_READ;
+
+        try {
+            retrieveDeleteResponse(requestUrl, false);
+        } catch (IOException e) {
+            throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+        } catch (JDOMException e) {
+            throwMalformedResponseReturned(e);
+        }
+    }
+
+    private Review changeReviewState(PermId permId, String action) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + TRANSITION_ACTION + action;
 		try {
@@ -1438,14 +1556,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			}
 			return review;
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public void completeReview(PermId permId, boolean complete) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId();
 		if (complete) {
@@ -1457,8 +1577,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		try {
 			retrievePostResponse(requestUrl, "", false);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
 	}
 
 	public Review approveReview(PermId permId) throws RemoteApiException {
@@ -1491,8 +1611,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	public Review closeReview(PermId permId, String summarizeMessage) throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
-		}
+            throwNotLoggedIn();
+        }
 
 		try {
 			Document doc;
@@ -1520,8 +1640,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-		}
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
 	}
 
 	public List<CustomFieldDef> getMetrics(int version) throws RemoteApiException {
@@ -1529,8 +1651,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		if (!metricsDefinitions.containsKey(key)) {
 			// workaround for ACC-31
 			if (!isLoggedIn()) {
-				throw new IllegalStateException("Calling method without calling login() first");
-			}
+                throwNotLoggedIn();
+            }
 
 			String requestUrl = getBaseUrl() + REVIEW_SERVICE + METRICS + "/" + Integer.toString(version);
 			try {
@@ -1550,8 +1672,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			} catch (IOException e) {
 				throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 			} catch (JDOMException e) {
-				throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
-			}
+                throwMalformedResponseReturned(e);
+            }
 		}
 		return metricsDefinitions.get(key);
 	}

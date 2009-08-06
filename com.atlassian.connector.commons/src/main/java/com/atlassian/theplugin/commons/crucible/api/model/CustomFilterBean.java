@@ -79,6 +79,28 @@ public class CustomFilterBean implements CustomFilter {
 		this.serverId = serverId;
 	}
 
+    public CustomFilterBean copy(CustomFilterBean bean) {
+        this.serverId = bean.serverId;
+        this.title = bean.title;
+        this.state = bean.state;
+        this.author = bean.author;
+        this.moderator = bean.moderator;
+        this.creator = bean.creator;
+        this.reviewer = bean.reviewer;
+        this.orRoles = bean.orRoles;
+        this.complete = bean.complete;
+        this.allReviewersComplete = bean.allReviewersComplete;
+        this.projectKey = bean.projectKey;
+        this.enabled = bean.enabled;
+        this.empty = bean.empty;
+        return this;
+    }
+    public CustomFilterBean(CustomFilterBean bean) {
+          copy(bean);
+    }
+
+
+
 	public CustomFilterBean() {
 	}
 

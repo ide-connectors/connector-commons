@@ -22,25 +22,7 @@ import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleLoginException;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
-import com.atlassian.theplugin.commons.crucible.api.model.Comment;
-import com.atlassian.theplugin.commons.crucible.api.model.CommentBean;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCache;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCacheImpl;
-import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
-import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
-import com.atlassian.theplugin.commons.crucible.api.model.PermId;
-import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.Repository;
-import com.atlassian.theplugin.commons.crucible.api.model.Review;
-import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
-import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
-import com.atlassian.theplugin.commons.crucible.api.model.User;
-import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
-import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.*;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
@@ -48,17 +30,25 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
+import com.atlassian.theplugin.commons.util.TimeExpiringCache;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
-	private final Map<String, CrucibleSession> sessions = new HashMap<String, CrucibleSession>();
+    private static final int CACHE_ITEM_TTL = 60 * 60 * 1000;
+    private static final int CACHE_ITEM_ACCESS_TIME_OUT = 30 * 60 * 1000;
+
+	//private final Map<String, CrucibleSession> sessions = new HashMap<String, CrucibleSession>();
+    private final TimeExpiringCache<String, CrucibleSession> sessionsCache =
+            new TimeExpiringCache<String, CrucibleSession>(CACHE_ITEM_TTL,
+                    CACHE_ITEM_ACCESS_TIME_OUT,
+                    TimeExpiringCache.DEFAULT_MAXIMUM_CACHE_CAPACITY,
+                    TimeExpiringCache.DEFAULT_TIMER_INTERVAL);
 
 	private static CrucibleServerFacadeImpl instance;
 
@@ -89,7 +79,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	protected synchronized CrucibleSession getSession(ConnectionCfg server) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		String key = server.getUrl() + server.getUserName() + server.getPassword();
-		CrucibleSession session = sessions.get(key);
+		CrucibleSession session = sessionsCache.get(key);
 		if (session == null) {
 			try {
 				session = new CrucibleSessionImpl(server, callback);
@@ -97,7 +87,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 				if (!session.isLoggedIn()) {
 					session.login();
 				}
-				sessions.put(key, session);
+				sessionsCache.put(key, session);
 			} catch (RemoteApiMalformedUrlException e) {
 				if (server.getPassword().length() > 0 || !UrlUtil.isUrlValid(server.getUrl())) {
 					throw e;

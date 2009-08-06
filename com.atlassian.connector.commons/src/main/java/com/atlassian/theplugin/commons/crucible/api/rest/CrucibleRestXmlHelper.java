@@ -565,6 +565,8 @@ public final class CrucibleRestXmlHelper {
 		commentBean.setDefectApproved(Boolean.parseBoolean(getChildText(reviewCommentNode, "defectApproved")));
 		commentBean.setDeleted(Boolean.parseBoolean(getChildText(reviewCommentNode, "deleted")));
 		commentBean.setCreateDate(parseDateTime(getChildText(reviewCommentNode, "createDate")));
+        String readStatus = getChildText(reviewCommentNode, "readStatus");
+        commentBean.setReadState(readStatusStringToState(readStatus));
 
 		PermId permId = null;
 		if (reviewCommentNode.getChild("permaId") != null) {
@@ -597,7 +599,21 @@ public final class CrucibleRestXmlHelper {
 		return true;
 	}
 
-	private static void prepareComment(Comment comment, Element commentNode) {
+    private static Comment.ReadState readStatusStringToState(String readStatus) {
+        if (readStatus == null) {
+            return Comment.ReadState.UNKNOWN;
+        }
+        if (readStatus.equals("READ")) {
+            return Comment.ReadState.READ;
+        } else if (readStatus.equals("UNREAD")) {
+            return Comment.ReadState.UNREAD;
+        } else if (readStatus.equals("LEAVE_READ")) {
+            return Comment.ReadState.LEAVE_UNREAD;
+        }
+        return Comment.ReadState.UNKNOWN;
+    }
+
+    private static void prepareComment(Comment comment, Element commentNode) {
 		String date = COMMENT_TIME_FORMAT.print(comment.getCreateDate().getTime());
 		String strangeDate = date.substring(0, date.length() - 2);
 		strangeDate += ":00";

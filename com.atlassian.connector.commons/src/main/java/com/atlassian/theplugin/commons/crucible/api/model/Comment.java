@@ -23,6 +23,7 @@ import java.util.Map;
 public interface Comment {
 
     enum ReadState {
+        UNKNOWN,
         READ,
         UNREAD,
         LEAVE_UNREAD

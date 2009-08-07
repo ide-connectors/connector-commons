@@ -23,10 +23,22 @@ import java.util.Map;
 public interface Comment {
 
     enum ReadState {
-        UNKNOWN,
-        READ,
-        UNREAD,
-        LEAVE_UNREAD
+        UNKNOWN("Unknown"),
+        READ("Read"),
+        UNREAD("Not read"),
+        LEAVE_UNREAD("Leave unread");
+
+        private String name;
+
+        ReadState(String name) {
+            this.name = name;
+        }
+
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
 	PermId getPermId();

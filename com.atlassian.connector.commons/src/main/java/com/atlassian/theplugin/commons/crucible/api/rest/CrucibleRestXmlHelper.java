@@ -607,7 +607,7 @@ public final class CrucibleRestXmlHelper {
             return Comment.ReadState.READ;
         } else if (readStatus.equals("UNREAD")) {
             return Comment.ReadState.UNREAD;
-        } else if (readStatus.equals("LEAVE_READ")) {
+        } else if (readStatus.equals("LEAVE_UNREAD")) {
             return Comment.ReadState.LEAVE_UNREAD;
         }
         return Comment.ReadState.UNKNOWN;

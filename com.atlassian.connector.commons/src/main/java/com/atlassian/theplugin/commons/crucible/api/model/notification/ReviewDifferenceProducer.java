@@ -257,19 +257,23 @@ public class ReviewDifferenceProducer {
 				}
 				if ((existingReply == null)
 						|| !existingReply.getMessage().equals(reply.getMessage())
-						|| existingReply.isDraft() != reply.isDraft()) {
+						|| existingReply.isDraft() != reply.isDraft()
+                        || existingReply.getReadState() != reply.getReadState()) {
+                    replyChanges++;
 					if (existingReply == null) {
-						replyChanges++;
 						notifications.add(new NewReplyCommentNotification(review, newComment, reply, reply.getAuthor(),
 								reply.isDraft()));
 					} else {
-						replyChanges++;
-						notifications.add(new UpdatedReplyCommentNotification(review, reply, reply.getAuthor(),
-								reply.isDraft(), existingReply.isDraft()));
-					}
-				}
-			}
-		}
+                        if (!existingReply.getMessage().equals(reply.getMessage())
+                                || existingReply.isDraft() != reply.isDraft()) {
+                            notifications.add(new UpdatedReplyCommentNotification(review, reply, reply.getAuthor(),
+                                    reply.isDraft(), existingReply.isDraft()));
+                        }
+                        checkAndNotifyReadUnreadStateChange(review, reply, existingReply);
+                    }
+                }
+            }
+        }
 
 		if (oldComment != null) {
 			List<Comment> deletedGen = getDeletedComments(
@@ -295,16 +299,19 @@ public class ReviewDifferenceProducer {
 				}
 				if ((existingReply == null)
 						|| !existingReply.getMessage().equals(reply.getMessage())
-						|| existingReply.isDraft() != reply.isDraft()) {
+						|| existingReply.isDraft() != reply.isDraft()
+                        || existingReply.getReadState() != reply.getReadState()) {
+                    replyChanges++;
 					if (existingReply == null) {
-						replyChanges++;
 						notifications.add(new NewReplyCommentNotification(review, newComment, reply, reply.getAuthor(),
 								reply.isDraft()));
 					} else {
-						replyChanges++;
-						notifications.add(new UpdatedReplyCommentNotification(review, reply, reply.getAuthor(),
-								reply.isDraft(), existingReply.isDraft()));
-
+                        if (!existingReply.getMessage().equals(reply.getMessage())
+                            || existingReply.isDraft() != reply.isDraft()) {
+                            notifications.add(new UpdatedReplyCommentNotification(review, reply, reply.getAuthor(),
+                                    reply.isDraft(), existingReply.isDraft()));
+                        }
+                        checkAndNotifyReadUnreadStateChange(review, reply, existingReply);
 					}
 				}
 			}
@@ -335,18 +342,19 @@ public class ReviewDifferenceProducer {
 			}
 
 			if ((existing == null)
-					|| !existing.getMessage().equals(comment.getMessage())
-					|| existing.isDefectRaised() != comment.isDefectRaised()
-					|| existing.isDraft() != comment.isDraft()) {
+					|| commentContentesDiffer(existing, comment)
+                    || existing.getReadState() != comment.getReadState()) {
+                commentChanges++;
 				if (existing == null) {
-					commentChanges++;
 					notifications.add(new NewGeneralCommentNotification(aNewReview, comment, comment.getAuthor(),
 							comment.isDraft()));
 				} else {
-					commentChanges++;
-					notifications.add(new UpdatedGeneralCommentNotification(aNewReview, comment.getAuthor(),
-							comment.isDraft(), existing.isDraft()));
-				}
+                    if (commentContentesDiffer(existing, comment)) {
+                        notifications.add(new UpdatedGeneralCommentNotification(aNewReview, comment.getAuthor(),
+                                comment.isDraft(), existing.isDraft()));
+                    }
+                    checkAndNotifyReadUnreadStateChange(aNewReview, comment, existing);
+                }
 			}
 			commentChanges += checkGeneralReplies(aNewReview, existing, comment);
 		}
@@ -373,20 +381,21 @@ public class ReviewDifferenceProducer {
 						}
 					}
 					if ((existing == null)
-							|| !existing.getMessage().equals(comment.getMessage())
-							|| existing.isDefectRaised() != comment.isDefectRaised()
-							|| existing.isDraft() != comment.isDraft()) {
+							|| commentContentesDiffer(existing, comment)
+                            || existing.getReadState() != comment.getReadState()) {
+                        commentChanges++;
 						if (existing == null) {
-							commentChanges++;
 							notifications
 									.add(new NewVersionedCommentNotification(aNewReview, comment, comment.getAuthor(),
 											comment.isDraft()));
 						} else {
-							commentChanges++;
-							notifications
-									.add(new UpdatedVersionedCommentNotification(aNewReview, comment.getAuthor(),
-											comment.isDraft(), existing.isDraft()));
-						}
+                            if (commentContentesDiffer(existing, comment)) {
+                                notifications
+                                        .add(new UpdatedVersionedCommentNotification(aNewReview, comment.getAuthor(),
+                                                comment.isDraft(), existing.isDraft()));
+                            }
+                            checkAndNotifyReadUnreadStateChange(aNewReview, comment, existing);
+                        }
 					}
 					commentChanges += checkVersionedReplies(aNewReview, existing, comment);
 				}
@@ -416,7 +425,20 @@ public class ReviewDifferenceProducer {
 		return commentChanges;
 	}
 
-	private <T extends Comment> List<T> getDeletedComments(List<T> org, List<T> modified) {
+    private void checkAndNotifyReadUnreadStateChange(Review aNewReview, Comment comment, Comment existing) {
+        if (existing.getReadState() != comment.getReadState()) {
+            notifications.add(new CommentReadUnreadStateChangedNotification(
+                    aNewReview, comment.getReadState(), comment.getAuthor(), comment.isDraft()));
+        }
+    }
+
+    private boolean commentContentesDiffer(Comment existing, Comment comment) {
+        return !existing.getMessage().equals(comment.getMessage())
+                || existing.isDefectRaised() != comment.isDefectRaised()
+				|| existing.isDraft() != comment.isDraft();
+    }
+
+    private <T extends Comment> List<T> getDeletedComments(List<T> org, List<T> modified) {
 		List<T> deletedList = new ArrayList<T>();
 
 		for (T corg : org) {

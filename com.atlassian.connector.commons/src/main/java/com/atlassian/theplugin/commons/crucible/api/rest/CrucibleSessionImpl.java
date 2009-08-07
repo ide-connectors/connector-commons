@@ -1491,12 +1491,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         }
 
         String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + reviewId.getId()
-                + COMMENTS + "/" + commentId + MARK_READ;
+                + COMMENTS + "/" + commentId.getId() + MARK_READ;
 
         try {
-            retrieveDeleteResponse(requestUrl, false);
-        } catch (IOException e) {
-            throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+            retrievePostResponse(requestUrl, "", false);
         } catch (JDOMException e) {
             throwMalformedResponseReturned(e);
         }
@@ -1508,12 +1506,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         }
 
         String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + reviewId.getId()
-                + COMMENTS + "/" + commentId + MARK_LEAVE_UNREAD;
+                + COMMENTS + "/" + commentId.getId() + MARK_LEAVE_UNREAD;
 
         try {
-            retrieveDeleteResponse(requestUrl, false);
-        } catch (IOException e) {
-            throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+            retrievePostResponse(requestUrl, "", false);
         } catch (JDOMException e) {
             throwMalformedResponseReturned(e);
         }
@@ -1524,12 +1520,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
             throwNotLoggedIn();
         }
 
-        String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + reviewId.getId() + MARK_ALL_READ;
+        String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + reviewId.getId() + COMMENTS + MARK_ALL_READ;
 
         try {
-            retrieveDeleteResponse(requestUrl, false);
-        } catch (IOException e) {
-            throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+            retrievePostResponse(requestUrl, "", false);
         } catch (JDOMException e) {
             throwMalformedResponseReturned(e);
         }

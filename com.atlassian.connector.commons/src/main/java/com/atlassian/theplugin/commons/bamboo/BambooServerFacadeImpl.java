@@ -27,6 +27,7 @@ import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
@@ -185,44 +186,42 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 	/**
 	 * List details on subscribed plans.
 	 * <p/>
-	 * <p/>
 	 * Returns info on all subscribed plans including information about failed attempt.
 	 * <p/>
-	 * <p/>
-	 * Throws ServerPasswordNotProvidedException when invoked for Server that has not had the password set, when the
-	 * server returns a meaningful exception response.
+	 * Throws ServerPasswordNotProvidedException when invoked for Server that has not had the password set, when the server
+	 * returns a meaningful exception response.
 	 *
-	 * @param bambooServer Bamboo server information
+	 * @param bambooServer
+	 *            Bamboo server information
 	 * @return results on subscribed builds
 	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException
-	 *          when invoked for Server that has not had the password set yet
+	 *             when invoked for Server that has not had the password set yet
+	 * @throws RemoteApiLoginException
+	 *             when login failed
 	 * @see com.atlassian.theplugin.commons.bamboo.api.BambooSessionImpl#login(String, char[])
 	 */
 	public Collection<BambooBuild> getSubscribedPlansResults(ConnectionCfg bambooServer,
 			final Collection<SubscribedPlan> plans, boolean isUseFavourities, int timezoneOffset)
-			throws ServerPasswordNotProvidedException {
+			throws ServerPasswordNotProvidedException, RemoteApiLoginException {
 		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
 
-//		String connectionErrorMessage;
 		Throwable connectionError;
 		BambooSession api = null;
 		try {
 			api = getSession(bambooServer);
-//			connectionErrorMessage = "";
 			connectionError = null;
 		} catch (RemoteApiLoginFailedException e) {
-			// TODO wseliga used to be bambooServer.getIsConfigInitialized() here
 			if (bambooServer.getPassword().length() > 0) {
 				loger.error("Bamboo login exception: " + e.getMessage());
-				// todo if there is a login error we should not proceed and rethrow exception
-//				connectionErrorMessage = e.getMessage();
 				connectionError = e;
+				throw e;
 			} else {
 				throw new ServerPasswordNotProvidedException(e);
 			}
+		} catch (RemoteApiLoginException e) {
+			throw e;
 		} catch (RemoteApiException e) {
 			loger.error("Bamboo exception: " + e.getMessage());
-//			connectionErrorMessage = e.getMessage();
 			connectionError = e;
 		}
 
@@ -294,14 +293,15 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 	 * @return results on subscribed builds
 	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException
 	 *             when invoked for Server that has not had the password set yet
+	 * @throws RemoteApiLoginException
+	 *             when we cannot log in
 	 * @see com.atlassian.theplugin.commons.bamboo.api.BambooSessionImpl#login(String, char[])
 	 */
 	public Collection<BambooBuild> getSubscribedPlansResultsNew(ConnectionCfg bambooServer,
 			final Collection<SubscribedPlan> plans, boolean isUseFavourities, int timezoneOffset)
-			throws ServerPasswordNotProvidedException {
+			throws ServerPasswordNotProvidedException, RemoteApiLoginException {
 		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
 
-//		String connectionErrorMessage;
 		Throwable connectionError;
 		BambooSession api = null;
 		try {
@@ -311,9 +311,12 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 			if (bambooServer.getPassword().length() > 0) {
 				loger.error("Bamboo login exception: " + e.getMessage());
 				connectionError = e;
+				throw e;
 			} else {
 				throw new ServerPasswordNotProvidedException(e);
 			}
+		} catch (RemoteApiLoginException e) {
+			throw e;
 		} catch (RemoteApiException e) {
 			loger.error("Bamboo exception: " + e.getMessage());
 			connectionError = e;
@@ -361,8 +364,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 					} catch (RemoteApiException e) {
 						// go ahead, there are other builds
 						// go ahead, there are other builds
-						loger.warn("Cannot fetch latest build for plan [" + plan.getKey()
- + "] from Bamboo server ["
+						loger.warn("Cannot fetch latest build for plan [" + plan.getKey() + "] from Bamboo server ["
 								+ bambooServer.getUrl() + "]");
 					}
 				} else {
@@ -448,7 +450,6 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 		try {
 			api = getSession(bambooServer);
 		} catch (RemoteApiLoginFailedException e) {
-			// TODO wseliga used to be bambooServer.getIsConfigInitialized() here
 			if (bambooServer.getPassword().length() > 0) {
 				loger.error("Bamboo login exception: " + e.getMessage());
 				builds.add(constructBuildErrorInfo(bambooServer, "", null, e.getMessage(), e));

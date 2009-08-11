@@ -144,7 +144,29 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 		return counter;
 	}
 
-	public int getNumberOfComments(final String userName) {
+    public int getNumberOfUnreadComments() {
+        if (versionedComments == null) {
+            return 0;
+        }
+
+        int counter = 0;
+        for (VersionedComment comment : versionedComments) {
+            if (comment.getReadState() == Comment.ReadState.UNREAD
+                    || comment.getReadState() == Comment.ReadState.LEAVE_UNREAD) {
+                ++counter;
+            }
+            for (Comment reply : comment.getReplies()) {
+                if (reply.getReadState() == Comment.ReadState.UNREAD
+                    || reply.getReadState() == Comment.ReadState.LEAVE_UNREAD) {
+                    ++counter;
+                }
+            }
+        }
+
+        return counter;
+    }
+
+    public int getNumberOfComments(final String userName) {
 		if (versionedComments == null) {
 			return 0;
 		}

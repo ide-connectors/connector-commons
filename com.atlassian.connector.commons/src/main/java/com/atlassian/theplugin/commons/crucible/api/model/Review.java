@@ -502,6 +502,30 @@ public class Review {
 		return num;
 	}
 
+
+    public int getNumberOfUnreadComments() throws ValueNotYetInitialized {
+        List<Comment> allComments = new ArrayList<Comment>();
+        allComments.addAll(getGeneralComments());
+        for (CrucibleFileInfo file : getFiles()) {
+            allComments.addAll(file.getVersionedComments());
+        }
+        int result = 0;
+
+        for (Comment comment : allComments) {
+            if (comment.getReadState() == Comment.ReadState.UNREAD
+                    || comment.getReadState() == Comment.ReadState.LEAVE_UNREAD) {
+                ++result;
+            }
+            for (Comment reply : comment.getReplies()) {
+                if (reply.getReadState() == Comment.ReadState.UNREAD
+                        || reply.getReadState() == Comment.ReadState.LEAVE_UNREAD) {
+                    ++result;
+                }
+            }
+        }
+        return result;
+    }
+
 	public void setFiles(final Set<CrucibleFileInfo> files) {
 		this.files = files;
 	}
@@ -613,5 +637,4 @@ public class Review {
 	public CrucibleProject getCrucibleProject() {
 		return crucibleProject;
 	}
-
 }

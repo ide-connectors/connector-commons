@@ -876,7 +876,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/download/myplan/build_logs/myplan-123.log", new BuildLogCallback(TEXT, charset1));
 		mockServer.expect("/download/myplan/build_logs/myplan-123.log", new BuildLogCallback(TEXT, charset2));
-		mockServer.expect("/orfilesapi/rest/logout.action", new LogoutCallback());
+		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		final BambooSession session = createBambooSession(mockBaseUrl);
 		session.login(USER_NAME, PASSWORD.toCharArray());

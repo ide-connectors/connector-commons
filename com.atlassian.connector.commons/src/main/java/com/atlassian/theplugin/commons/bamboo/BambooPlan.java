@@ -26,10 +26,10 @@ public class BambooPlan implements Serializable {
 	private final String key;
 	private final boolean favourite;
 	private final boolean enabled;
-	private String projectName = "";
-	private String projectKey = "";
-	private Integer averageBuildTime;
-	private PlanState state = PlanState.STANDING;
+	private final String projectName;
+	private final String projectKey;
+	private final Integer averageBuildTime;
+	private final PlanState state;
 
 	public BambooPlan(String name, String key) {
 		this(name, key, true);
@@ -40,18 +40,16 @@ public class BambooPlan implements Serializable {
 	}
 
 	public BambooPlan(String name, String key, boolean isEnabled, boolean isFavourite) {
+		this(name, key, isEnabled, isFavourite, "", "", null, false, false);
+	}
+
+	public BambooPlan(final String name, final String key, final boolean isEnabled, final Boolean isFavourite,
+			final String projectName, final String projectKey, final Integer averageBuildTime, final boolean inQueue,
+			final boolean building) {
 		this.name = name;
 		this.key = key;
 		this.enabled = isEnabled;
 		this.favourite = isFavourite;
-	}
-
-	public BambooPlan(final String name, final String key, final boolean enabled, final Boolean favourite,
-			final String projectName, final String projectKey, final Integer averageBuildTime, final Boolean inQueue,
-			final Boolean building) {
-		this(name, key, enabled, favourite);
-
-
 		this.projectName = projectName;
 		this.projectKey = projectKey;
 		this.averageBuildTime = averageBuildTime;
@@ -79,9 +77,10 @@ public class BambooPlan implements Serializable {
 	}
 
 	/**
-	 * Returns copy of this object with favourit information set.
+	 * Returns copy of this object with favourite information set.
 	 *
-	 * @param isFavourite requested favourit state
+	 * @param isFavourite
+	 *            requested favourite state
 	 * @return copy of this object
 	 */
 	public BambooPlan withFavourite(boolean isFavourite) {

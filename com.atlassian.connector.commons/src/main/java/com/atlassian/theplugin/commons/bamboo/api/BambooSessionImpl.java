@@ -47,7 +47,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -648,9 +647,10 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		String projectKey = planNode.getChildText("projectKey");
 
 		// todo do not break parsing if single value is broken
-		Boolean isFavourite = parseBoolean(planNode.getChildText("isFavourite"));
+		boolean isFavourite = Boolean.parseBoolean(planNode.getChildText("isFavourite"));
+
 		Integer averageBuildTime = new Double(parseDouble(planNode.getChildText("averageBuildTimeInSeconds"))).intValue();
-		Boolean isInQueue = parseBoolean(planNode.getChildText("isInBuildQueue"));
+		boolean isInQueue = Boolean.parseBoolean(planNode.getChildText("isInBuildQueue"));
 
 		String isBuildingString = planNode.getChildText("isBuilding");
 
@@ -658,20 +658,10 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		if (isBuildingString == null && isInQueue) {
 			isBuildingString = "true";
 		}
-		Boolean isBuilding = parseBoolean(isBuildingString);
+		boolean isBuilding = Boolean.parseBoolean(isBuildingString);
 
 		return new BambooPlan(name, key, isEnabled, isFavourite, projectName, projectKey, averageBuildTime, isInQueue,
 				isBuilding);
-	}
-
-	private Boolean parseBoolean(final String bool) throws RemoteApiException {
-		Boolean ret = Boolean.valueOf(bool);
-
-		if (ret == null) {
-			throw new RemoteApiException("Cannot convert string [" + bool + "] to Boolean");
-		}
-
-		return ret;
 	}
 
 	private BambooBuildInfo constructBuildItem(Element buildItemNode, Date lastPollingTime, final String aPlanKey,

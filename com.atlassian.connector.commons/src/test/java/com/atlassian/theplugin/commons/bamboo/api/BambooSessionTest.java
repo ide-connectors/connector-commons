@@ -17,6 +17,7 @@
 package com.atlassian.theplugin.commons.bamboo.api;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
 import com.atlassian.theplugin.api.AbstractSessionTest;
 import com.atlassian.theplugin.bamboo.api.bamboomock.AddCommentToBuildCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.AddLabelToBuildCallback;
@@ -43,12 +44,14 @@ import com.atlassian.theplugin.commons.bamboo.TestResult;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
-import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
+import junit.framework.Assert;
 import org.ddsteps.mock.httpserver.JettyMockServer;
+import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -56,7 +59,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
-import junit.framework.Assert;
 
 
 /**
@@ -65,7 +67,7 @@ import junit.framework.Assert;
 public class BambooSessionTest extends AbstractSessionTest {
 	public void testSuccessBambooLogin() throws Exception {
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 
 		String[] usernames = {"user", "+-=&;<>", "", "a;&username=other", "!@#$%^&*()_-+=T "};
 		String[] passwords = {"password", "+-=&;<>", "", "&password=other", ",./';[]\t\\ |}{\":><?"};
@@ -87,7 +89,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback(LoginCallback.AUTH_TOKEN));
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl + "/");
+		BambooSession apiHandler = createBambooSession(mockBaseUrl + "/");
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		assertTrue(apiHandler.isLoggedIn());
 		apiHandler.logout();
@@ -98,7 +100,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testNullParamsLogin() throws Exception {
 		try {
-			BambooSession apiHandler = new BambooSessionImpl(null);
+			BambooSession apiHandler = createBambooSession(null);
 			apiHandler.login(null, null);
 			fail();
 		} catch (RemoteApiException ex) {
@@ -108,7 +110,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	@Override
 	protected ProductSession getProductSession(final String url) throws RemoteApiMalformedUrlException {
-		return new BambooSessionImpl(url);
+		return createBambooSession(url);
 	}
 
 
@@ -124,7 +126,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testWrongParamsBambooLogin() throws Exception {
 		try {
-			BambooSession apiHandler = new BambooSessionImpl("");
+			BambooSession apiHandler = createBambooSession("");
 			apiHandler.login("", "".toCharArray());
 			fail();
 		} catch (RemoteApiException ex) {
@@ -138,7 +140,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/listProjectNames.action", new ProjectListCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		List<BambooProject> projects = apiHandler.listProjectNames();
 		apiHandler.logout();
@@ -153,7 +155,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		List<BambooPlan> plans = apiHandler.listPlanNames();
 		apiHandler.logout();
@@ -167,7 +169,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		List<String> plans = apiHandler.getFavouriteUserPlans();
 		apiHandler.logout();
@@ -195,7 +197,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		ConnectionCfg bambooServerCfg = createServerData();
-		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new HttpSessionCallbackImpl());
+		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new TestHttpSessionCallbackImpl());
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", false, timezoneOffset);
 		apiHandler.logout();
@@ -232,7 +234,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		Date now = new Date();
 		ConnectionCfg bambooServerCfg = createServerData();
-		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new HttpSessionCallbackImpl());
+		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new TestHttpSessionCallbackImpl());
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		final BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", 0);
 		apiHandler.logout();
@@ -269,7 +271,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		ConnectionCfg bambooServerCfg = createServerData();
-		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new HttpSessionCallbackImpl());
+		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new TestHttpSessionCallbackImpl());
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", timezoneOffset);
 		apiHandler.logout();
@@ -304,7 +306,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("FAILED"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", true, 0);
 		apiHandler.logout();
@@ -324,7 +326,7 @@ public class BambooSessionTest extends AbstractSessionTest {
         mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
         mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-        BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+        BambooSession apiHandler = createBambooSession(mockBaseUrl);
         apiHandler.login(USER_NAME, PASSWORD.toCharArray());
         BambooBuild build = apiHandler.getBuildForPlanAndNumber("TP-DEF", 140, 0);
         apiHandler.logout();
@@ -336,7 +338,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("WRONG"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", false, 0);
 		apiHandler.logout();
@@ -352,7 +354,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 				new BuildDetailsResultCallback("buildResult-1Commit-FailedTests-SuccessfulTests.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", 100);
 		apiHandler.logout();
@@ -404,7 +406,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 				new BuildDetailsResultCallback("buildResult-1Commit-FailedTests.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", 100);
 		apiHandler.logout();
@@ -447,7 +449,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 				new BuildDetailsResultCallback("buildResult-1Commit-SuccessfulTests.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", 100);
 		apiHandler.logout();
@@ -490,7 +492,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 				new BuildDetailsResultCallback("buildResult-3Commit-FailedTests-SuccessfulTests.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", 100);
 		apiHandler.logout();
@@ -556,7 +558,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 				new BuildDetailsResultCallback("buildResult-NoCommit-FailedTests-SuccessfulTests.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", 100);
 		apiHandler.logout();
@@ -599,7 +601,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 				new BuildDetailsResultCallback("buildNotExistsResponse.xml", "200"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		try {
 			apiHandler.getBuildResultDetails("TP-DEF", 200);
@@ -618,7 +620,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 				new BuildDetailsResultCallback("malformedBuildResult.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		try {
 			apiHandler.getBuildResultDetails("TP-DEF", 100);
@@ -637,7 +639,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 				.expect("/api/rest/getBuildResultsDetails.action", new BuildDetailsResultCallback("emptyResponse.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", 100);
 		apiHandler.logout();
@@ -656,7 +658,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/addLabelToBuildResults.action", new AddLabelToBuildCallback(label));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		apiHandler.addLabelToBuild("TP-DEF", 100, label);
 		apiHandler.logout();
@@ -671,7 +673,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/addLabelToBuildResults.action", new AddLabelToBuildCallback(label));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		apiHandler.addLabelToBuild("TP-DEF", 100, label);
 		apiHandler.logout();
@@ -686,7 +688,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/addLabelToBuildResults.action", new AddLabelToBuildCallback(label));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		apiHandler.addLabelToBuild("TP-DEF", 100, label);
 		apiHandler.logout();
@@ -702,7 +704,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 				new AddLabelToBuildCallback(label, "200", AddLabelToBuildCallback.NON_EXIST_FAIL));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		try {
 			apiHandler.addLabelToBuild("TP-DEF", 200, label);
@@ -722,7 +724,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/addCommentToBuildResults.action", new AddCommentToBuildCallback(comment));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		apiHandler.addCommentToBuild("TP-DEF", 100, comment);
 		apiHandler.logout();
@@ -737,7 +739,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/addCommentToBuildResults.action", new AddCommentToBuildCallback(comment));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		apiHandler.addCommentToBuild("TP-DEF", 100, comment);
 		apiHandler.logout();
@@ -752,7 +754,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/addCommentToBuildResults.action", new AddCommentToBuildCallback(comment));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		apiHandler.addCommentToBuild("TP-DEF", 100, comment);
 		apiHandler.logout();
@@ -768,7 +770,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 				new AddCommentToBuildCallback(comment, "200", AddCommentToBuildCallback.NON_EXIST_FAIL));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		try {
 			apiHandler.addCommentToBuild("TP-DEF", 200, comment);
@@ -786,7 +788,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/executeBuild.action", new ExecuteBuildCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		apiHandler.executeBuild("TP-DEF");
 		apiHandler.logout();
@@ -799,7 +801,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/executeBuild.action", new ExecuteBuildCallback(ExecuteBuildCallback.NON_EXIST_FAIL));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new BambooSessionImpl(mockBaseUrl);
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		try {
 			apiHandler.executeBuild("TP-DEF");
@@ -820,7 +822,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/listProjectNames.action", new ProjectListCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new AutoRenewBambooSession(createServerData(), new HttpSessionCallbackImpl());
+		BambooSession apiHandler = new AutoRenewBambooSession(createServerData(), new TestHttpSessionCallbackImpl());
 
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		apiHandler.listProjectNames();
@@ -834,7 +836,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testOutOfRangePort() {
 		try {
-			BambooSession apiHandler = new BambooSessionImpl("http://localhost:80808");
+			BambooSession apiHandler = createBambooSession("http://localhost:80808");
 			apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 			fail("Exception expected");
 		} catch (RemoteApiException e) {
@@ -851,7 +853,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultVelocityBallback("PT-TOP", 45));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession session = new BambooSessionImpl(mockBaseUrl);
+		BambooSession session = createBambooSession(mockBaseUrl);
 		session.login(USER_NAME, PASSWORD.toCharArray());
 
 		BambooBuild bbi1 = session.getLatestBuildForPlan("PO-TP", 0);
@@ -874,9 +876,9 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/download/myplan/build_logs/myplan-123.log", new BuildLogCallback(TEXT, charset1));
 		mockServer.expect("/download/myplan/build_logs/myplan-123.log", new BuildLogCallback(TEXT, charset2));
-		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
+		mockServer.expect("/orfilesapi/rest/logout.action", new LogoutCallback());
 
-		final BambooSession session = new BambooSessionImpl(mockBaseUrl);
+		final BambooSession session = createBambooSession(mockBaseUrl);
 		session.login(USER_NAME, PASSWORD.toCharArray());
 
 		assertEquals(TEXT, session.getBuildLogs("myplan", 123));
@@ -902,5 +904,9 @@ public class BambooSessionTest extends AbstractSessionTest {
 			out.write(text.getBytes(charsetName));
 			out.close();
 		}
+	}
+
+	public static BambooSession createBambooSession(@Nullable String url) throws RemoteApiMalformedUrlException {
+		return new BambooSessionImpl(new ConnectionCfg("", url, "", ""), new TestHttpSessionCallbackImpl());
 	}
 }

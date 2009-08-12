@@ -8,7 +8,7 @@ import com.atlassian.theplugin.commons.fisheye.api.rest.FishEyeRestSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
-import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
+
 import java.util.Collection;
 
 /**
@@ -16,10 +16,10 @@ import java.util.Collection;
  */
 public class FishEyeServerFacadeImpl implements FishEyeServerFacade2 {
 	private static FishEyeServerFacadeImpl instance;
-	private HttpSessionCallback callback;
+	private final HttpSessionCallback callback;
 
-	protected FishEyeServerFacadeImpl() {
-		this.callback = new HttpSessionCallbackImpl();
+	public FishEyeServerFacadeImpl(HttpSessionCallback callback) {
+		this.callback = callback;
 	}
 
 	public void testServerConnection(ConnectionCfg serverCfg) throws RemoteApiException {
@@ -36,9 +36,9 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade2 {
 		return ServerType.FISHEYE_SERVER;
 	}
 
-	public static synchronized FishEyeServerFacadeImpl getInstance() {
+	public static synchronized FishEyeServerFacadeImpl getInstance(HttpSessionCallback callback) {
 		if (instance == null) {
-			instance = new FishEyeServerFacadeImpl();
+			instance = new FishEyeServerFacadeImpl(callback);
 		}
 
 		return instance;
@@ -57,9 +57,5 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade2 {
 		repositories = fishEyeSession.getRepositories();
 		fishEyeSession.logout();
 		return repositories;
-	}
-
-	public void setCallback(HttpSessionCallback callback) {
-		this.callback = callback;
 	}
 }

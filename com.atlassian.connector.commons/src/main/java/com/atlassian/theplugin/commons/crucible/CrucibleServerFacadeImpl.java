@@ -22,19 +22,39 @@ import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleLoginException;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCache;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
-import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	private final Map<String, CrucibleSession> sessions = new HashMap<String, CrucibleSession>();
@@ -45,16 +65,9 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 
 	private HttpSessionCallback callback;
 
-	protected CrucibleServerFacadeImpl(CrucibleUserCache userCache) {
+	public CrucibleServerFacadeImpl(CrucibleUserCache userCache, @NotNull HttpSessionCallback callback) {
 		this.userCache = userCache;
-		this.callback = new HttpSessionCallbackImpl();
-	}
-
-	public static synchronized CrucibleServerFacade2 getInstance() {
-		if (instance == null) {
-			instance = new CrucibleServerFacadeImpl(CrucibleUserCacheImpl.getInstance());
-		}
-		return instance;
+		this.callback = callback;
 	}
 
 	public void setUserCache(CrucibleUserCache newCache) {
@@ -93,7 +106,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	private <T extends CommentBean> void fixUserName(ConnectionCfg server, T comment) {
 		User u = comment.getAuthor();
 		if (u.getDisplayName() == null || u.getDisplayName().length() == 0) {
-			User newU = userCache.getUser(server, u.getUserName(), true);
+			User newU = userCache.getUser(this, server, u.getUserName(), true);
 			if (newU != null) {
 				comment.setAuthor(newU);
 			}
@@ -102,7 +115,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 
 	@Nullable
 	public String getDisplayName(@NotNull final ConnectionCfg server, @NotNull String username) {
-		final User user = userCache.getUser(server, username, true);
+		final User user = userCache.getUser(this, server, username, true);
 		return user != null ? user.getDisplayName() : null;
 	}
 
@@ -358,7 +371,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 //		return session.getComments(permId);
 //	}
 
-	public void fillDetailsForReview(ConnectionCfg server, Review review) throws RemoteApiException,
+	public void fillDetailsForReview(@NotNull ConnectionCfg server, @NotNull Review review) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		review.setGeneralComments(getGeneralComments(server, review.getPermId()));
 		List<VersionedComment> comments = getVersionedComments(server, review.getPermId());

@@ -20,8 +20,8 @@ import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedExcept
 import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
-import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 
 public interface BambooServerFacade2 extends ProductServerFacade {
@@ -48,8 +48,6 @@ public interface BambooServerFacade2 extends ProductServerFacade {
 
 	String getBuildLogs(ConnectionCfg bambooServer, @NotNull String planKey, int buildNumber)
 		throws ServerPasswordNotProvidedException, RemoteApiException;
-
-	void setCallback(HttpSessionCallback callback);
 
 	/**
 	 * List build history for provided plan.

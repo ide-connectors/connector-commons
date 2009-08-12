@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.bamboo;
 
 import com.atlassian.connector.commons.api.BambooServerFacade2;
 import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
 import com.atlassian.theplugin.bamboo.api.bamboomock.AddCommentToBuildCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.AddLabelToBuildCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetailsResultCallback;
@@ -98,7 +99,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer = new JettyMockServer(httpServer);
 		bambooServerCfg = createBambooTestConfiguration(mockBaseUrl, true);
 
-		testedBambooServerFacade = BambooServerFacadeImpl.getInstance(LoggerImpl.getInstance());
+		testedBambooServerFacade = new BambooServerFacadeImpl(LoggerImpl.getInstance(), new TestHttpSessionCallbackImpl());
 	}
 
 	private static BambooServerCfg createBambooTestConfiguration(String serverUrl, boolean isPassInitialized) {
@@ -143,7 +144,7 @@ public class BambooServerFacadeTest extends TestCase {
 							throws RemoteApiMalformedUrlException {
 						return null;
 					}
-				});
+				}, new TestHttpSessionCallbackImpl());
 
 		BambooServerCfg server1 = createBambooServerCfg("http://atlassian.com", "", "");
 		BambooServerCfg server1clone = createBambooServerCfg("http://atlassian.com", "", "");
@@ -237,7 +238,7 @@ public class BambooServerFacadeTest extends TestCase {
 					throws RemoteApiMalformedUrlException {
 				return null;
 			}
-		});
+		}, new TestHttpSessionCallbackImpl());
 
 		final String key1 = "pl";
 		final DateTime buildDate1 = new DateTime(2009, 1, 10, 21, 29, 4, 0);
@@ -289,7 +290,7 @@ public class BambooServerFacadeTest extends TestCase {
 					throws RemoteApiMalformedUrlException {
 				return null;
 			}
-		});
+		}, new TestHttpSessionCallbackImpl());
 
 		final String key1 = "pl";
 		final DateTime buildDate1 = new DateTime(2009, 1, 10, 21, 29, 4, 0);
@@ -466,11 +467,7 @@ public class BambooServerFacadeTest extends TestCase {
 		return bambooServerCfg;
 	}
 
-	/**
-	 * Regression for https://studio.atlassian.com/browse/ACC-40
-	 *
-	 * @throws Exception
-	 */
+	// Regression for https://studio.atlassian.com/browse/ACC-40
 	public void testConnectionTestInvalidUrlIncludesPassword() throws Exception {
 		try {
 			testedBambooServerFacade.testServerConnection(getServerData(createBambooServerCfg("http://invalid url",
@@ -523,7 +520,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 
 		bambooServerCfg.getSubscribedPlans().clear();
-		BambooServerFacade2 facade = BambooServerFacadeImpl.getInstance(LoggerImpl.getInstance());
+		BambooServerFacade2 facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(), new TestHttpSessionCallbackImpl());
 		Collection<BambooBuild> plans = facade.getSubscribedPlansResults(getServerData(bambooServerCfg),
 				bambooServerCfg.getPlans(), bambooServerCfg.isUseFavourites(), bambooServerCfg.getTimezoneOffset());
 		assertEquals(0, plans.size());

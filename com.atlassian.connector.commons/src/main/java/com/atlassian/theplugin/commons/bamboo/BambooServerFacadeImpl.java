@@ -31,9 +31,9 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
-import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.Logger;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -52,24 +52,18 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 
 	private final Logger loger;
 
-	private static BambooServerFacadeImpl instance;
-
 	private final BambooSessionFactory bambooSessionFactory;
 
-	private HttpSessionCallback callback;
+	private final HttpSessionCallback callback;
 
-	public BambooServerFacadeImpl(Logger loger, @NotNull BambooSessionFactory factory) {
+	public BambooServerFacadeImpl(Logger loger, @NotNull BambooSessionFactory factory, @NotNull HttpSessionCallback callback) {
 		this.loger = loger;
-		this.callback = new HttpSessionCallbackImpl();
+		this.callback = callback;
 		this.bambooSessionFactory = factory;
 	}
 
-	public static synchronized BambooServerFacade2 getInstance(Logger loger) {
-		if (instance == null) {
-			instance = new BambooServerFacadeImpl(loger, new SimpleBambooSessionFactory());
-		}
-
-		return instance;
+	public BambooServerFacadeImpl(Logger loger, HttpSessionCallback callback) {
+		this(loger, new SimpleBambooSessionFactory(), callback);
 	}
 
 	public ServerType getServerType() {
@@ -600,10 +594,6 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 			String message, Throwable exception) {
 		return new BambooBuildInfo.Builder(planKey, null, server, planName, null, BuildStatus.UNKNOWN).errorMessage(
 				message, exception).pollingTime(new Date()).build();
-	}
-
-	public void setCallback(HttpSessionCallback callback) {
-		this.callback = callback;
 	}
 
 	private static class SimpleBambooSessionFactory implements BambooSessionFactory {

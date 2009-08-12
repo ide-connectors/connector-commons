@@ -16,11 +16,10 @@
 
 package com.atlassian.theplugin.crucible;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.crucible.CrucibleServerFacade2;
 import com.atlassian.connector.commons.misc.ErrorResponse;
+import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
@@ -32,6 +31,7 @@ import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCacheImpl;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
@@ -44,10 +44,14 @@ import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedExcept
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
+import junit.framework.TestCase;
 import org.apache.commons.httpclient.HttpStatus;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
 import org.mortbay.jetty.Server;
+
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Date;
@@ -55,7 +59,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import junit.framework.TestCase;
 
 public class CrucibleServerFacadeTest extends TestCase {
 	private static final User VALID_LOGIN = new User("validLogin");
@@ -83,7 +86,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		crucibleServerCfg.setPassword(VALID_PASSWORD);
 		crucibleServerCfg.setUsername(VALID_LOGIN.getUserName());
 
-		facade = CrucibleServerFacadeImpl.getInstance();
+		facade = new CrucibleServerFacadeImpl(new CrucibleUserCacheImpl(), new TestHttpSessionCallbackImpl());
 
 		try {
 			Field f = CrucibleServerFacadeImpl.class.getDeclaredField("sessions");

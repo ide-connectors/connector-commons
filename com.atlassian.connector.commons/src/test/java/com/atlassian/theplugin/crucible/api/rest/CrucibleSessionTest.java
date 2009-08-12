@@ -20,6 +20,7 @@ import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.misc.ErrorResponse;
 import com.atlassian.connector.commons.misc.IntRange;
 import com.atlassian.connector.commons.misc.IntRanges;
+import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
@@ -38,7 +39,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
-import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CreateReviewCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetProjectsCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetRepositoriesCallback;
@@ -47,8 +47,10 @@ import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetReviewsCallback
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.MalformedResponseCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.Util;
+import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.mortbay.jetty.Server;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -58,7 +60,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import junit.framework.TestCase;
 
 /**
  * Test case for {#link BambooSessionImpl}
@@ -808,7 +809,7 @@ public class CrucibleSessionTest extends TestCase {
 	private CrucibleSessionImpl createCrucibleSession(String url) throws RemoteApiException {
 		CrucibleServerCfg serverCfg = new CrucibleServerCfg(url, new ServerIdImpl());
 		serverCfg.setUrl(url);
-		return new CrucibleSessionImpl(createServerData(serverCfg), new HttpSessionCallbackImpl());
+		return new CrucibleSessionImpl(createServerData(serverCfg), new TestHttpSessionCallbackImpl());
 	}
 
 	private CrucibleSessionImpl createCrucibleSession(String url, String username, String password)
@@ -817,7 +818,7 @@ public class CrucibleSessionTest extends TestCase {
 		serverCfg.setUrl(url);
 		serverCfg.setUsername(username);
 		serverCfg.setPassword(password);
-		return new CrucibleSessionImpl(createServerData(serverCfg), new HttpSessionCallbackImpl());
+		return new CrucibleSessionImpl(createServerData(serverCfg), new TestHttpSessionCallbackImpl());
 	}
 
 	public void testGetReviewDetailsWithAddedFile() throws Exception {
@@ -838,7 +839,7 @@ public class CrucibleSessionTest extends TestCase {
 			}
 		}
 		assertNotNull(fileInfo);
-		final List<VersionedComment> vcs = fileInfo != null ? fileInfo.getVersionedComments() : null;
+		final List<VersionedComment> vcs = fileInfo.getVersionedComments();
 		assertNotNull(vcs);
 		assertEquals(2, vcs.size());
 

@@ -30,9 +30,9 @@ import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -179,8 +179,6 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	List<CustomFieldDef> getMetrics(ConnectionCfg server, int version) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
-	void setCallback(HttpSessionCallback callback);
-
 	@Nullable
 	String getDisplayName(@NotNull final ConnectionCfg server, @NotNull String username);
 
@@ -202,7 +200,8 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	/**
 	 * Adds info about files, versioned comments and general comments to the review
 	 * 
-	 * @param reviewItem
+	 * @param server
+	 * @param review
 	 *            review to fill with details
 	 * @throws RemoteApiException
 	 * @throws ServerPasswordNotProvidedException

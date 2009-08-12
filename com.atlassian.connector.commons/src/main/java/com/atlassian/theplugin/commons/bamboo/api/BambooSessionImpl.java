@@ -35,7 +35,6 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
-import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.jdom.Document;
@@ -48,6 +47,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -85,11 +85,8 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 	private static final String GET_BAMBOO_BUILD_NUMBER_ACTION = "/api/rest/getBambooBuildNumber.action";
 
-	//
-	// Bamboo 2.3 REST API
-	//
+	/** Bamboo 2.3 REST API */
 	private static final String GET_BUILD_BY_NUMBER_ACTION = "/rest/api/latest/build";
-
 
 	private static final String BUILD_COMPLETED_DATE_ELEM = "buildCompletedDate";
 
@@ -101,15 +98,6 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	private static final int BAMBOO_23_BUILD_NUMBER = 1308;
 	private static final String CANNOT_PARSE_BUILD_TIME = "Cannot parse buildTime.";
 
-	/**
-	 * For testing purposes, shouldn't be public
-	 *
-	 * @param url bamboo server url
-	 * @throws RemoteApiMalformedUrlException malformed url
-	 */
-	BambooSessionImpl(String url) throws RemoteApiMalformedUrlException {
-		this(new ConnectionCfg("", url, "", ""), new HttpSessionCallbackImpl());
-	}
 
 	/**
 	 * Public constructor for BambooSessionImpl.

@@ -18,17 +18,19 @@ package com.atlassian.theplugin.crucible;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.crucible.CrucibleServerFacade2;
+import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.CrucibleServerFacadeImpl;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleLoginException;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCacheImpl;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
-import org.ddsteps.mock.httpserver.JettyMockServer;
 import junit.framework.TestCase;
+import org.ddsteps.mock.httpserver.JettyMockServer;
 
 public class CrucibleServerFacadeConnectionTest extends TestCase {
 	private static final String USER_NAME = "someUser";
@@ -50,7 +52,7 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 
 		mockServer = new JettyMockServer(httpServer);
 		crucibleServerCfg = createCrucibleTestConfiguration(mockBaseUrl, true);
-		testedCrucibleServerFacade = CrucibleServerFacadeImpl.getInstance();
+		testedCrucibleServerFacade = new CrucibleServerFacadeImpl(new CrucibleUserCacheImpl(), new TestHttpSessionCallbackImpl());
 		ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
 	}
 

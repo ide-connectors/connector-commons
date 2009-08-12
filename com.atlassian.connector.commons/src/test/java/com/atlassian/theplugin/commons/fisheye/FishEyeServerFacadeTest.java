@@ -1,9 +1,8 @@
 package com.atlassian.theplugin.commons.fisheye;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.fisheye.FishEyeServerFacade2;
+import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
@@ -11,10 +10,13 @@ import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.crucible.api.rest.CharArrayEquals;
+import junit.framework.TestCase;
 import org.easymock.EasyMock;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
+
 import java.util.Arrays;
 import java.util.Collection;
-import junit.framework.TestCase;
 
 /**
  * User: pmaruszak
@@ -35,7 +37,7 @@ public class FishEyeServerFacadeTest extends TestCase {
 
 		fishEyeSessionMock = createMock(FishEyeSession.class);
 
-		facade = new FishEyeServerFacadeImpl() {
+		facade = new FishEyeServerFacadeImpl(new TestHttpSessionCallbackImpl()) {
 
 			@Override
 			public FishEyeSession getSession(ConnectionCfg server)
@@ -85,14 +87,10 @@ public class FishEyeServerFacadeTest extends TestCase {
 
 	}
 
-	/**
-	 * Regression for https://studio.atlassian.com/browse/ACC-40
-	 *
-	 * @throws Exception
-	 */
+	// Regression for https://studio.atlassian.com/browse/ACC-40
 	public void testConnectionTestInvalidUrlIncludesPassword() throws Exception {
 		try {
-			FishEyeServerFacade2 facade = FishEyeServerFacadeImpl.getInstance();
+			FishEyeServerFacade2 facade = new FishEyeServerFacadeImpl(new TestHttpSessionCallbackImpl());
 			facade.testServerConnection(new ConnectionCfg("id", "http://invalid url", USER_NAME, PASSWORD));
 			fail("Should throw RemoteApiLoginException");
 		} catch (RemoteApiException e) {

@@ -16,13 +16,13 @@
 package com.atlassian.theplugin.commons.fisheye.api.rest;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
 import com.atlassian.theplugin.api.AbstractSessionTest;
 import com.atlassian.theplugin.commons.fisheye.api.rest.mock.FishEyeLoginCallback;
 import com.atlassian.theplugin.commons.fisheye.api.rest.mock.FishEyeLogoutCallback;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
-import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 
 /**
@@ -114,6 +114,6 @@ public class FishEyeRestSessionTest extends AbstractSessionTest {
 	}
 
 	private FishEyeRestSession createSession(String url) throws RemoteApiMalformedUrlException {
-		return new FishEyeRestSession(new ConnectionCfg("id", url, "", ""), new HttpSessionCallbackImpl());
+		return new FishEyeRestSession(new ConnectionCfg("id", url, "", ""), new TestHttpSessionCallbackImpl());
 	}
 }

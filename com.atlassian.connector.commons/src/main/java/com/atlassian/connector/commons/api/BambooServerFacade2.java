@@ -24,6 +24,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
+/**
+ * Strange name, but this class should one day disappear.
+ * com.atlassian.theplugin.commons.bamboo.api.BambooSession should ultimately replacy it.
+ */
 public interface BambooServerFacade2 extends ProductServerFacade {
 	Collection<BambooProject> getProjectList(ConnectionCfg bambooServer) throws ServerPasswordNotProvidedException,
 		RemoteApiException;

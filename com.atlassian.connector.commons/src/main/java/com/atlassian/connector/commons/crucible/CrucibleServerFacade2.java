@@ -37,6 +37,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Strange name, but this class should one day disappear.
+ * com.atlassian.theplugin.commons.crucible.api.CrucibleSession should ultimately replacy it.
+ */
 public interface CrucibleServerFacade2 extends ProductServerFacade {
 	// CrucibleVersionInfo getServerVersion(CrucibleServerCfg server)
 	// throws RemoteApiException, ServerPasswordNotProvidedException;

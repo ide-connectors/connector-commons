@@ -559,7 +559,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		Iterator<Reviewer> iter = review1.getReviewers().iterator();
 		Reviewer reviewer = iter.next();
 		review1.getReviewers().remove(reviewer);
-		review1.getReviewers().add(new Reviewer(reviewer.getUserName(), reviewer.getDisplayName(), true));
+		review1.getReviewers().add(new Reviewer(reviewer.getUsername(), reviewer.getDisplayName(), true));
 
 		p = new ReviewDifferenceProducer(review, review1);
 		notifications = p.getDiff();
@@ -572,7 +572,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		Reviewer[] reviewers = review1.getReviewers().toArray(new Reviewer[review1.getReviewers().size()]);
 		review1.getReviewers().clear();
 		for (Reviewer r : reviewers) {
-			review1.getReviewers().add(new Reviewer(r.getUserName(), r.getDisplayName(), true));
+			review1.getReviewers().add(new Reviewer(r.getUsername(), r.getDisplayName(), true));
 		}
 
 		p = new ReviewDifferenceProducer(review, review1);

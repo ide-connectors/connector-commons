@@ -57,7 +57,7 @@ public class GetReviewersCallback implements JettyMockServer.Callback {
 
 	private Element getUsers(int i) {
 		Element userData = new Element("reviewer");
-		addTag(userData, "userName", reviewers[i].getUserName());
+		addTag(userData, "userName", reviewers[i].getUsername());
         addTag(userData, "displayName", reviewers[i].getDisplayName());        
         return userData;
 	}

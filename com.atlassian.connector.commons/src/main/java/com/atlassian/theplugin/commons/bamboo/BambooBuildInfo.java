@@ -209,7 +209,7 @@ public final class BambooBuildInfo implements BambooBuild {
 	 * @return whether I'm one of the commiters to that build or not
 	 */
 	public boolean isMyBuild() {
-		return commiters.contains(server.getUserName());
+		return commiters.contains(server.getUsername());
 	}
 
 	/**

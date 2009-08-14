@@ -75,7 +75,7 @@ public class AbstractHttpSessionTest extends TestCase {
 				return mockBaseUrl;
 			}
 
-			public String getUserName() {
+			public String getUsername() {
 				return null;
 			}
 
@@ -152,7 +152,7 @@ public class AbstractHttpSessionTest extends TestCase {
 	}
 
 	private ConnectionCfg getServerData(final com.atlassian.theplugin.commons.cfg.Server serverCfg) {
-		return new ConnectionCfg(serverCfg.getServerId().getId(), serverCfg.getUrl(), serverCfg.getUserName(), serverCfg
+		return new ConnectionCfg(serverCfg.getServerId().getId(), serverCfg.getUrl(), serverCfg.getUsername(), serverCfg
 				.getPassword());
 	}
 }

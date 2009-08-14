@@ -71,7 +71,7 @@ public abstract class AbstractHttpSession {
 	}
 
 	protected String getUsername() {
-		return server.getUserName();
+		return server.getUsername();
 	}
 
 	protected String getPassword() {

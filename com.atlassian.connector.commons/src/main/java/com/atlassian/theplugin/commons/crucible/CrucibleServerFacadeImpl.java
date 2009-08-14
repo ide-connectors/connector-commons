@@ -49,7 +49,6 @@ import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -80,7 +79,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 
 	protected synchronized CrucibleSession getSession(ConnectionCfg server) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
-		String key = server.getUrl() + server.getUserName() + server.getPassword();
+		String key = server.getUrl() + server.getUsername() + server.getPassword();
 		CrucibleSession session = sessions.get(key);
 		if (session == null) {
 			try {
@@ -103,10 +102,10 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 		return session;
 	}
 
-	private <T extends CommentBean> void fixUserName(ConnectionCfg server, T comment) {
+	private void fixUserName(ConnectionCfg server, CommentBean comment) {
 		User u = comment.getAuthor();
 		if (u.getDisplayName() == null || u.getDisplayName().length() == 0) {
-			User newU = userCache.getUser(this, server, u.getUserName(), true);
+			User newU = userCache.getUser(this, server, u.getUsername(), true);
 			if (newU != null) {
 				comment.setAuthor(newU);
 			}
@@ -249,7 +248,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 
 	private boolean contains(Set<Reviewer> reviewers, String username) {
 		for (Reviewer reviewer : reviewers) {
-			if (reviewer.getUserName().equals(username)) {
+			if (reviewer.getUsername().equals(username)) {
 				return true;
 			}
 		}
@@ -272,8 +271,8 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 			}
 
 			for (Reviewer reviewer : review.getReviewers()) {
-				if (!usernames.contains(reviewer.getUserName())) {
-					reviewersForRemove.add(reviewer.getUserName());
+				if (!usernames.contains(reviewer.getUsername())) {
+					reviewersForRemove.add(reviewer.getUsername());
 				}
 			}
 

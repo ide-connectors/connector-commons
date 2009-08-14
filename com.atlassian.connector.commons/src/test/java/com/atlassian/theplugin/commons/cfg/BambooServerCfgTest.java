@@ -81,7 +81,7 @@ public class BambooServerCfgTest extends TestCase {
 
 		bamboo1sameId.setUsername("somenewusername");
 		assertNotEquals(bamboo1, bamboo1sameId);
-		bamboo1sameId.setUsername(bamboo1.getUserName());
+		bamboo1sameId.setUsername(bamboo1.getUsername());
 		assertEquals(bamboo1, bamboo1sameId);
 
 		bamboo1sameId.setPassword("somenewpassword");

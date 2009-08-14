@@ -29,7 +29,7 @@ public class CrucibleUserCacheImpl implements CrucibleUserCache {
 				return null;
 			}
 			for (User u : users) {
-				userMap.put(u.getUserName(), u);
+				userMap.put(u.getUsername(), u);
 			}
 		}
 		if (userMap != null) {
@@ -44,6 +44,6 @@ public class CrucibleUserCacheImpl implements CrucibleUserCache {
 			userMap = new HashMap<String, User>();
 			serverMap.put(server, userMap);
 		}
-		userMap.put(user.getUserName(), user);
+		userMap.put(user.getUsername(), user);
 	}
 }

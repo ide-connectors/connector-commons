@@ -61,7 +61,7 @@ public class FishEyeServerFacadeTest extends TestCase {
 	public void testGetRepositories() throws ServerPasswordNotProvidedException, RemoteApiException {
 		final ConnectionCfg server = new ConnectionCfg("id", URL, USER_NAME, PASSWORD);
 
-		fishEyeSessionMock.login(EasyMock.eq(server.getUserName()), charArrayContains(PASSWORD.toCharArray()));
+		fishEyeSessionMock.login(EasyMock.eq(server.getUsername()), charArrayContains(PASSWORD.toCharArray()));
 
 
 		fishEyeSessionMock.getRepositories();

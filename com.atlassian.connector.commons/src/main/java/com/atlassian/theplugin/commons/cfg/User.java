@@ -19,7 +19,7 @@ package com.atlassian.theplugin.commons.cfg;
  * User: pmaruszak
  */
 public interface User {
-	String getUserName();
+	String getUsername();
 
 	String getPassword();
 

@@ -548,9 +548,9 @@ public class CrucibleSessionTest extends TestCase {
 		PermId permId = new PermId("PR-1");
 		List<Reviewer> result = apiHandler.getReviewers(permId);
 		assertEquals(3, result.size());
-		assertEquals(result.get(0).getUserName(), "bob");
-		assertEquals(result.get(1).getUserName(), "alice");
-		assertEquals(result.get(2).getUserName(), "steve");
+		assertEquals(result.get(0).getUsername(), "bob");
+		assertEquals(result.get(1).getUsername(), "alice");
+		assertEquals(result.get(2).getUsername(), "steve");
 		mockServer.verify();
 	}
 
@@ -937,7 +937,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	private ConnectionCfg createServerData(ServerCfg serverCfg) {
-		return new ConnectionCfg(serverCfg.getServerId().getId(), serverCfg.getUrl(), serverCfg.getUserName(), serverCfg
+		return new ConnectionCfg(serverCfg.getServerId().getId(), serverCfg.getUrl(), serverCfg.getUsername(), serverCfg
 				.getPassword());
 	}
 

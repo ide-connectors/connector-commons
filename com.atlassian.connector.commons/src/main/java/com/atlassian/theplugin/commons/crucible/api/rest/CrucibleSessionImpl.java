@@ -625,7 +625,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 					// bug PL-1002: sometimes we get empty user name
 					User u = CrucibleRestXmlHelper.parseUserNode(element);
 					if (u.getDisplayName().equals("")) {
-						u = new User(u.getUserName(), u.getUserName());
+						u = new User(u.getUsername(), u.getUsername());
 					}
 					users.add(u);
 				}

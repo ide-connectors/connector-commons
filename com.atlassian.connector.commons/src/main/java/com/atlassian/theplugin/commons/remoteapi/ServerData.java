@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ServerData implements Comparable<ServerData> {
 	private final Server server;
-	private final String userName;
+	private final String username;
 	private final String password;
 
 	/**
@@ -41,7 +41,7 @@ public class ServerData implements Comparable<ServerData> {
 	@Deprecated
 	public ServerData(final Server server, final String userName, final String password) {
 		this.server = server;
-		this.userName = userName;
+		this.username = userName;
 		this.password = password;
 	}
 
@@ -49,10 +49,10 @@ public class ServerData implements Comparable<ServerData> {
 		this.server = server;
 
 		if (server.isUseDefaultCredentials()) {
-			this.userName = defaultCredentials.getUserName();
+			this.username = defaultCredentials.getUsername();
 			this.password = defaultCredentials.getPassword();
 		} else {
-			this.userName = server.getUserName();
+			this.username = server.getUsername();
 			this.password = server.getPassword();
 		}
 	}
@@ -62,8 +62,8 @@ public class ServerData implements Comparable<ServerData> {
 		return server;
 	}
 
-	public String getUserName() {
-		return userName;
+	public String getUsername() {
+		return username;
 	}
 
 	public String getPassword() {
@@ -115,7 +115,7 @@ public class ServerData implements Comparable<ServerData> {
 		if (password != null ? !password.equals(that.password) : that.password != null) {
 			return false;
 		}
-		if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
+		if (username != null ? !username.equals(that.username) : that.username != null) {
 			return false;
 		}
 
@@ -128,14 +128,14 @@ public class ServerData implements Comparable<ServerData> {
 		// todo do we want to use name for hashCode and Equals???
 //		result = (name != null ? name.hashCode() : 0);
 		result = (getServerId() != null ? getServerId().hashCode() : 0);
-		result = 31 * result + (userName != null ? userName.hashCode() : 0);
+		result = 31 * result + (username != null ? username.hashCode() : 0);
 		result = 31 * result + (password != null ? password.hashCode() : 0);
 		result = 31 * result + (getUrl() != null ? getUrl().hashCode() : 0);
 		return result;
 	}
 
 	public ConnectionCfg toConnectionCfg() {
-		return new ConnectionCfg(getServerId().getId(), getUrl(), getUserName(), getPassword());
+		return new ConnectionCfg(getServerId().getId(), getUrl(), getUsername(), getPassword());
 	}
 
 	public int compareTo(ServerData o) {

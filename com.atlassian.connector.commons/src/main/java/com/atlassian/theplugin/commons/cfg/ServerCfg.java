@@ -47,7 +47,7 @@ public abstract class ServerCfg implements Server {
 		isEnabled = other.isEnabled();
 		name = other.getName();
 		url = other.getUrl();
-		username = other.getUserName();
+		username = other.getUsername();
 		password = other.getPassword();
 		isPasswordStored = other.isPasswordStored();
 		useDefaultCredentials = other.useDefaultCredentials;
@@ -80,7 +80,7 @@ public abstract class ServerCfg implements Server {
 	public abstract ServerType getServerType();
 
 
-	public String getUserName() {
+	public String getUsername() {
 		return username;
 	}
 
@@ -210,7 +210,7 @@ public abstract class ServerCfg implements Server {
 
 	public PrivateServerCfgInfo createPrivateProjectConfiguration() {
 		return new PrivateServerCfgInfo(getServerId(), isEnabled(), isUseDefaultCredentials(),
-				getUserName(), isPasswordStored() ? getPassword() : null);
+				getUsername(), isPasswordStored() ? getPassword() : null);
 	}
 
 	public void mergePrivateConfiguration(PrivateServerCfgInfo psci) {

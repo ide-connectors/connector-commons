@@ -173,13 +173,13 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		assertEquals(2, readCfg.getServers().size());
 		final ServerCfg readServer = readCfg.getServerCfg(bamboo1.getServerId());
 		assertEquals("", readServer.getPassword());
-		assertEquals("", readServer.getUserName());
+		assertEquals("", readServer.getUsername());
 		assertEquals(bamboo1.getUrl(), readServer.getUrl());
 		assertEquals(bamboo1.getName(), readServer.getName());
 
 		final ServerCfg fishServer = readCfg.getServerCfg(fisheye1.getServerId());
 		assertEquals("", fishServer.getPassword());
-		assertEquals("", fishServer.getUserName());
+		assertEquals("", fishServer.getUsername());
 		assertEquals(fisheye1.getUrl(), fishServer.getUrl());
 		assertEquals(fisheye1.getName(), fishServer.getName());
 	}
@@ -268,12 +268,12 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		bamboo2.setPasswordStored(false);
 		bamboo2.setEnabled(false);
 		final PrivateServerCfgInfo privateCfg = createPrivateProjectConfiguration(bamboo1);
-		assertEquals(bamboo1.getUserName(), privateCfg.getUsername());
+		assertEquals(bamboo1.getUsername(), privateCfg.getUsername());
 		assertEquals(bamboo1.getPassword(), privateCfg.getPassword());
 		assertEquals(bamboo1.getServerId(), privateCfg.getServerId());
 
 		final PrivateServerCfgInfo privateCfg2 = createPrivateProjectConfiguration(bamboo2);
-		assertEquals(bamboo2.getUserName(), privateCfg2.getUsername());
+		assertEquals(bamboo2.getUsername(), privateCfg2.getUsername());
 		assertEquals(null, privateCfg2.getPassword());
 		assertEquals(bamboo2.getServerId(), privateCfg2.getServerId());
 		assertEquals(bamboo2.isEnabled(), privateCfg2.isEnabled());
@@ -282,7 +282,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		bamboo2.setPasswordStored(true);
 		bamboo2.setUsername("");
 		final PrivateServerCfgInfo privateCfg3 = createPrivateProjectConfiguration(bamboo2);
-		assertEquals(bamboo2.getUserName(), privateCfg3.getUsername());
+		assertEquals(bamboo2.getUsername(), privateCfg3.getUsername());
 		assertEquals("", privateCfg3.getPassword());
 		assertEquals(bamboo2.getServerId(), privateCfg3.getServerId());
 		assertEquals(bamboo2.isEnabled(), privateCfg3.isEnabled());

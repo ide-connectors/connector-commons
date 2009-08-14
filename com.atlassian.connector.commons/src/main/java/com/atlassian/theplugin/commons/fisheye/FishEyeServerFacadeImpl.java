@@ -24,7 +24,7 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade2 {
 
 	public void testServerConnection(ConnectionCfg serverCfg) throws RemoteApiException {
 		FishEyeSession fishEyeSession = getSession(serverCfg);
-		fishEyeSession.login(serverCfg.getUserName(), serverCfg.getPassword().toCharArray());
+		fishEyeSession.login(serverCfg.getUsername(), serverCfg.getPassword().toCharArray());
 
 		// well, we need to call _something_ to see if it worked, in case of anonymous access
 		fishEyeSession.getRepositories();
@@ -53,7 +53,7 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade2 {
 		FishEyeSession fishEyeSession = getSession(server);
 		Collection<String> repositories;
 
-		fishEyeSession.login(server.getUserName(), server.getPassword().toCharArray());
+		fishEyeSession.login(server.getUsername(), server.getPassword().toCharArray());
 		repositories = fishEyeSession.getRepositories();
 		fishEyeSession.logout();
 		return repositories;

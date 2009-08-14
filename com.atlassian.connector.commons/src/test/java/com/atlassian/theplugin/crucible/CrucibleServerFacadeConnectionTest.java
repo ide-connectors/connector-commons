@@ -121,7 +121,7 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 	public void testConnectionTestFailedNullPassword() throws Exception {
 		try {
 			ConnectionCfg server =
-					new ConnectionCfg(crucibleServerCfg.getId(), crucibleServerCfg.getUrl(), crucibleServerCfg.getUserName(),
+					new ConnectionCfg(crucibleServerCfg.getId(), crucibleServerCfg.getUrl(), crucibleServerCfg.getUsername(),
 							null);
 			testedCrucibleServerFacade.testServerConnection(server);
 			fail();
@@ -133,7 +133,7 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 	public void testConnectionTestFailedNullUrl() throws Exception {
 		try {
 			ConnectionCfg server =
-					new ConnectionCfg(crucibleServerCfg.getId(), null, crucibleServerCfg.getUserName(), crucibleServerCfg
+					new ConnectionCfg(crucibleServerCfg.getId(), null, crucibleServerCfg.getUsername(), crucibleServerCfg
 							.getPassword());
 			testedCrucibleServerFacade.testServerConnection(server);
 			fail();

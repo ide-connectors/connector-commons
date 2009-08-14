@@ -84,7 +84,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		crucibleServerCfg = new CrucibleServerCfg("mycrucible", new ServerIdImpl());
 		crucibleServerCfg.setUrl(VALID_URL);
 		crucibleServerCfg.setPassword(VALID_PASSWORD);
-		crucibleServerCfg.setUsername(VALID_LOGIN.getUserName());
+		crucibleServerCfg.setUsername(VALID_LOGIN.getUsername());
 
 		facade = new CrucibleServerFacadeImpl(new CrucibleUserCacheImpl(), new TestHttpSessionCallbackImpl());
 
@@ -92,7 +92,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 			Field f = CrucibleServerFacadeImpl.class.getDeclaredField("sessions");
 			f.setAccessible(true);
 
-			((Map<String, CrucibleSession>) f.get(facade)).put(VALID_URL + VALID_LOGIN.getUserName() + VALID_PASSWORD,
+			((Map<String, CrucibleSession>) f.get(facade)).put(VALID_URL + VALID_LOGIN.getUsername() + VALID_PASSWORD,
 					crucibleSessionMock);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -107,7 +107,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		crucibleServerCfg.setUrl("http://localhost:" + server.getConnectors()[0].getLocalPort());
 		JettyMockServer mockServer = new JettyMockServer(server);
-		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD,
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUsername(), VALID_PASSWORD,
 				LoginCallback.ALWAYS_FAIL));
 
 		try {
@@ -128,7 +128,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		crucibleServerCfg.setUrl("http://localhost:" + server.getConnectors()[0].getLocalPort());
 		JettyMockServer mockServer = new JettyMockServer(server);
 
-		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD,
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUsername(), VALID_PASSWORD,
 				false));
 		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(false));
 
@@ -193,7 +193,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		crucibleServerCfg.setUrl("http://localhost:" + server.getConnectors()[0].getLocalPort());
 		JettyMockServer mockServer = new JettyMockServer(server);
 
-		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUserName(), VALID_PASSWORD,
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUsername(), VALID_PASSWORD,
 				false));
 		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 
@@ -222,9 +222,9 @@ public class CrucibleServerFacadeTest extends TestCase {
 	}
 
 	public void testChangedCredentials() throws Exception {
-		User validLogin2 = new User(VALID_LOGIN.getUserName() + 2);
+		User validLogin2 = new User(VALID_LOGIN.getUsername() + 2);
 		String validPassword2 = VALID_PASSWORD + 2;
-		getSessionsFromFacade().put(VALID_URL + validLogin2.getUserName() + validPassword2, crucibleSessionMock);
+		getSessionsFromFacade().put(VALID_URL + validLogin2.getUsername() + validPassword2, crucibleSessionMock);
 
 //		Disabled temporarily as to fix ACC-31
 //		crucibleSessionMock.isLoggedIn();
@@ -270,7 +270,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		assertSame(State.DRAFT, ret.get(0).getState());
 		assertNull(ret.get(0).getParentReview());
 
-		server.setUsername(validLogin2.getUserName());
+		server.setUsername(validLogin2.getUsername());
 		server.setPassword(validPassword2);
 		ret = facade.getAllReviews(getServerData(server));
 		assertEquals(1, ret.size());
@@ -725,7 +725,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 	private CrucibleServerCfg prepareServerBean() {
 		CrucibleServerCfg server = new CrucibleServerCfg("myname", new ServerIdImpl());
 		server.setUrl(VALID_URL);
-		server.setUsername(VALID_LOGIN.getUserName());
+		server.setUsername(VALID_LOGIN.getUsername());
 		server.setPassword(VALID_PASSWORD);
 		server.setPasswordStored(false);
 		return server;
@@ -783,7 +783,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 	}
 
 	private ConnectionCfg getServerData(final ServerCfg serverCfg) {
-		return new ConnectionCfg(serverCfg.getServerId().getId(), serverCfg.getUrl(), serverCfg.getUserName(), serverCfg
+		return new ConnectionCfg(serverCfg.getServerId().getId(), serverCfg.getUrl(), serverCfg.getUsername(), serverCfg
 				.getPassword());
 	}
 }

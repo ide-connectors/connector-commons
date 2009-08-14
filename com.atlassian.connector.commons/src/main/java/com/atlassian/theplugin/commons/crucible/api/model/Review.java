@@ -490,11 +490,11 @@ public class Review {
 	public int getNumberOfGeneralComments(final String userName) throws ValueNotYetInitialized {
 		int num = 0;
 		for (GeneralComment comment : getGeneralComments()) {
-			if (comment.getAuthor().getUserName().equals(userName)) {
+			if (comment.getAuthor().getUsername().equals(userName)) {
 				++num;
 			}
 			for (Comment reply : comment.getReplies()) {
-				if (reply.getAuthor().getUserName().equals(userName)) {
+				if (reply.getAuthor().getUsername().equals(userName)) {
 					++num;
 				}
 			}
@@ -580,11 +580,11 @@ public class Review {
 	public int getNumberOfGeneralCommentsDrafts(final String userName) throws ValueNotYetInitialized {
 		int num = 0;
 		for (GeneralComment comment : getGeneralComments()) {
-			if (comment.isDraft() && comment.getAuthor().getUserName().equals(userName)) {
+			if (comment.isDraft() && comment.getAuthor().getUsername().equals(userName)) {
 				++num;
 			}
 			for (Comment reply : comment.getReplies()) {
-				if (reply.isDraft() && reply.getAuthor().getUserName().equals(userName)) {
+				if (reply.isDraft() && reply.getAuthor().getUsername().equals(userName)) {
 					++num;
 				}
 			}
@@ -610,11 +610,11 @@ public class Review {
 	public int getNumberOfGeneralCommentsDefects(final String userName) throws ValueNotYetInitialized {
 		int num = 0;
 		for (GeneralComment comment : getGeneralComments()) {
-			if (comment.isDefectRaised() && comment.getAuthor().getUserName().equals(userName)) {
+			if (comment.isDefectRaised() && comment.getAuthor().getUsername().equals(userName)) {
 				++num;
 			}
 			for (Comment reply : comment.getReplies()) {
-				if (reply.isDefectRaised() && reply.getAuthor().getUserName().equals(userName)) {
+				if (reply.isDefectRaised() && reply.getAuthor().getUsername().equals(userName)) {
 					++num;
 				}
 			}

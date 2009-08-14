@@ -45,8 +45,8 @@ public class CrucibleServerCfg extends ServerCfg {
 					return CrucibleServerCfg.this.getName();
 				}
 
-				public String getUserName() {
-					return CrucibleServerCfg.this.getUserName();
+				public String getUsername() {
+					return CrucibleServerCfg.this.getUsername();
 				}
 
 				public String getUrl() {

@@ -690,7 +690,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 		mockServer.expect("/rest/api/latest/plan/TP-DEF", new LatestBuildResultCallbackNew());
-		final ConnectionCfg connectionCfg = new ConnectionCfg(s.getServerId().getId(), s.getUrl(), s.getUserName(),
+		final ConnectionCfg connectionCfg = new ConnectionCfg(s.getServerId().getId(), s.getUrl(), s.getUsername(),
 				s.getPassword());
 
 		long start = System.currentTimeMillis();
@@ -718,7 +718,7 @@ public class BambooServerFacadeTest extends TestCase {
 	}
 
 	private ConnectionCfg getServerData(final Server serverCfg) {
-		return new ConnectionCfg(serverCfg.getServerId().getId(), serverCfg.getUrl(), serverCfg.getUserName(), serverCfg
+		return new ConnectionCfg(serverCfg.getServerId().getId(), serverCfg.getUrl(), serverCfg.getUsername(), serverCfg
 				.getPassword());
 	}
 }

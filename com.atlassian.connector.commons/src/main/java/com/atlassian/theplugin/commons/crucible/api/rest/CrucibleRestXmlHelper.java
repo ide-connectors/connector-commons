@@ -20,7 +20,35 @@ import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent
 import com.atlassian.connector.commons.misc.IntRangesParser;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.CrucibleVersion;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CommitType;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfoImpl;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfoBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomField;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDefBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldValue;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldValueType;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.FileType;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.RepositoryType;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.State;
+import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.CDATA;
 import org.jdom.Document;
@@ -28,7 +56,11 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class CrucibleRestXmlHelper {
 	private static final String CDATA_END = "]]>";
@@ -152,7 +184,7 @@ public final class CrucibleRestXmlHelper {
 		return review;
 	}
 
-	public static Review parseDetailedReviewNode(String serverUrl, String myUserName, Element reviewNode) {
+	public static Review parseDetailedReviewNode(String serverUrl, String myUsername, Element reviewNode) {
 		Review review = new Review(serverUrl);
 		parseReview(reviewNode, review);
 
@@ -175,7 +207,7 @@ public final class CrucibleRestXmlHelper {
 			List<GeneralComment> generalComments = new ArrayList<GeneralComment>();
 
 			for (Element generalCommentData : generalCommentsDataNode) {
-				GeneralComment c = parseGeneralCommentNode(myUserName, generalCommentData);
+				GeneralComment c = parseGeneralCommentNode(myUsername, generalCommentData);
 				if (c != null) {
 					generalComments.add(c);
 				}
@@ -190,7 +222,7 @@ public final class CrucibleRestXmlHelper {
 			List<Element> versionedCommentsData = getChildElements(element, "versionedLineCommentData");
 			for (Element versionedElementData : versionedCommentsData) {
 				//ONLY COMMENTS NO FILES
-				VersionedComment c = parseVersionedCommentNode(myUserName, versionedElementData);
+				VersionedComment c = parseVersionedCommentNode(myUsername, versionedElementData);
 				if (c != null) {
 					comments.add(c);
 				}
@@ -368,15 +400,15 @@ public final class CrucibleRestXmlHelper {
 
 		Element authorElement = new Element("author");
 		getContent(reviewData).add(authorElement);
-		addTag(authorElement, "userName", review.getAuthor().getUserName());
+		addTag(authorElement, "userName", review.getAuthor().getUsername());
 
 		Element creatorElement = new Element("creator");
 		getContent(reviewData).add(creatorElement);
-		addTag(creatorElement, "userName", review.getCreator().getUserName());
+		addTag(creatorElement, "userName", review.getCreator().getUsername());
 
 		Element moderatorElement = new Element("moderator");
 		getContent(reviewData).add(moderatorElement);
-		addTag(moderatorElement, "userName", review.getModerator().getUserName());
+		addTag(moderatorElement, "userName", review.getModerator().getUsername());
 
 		addTag(reviewData, "description", review.getDescription());
 		addTag(reviewData, "name", review.getName());
@@ -474,10 +506,10 @@ public final class CrucibleRestXmlHelper {
 		return reviewItem;
 	}
 
-	private static boolean parseGeneralComment(String myUserName, GeneralCommentBean commentBean,
+	private static boolean parseGeneralComment(String myUsername, GeneralCommentBean commentBean,
 			Element reviewCommentNode) {
 
-		if (!parseComment(myUserName, commentBean, reviewCommentNode)) {
+		if (!parseComment(myUsername, commentBean, reviewCommentNode)) {
 			return false;
 		}
 		List<Element> replies = getChildElements(reviewCommentNode, "replies");
@@ -486,7 +518,7 @@ public final class CrucibleRestXmlHelper {
 			for (Element repliesNode : replies) {
 				List<Element> entries = getChildElements(repliesNode, "generalCommentData");
 				for (Element replyNode : entries) {
-					GeneralCommentBean reply = parseGeneralCommentNode(myUserName, replyNode);
+					GeneralCommentBean reply = parseGeneralCommentNode(myUsername, replyNode);
 					if (reply != null) {
 						reply.setReply(true);
 						rep.add(reply);
@@ -499,10 +531,10 @@ public final class CrucibleRestXmlHelper {
 		return true;
 	}
 
-	private static boolean parseVersionedComment(String myUserName, VersionedCommentBean commentBean,
+	private static boolean parseVersionedComment(String myUsername, VersionedCommentBean commentBean,
 			Element reviewCommentNode) {
 
-		if (!parseComment(myUserName, commentBean, reviewCommentNode)) {
+		if (!parseComment(myUsername, commentBean, reviewCommentNode)) {
 			return false;
 		}
 
@@ -526,7 +558,8 @@ public final class CrucibleRestXmlHelper {
 			for (Element repliesNode : replies) {
 				List<Element> entries = getChildElements(repliesNode, "generalCommentData");
 				for (Element replyNode : entries) {
-					VersionedCommentBean reply = parseVersionedCommentNodeWithHints(myUserName, replyNode,
+					VersionedCommentBean reply =
+							parseVersionedCommentNodeWithHints(myUsername, replyNode,
 							commentBean.isFromLineInfo(),
 							commentBean.getFromStartLine(),
 							commentBean.getToStartLine(),
@@ -546,14 +579,14 @@ public final class CrucibleRestXmlHelper {
 		return true;
 	}
 
-	private static boolean parseComment(String myUserName, CommentBean commentBean, Element reviewCommentNode) {
+	private static boolean parseComment(String myUsername, CommentBean commentBean, Element reviewCommentNode) {
 
 		boolean isDraft = Boolean.parseBoolean(getChildText(reviewCommentNode, "draft"));
 		for (Element element : getChildElements(reviewCommentNode, "user")) {
 			User commentAuthor = parseUserNode(element);
 
 			// drop comments in draft state where I am the author - bug PL-772 and PL-900
-			if (isDraft && !commentAuthor.getUserName().equals(myUserName)) {
+			if (isDraft && !commentAuthor.getUsername().equals(myUsername)) {
 				return false;
 			}
 			commentBean.setAuthor(commentAuthor);
@@ -620,7 +653,7 @@ public final class CrucibleRestXmlHelper {
 		addTag(commentNode, "createDate", strangeDate);
 		Element userElement = new Element("user");
 		getContent(commentNode).add(userElement);
-		addTag(userElement, "userName", comment.getAuthor().getUserName());
+		addTag(userElement, "userName", comment.getAuthor().getUsername());
 		addTag(commentNode, "defectRaised", Boolean.toString(comment.isDefectRaised()));
 		addTag(commentNode, "defectApproved", Boolean.toString(comment.isDefectApproved()));
 		addTag(commentNode, "deleted", Boolean.toString(comment.isDeleted()));
@@ -641,9 +674,9 @@ public final class CrucibleRestXmlHelper {
 		getContent(commentNode).add(replies);
 	}
 
-	public static GeneralCommentBean parseGeneralCommentNode(String myUserName, Element reviewCommentNode) {
+	public static GeneralCommentBean parseGeneralCommentNode(String myUsername, Element reviewCommentNode) {
 		GeneralCommentBean reviewCommentBean = new GeneralCommentBean();
-		if (!parseGeneralComment(myUserName, reviewCommentBean, reviewCommentNode)) {
+		if (!parseGeneralComment(myUsername, reviewCommentBean, reviewCommentNode)) {
 			return null;
 		}
 		return reviewCommentBean;
@@ -676,9 +709,9 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	///CHECKSTYLE:OFF
-	public static VersionedCommentBean parseVersionedCommentNodeWithHints(String myUserName, Element reviewCommentNode,
+	public static VersionedCommentBean parseVersionedCommentNodeWithHints(String myUsername, Element reviewCommentNode,
 			boolean fromLineInfo, int fromStartLine, int toStartLine, boolean toLineInfo, int fromEndLine, int toEndLine) {
-		VersionedCommentBean result = parseVersionedCommentNode(myUserName, reviewCommentNode);
+		VersionedCommentBean result = parseVersionedCommentNode(myUsername, reviewCommentNode);
 		if (result == null) {
 			return null;
 		}
@@ -697,9 +730,9 @@ public final class CrucibleRestXmlHelper {
 
 	///CHECKSTYLE:ON
 
-	public static VersionedCommentBean parseVersionedCommentNode(String myUserName, Element reviewCommentNode) {
+	public static VersionedCommentBean parseVersionedCommentNode(String myUsername, Element reviewCommentNode) {
 		VersionedCommentBean comment = new VersionedCommentBean();
-		if (!parseVersionedComment(myUserName, comment, reviewCommentNode)) {
+		if (!parseVersionedComment(myUsername, comment, reviewCommentNode)) {
 			return null;
 		}
 

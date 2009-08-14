@@ -196,7 +196,7 @@ public class ReviewDifferenceProducer {
 		}
 		final Set<String> res = new HashSet<String>(reviewers.size() * 2);
 		for (Reviewer reviewer : reviewers) {
-			res.add(reviewer.getUserName());
+			res.add(reviewer.getUsername());
 		}
 		return res;
 	}
@@ -228,7 +228,7 @@ public class ReviewDifferenceProducer {
 
 		for (Reviewer reviewer : newReviewers) {
 			for (Reviewer oldReviewer : oldReviewers) {
-				if (reviewer.getUserName().equals(oldReviewer.getUserName())) {
+				if (reviewer.getUsername().equals(oldReviewer.getUsername())) {
 					if (reviewer.isCompleted() != oldReviewer.isCompleted()) {
 						notifications.add(new ReviewerCompletedNotification(newReview, reviewer));
 						atLeastOneChanged = true;

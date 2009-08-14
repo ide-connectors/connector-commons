@@ -28,7 +28,7 @@ public class ConnectionCfg {
 		return url;
 	}
 
-	public String getUserName() {
+	public String getUsername() {
 		return username;
 	}
 

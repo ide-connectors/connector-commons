@@ -103,14 +103,14 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 	// package scope for test purposes
 	synchronized BambooSession getSession(ConnectionCfg server) throws RemoteApiException {
 		// @todo old server will stay on map - remove them !!!
-		String key = server.getUserName() + server.getUrl() + server.getPassword() + server.getId();
+		String key = server.getUsername() + server.getUrl() + server.getPassword() + server.getId();
 		BambooSession session = sessions.get(key);
 		if (session == null) {
 			session = bambooSessionFactory.createSession(server, callback);
 			sessions.put(key, session);
 		}
 		if (!session.isLoggedIn()) {
-			session.login(server.getUserName(), server.getPassword().toCharArray());
+			session.login(server.getUsername(), server.getPassword().toCharArray());
 		}
 		return session;
 	}
@@ -126,7 +126,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 	 */
 	public void testServerConnection(ConnectionCfg serverData) throws RemoteApiException {
 		ProductSession apiHandler = bambooSessionFactory.createLoginSession(serverData, callback);
-		apiHandler.login(serverData.getUserName(), serverData.getPassword().toCharArray());
+		apiHandler.login(serverData.getUsername(), serverData.getPassword().toCharArray());
 		apiHandler.logout();
 	}
 

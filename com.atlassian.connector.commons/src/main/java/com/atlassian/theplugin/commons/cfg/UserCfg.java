@@ -19,33 +19,33 @@ package com.atlassian.theplugin.commons.cfg;
  * User: pmaruszak
  */
 public class UserCfg implements User {
-	private String userName = "";
+	private String username = "";
 	private String password = "";
 	private boolean passwordStored;
 
-	public UserCfg(String userName, String password, final boolean passwordStored) {
-		this.userName = userName;
+	public UserCfg(String username, String password, final boolean passwordStored) {
+		this.username = username;
 		this.password = password;
 		this.passwordStored = passwordStored;
 	}
 
-	public UserCfg(String userName, String password) {
-		this(userName, password, false);
+	public UserCfg(String username, String password) {
+		this(username, password, false);
 	}
 
 	public UserCfg() {
 	}
 
 	public UserCfg getClone() {
-		return new UserCfg(userName, password, passwordStored);
+		return new UserCfg(username, password, passwordStored);
 	}
 
-	public String getUserName() {
-		return userName;
+	public String getUsername() {
+		return username;
 	}
 
-	public void setUserName(final String userName) {
-		this.userName = userName;
+	public void setUsername(final String userName) {
+		this.username = userName;
 	}
 
 	public void setPassword(String password) {
@@ -83,7 +83,7 @@ public class UserCfg implements User {
 		if (!password.equals(userCfg.password)) {
 			return false;
 		}
-		if (!userName.equals(userCfg.userName)) {
+		if (!username.equals(userCfg.username)) {
 			return false;
 		}
 
@@ -93,7 +93,7 @@ public class UserCfg implements User {
 	@Override
 	public int hashCode() {
 		int result;
-		result = userName.hashCode();
+		result = username.hashCode();
 		result = 31 * result + password.hashCode();
 		result = 31 * result + (passwordStored ? 1 : 0);
 		return result;

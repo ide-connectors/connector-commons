@@ -62,7 +62,7 @@ public class LoginCallback implements JettyMockServer.Callback {
 		assertNotNull(username);
 		assertNotNull(password);
 
-		assertEquals(expectedUser.getUserName(), username);
+		assertEquals(expectedUser.getUsername(), username);
 		assertEquals(expectedPassword, password);
 
 		Util.copyResource(response.getOutputStream(), fail ? "loginFailedResponse.xml" : "loginSuccessResponse.xml");

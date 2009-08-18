@@ -20,6 +20,7 @@ import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
+import com.atlassian.theplugin.commons.bamboo.BuildIssue;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import org.jetbrains.annotations.NotNull;
@@ -98,4 +99,7 @@ public interface BambooSession extends ProductSession {
 	@NotNull
 	BambooBuild getLatestBuildForPlanNew(@NotNull String planKey, boolean isPlanEnabled,
 			int timezoneOffset) throws RemoteApiException;
+
+    @NotNull
+    Collection<BuildIssue> getIssuesForBuild(@NotNull String planKey, int buildNumber) throws RemoteApiException;
 }

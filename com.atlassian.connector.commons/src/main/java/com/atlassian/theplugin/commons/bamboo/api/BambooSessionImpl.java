@@ -30,6 +30,8 @@ import com.atlassian.theplugin.commons.bamboo.BuildDetailsInfo;
 import com.atlassian.theplugin.commons.bamboo.BuildStatus;
 import com.atlassian.theplugin.commons.bamboo.TestDetailsInfo;
 import com.atlassian.theplugin.commons.bamboo.TestResult;
+import com.atlassian.theplugin.commons.bamboo.BuildIssue;
+import com.atlassian.theplugin.commons.bamboo.BuildIssueInfo;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiBadServerVersionException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
@@ -66,7 +68,12 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	private static final String LIST_PLAN_ACTION = "/api/rest/listBuildNames.action";
 
 	private static final String LATEST_BUILD_FOR_PLAN_ACTION = "/api/rest/getLatestBuildResults.action";
+
 	private static final String PLAN_STATE = "/rest/api/latest/plan/";
+
+    private static final String GET_BUILD_ACTION = "/rest/api/latest/build/";
+
+    private static final String GET_ISSUES_SUFFIX = "?expand=jiraIssues";
 
 	private static final String RECENT_BUILDS_FOR_PLAN_ACTION = "/api/rest/getRecentlyCompletedBuildResultsForBuild.action";
 
@@ -94,7 +101,10 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	private static final String BUILD_FAILED = "Failed";
 
 	private final ConnectionCfg serverData;
+
 	private static final int BAMBOO_23_BUILD_NUMBER = 1308;
+    private static final int BAMBOO_1401_BUILD_NUMBER = 1401;
+
 	private static final String CANNOT_PARSE_BUILD_TIME = "Cannot parse buildTime.";
 
 
@@ -821,4 +831,39 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 			throw new RemoteApiException(e.getMessage(), e);
 		}
 	}
+
+    public Collection<BuildIssue> getIssuesForBuild(@NotNull String planKey, int buildNumber) throws RemoteApiException {
+        int bambooBuild = getBamboBuildNumber();
+        if (bambooBuild < BAMBOO_1401_BUILD_NUMBER) {
+            throw new RemoteApiBadServerVersionException("Bamboo build 1401 or newer required");
+        }
+
+        String planUrl = getBaseUrl() + GET_BUILD_ACTION + UrlUtil.encodeUrl(planKey + "-" + buildNumber)
+                + GET_ISSUES_SUFFIX + "&auth=" + UrlUtil.encodeUrl(authToken);
+
+        try {
+            Document doc = retrieveGetResponse(planUrl);
+
+            List<BuildIssue> issues = new ArrayList<BuildIssue>();
+            @SuppressWarnings("unchecked")
+            final List<Element> elements = XPath.newInstance("build/jiraIssues/issue").selectNodes(doc);
+            if (elements == null) {
+                throw new RemoteApiException("Invalid server response");
+            }
+            for (Element element : elements) {
+                Element url = element.getChild("url");
+                if (url == null) {
+                    LoggerImpl.getInstance().error("getIssuesForBuild: \"url\" node of the \"issue\" element is null");
+                    continue;
+                }
+                BuildIssue issue = new BuildIssueInfo(element.getAttributeValue("key"), url.getAttributeValue("href"));
+                issues.add(issue);
+            }
+            return issues;
+        } catch (JDOMException e) {
+            throw new RemoteApiException(e.getMessage(), e);
+        } catch (IOException e) {
+            throw new RemoteApiException(e.getMessage(), e);
+        }
+    }
 }

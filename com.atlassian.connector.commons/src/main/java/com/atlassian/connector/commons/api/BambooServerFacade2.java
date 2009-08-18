@@ -15,6 +15,7 @@ import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
+import com.atlassian.theplugin.commons.bamboo.BuildIssue;
 import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
@@ -102,4 +103,8 @@ public interface BambooServerFacade2 extends ProductServerFacade {
 
 	Collection<BambooBuild> getSubscribedPlansResultsNew(ConnectionCfg bambooServer, Collection<SubscribedPlan> plans,
 			boolean isUseFavourities, int timezoneOffset) throws ServerPasswordNotProvidedException, RemoteApiLoginException;
+
+    Collection<BuildIssue> getIssuesForBuild(ConnectionCfg bambooServer, @NotNull String planKey, int buildNumber) 
+            throws ServerPasswordNotProvidedException, RemoteApiException;
+
 }

@@ -570,7 +570,18 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 		}
 	}
 
-	/**
+    public Collection<BuildIssue> getIssuesForBuild(ConnectionCfg bambooServer, @NotNull String planKey, int buildNumber) 
+            throws ServerPasswordNotProvidedException, RemoteApiException {
+        try {
+            BambooSession api = getSession(bambooServer);
+            return api.getIssuesForBuild(planKey, buildNumber);
+        } catch (RemoteApiException e) {
+            loger.info("Bamboo exception: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
 	 * List plans defined on Bamboo server.
 	 *
 	 * @param bambooServer Bamboo server information

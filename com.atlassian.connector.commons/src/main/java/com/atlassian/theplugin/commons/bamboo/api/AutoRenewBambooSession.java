@@ -21,6 +21,7 @@ import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
+import com.atlassian.theplugin.commons.bamboo.BuildIssue;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
@@ -155,7 +156,17 @@ public class AutoRenewBambooSession implements BambooSession {
 		}
 	}
 
-	@NotNull
+    @NotNull
+    public Collection<BuildIssue> getIssuesForBuild(@NotNull String planKey, int buildNumber) throws RemoteApiException {
+        try {
+            return delegate.getIssuesForBuild(planKey, buildNumber);
+        } catch (RemoteApiSessionExpiredException e) {
+            delegate.login(userName, password);
+            return delegate.getIssuesForBuild(planKey, buildNumber);
+        }
+    }
+
+    @NotNull
 	public BambooBuild getLatestBuildForPlanNew(@NotNull final String planKey, final boolean isPlanEnabled,
 			final int timezoneOffset) throws RemoteApiException {
 		try {

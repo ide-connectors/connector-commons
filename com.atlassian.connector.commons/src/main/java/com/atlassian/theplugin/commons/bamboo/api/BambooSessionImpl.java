@@ -106,9 +106,10 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
     private static final int BAMBOO_1401_BUILD_NUMBER = 1401;
 
 	private static final String CANNOT_PARSE_BUILD_TIME = "Cannot parse buildTime.";
+    private static final String INVALID_SERVER_RESPONSE = "Invalid server response";
 
 
-	/**
+    /**
 	 * Public constructor for BambooSessionImpl.
 	 *
 	 * @param serverData The server configuration for this session
@@ -846,11 +847,19 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
             List<BuildIssue> issues = new ArrayList<BuildIssue>();
             @SuppressWarnings("unchecked")
-            final List<Element> elements = XPath.newInstance("build/jiraIssues/issue").selectNodes(doc);
-            if (elements == null) {
-                throw new RemoteApiException("Invalid server response");
+            List<Element> jiraIssuesNode = XPath.newInstance("build/jiraIssues").selectNodes(doc);
+            if (jiraIssuesNode == null) {
+                throw new RemoteApiException(INVALID_SERVER_RESPONSE);
             }
-            for (Element element : elements) {
+            if (jiraIssuesNode.size() != 1) {
+                throw new RemoteApiException(INVALID_SERVER_RESPONSE);
+            }
+            @SuppressWarnings("unchecked")
+            List<Element> issuesNodes = XPath.newInstance("issue").selectNodes(jiraIssuesNode.get(0));
+            if (issuesNodes == null) {
+                throw new RemoteApiException(INVALID_SERVER_RESPONSE);
+            }
+            for (Element element : issuesNodes) {
                 Element url = element.getChild("url");
                 if (url == null) {
                     LoggerImpl.getInstance().error("getIssuesForBuild: \"url\" node of the \"issue\" element is null");

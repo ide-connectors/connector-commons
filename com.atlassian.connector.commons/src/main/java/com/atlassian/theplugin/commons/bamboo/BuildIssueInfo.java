@@ -1,7 +1,6 @@
 package com.atlassian.theplugin.commons.bamboo;
 
 import org.jetbrains.annotations.NotNull;
-import org.jdom.Element;
 
 /**
  * User: kalamon

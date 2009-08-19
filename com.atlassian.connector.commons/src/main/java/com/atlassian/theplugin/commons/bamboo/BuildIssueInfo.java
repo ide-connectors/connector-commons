@@ -27,7 +27,7 @@ public class BuildIssueInfo implements BuildIssue {
     }
 
     public String getServerUrl() {
-        int keyPos = issueUrl.indexOf(issueKey);
+        int keyPos = issueUrl.indexOf("/browse/" + issueKey);
         if (keyPos == -1) {
             return null;
         }

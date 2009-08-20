@@ -36,7 +36,8 @@ public class DateUtilTest extends TestCase {
 	}
 
 	public void testTimeDiff() {
-		assertEquals("in the future", DateUtil.getRelativePastDate(date1.toDate(), date1.plus(Minutes.ONE).toDate()));
+//		assertEquals("in the future", DateUtil.getRelativePastDate(date1.toDate(), date1.plus(Minutes.ONE).toDate()));
+        assertEquals("< 1 second ago", DateUtil.getRelativePastDate(date1.toDate(), date1.plus(Minutes.ONE).toDate()));
 
 		assertEquals("< 1 second ago", DateUtil.getRelativePastDate(date1.toDate(), date1.toDate()));
 

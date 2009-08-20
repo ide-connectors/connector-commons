@@ -79,9 +79,9 @@ public abstract class DateUtil {
 				return formatRelativeDateItem(buffer, seconds, " second");
 			}
 
-			if (someDate.getTime() > comparedTo.getTime()) {
-				return "in the future";
-			}
+//			if (someDate.getTime() > comparedTo.getTime()) {
+//				return "in the future";
+//			}
 
 			return "< 1 second " + PRIOR_TEXT;
 		} else {

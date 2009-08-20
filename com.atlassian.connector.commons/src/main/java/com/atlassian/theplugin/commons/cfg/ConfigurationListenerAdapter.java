@@ -16,6 +16,7 @@
 package com.atlassian.theplugin.commons.cfg;
 
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
+import com.atlassian.theplugin.commons.jira.JiraServerData;
 
 /**
  * @author Jacek Jaroczynski

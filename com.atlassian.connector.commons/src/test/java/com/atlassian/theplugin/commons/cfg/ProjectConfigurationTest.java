@@ -103,8 +103,8 @@ public class ProjectConfigurationTest extends TestCase {
 	public void testGetJiraServers() {
 
 		Collection<JiraServerCfg> jiraServers = MiscUtil.buildArrayList();
-		jiraServers.add(new JiraServerCfg("server1", new ServerIdImpl()));
-		jiraServers.add(new JiraServerCfg("server2", new ServerIdImpl()));
+		jiraServers.add(new JiraServerCfg("server1", new ServerIdImpl(), true));
+		jiraServers.add(new JiraServerCfg("server2", new ServerIdImpl(), true));
 
 		projectCfg.getServers().addAll(jiraServers);
 

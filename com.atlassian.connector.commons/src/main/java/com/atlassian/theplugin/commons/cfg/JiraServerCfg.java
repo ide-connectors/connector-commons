@@ -18,19 +18,29 @@ package com.atlassian.theplugin.commons.cfg;
 import com.atlassian.theplugin.commons.ServerType;
 
 public class JiraServerCfg extends ServerCfg {
-	public JiraServerCfg(final String name, final ServerIdImpl serverId) {
+    private boolean useBasicAuth;
+
+	public JiraServerCfg(final String name, final ServerIdImpl serverId, boolean useBasicAuth) {
 		super(true, name, serverId);
-	}
+        this.useBasicAuth = useBasicAuth;
+    }
 
 	public JiraServerCfg(final JiraServerCfg other) {
 		super(other);
+        this.useBasicAuth = other.useBasicAuth;
 	}
 
-	public JiraServerCfg(boolean enabled, String name, ServerIdImpl serverId) {
+	public JiraServerCfg(boolean enabled, String name, ServerIdImpl serverId, boolean useBasicAuth) {
 		super(enabled, name, serverId);
-	}
+        this.useBasicAuth = useBasicAuth;
+    }
 
-	@Override
+    public JiraServerCfg(boolean enabled, String name, String url, ServerIdImpl serverId, boolean useBasicAuth) {
+        super(enabled, name, url, serverId);
+        this.useBasicAuth = useBasicAuth;
+    }
+
+    @Override
 	public ServerType getServerType() {
 		return ServerType.JIRA_SERVER;
 	}
@@ -40,4 +50,7 @@ public class JiraServerCfg extends ServerCfg {
 		return new JiraServerCfg(this);
 	}
 
+    public boolean isUseBasicAuth() {
+        return useBasicAuth;
+    }
 }

@@ -17,6 +17,7 @@
 package com.atlassian.connector.cfg;
 
 import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.jira.JiraServerData;
 import com.atlassian.theplugin.commons.bamboo.BambooServerData;
 import com.atlassian.theplugin.commons.cfg.ConfigurationListener;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
@@ -30,7 +31,7 @@ public interface ProjectCfgManager {
 
 
 	@Nullable
-	ServerData getDefaultJiraServer();
+	JiraServerData getDefaultJiraServer();
 
 	@Nullable
 	ServerData getDefaultCrucibleServer();
@@ -82,7 +83,7 @@ public interface ProjectCfgManager {
 
 	Collection<ServerData> getAllCrucibleServerss();
 
-	Collection<ServerData> getAllEnabledJiraServerss();
+	Collection<JiraServerData> getAllEnabledJiraServerss();
 
 	Collection<ServerData> getAllEnabledCrucibleServerss();
 

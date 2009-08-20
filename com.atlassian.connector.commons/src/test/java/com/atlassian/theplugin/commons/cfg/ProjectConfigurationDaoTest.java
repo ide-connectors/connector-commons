@@ -26,7 +26,7 @@ public abstract class ProjectConfigurationDaoTest extends TestCase {
 	public static final BambooServerCfg BAMBOO_1 = new BambooServerCfg("mybamboo1", new ServerIdImpl());
 	public static final BambooServerCfg BAMBOO_2 = new BambooServerCfg("mybamboo2", new ServerIdImpl());
 	public static final CrucibleServerCfg CRUCIBLE_1 = new CrucibleServerCfg("mycrucible1", new ServerIdImpl());
-	public static final JiraServerCfg JIRA_1 = new JiraServerCfg("myjira1", new ServerIdImpl());
+	public static final JiraServerCfg JIRA_1 = new JiraServerCfg("myjira1", new ServerIdImpl(), true);
 
 	{
 		BAMBOO_1.setUrl("url1");

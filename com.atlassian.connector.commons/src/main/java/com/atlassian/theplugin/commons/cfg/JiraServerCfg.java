@@ -18,26 +18,27 @@ package com.atlassian.theplugin.commons.cfg;
 import com.atlassian.theplugin.commons.ServerType;
 
 public class JiraServerCfg extends ServerCfg {
-    private boolean useBasicAuth;
+    private static final int HASHCODE_MAGIC = 31;
+    private boolean dontUseBasicAuth;
 
-	public JiraServerCfg(final String name, final ServerIdImpl serverId, boolean useBasicAuth) {
+    public JiraServerCfg(final String name, final ServerIdImpl serverId, boolean dontUseBasicAuth) {
 		super(true, name, serverId);
-        this.useBasicAuth = useBasicAuth;
+        this.dontUseBasicAuth = dontUseBasicAuth;
     }
 
 	public JiraServerCfg(final JiraServerCfg other) {
 		super(other);
-        this.useBasicAuth = other.useBasicAuth;
+        this.dontUseBasicAuth = other.dontUseBasicAuth;
 	}
 
-	public JiraServerCfg(boolean enabled, String name, ServerIdImpl serverId, boolean useBasicAuth) {
+	public JiraServerCfg(boolean enabled, String name, ServerIdImpl serverId, boolean dontUseBasicAuth) {
 		super(enabled, name, serverId);
-        this.useBasicAuth = useBasicAuth;
+        this.dontUseBasicAuth = dontUseBasicAuth;
     }
 
-    public JiraServerCfg(boolean enabled, String name, String url, ServerIdImpl serverId, boolean useBasicAuth) {
+    public JiraServerCfg(boolean enabled, String name, String url, ServerIdImpl serverId, boolean dontUseBasicAuth) {
         super(enabled, name, url, serverId);
-        this.useBasicAuth = useBasicAuth;
+        this.dontUseBasicAuth = dontUseBasicAuth;
     }
 
     @Override
@@ -50,7 +51,37 @@ public class JiraServerCfg extends ServerCfg {
 		return new JiraServerCfg(this);
 	}
 
-    public boolean isUseBasicAuth() {
-        return useBasicAuth;
+    public boolean isDontUseBasicAuth() {
+        return dontUseBasicAuth;
     }
+
+    public void setDontUseBasicAuth(boolean dontUseBasicAuth) {
+        this.dontUseBasicAuth = dontUseBasicAuth;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof JiraServerCfg)) {
+            return false;
+        }
+
+        final JiraServerCfg that = (JiraServerCfg) o;
+
+        return dontUseBasicAuth == that.dontUseBasicAuth;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = HASHCODE_MAGIC * result + (dontUseBasicAuth ? 1 : 0);
+        return result;
+    }
+
 }

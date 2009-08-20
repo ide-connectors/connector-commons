@@ -55,7 +55,6 @@ public final class JDomXStreamUtil {
 		xStream.aliasField("use-favourites", ServerCfg.class, "isUseFavourites");
 		xStream.aliasField("bamboo2", ServerCfg.class, "isBamboo2");
 
-
 		xStream.alias("project-configuration", ProjectConfiguration.class);
 		xStream.aliasField("default-crucible-server", ProjectConfiguration.class, "defaultCrucibleServerId");
 		xStream.aliasField("default-crucible-project", ProjectConfiguration.class, "defaultCrucibleProject");

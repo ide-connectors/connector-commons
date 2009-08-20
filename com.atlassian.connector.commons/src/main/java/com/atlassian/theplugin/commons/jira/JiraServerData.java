@@ -11,19 +11,19 @@ import org.jetbrains.annotations.NotNull;
  * Time: 3:52:44 PM
  */
 public class JiraServerData extends ServerData {
-    private boolean useBasicAuth;
+    private boolean dontUseBasicAuth;
 
-    public JiraServerData(Server server, String userName, String password, boolean useBasicAuth) {
+    public JiraServerData(Server server, String userName, String password, boolean dontUseBasicAuth) {
         super(server, userName, password);
-        this.useBasicAuth = useBasicAuth;
+        this.dontUseBasicAuth = dontUseBasicAuth;
     }
 
-    public JiraServerData(@NotNull Server server, @NotNull UserCfg defaultCredentials, boolean useBasicAuth) {
+    public JiraServerData(@NotNull Server server, @NotNull UserCfg defaultCredentials, boolean dontUseBasicAuth) {
         super(server, defaultCredentials);
-        this.useBasicAuth = useBasicAuth;
+        this.dontUseBasicAuth = dontUseBasicAuth;
     }
 
-    public boolean isUseBasicAuth() {
-        return useBasicAuth;
+    public boolean isDontUseBasicAuth() {
+        return dontUseBasicAuth;
     }
 }

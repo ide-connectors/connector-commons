@@ -35,6 +35,7 @@ import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.ProjectListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.RecentCompletedBuildResultsCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.Util;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LatestPlanCallback;
 import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
@@ -323,7 +324,7 @@ public class BambooSessionTest extends AbstractSessionTest {
         mockServer.expect("/api/rest/getBambooBuildNumber.action",
                 new BamboBuildNumberCalback("/mock/bamboo/2_3/api/rest/bambooBuildNumberResponse.xml"));
         mockServer.expect("/rest/api/latest/build/TP-DEF/140", new BuildForPlanAndNumberCallback());
-        mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
+        mockServer.expect("/rest/api/latest/plan/TP-DEF", new LatestPlanCallback("TP-DEF", "bamboo-plan-tp-def.xml", LatestPlanCallback.NON_ERROR));
         mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
         BambooSession apiHandler = createBambooSession(mockBaseUrl);
@@ -331,6 +332,8 @@ public class BambooSessionTest extends AbstractSessionTest {
         BambooBuild build = apiHandler.getBuildForPlanAndNumber("TP-DEF", 140, 0);
         apiHandler.logout();
         Util.verifySuccessfulBuildResult(build, mockBaseUrl);
+		assertEquals("Atlassian Eclipse Connector", build.getProjectName());
+		assertEquals("Atlassian Eclipse Connector - Deploy Nightly Build", build.getPlanName());
     }
 
 	public void testBuildForNonExistingPlan() throws Exception {
@@ -908,5 +911,60 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public static BambooSession createBambooSession(@Nullable String url) throws RemoteApiMalformedUrlException {
 		return new BambooSessionImpl(new ConnectionCfg("", url, "", ""), new TestHttpSessionCallbackImpl());
+	}
+
+
+	public void testGetPlanDetails() throws RemoteApiException {
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/rest/api/latest/plan/ECL-DPL", new LatestPlanCallback());
+		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
+
+		BambooSession session = createBambooSession(mockBaseUrl);
+		session.login(USER_NAME, PASSWORD.toCharArray());
+
+		BambooPlan plan = session.getPlanDetails("ECL-DPL");
+		assertEquals("Atlassian Eclipse Connector", plan.getProjectName());
+		assertTrue(plan.isEnabled());
+
+		session.logout();
+
+		mockServer.verify();
+	}
+
+	public void testGetPlanDetailsDisabled() throws RemoteApiException {
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/rest/api/latest/plan/ECL-DPL", new LatestPlanCallback("planResponseDisabled.xml"));
+		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
+
+		BambooSession session = createBambooSession(mockBaseUrl);
+		session.login(USER_NAME, PASSWORD.toCharArray());
+
+		BambooPlan plan = session.getPlanDetails("ECL-DPL");
+		assertEquals("Atlassian Eclipse Connector", plan.getProjectName());
+		assertFalse(plan.isEnabled());
+
+		session.logout();
+
+		mockServer.verify();
+	}
+
+	public void testGetPlanDetails404() throws RemoteApiException {
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/rest/api/latest/plan/ECL-DPL", new LatestPlanCallback(LatestPlanCallback.NON_EXIST_FAIL));
+		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
+
+		BambooSession session = createBambooSession(mockBaseUrl);
+		session.login(USER_NAME, PASSWORD.toCharArray());
+
+		try {
+			BambooPlan plan = session.getPlanDetails("ECL-DPL");
+			fail("RemoteApiException excpected");
+		} catch(RemoteApiException e) {
+			assertEquals("Malformed server reply: no 'plan' element", e.getMessage());		
+		}
+
+		session.logout();
+
+		mockServer.verify();
 	}
 }

@@ -264,6 +264,26 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		}
 	}
 
+	@NotNull
+	public BambooPlan getPlanDetails(@NotNull final String planKey) throws RemoteApiException {
+		String planUrl = getBaseUrl() + PLAN_STATE + UrlUtil.encodeUrl(planKey) + "?auth=" + UrlUtil.encodeUrl(authToken);
+
+		try {
+			Document doc = retrieveGetResponse(planUrl);
+			@SuppressWarnings("unchecked")
+			final List<Element> elements = XPath.newInstance("/plan").selectNodes(doc);
+			if (elements != null && !elements.isEmpty()) {
+				Element e = elements.iterator().next();
+				return constructPlanItem(e, Boolean.TRUE);
+			} else {
+				throw new RemoteApiException("Malformed server reply: no 'plan' element");
+			}
+		} catch (JDOMException e) {
+			throw new RemoteApiException("Server returned malformed response", e);
+		} catch (IOException e) {
+			throw new RemoteApiException(e.getMessage(), e);
+		}
+	}
 
 	/**
 	 * It is new version of {@link #getLatestBuildForPlan(String, boolean, int)}
@@ -650,7 +670,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		}
 	}
 
-	private BambooPlan constructPlanItem(Element planNode, boolean isEnabled) throws RemoteApiException {
+	private BambooPlan constructPlanItem(Element planNode, boolean isEnabledDefault) throws RemoteApiException {
 		String name = planNode.getAttributeValue("name");
 		String key = planNode.getAttributeValue("key");
 
@@ -670,6 +690,12 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 			isBuildingString = "true";
 		}
 		boolean isBuilding = Boolean.parseBoolean(isBuildingString);
+
+		String isEnabledString = planNode.getChildText("isEnabled");
+		if (isEnabledString == null) {
+			isEnabledString = Boolean.toString(isEnabledDefault);
+		}
+		boolean isEnabled = Boolean.parseBoolean(isEnabledString);
 
 		return new BambooPlan(name, key, isEnabled, isFavourite, projectName, projectKey, averageBuildTime, isInQueue,
 				isBuilding);
@@ -721,17 +747,9 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	private BambooBuild constructBuildItemFromNewApi(Element el, Date pollingTime, String planKey)
 			throws RemoteApiException {
 
-		String planName = null;
+		BambooPlan plan = getPlanDetails(planKey);
 
-		List<BambooPlan> plans = listPlanNames();
-		for (BambooPlan plan : plans) {
-			if (plan.getKey().equals(planKey)) {
-				planName = plan.getName();
-				break;
-			}
-		}
-
-		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(planKey, planName, serverData, null,
+		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(planKey, plan.getName(), serverData, plan.getProjectName(),
 				parseInt(el.getAttributeValue("number")), getStatus(el.getAttributeValue("state")));
 		builder.testsFailedCount(parseInt(getChildText(el, "failedTestCount")));
 		builder.testsPassedCount(parseInt(getChildText(el, "successfulTestCount")));

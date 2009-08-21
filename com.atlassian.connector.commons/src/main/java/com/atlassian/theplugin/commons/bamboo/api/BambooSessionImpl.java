@@ -751,10 +751,12 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(planKey, plan.getName(), serverData, plan.getProjectName(),
 				parseInt(el.getAttributeValue("number")), getStatus(el.getAttributeValue("state")));
+		
 		builder.testsFailedCount(parseInt(getChildText(el, "failedTestCount")));
 		builder.testsPassedCount(parseInt(getChildText(el, "successfulTestCount")));
-		builder.completionTime(parseNewApiBuildTime(getChildText(el, "buildCompletedTime")));
 		builder.startTime(parseNewApiBuildTime(getChildText(el, "buildStartedTime")));
+		builder.completionTime(parseNewApiBuildTime(getChildText(el, "buildCompletedTime")));
+		builder.durationDescription(getChildText(el, "buildDurationDescription"));
 		builder.reason(getChildText(el, "buildReason"));
 		builder.pollingTime(pollingTime);
 

@@ -27,11 +27,11 @@ import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BambooProjectInfo;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
 import com.atlassian.theplugin.commons.bamboo.BuildDetailsInfo;
+import com.atlassian.theplugin.commons.bamboo.BuildIssue;
+import com.atlassian.theplugin.commons.bamboo.BuildIssueInfo;
 import com.atlassian.theplugin.commons.bamboo.BuildStatus;
 import com.atlassian.theplugin.commons.bamboo.TestDetailsInfo;
 import com.atlassian.theplugin.commons.bamboo.TestResult;
-import com.atlassian.theplugin.commons.bamboo.BuildIssue;
-import com.atlassian.theplugin.commons.bamboo.BuildIssueInfo;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiBadServerVersionException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
@@ -749,9 +749,10 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 		BambooPlan plan = getPlanDetails(planKey);
 
-		BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(planKey, plan.getName(), serverData, plan.getProjectName(),
+		BambooBuildInfo.Builder builder =
+				new BambooBuildInfo.Builder(planKey, plan.getName(), serverData, plan.getProjectName(),
 				parseInt(el.getAttributeValue("number")), getStatus(el.getAttributeValue("state")));
-		
+
 		builder.testsFailedCount(parseInt(getChildText(el, "failedTestCount")));
 		builder.testsPassedCount(parseInt(getChildText(el, "successfulTestCount")));
 		builder.startTime(parseNewApiBuildTime(getChildText(el, "buildStartedTime")));

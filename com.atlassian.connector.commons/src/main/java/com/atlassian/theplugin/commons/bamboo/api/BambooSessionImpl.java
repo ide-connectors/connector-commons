@@ -691,7 +691,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		}
 		boolean isBuilding = Boolean.parseBoolean(isBuildingString);
 
-		String isEnabledString = planNode.getChildText("isEnabled");
+		String isEnabledString = planNode.getAttributeValue("enabled");
 		if (isEnabledString == null) {
 			isEnabledString = Boolean.toString(isEnabledDefault);
 		}

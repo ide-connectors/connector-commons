@@ -48,19 +48,18 @@ import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
-import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * {@link com.atlassian.theplugin.commons.bamboo.BambooServerFacadeImpl} test.
@@ -690,6 +689,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 		mockServer.expect("/rest/api/latest/plan/TP-DEF", new LatestBuildResultCallbackNew());
+		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());
 		final ConnectionCfg connectionCfg = new ConnectionCfg(s.getServerId().getId(), s.getUrl(), s.getUsername(),
 				s.getPassword());
 

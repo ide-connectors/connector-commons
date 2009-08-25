@@ -1,4 +1,7 @@
 <response>
+	<projectName>The Plugin</projectName>
+	<buildName>Plugin Default</buildName>
+
 	<buildKey>TP-DEF</buildKey>
 	<buildState>Successful</buildState>
 	<buildNumber>140</buildNumber>

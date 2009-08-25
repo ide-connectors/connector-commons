@@ -52,6 +52,9 @@ public final class BambooBuildInfo implements BambooBuild {
 	private final Date startDate;
 	private final Date completionDate;
 	private final Set<String> commiters;
+	// this field keeps last build status in case the current status is 'building' on 'in the queue'
+	@Nullable
+	private final BuildStatus lastStatus;
 
 	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull ConnectionCfg serverData,
 			@NotNull Date pollingTime, @Nullable String projectName, boolean isEnabled, @Nullable Integer number,
@@ -59,8 +62,10 @@ public final class BambooBuildInfo implements BambooBuild {
 			@Nullable String testSummary, @Nullable String commitComment, final int testsPassedCount,
 			final int testsFailedCount, @Nullable Date completionDate, @Nullable String errorMessage,
 			final Throwable exception, @Nullable String relativeBuildDate, @Nullable String durationDescription,
-			@Nullable Collection<String> commiters) {
+ @Nullable Collection<String> commiters,
+			@Nullable BuildStatus lastStatus) {
 		this.exception = exception;
+		this.lastStatus = lastStatus;
 		this.pollingTime = new Date(pollingTime.getTime());
 		this.planKey = planKey;
 		this.planName = planName;
@@ -223,6 +228,74 @@ public final class BambooBuildInfo implements BambooBuild {
 		return new Date(pollingTime.getTime());
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((number == null) ? 0 : number.hashCode());
+		result = prime * result + ((planKey == null) ? 0 : planKey.hashCode());
+		result = prime * result + ((planName == null) ? 0 : planName.hashCode());
+		result = prime * result + ((projectName == null) ? 0 : projectName.hashCode());
+		result = prime * result + ((server == null) ? 0 : server.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		BambooBuildInfo other = (BambooBuildInfo) obj;
+
+		if (number == null) {
+			if (other.number != null) {
+				return false;
+			}
+		} else if (!number.equals(other.number)) {
+			return false;
+		}
+		if (planKey == null) {
+			if (other.planKey != null) {
+				return false;
+			}
+		} else if (!planKey.equals(other.planKey)) {
+			return false;
+		}
+		if (planName == null) {
+			if (other.planName != null) {
+				return false;
+			}
+		} else if (!planName.equals(other.planName)) {
+			return false;
+		}
+		if (projectName == null) {
+			if (other.projectName != null) {
+				return false;
+			}
+		} else if (!projectName.equals(other.projectName)) {
+			return false;
+		}
+		if (server == null) {
+			if (other.server != null) {
+				return false;
+			}
+		} else if (!server.equals(other.server)) {
+			return false;
+		}
+		return true;
+	}
+
+	public BuildStatus getLastStatus() {
+		return lastStatus;
+	}
+
 	@SuppressWarnings({"InnerClassFieldHidesOuterClassField"})
 	public static class Builder {
 		private final String planKey;
@@ -231,7 +304,7 @@ public final class BambooBuildInfo implements BambooBuild {
 		private final String projectName;
 		private final Integer buildNumber;
 		@NotNull
-		private final BuildStatus buildState;
+		private BuildStatus buildState;
 		private boolean isEnabled = true;
 		private String message;
 		private Date startTime;
@@ -250,6 +323,8 @@ public final class BambooBuildInfo implements BambooBuild {
 		@Nullable
 		private String durationDescription;
 		private Throwable exception;
+		@Nullable
+		private BuildStatus lastStatus;
 
 		public Builder(@NotNull String planKey, @NotNull ConnectionCfg serverData, @NotNull BuildStatus state) {
 			this.planKey = planKey;
@@ -268,6 +343,31 @@ public final class BambooBuildInfo implements BambooBuild {
 			this.projectName = projectName;
 			this.buildNumber = buildNumber;
 			this.buildState = state;
+		}
+
+		public Builder(BambooBuild latestBuildForPlan) {
+			this.planKey = latestBuildForPlan.getPlanKey();
+			this.planName = latestBuildForPlan.getPlanName();
+			this.serverData = latestBuildForPlan.getServer();
+			this.projectName = latestBuildForPlan.getProjectName();
+			this.buildNumber = latestBuildForPlan.getNumber();
+			this.buildState = latestBuildForPlan.getStatus();
+
+			this.isEnabled = latestBuildForPlan.getEnabled();
+			this.message = latestBuildForPlan.getErrorMessage();
+			this.startTime = latestBuildForPlan.getStartDate();
+			this.commiters = latestBuildForPlan.getCommiters();
+			this.pollingTime = latestBuildForPlan.getPollingTime();
+			this.buildReason = latestBuildForPlan.getReason();
+			this.testSummary = latestBuildForPlan.getTestSummary();
+			// this.commitComment
+			this.testsPassedCount = latestBuildForPlan.getTestsPassed();
+			this.testsFailedCount = latestBuildForPlan.getTestsFailed();
+			this.completionTime = latestBuildForPlan.getCompletionDate();
+			this.relativeBuildDate = latestBuildForPlan.getRelativeBuildDate();
+			this.durationDescription = latestBuildForPlan.getDurationDescription();
+			this.exception = latestBuildForPlan.getException();
+			this.lastStatus = latestBuildForPlan.getLastStatus();
 		}
 
 		public Builder enabled(boolean aIsEnabled) {
@@ -342,10 +442,19 @@ public final class BambooBuildInfo implements BambooBuild {
 			return this;
 		}
 
+		public void buildStatus(BuildStatus buildStatus) {
+			this.buildState = buildStatus;
+		}
+
 		public BambooBuildInfo build() {
 			return new BambooBuildInfo(planKey, planName, serverData, pollingTime, projectName,
 					isEnabled, buildNumber, buildState, buildReason, startTime, testSummary, commitComment, testsPassedCount,
-					testsFailedCount, completionTime, message, exception, relativeBuildDate, durationDescription, commiters);
+ testsFailedCount,
+					completionTime, message, exception, relativeBuildDate, durationDescription, commiters, lastStatus);
+		}
+
+		public void lastStatus(BuildStatus buildStatus) {
+			this.lastStatus = buildStatus;
 		}
 	}
 }

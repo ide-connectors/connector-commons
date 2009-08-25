@@ -99,4 +99,7 @@ public interface BambooBuild {
 	Date getPollingTime();
 
 	Throwable getException();
+
+	@Nullable
+	BuildStatus getLastStatus();
 }

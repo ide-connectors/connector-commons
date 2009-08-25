@@ -314,16 +314,17 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 				Element e = elements.iterator().next();
 				BambooPlan plan = constructPlanItem(e, isPlanEnabled);
 
+				BambooBuild latestBuildForPlan = getLatestBuildForPlan(planKey, isPlanEnabled, timezoneOffset);
+
 				if (plan.getState() == BambooPlan.PlanState.STANDING) {
-					return getLatestBuildForPlan(planKey, isPlanEnabled, timezoneOffset);
+					return latestBuildForPlan;
 				} else {
-					BambooBuildInfo.Builder builder;
+					BambooBuildInfo.Builder builder = new BambooBuildInfo.Builder(latestBuildForPlan);
+					builder.lastStatus(latestBuildForPlan.getStatus());
 					if (plan.getState() == BambooPlan.PlanState.BUILDING) {
-						builder = new BambooBuildInfo.Builder(
-								planKey, plan.getName(), serverData, plan.getProjectName(), null, BuildStatus.BUILDING);
+						builder.buildStatus(BuildStatus.BUILDING);
 					} else if (plan.getState() == BambooPlan.PlanState.IN_QUEUE) {
-						builder = new BambooBuildInfo.Builder(
-								planKey, plan.getName(), serverData, plan.getProjectName(), null, BuildStatus.IN_QUEUE);
+						builder.buildStatus(BuildStatus.IN_QUEUE);
 					} else {
 						throw new IllegalStateException("Unsupported plan state: [" + plan.getState() + "]");
 					}
@@ -704,45 +705,48 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	private BambooBuildInfo constructBuildItem(Element buildItemNode, Date lastPollingTime, final String aPlanKey,
 			boolean isEnabled, @Nullable Set<String> commiters, final int timezoneOffset) throws RemoteApiException {
 
+		return constructBuilderItem(buildItemNode, lastPollingTime, aPlanKey, isEnabled, commiters, timezoneOffset).build();
+	}
+
+	private BambooBuildInfo.Builder constructBuilderItem(Element buildItemNode, Date lastPollingTime, final String aPlanKey,
+			boolean isEnabled, Set<String> commiters, final int timezoneOffset) throws RemoteApiException {
+
+		BambooBuildInfo.Builder builder;
 		// for never executed build we actually have no data here (no children)
 		if (!buildItemNode.getChildren().iterator().hasNext()) {
-			return new BambooBuildInfo.Builder(aPlanKey, serverData, BuildStatus.UNKNOWN).enabled(isEnabled)
-					.pollingTime(lastPollingTime)
-					.reason("Never built")
-					.build();
+			builder =
+					new BambooBuildInfo.Builder(aPlanKey, serverData, BuildStatus.UNKNOWN).enabled(isEnabled).pollingTime(
+							lastPollingTime).reason("Never built");
+		} else {
 
+			final String planKey = getChildText(buildItemNode, "buildKey");
+			final String buildName = getChildText(buildItemNode, "buildName");
+			final String projectName = getChildText(buildItemNode, "projectName");
+			final int buildNumber = parseInt(getChildText(buildItemNode, "buildNumber"));
+			final String relativeBuildDate = getChildText(buildItemNode, "buildRelativeBuildDate");
+			final Date startTime =
+					parseBuildDate(getChildText(buildItemNode, "buildTime"), CANNOT_PARSE_BUILD_TIME, timezoneOffset);
+			final String buildCompletedDateStr = getChildText(buildItemNode, BUILD_COMPLETED_DATE_ELEM);
+			final Date completionTime =
+					(buildCompletedDateStr != null && buildCompletedDateStr.length() > 0) ? parseDateUniversal(
+							buildCompletedDateStr, BUILD_COMPLETED_DATE_ELEM, timezoneOffset)
+					// older Bamboo versions do not generate buildCompletedDate so we set it as buildTime
+							: startTime;
+			final String durationDescription = getChildText(buildItemNode, "buildDurationDescription");
+
+			final String stateStr = getChildText(buildItemNode, "buildState");
+			builder =
+					new BambooBuildInfo.Builder(planKey, buildName, serverData, projectName, buildNumber, getStatus(stateStr))
+							.enabled(isEnabled).pollingTime(lastPollingTime).reason(getChildText(buildItemNode, "buildReason"))
+							.startTime(startTime).testSummary(getChildText(buildItemNode, "buildTestSummary")).commitComment(
+									getChildText(buildItemNode, "buildCommitComment")).testsPassedCount(
+									parseInt(getChildText(buildItemNode, "successfulTestCount"))).testsFailedCount(
+									parseInt(getChildText(buildItemNode, "failedTestCount"))).completionTime(completionTime)
+							.relativeBuildDate(relativeBuildDate).durationDescription(durationDescription).commiters(commiters);
 		}
-
-		final String planKey = getChildText(buildItemNode, "buildKey");
-		final String buildName = getChildText(buildItemNode, "buildName");
-		final String projectName = getChildText(buildItemNode, "projectName");
-		final int buildNumber = parseInt(getChildText(buildItemNode, "buildNumber"));
-		final String relativeBuildDate = getChildText(buildItemNode, "buildRelativeBuildDate");
-		final Date startTime = parseBuildDate(getChildText(buildItemNode, "buildTime"), CANNOT_PARSE_BUILD_TIME,
-				timezoneOffset);
-		final String buildCompletedDateStr = getChildText(buildItemNode, BUILD_COMPLETED_DATE_ELEM);
-		final Date completionTime = (buildCompletedDateStr != null && buildCompletedDateStr.length() > 0) ? parseDateUniversal(
-				buildCompletedDateStr, BUILD_COMPLETED_DATE_ELEM, timezoneOffset)
-				//older Bamboo versions do not generate buildCompletedDate so we set it as buildTime
-				: startTime;
-		final String durationDescription = getChildText(buildItemNode, "buildDurationDescription");
-
-		final String stateStr = getChildText(buildItemNode, "buildState");
-		return new BambooBuildInfo.Builder(planKey, buildName, serverData, projectName, buildNumber,
-				getStatus(stateStr)).enabled(isEnabled)
-				.pollingTime(lastPollingTime)
-				.reason(getChildText(buildItemNode, "buildReason"))
-				.startTime(startTime)
-				.testSummary(getChildText(buildItemNode, "buildTestSummary"))
-				.commitComment(getChildText(buildItemNode, "buildCommitComment"))
-				.testsPassedCount(parseInt(getChildText(buildItemNode, "successfulTestCount")))
-				.testsFailedCount(parseInt(getChildText(buildItemNode, "failedTestCount")))
-				.completionTime(completionTime)
-				.relativeBuildDate(relativeBuildDate)
-				.durationDescription(durationDescription)
-				.commiters(commiters)
-				.build();
+		return builder;
 	}
+
 
 	private BambooBuild constructBuildItemFromNewApi(Element el, Date pollingTime, String planKey)
 			throws RemoteApiException {

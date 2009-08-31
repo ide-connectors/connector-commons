@@ -49,8 +49,13 @@ public class ServerData implements Comparable<ServerData> {
 		this.server = server;
 
 		if (server.isUseDefaultCredentials()) {
-			this.username = defaultCredentials.getUsername();
-			this.password = defaultCredentials.getPassword();
+            if (defaultCredentials == null) {
+                username = null;
+                password = null;
+            } else {
+                this.username = defaultCredentials.getUsername();
+                this.password = defaultCredentials.getPassword();
+            }
 		} else {
 			this.username = server.getUsername();
 			this.password = server.getPassword();

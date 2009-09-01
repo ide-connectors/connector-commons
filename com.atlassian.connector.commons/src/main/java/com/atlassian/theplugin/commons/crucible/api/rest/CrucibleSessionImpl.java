@@ -405,6 +405,25 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		return false;
 	}
 
+    public boolean shouldTrimWikiMarkers() {
+        if (crucibleVersionInfo == null) {
+            try {
+                getServerVersion();
+            } catch (RemoteApiException e) {
+                return false;
+            }
+        }
+        try {
+            ProductVersionUtil version = new ProductVersionUtil(crucibleVersionInfo.getReleaseNumber());
+            if (version.greater(new ProductVersionUtil("2.1"))) {
+                return true;
+            }
+        } catch (IncorrectVersionException e) {
+            return false;
+        }
+        return false;
+    }
+
 	public List<Review> getReviewsForCustomFilter(CustomFilter filter) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
@@ -563,7 +582,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	private Review prepareDetailReview(Element element) throws RemoteApiException {
-		final Review review = CrucibleRestXmlHelper.parseDetailedReviewNode(getBaseUrl(), getUsername(), element);
+		final Review review = CrucibleRestXmlHelper.parseDetailedReviewNode(
+                getBaseUrl(), getUsername(), element, shouldTrimWikiMarkers());
 
 		review.setProject(projectCache.getProject(review.getProjectKey()));
 
@@ -828,7 +848,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					GeneralComment c = CrucibleRestXmlHelper.parseGeneralCommentNode(getUsername(), element);
+					GeneralComment c = CrucibleRestXmlHelper.parseGeneralCommentNode(
+                            getUsername(), element, shouldTrimWikiMarkers());
 					if (c != null) {
 						comments.add(c);
 					}
@@ -860,7 +881,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					VersionedComment c = CrucibleRestXmlHelper.parseVersionedCommentNode(getUsername(), element);
+					VersionedComment c = CrucibleRestXmlHelper.parseVersionedCommentNode(
+                            getUsername(), element, shouldTrimWikiMarkers());
 					if (c != null) {
 						comments.add(c);
 					}
@@ -893,7 +915,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					VersionedComment c = CrucibleRestXmlHelper.parseVersionedCommentNode(getUsername(), element);
+					VersionedComment c = CrucibleRestXmlHelper.parseVersionedCommentNode(
+                            getUsername(), element, shouldTrimWikiMarkers());
 					if (c != null) {
 						comments.add(c);
 					}
@@ -926,7 +949,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					GeneralComment c = CrucibleRestXmlHelper.parseGeneralCommentNode(getUsername(), element);
+					GeneralComment c = CrucibleRestXmlHelper.parseGeneralCommentNode(
+                            getUsername(), element, shouldTrimWikiMarkers());
 					if (c != null) {
 						comments.add(c);
 					}
@@ -1019,7 +1043,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					return CrucibleRestXmlHelper.parseGeneralCommentNode(getUsername(), element);
+					return CrucibleRestXmlHelper.parseGeneralCommentNode(getUsername(), element, shouldTrimWikiMarkers());
 				}
 			}
 			return null;
@@ -1099,7 +1123,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					return CrucibleRestXmlHelper.parseVersionedCommentNode(getUsername(), element);
+					return CrucibleRestXmlHelper.parseVersionedCommentNode(
+                            getUsername(), element, shouldTrimWikiMarkers());
 				}
 			}
 			return null;
@@ -1131,7 +1156,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					GeneralCommentBean reply = CrucibleRestXmlHelper.parseGeneralCommentNode(getUsername(), element);
+					GeneralCommentBean reply = CrucibleRestXmlHelper.parseGeneralCommentNode(
+                            getUsername(), element, shouldTrimWikiMarkers());
 					if (reply != null) {
 						reply.setReply(true);
 					}
@@ -1167,7 +1193,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					VersionedCommentBean reply = CrucibleRestXmlHelper.parseVersionedCommentNode(getUsername(), element);
+					VersionedCommentBean reply = CrucibleRestXmlHelper.parseVersionedCommentNode(
+                            getUsername(), element, shouldTrimWikiMarkers());
 					if (reply != null) {
 						reply.setReply(true);
 					}

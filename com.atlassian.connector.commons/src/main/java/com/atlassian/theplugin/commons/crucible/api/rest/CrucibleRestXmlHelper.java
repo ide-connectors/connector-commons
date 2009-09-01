@@ -64,8 +64,9 @@ import java.util.Set;
 
 public final class CrucibleRestXmlHelper {
 	private static final String CDATA_END = "]]>";
+    private static final String PRESERVE_OLD = "{preserve-old}";
 
-	///CLOVER:OFF
+    ///CLOVER:OFF
 	private CrucibleRestXmlHelper() {
 	}
 	///CLOVER:ON
@@ -184,7 +185,8 @@ public final class CrucibleRestXmlHelper {
 		return review;
 	}
 
-	public static Review parseDetailedReviewNode(String serverUrl, String myUsername, Element reviewNode) {
+	public static Review parseDetailedReviewNode(String serverUrl, String myUsername,
+                                                 Element reviewNode, boolean trimWikiMarkers) {
 		Review review = new Review(serverUrl);
 		parseReview(reviewNode, review);
 
@@ -207,7 +209,7 @@ public final class CrucibleRestXmlHelper {
 			List<GeneralComment> generalComments = new ArrayList<GeneralComment>();
 
 			for (Element generalCommentData : generalCommentsDataNode) {
-				GeneralComment c = parseGeneralCommentNode(myUsername, generalCommentData);
+				GeneralComment c = parseGeneralCommentNode(myUsername, generalCommentData, trimWikiMarkers);
 				if (c != null) {
 					generalComments.add(c);
 				}
@@ -222,7 +224,7 @@ public final class CrucibleRestXmlHelper {
 			List<Element> versionedCommentsData = getChildElements(element, "versionedLineCommentData");
 			for (Element versionedElementData : versionedCommentsData) {
 				//ONLY COMMENTS NO FILES
-				VersionedComment c = parseVersionedCommentNode(myUsername, versionedElementData);
+				VersionedComment c = parseVersionedCommentNode(myUsername, versionedElementData, trimWikiMarkers);
 				if (c != null) {
 					comments.add(c);
 				}
@@ -507,9 +509,9 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	private static boolean parseGeneralComment(String myUsername, GeneralCommentBean commentBean,
-			Element reviewCommentNode) {
+			Element reviewCommentNode, boolean trimWikiMarkers) {
 
-		if (!parseComment(myUsername, commentBean, reviewCommentNode)) {
+		if (!parseComment(myUsername, commentBean, reviewCommentNode, trimWikiMarkers)) {
 			return false;
 		}
 		List<Element> replies = getChildElements(reviewCommentNode, "replies");
@@ -518,7 +520,7 @@ public final class CrucibleRestXmlHelper {
 			for (Element repliesNode : replies) {
 				List<Element> entries = getChildElements(repliesNode, "generalCommentData");
 				for (Element replyNode : entries) {
-					GeneralCommentBean reply = parseGeneralCommentNode(myUsername, replyNode);
+					GeneralCommentBean reply = parseGeneralCommentNode(myUsername, replyNode, trimWikiMarkers);
 					if (reply != null) {
 						reply.setReply(true);
 						rep.add(reply);
@@ -532,9 +534,9 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	private static boolean parseVersionedComment(String myUsername, VersionedCommentBean commentBean,
-			Element reviewCommentNode) {
+			Element reviewCommentNode, boolean trimWikiMarkers) {
 
-		if (!parseComment(myUsername, commentBean, reviewCommentNode)) {
+		if (!parseComment(myUsername, commentBean, reviewCommentNode, trimWikiMarkers)) {
 			return false;
 		}
 
@@ -565,7 +567,8 @@ public final class CrucibleRestXmlHelper {
 							commentBean.getToStartLine(),
 							commentBean.isToLineInfo(),
 							commentBean.getFromEndLine(),
-							commentBean.getToEndLine()
+							commentBean.getToEndLine(),
+                            trimWikiMarkers
 					);
 					if (reply != null) {
 						reply.setReply(true);
@@ -579,7 +582,8 @@ public final class CrucibleRestXmlHelper {
 		return true;
 	}
 
-	private static boolean parseComment(String myUsername, CommentBean commentBean, Element reviewCommentNode) {
+	private static boolean parseComment(String myUsername, CommentBean commentBean,
+                                        Element reviewCommentNode, boolean trimWikiMarkers) {
 
 		boolean isDraft = Boolean.parseBoolean(getChildText(reviewCommentNode, "draft"));
 		for (Element element : getChildElements(reviewCommentNode, "user")) {
@@ -593,7 +597,16 @@ public final class CrucibleRestXmlHelper {
 		}
 		commentBean.setDraft(isDraft);
 
-		commentBean.setMessage(getChildText(reviewCommentNode, "message"));
+        String message = getChildText(reviewCommentNode, "message");
+        if (trimWikiMarkers) {
+            if (message.startsWith(PRESERVE_OLD)) {
+                message = message.substring(PRESERVE_OLD.length());
+            }
+            if (message.endsWith(PRESERVE_OLD)) {
+                message = message.substring(0, message.lastIndexOf(PRESERVE_OLD));
+            }
+        }
+        commentBean.setMessage(message);
 		commentBean.setDefectRaised(Boolean.parseBoolean(getChildText(reviewCommentNode, "defectRaised")));
 		commentBean.setDefectApproved(Boolean.parseBoolean(getChildText(reviewCommentNode, "defectApproved")));
 		commentBean.setDeleted(Boolean.parseBoolean(getChildText(reviewCommentNode, "deleted")));
@@ -674,9 +687,10 @@ public final class CrucibleRestXmlHelper {
 		getContent(commentNode).add(replies);
 	}
 
-	public static GeneralCommentBean parseGeneralCommentNode(String myUsername, Element reviewCommentNode) {
+	public static GeneralCommentBean parseGeneralCommentNode(String myUsername,
+                                                             Element reviewCommentNode, boolean trimWikiMarkers) {
 		GeneralCommentBean reviewCommentBean = new GeneralCommentBean();
-		if (!parseGeneralComment(myUsername, reviewCommentBean, reviewCommentNode)) {
+		if (!parseGeneralComment(myUsername, reviewCommentBean, reviewCommentNode, trimWikiMarkers)) {
 			return null;
 		}
 		return reviewCommentBean;
@@ -710,8 +724,9 @@ public final class CrucibleRestXmlHelper {
 
 	///CHECKSTYLE:OFF
 	public static VersionedCommentBean parseVersionedCommentNodeWithHints(String myUsername, Element reviewCommentNode,
-			boolean fromLineInfo, int fromStartLine, int toStartLine, boolean toLineInfo, int fromEndLine, int toEndLine) {
-		VersionedCommentBean result = parseVersionedCommentNode(myUsername, reviewCommentNode);
+			boolean fromLineInfo, int fromStartLine, int toStartLine,
+            boolean toLineInfo, int fromEndLine, int toEndLine, boolean trimWikiMarkers) {
+		VersionedCommentBean result = parseVersionedCommentNode(myUsername, reviewCommentNode, trimWikiMarkers);
 		if (result == null) {
 			return null;
 		}
@@ -730,9 +745,10 @@ public final class CrucibleRestXmlHelper {
 
 	///CHECKSTYLE:ON
 
-	public static VersionedCommentBean parseVersionedCommentNode(String myUsername, Element reviewCommentNode) {
+	public static VersionedCommentBean parseVersionedCommentNode(String myUsername,
+                                                                 Element reviewCommentNode, boolean trimWikiMarkers) {
 		VersionedCommentBean comment = new VersionedCommentBean();
-		if (!parseVersionedComment(myUsername, comment, reviewCommentNode)) {
+		if (!parseVersionedComment(myUsername, comment, reviewCommentNode, trimWikiMarkers)) {
 			return null;
 		}
 

@@ -143,7 +143,7 @@ public final class CrucibleRestXmlHelper {
 		}
 	}
 
-	private static void parseReview(Element reviewNode, Review review) {
+	private static void parseReview(Element reviewNode, Review review, boolean trimWikiMarkers) {
 		if (reviewNode.getChild("author") != null) {
 			review.setAuthor(parseUserNode(reviewNode.getChild("author")));
 		}
@@ -155,7 +155,11 @@ public final class CrucibleRestXmlHelper {
 		}
 		review.setCreateDate(parseDateTime(getChildText(reviewNode, "createDate")));
 		review.setCloseDate(parseDateTime(getChildText(reviewNode, "closeDate")));
-		review.setDescription(getChildText(reviewNode, "description"));
+        String soo = getChildText(reviewNode, "description");
+        if (trimWikiMarkers) {
+            soo = removeWikiMarkers(soo);
+        }
+        review.setDescription(soo);
 		review.setName(getChildText(reviewNode, "name"));
 		review.setProjectKey(getChildText(reviewNode, "projectKey"));
 		review.setRepoName(getChildText(reviewNode, "repoName"));
@@ -179,16 +183,16 @@ public final class CrucibleRestXmlHelper {
 		}
 	}
 
-	public static Review parseReviewNode(String serverUrl, Element reviewNode) {
+	public static Review parseReviewNode(String serverUrl, Element reviewNode, boolean trimWikiMarkers) {
 		Review review = new Review(serverUrl);
-		parseReview(reviewNode, review);
+		parseReview(reviewNode, review, trimWikiMarkers);
 		return review;
 	}
 
 	public static Review parseDetailedReviewNode(String serverUrl, String myUsername,
                                                  Element reviewNode, boolean trimWikiMarkers) {
 		Review review = new Review(serverUrl);
-		parseReview(reviewNode, review);
+		parseReview(reviewNode, review, trimWikiMarkers);
 
 		List<Element> reviewersNode = getChildElements(reviewNode, "reviewers");
 		Set<Reviewer> reviewers = new HashSet<Reviewer>();
@@ -599,12 +603,7 @@ public final class CrucibleRestXmlHelper {
 
         String message = getChildText(reviewCommentNode, "message");
         if (trimWikiMarkers) {
-            if (message.startsWith(PRESERVE_OLD)) {
-                message = message.substring(PRESERVE_OLD.length());
-            }
-            if (message.endsWith(PRESERVE_OLD)) {
-                message = message.substring(0, message.lastIndexOf(PRESERVE_OLD));
-            }
+            message = removeWikiMarkers(message);
         }
         commentBean.setMessage(message);
 		commentBean.setDefectRaised(Boolean.parseBoolean(getChildText(reviewCommentNode, "defectRaised")));
@@ -644,6 +643,16 @@ public final class CrucibleRestXmlHelper {
 		}
 		return true;
 	}
+
+    private static String removeWikiMarkers(String message) {
+        if (message.startsWith(PRESERVE_OLD)) {
+            message = message.substring(PRESERVE_OLD.length());
+        }
+        if (message.endsWith(PRESERVE_OLD)) {
+            message = message.substring(0, message.lastIndexOf(PRESERVE_OLD));
+        }
+        return message;
+    }
 
     private static Comment.ReadState readStatusStringToState(String readStatus) {
         if (readStatus == null) {

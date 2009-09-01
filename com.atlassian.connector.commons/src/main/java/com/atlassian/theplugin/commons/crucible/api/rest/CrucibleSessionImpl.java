@@ -1249,7 +1249,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			List<Element> elements = xpath.selectNodes(doc);
 
 			if (elements != null && !elements.isEmpty()) {
-				return CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), elements.iterator().next());
+				return CrucibleRestXmlHelper.parseReviewNode(
+                        getBaseUrl(), elements.iterator().next(), shouldTrimWikiMarkers());
 			}
 			return null;
 		} catch (IOException e) {
@@ -1302,7 +1303,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			List<Element> elements = xpath.selectNodes(doc);
 
 			if (elements != null && !elements.isEmpty()) {
-				return CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), elements.iterator().next());
+				return CrucibleRestXmlHelper.parseReviewNode(
+                        getBaseUrl(), elements.iterator().next(), shouldTrimWikiMarkers());
 			}
 			return null;
 		} catch (IOException e) {
@@ -1406,7 +1408,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			List<Element> elements = xpath.selectNodes(doc);
 
 			if (elements != null && !elements.isEmpty()) {
-				return CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), elements.iterator().next());
+				return CrucibleRestXmlHelper.parseReviewNode(
+                        getBaseUrl(), elements.iterator().next(), shouldTrimWikiMarkers());
 			}
 			return null;
 		} catch (IOException e) {
@@ -1434,7 +1437,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			List<Element> elements = xpath.selectNodes(doc);
 
 			if (elements != null && !elements.isEmpty()) {
-				return CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), elements.iterator().next());
+				return CrucibleRestXmlHelper.parseReviewNode(
+                        getBaseUrl(), elements.iterator().next(), shouldTrimWikiMarkers());
 			}
 			return null;
 		} catch (IOException e) {
@@ -1572,7 +1576,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					review = CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), element);
+					review = CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), element, shouldTrimWikiMarkers());
 				}
 			}
 			return review;
@@ -1654,7 +1658,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					review = CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), element);
+					review = CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), element, shouldTrimWikiMarkers());
 				}
 			}
 			return review;

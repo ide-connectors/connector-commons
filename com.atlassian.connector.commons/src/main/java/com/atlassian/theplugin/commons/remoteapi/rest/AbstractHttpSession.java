@@ -26,6 +26,7 @@ import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.auth.AuthenticationException;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.DeleteMethod;
@@ -64,8 +65,9 @@ public abstract class AbstractHttpSession {
 
 	@NotNull
 	private final ConnectionCfg server;
+    private static final int MAX_REDIRECTS = 3;
 
-	@NotNull
+    @NotNull
 	protected ConnectionCfg getServer() {
 		return server;
 	}
@@ -331,7 +333,13 @@ public abstract class AbstractHttpSession {
 		return retrievePostResponse(urlString, requestString, expectResponse);
 	}
 
-	protected Document retrievePostResponse(String urlString, String request, boolean expectResponse)
+    protected Document retrievePostResponse(String urlString, String request, boolean expectResponse)
+            throws JDOMException, RemoteApiException {
+        return retrievePostResponseInternal(urlString, request, expectResponse, 0);
+    }
+
+	private Document retrievePostResponseInternal(String urlString, String request, boolean expectResponse,
+                                                  int redirectCounter)
 			throws JDOMException, RemoteApiException {
 		try {
 			UrlUtil.validateUrl(urlString);
@@ -354,6 +362,7 @@ public abstract class AbstractHttpSession {
 			try {
 				method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
 				method.getParams().setSoTimeout(client.getParams().getSoTimeout());
+
 				callback.configureHttpMethod(this, method);
 
 				if (request != null && !"".equals(request)) {
@@ -365,7 +374,21 @@ public abstract class AbstractHttpSession {
 				final int httpStatus = method.getStatusCode();
 				if (httpStatus == HttpStatus.SC_NO_CONTENT) {
 					return doc;
-				} else if (httpStatus != HttpStatus.SC_OK && httpStatus != HttpStatus.SC_CREATED) {
+				} else if (httpStatus == HttpStatus.SC_MOVED_PERMANENTLY
+                        || httpStatus == HttpStatus.SC_MOVED_TEMPORARILY) {
+                    if (redirectCounter < MAX_REDIRECTS) {
+                        Header newLocation = method.getResponseHeader("Location");
+                        if (newLocation == null) {
+                            throw new RemoteApiException(
+                                    "Connection error. Received redirection without new target address");
+                        }
+                        return retrievePostResponseInternal(
+                                newLocation.getValue(), request, expectResponse, redirectCounter + 1);
+                    } else {
+                        throw new RemoteApiException(
+                                "Connection error. Received too many redirects (more than " + MAX_REDIRECTS + ")");
+                    }
+                } else if (httpStatus != HttpStatus.SC_OK && httpStatus != HttpStatus.SC_CREATED) {
 
 					Document document;
 					SAXBuilder builder = new SAXBuilder();
@@ -396,6 +419,13 @@ public abstract class AbstractHttpSession {
 	 */
 	protected Document retrievePostResponse(String urlString, Part[] parts, boolean expectResponse)
 			throws JDOMException, RemoteApiException {
+        return retrievePostResponseInternal(urlString, parts, expectResponse, 0);
+    }
+
+    private Document retrievePostResponseInternal(String urlString, Part[] parts,
+                                                  boolean expectResponse, int redirectCounter)
+            throws JDOMException, RemoteApiException {
+
 		Document doc = null;
 
 		synchronized (clientLock) {
@@ -422,6 +452,20 @@ public abstract class AbstractHttpSession {
 				final int httpStatus = method.getStatusCode();
 				if (httpStatus == HttpStatus.SC_NO_CONTENT) {
 					return doc;
+                } else if (httpStatus == HttpStatus.SC_MOVED_PERMANENTLY
+                        || httpStatus == HttpStatus.SC_MOVED_TEMPORARILY) {
+                    if (redirectCounter < MAX_REDIRECTS) {
+                        Header newLocation = method.getResponseHeader("Location");
+                        if (newLocation == null) {
+                            throw new RemoteApiException(
+                                    "Connection error. Received redirection without new target address");
+                        }
+                        return retrievePostResponseInternal(
+                                newLocation.getValue(), parts, expectResponse, redirectCounter + 1);
+                    } else {
+                        throw new RemoteApiException(
+                                "Connection error. Received too many redirects (more than " + MAX_REDIRECTS + ")");
+                    }
 				} else if (httpStatus != HttpStatus.SC_OK && httpStatus != HttpStatus.SC_CREATED) {
 
 					Document document;
@@ -489,6 +533,10 @@ public abstract class AbstractHttpSession {
 
 	protected Document retrieveDeleteResponse(String urlString, boolean expectResponse) throws IOException,
 			JDOMException, RemoteApiSessionExpiredException {
+        return retrieveDeleteResponseInternal(urlString, expectResponse, 0);
+    }
+        protected Document retrieveDeleteResponseInternal(String urlString, boolean expectResponse, int redirectCounter)
+                throws IOException, JDOMException, RemoteApiSessionExpiredException {
 		UrlUtil.validateUrl(urlString);
 
 		Document doc = null;
@@ -510,9 +558,25 @@ public abstract class AbstractHttpSession {
 
 				client.executeMethod(method);
 
-				if (method.getStatusCode() == HttpStatus.SC_NO_CONTENT) {
+                int statusCode = method.getStatusCode();
+                if (statusCode == HttpStatus.SC_NO_CONTENT) {
 					return null;
 				}
+                if (statusCode == HttpStatus.SC_MOVED_PERMANENTLY
+                    || statusCode == HttpStatus.SC_MOVED_TEMPORARILY) {
+                    if (redirectCounter < MAX_REDIRECTS) {
+                        Header newLocation = method.getResponseHeader("Location");
+                        if (newLocation == null) {
+                            throw new IOException(
+                                    "Connection error. Received redirection without new target address");
+                        }
+                        return retrieveDeleteResponseInternal(
+                                newLocation.getValue(), expectResponse, redirectCounter + 1);
+                    } else {
+                        throw new IOException(
+                                "Connection error. Received too many redirects (more than " + MAX_REDIRECTS + ")");
+                    }
+                }
 				if (method.getStatusCode() != HttpStatus.SC_OK) {
 					throw new IOException("HTTP status code " + method.getStatusCode() + ": " + method.getStatusText());
 				}

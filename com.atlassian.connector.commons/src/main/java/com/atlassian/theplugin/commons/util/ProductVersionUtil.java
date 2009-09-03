@@ -35,7 +35,7 @@ public class ProductVersionUtil implements Serializable {
 	private static ProductVersionUtil initNullVersion() {
 		ProductVersionUtil result = null;
 		try {
-			result = new ProductVersionUtil("0.0.0");
+			result = new ProductVersionUtil("0.0.0.0");
 		} catch (IncorrectVersionException e) {
 			e.printStackTrace();
 		}
@@ -65,13 +65,15 @@ public class ProductVersionUtil implements Serializable {
 		}
 	}
 
-	private static final String PATTERN = "^(\\d+)\\.(\\d+)(\\.(\\d+))?(.+)?$";
+	private static final String PATTERN = "^(\\d+)\\.(\\d+)(\\.(\\d+))?(\\.(\\d+))?(.+)?$";
 
 	private static final int MAJOR_TOKEN_GRP = 1;
 
 	private static final int MINOR_TOKEN_GRP = 2;
 
 	private static final int MICRO_TOKEN_GRP = 4;
+
+    private static final int NANO_TOKEN_GRP = 6;
 
 	private void tokenize(final String aVersion) throws IncorrectVersionException {
 		Scanner s = new Scanner(aVersion);
@@ -80,7 +82,8 @@ public class ProductVersionUtil implements Serializable {
 			MatchResult result = s.match();
 			versionNumber = new VersionNumber(Integer.valueOf(result.group(MAJOR_TOKEN_GRP)),
 					Integer.valueOf(result.group(MINOR_TOKEN_GRP)),
-					result.group(MICRO_TOKEN_GRP) != null ? Integer.valueOf(result.group(MICRO_TOKEN_GRP)) : -1);
+					result.group(MICRO_TOKEN_GRP) != null ? Integer.valueOf(result.group(MICRO_TOKEN_GRP)) : -1,
+                    result.group(NANO_TOKEN_GRP) != null ? Integer.valueOf(result.group(NANO_TOKEN_GRP)) : -1);
 		} catch (IllegalStateException ex) {
 			throw new IncorrectVersionException("Version (" + aVersion + ") does not match pattern (\"" + PATTERN
 					+ "\")", ex);
@@ -140,13 +143,16 @@ public class ProductVersionUtil implements Serializable {
 
 		private final int micro;
 
-		private static final int PRIME = 31;
+        private final int nano;
 
-		public VersionNumber(int major, int minor, int micro) throws IncorrectVersionException {
+        private static final int PRIME = 31;
+
+		public VersionNumber(int major, int minor, int micro, int nano) throws IncorrectVersionException {
 			this.major = major;
 			this.minor = minor;
 			this.micro = micro;
-		}
+            this.nano = nano;
+        }
 
 		public boolean greater(VersionNumber other) {
 			if (other == null) {
@@ -161,7 +167,11 @@ public class ProductVersionUtil implements Serializable {
 				} else {
 					if (major == other.major && minor == other.minor && micro > other.micro) {
 						return true;
-					}
+					} else {
+                        if (major == other.major && minor == other.minor && micro == other.micro && nano > other.nano) {
+                            return true;
+                        }
+                    }
 				}
 			}
 			return false;
@@ -187,6 +197,9 @@ public class ProductVersionUtil implements Serializable {
 			if (minor != that.minor) {
 				return false;
 			}
+            if (nano != that.nano) {
+                return false;
+            }
 
 			return true;
 		}
@@ -197,6 +210,7 @@ public class ProductVersionUtil implements Serializable {
 			result = major;
 			result = PRIME * result + minor;
 			result = PRIME * result + micro;
+            result = PRIME * result + nano;
 			return result;
 		}
 

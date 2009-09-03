@@ -396,7 +396,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 		try {
 			ProductVersionUtil version = new ProductVersionUtil(crucibleVersionInfo.getReleaseNumber());
-			if (version.greater(new ProductVersionUtil("1.6.6"))) {
+			if (version.greater(new ProductVersionUtil("1.6.6.0"))) {
 				return true;
 			}
 		} catch (IncorrectVersionException e) {

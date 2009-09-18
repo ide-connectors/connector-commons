@@ -16,6 +16,8 @@
 
 package com.atlassian.theplugin.crucible;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.crucible.CrucibleServerFacade2;
 import com.atlassian.connector.commons.misc.ErrorResponse;
@@ -33,16 +35,13 @@ import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedExcept
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
-import junit.framework.TestCase;
 import org.apache.commons.httpclient.HttpStatus;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
 import org.mortbay.jetty.Server;
-
 import java.lang.reflect.Field;
 import java.util.*;
+import junit.framework.TestCase;
 
 public class CrucibleServerFacadeTest extends TestCase {
 	private static final User VALID_LOGIN = new User("validLogin");
@@ -435,8 +434,9 @@ public class CrucibleServerFacadeTest extends TestCase {
 //		} catch (RemoteApiLoginException e) {
 //			fail("recording mock failed for login");
 //		}
-		crucibleSessionMock.getProjectsFromCache();
+		crucibleSessionMock.getProjects();
 		EasyMock.expectLastCall().andReturn(Arrays.asList(prepareProjectData(0), prepareProjectData(1)));
+		EasyMock.expect(crucibleSessionMock.getProjects()).andReturn(Arrays.asList(prepareProjectData(1)));
 		replay(crucibleSessionMock);
 
 		CrucibleServerCfg server = prepareServerBean();
@@ -449,6 +449,11 @@ public class CrucibleServerFacadeTest extends TestCase {
 			assertEquals("CR" + id, ret.get(i).getKey());
 			assertEquals("Name" + id, ret.get(i).getName());
 		}
+
+		// second call - now only one project (as we do not cache here)
+		ret = facade.getProjects(getServerData(server));
+		assertEquals(1, ret.size());
+		assertEquals(prepareProjectData(1), ret.get(0));
 		EasyMock.verify(crucibleSessionMock);
 	}
 

@@ -16,6 +16,8 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Serializable;
 import java.util.Collection;
 
@@ -30,6 +32,10 @@ public class CrucibleProject implements Serializable {
     private final Collection<String> allowedReviewers;
     private static final int HASH_INT = 31;
 
+	public CrucibleProject(String id, String key, String name) {
+		this(id, key, name, null);
+	}
+
 	public CrucibleProject(String id, String key, String name, Collection<String> allowedReviewers) {
 		this.id = id;
 		this.key = key;
@@ -37,7 +43,7 @@ public class CrucibleProject implements Serializable {
         this.allowedReviewers = allowedReviewers;
     }
 
-    /* @Nullable */
+    @Nullable
     public Collection<String> getAllowedReviewers() {
         return allowedReviewers;
     }

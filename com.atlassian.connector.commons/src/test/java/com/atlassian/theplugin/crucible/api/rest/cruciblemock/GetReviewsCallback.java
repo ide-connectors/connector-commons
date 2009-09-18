@@ -83,6 +83,7 @@ public class GetReviewsCallback implements JettyMockServer.Callback {
 		addTag(reviewData, "projectKey", "CR0");
 		addTag(reviewData, "repoName", "RepoName");
 		addTag(reviewData, "state", state.value());
+		addTag(reviewData, "metricsVersion", String.valueOf(1));
 
 		Element newPermaId = new Element("permaId");
 		Element newId = new Element("id");

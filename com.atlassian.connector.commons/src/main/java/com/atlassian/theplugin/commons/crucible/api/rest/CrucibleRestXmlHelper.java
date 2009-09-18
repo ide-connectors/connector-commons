@@ -26,6 +26,7 @@ import org.jdom.CDATA;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -114,7 +115,8 @@ public final class CrucibleRestXmlHelper {
 	}
 
 
-    private static Collection<String> parseUserNames(Element userNamesNode) {
+    @Nullable
+	private static Collection<String> parseUserNames(Element userNamesNode) {
         if (userNamesNode != null) {
             Collection<String> userNamesList = new ArrayList<String>();
             for (Element userName : getChildElements(userNamesNode, "userName")) {

@@ -16,10 +16,25 @@
 
 package com.atlassian.theplugin.commons.crucible.api;
 
-import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.State;
+import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -124,8 +139,6 @@ public interface CrucibleSession {
 
 //	CrucibleFileInfo addItemToReview(Review review, NewReviewItem item) throws RemoteApiException;
 
-	List<CrucibleProject> getProjectsFromCache() throws RemoteApiException;
-
 	Review createReviewFromUpload(Review review, Collection<UploadItem> uploadItems) throws RemoteApiException;
 
 	byte[] getFileContent(String contentUrl) throws RemoteApiException;
@@ -139,6 +152,4 @@ public interface CrucibleSession {
     void markCommentLeaveRead(PermId reviewId, PermId commentId) throws RemoteApiException;
 
     void markAllCommentsRead(PermId reviewId) throws RemoteApiException;
-
-    List<User> getAllowedReviewers(String projectKey) throws RemoteApiException;
 }

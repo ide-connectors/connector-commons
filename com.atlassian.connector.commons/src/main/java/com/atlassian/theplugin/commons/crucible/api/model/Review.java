@@ -19,8 +19,12 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 public class Review {
 	private Set<Reviewer> reviewers;
@@ -44,7 +48,6 @@ public class Review {
 	private String summary;
 	private final String serverUrl;
 	private Set<CrucibleFileInfo> files;
-	private CrucibleProject crucibleProject;
 
 	public void setReviewers(Set<Reviewer> reviewers) {
 		this.reviewers = reviewers;
@@ -138,11 +141,6 @@ public class Review {
 		return generalComments;
 	}
 
-//    public List<CrucibleFileInfo> getFiles() throws ValueNotYetInitialized {
-
-//		}
-
-	//	}
 
 	public EnumSet<CrucibleAction> getTransitions() throws ValueNotYetInitialized {
 		if (transitions == null) {
@@ -630,11 +628,4 @@ public class Review {
 		return num;
 	}
 
-	public void setProject(CrucibleProject project) {
-		this.crucibleProject = project;
-	}
-
-	public CrucibleProject getCrucibleProject() {
-		return crucibleProject;
-	}
 }

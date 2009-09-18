@@ -18,7 +18,6 @@ package com.atlassian.theplugin.commons.crucible.api.rest;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
-import com.atlassian.theplugin.commons.crucible.ProjectCache;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
@@ -138,8 +137,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	private final Map<String, List<CustomFieldDef>> metricsDefinitions = new HashMap<String, List<CustomFieldDef>>();
 
-	private final ProjectCache projectCache;
-
 	private CrucibleVersionInfo crucibleVersionInfo;
 
 	private boolean loginCalled = false;
@@ -157,9 +154,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	public CrucibleSessionImpl(ConnectionCfg serverData, HttpSessionCallback callback)
 			throws RemoteApiMalformedUrlException {
 		super(serverData, callback);
-
-		projectCache = new ProjectCache(this);
-
 	}
 
 	public void login() throws RemoteApiLoginException {
@@ -560,8 +554,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		final Review review = CrucibleRestXmlHelper.parseDetailedReviewNode(
                 getBaseUrl(), getUsername(), element, shouldTrimWikiMarkers());
 
-		review.setProject(projectCache.getProject(review.getProjectKey()));
-
 		try {
 			for (CrucibleFileInfo fileInfo : review.getFiles()) {
 				fillRepositoryData(fileInfo);
@@ -572,29 +564,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		return review;
 	}
 
-
-    public List<User> getAllowedReviewers(String projectKey) throws RemoteApiException {
-        if (!isLoggedIn()) {
-            throwNotLoggedIn();
-        }
-
-        CrucibleProject project = projectCache.getProject(projectKey);
-        List<User> reviewers = getUsers();
-
-        if (getServerVersion().isVersion2OrGreater()) {
-            List<User> allowedReviewers = new ArrayList<User>();
-            for (String userName : project.getAllowedReviewers()) {
-                for (User u : reviewers) {
-                    if (u.getUsername().equals(userName)) {
-                        allowedReviewers.add(u);
-                    }
-                }
-            }
-            return allowedReviewers;
-        } 
-
-        return reviewers;
-    }
 
 	public List<Reviewer> getReviewers(PermId permId) throws RemoteApiException {
 		if (!isLoggedIn()) {
@@ -660,29 +629,13 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	/**
-	 * Retrieves projects from cache (reduces server calls)
-	 *
-	 * @return list of Crucible Projects
-	 * @throws RemoteApiException
-	 *             thrown in case of connection problems
-	 */
-	public List<CrucibleProject> getProjectsFromCache() throws RemoteApiException {
-		return projectCache.getProjects();
-	}
-
-	/**
 	 * Retrieves projects directly from server ommiting cache
 	 *
 	 * @return list of Crucible projects
 	 * @throws RemoteApiException
 	 *             thrown in case of connection problems
-	 * @deprecated {@link #getProjectsFromCache()} should be used
 	 */
 	public List<CrucibleProject> getProjects() throws RemoteApiException {
-		return getProjectsFromServer();
-	}
-
-	public List<CrucibleProject> getProjectsFromServer() throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }

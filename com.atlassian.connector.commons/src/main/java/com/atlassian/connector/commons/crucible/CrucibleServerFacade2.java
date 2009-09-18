@@ -19,7 +19,6 @@ import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -173,10 +172,6 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	@Nullable
 	String getDisplayName(@NotNull final ConnectionCfg server, @NotNull String username);
 
-	@Nullable
-	CrucibleProject getProject(@NotNull final ConnectionCfg server, @NotNull final String projectKey)
-		throws RemoteApiException, ServerPasswordNotProvidedException;
-
 	boolean checkContentUrlAvailable(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	Review createReviewFromUpload(ConnectionCfg server, Review review, Collection<UploadItem> uploadItems)
@@ -190,13 +185,13 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 
 	/**
 	 * Adds info about files, versioned comments and general comments to the review
-	 * 
+	 *
 	 * @param server
 	 * @param review
 	 *            review to fill with details
 	 * @throws RemoteApiException
 	 * @throws ServerPasswordNotProvidedException
-	 * 
+	 *
 	 */
 	void fillDetailsForReview(@NotNull ConnectionCfg server, @NotNull Review review) throws RemoteApiException,
 			ServerPasswordNotProvidedException;
@@ -211,7 +206,4 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 
     void markAllCommentsRead(@NotNull ConnectionCfg server, PermId reviewId)  throws RemoteApiException,
 			ServerPasswordNotProvidedException;
-
-    List<User> getAllowedReviewers(ConnectionCfg server, String projectKey) throws RemoteApiException,
-            ServerPasswordNotProvidedException;
 }

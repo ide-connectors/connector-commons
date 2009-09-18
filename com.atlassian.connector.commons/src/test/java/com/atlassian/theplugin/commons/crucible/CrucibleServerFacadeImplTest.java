@@ -21,13 +21,14 @@ import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.util.MiscUtil;
-import junit.framework.TestCase;
+import com.spartez.util.junit3.TestUtil;
 import org.easymock.EasyMock;
-
 import java.util.ArrayList;
+import junit.framework.TestCase;
 
 public class CrucibleServerFacadeImplTest extends TestCase {
 
@@ -68,5 +69,30 @@ public class CrucibleServerFacadeImplTest extends TestCase {
 		EasyMock.replay(mock);
 		crucibleServerFacade.setReviewers(SERVER_DATA, review.getPermId(), newReviewers2);
 		EasyMock.verify(mock);
+	}
+
+	public void testUpdateProjects() throws RemoteApiException, ServerPasswordNotProvidedException {
+		// testing if there is no bad caching on facade level (as it used to be)
+		final CrucibleSession mock = EasyMock.createNiceMock(CrucibleSession.class);
+		final CrucibleServerFacadeImpl crucibleServerFacade = new CrucibleServerFacadeImpl(null,
+				new TestHttpSessionCallbackImpl()) {
+			@Override
+			protected CrucibleSession getSession(final ConnectionCfg server)
+					throws RemoteApiException, ServerPasswordNotProvidedException {
+				return mock;
+			}
+		};
+		final CrucibleProject PR_1 = new CrucibleProject("myid1", "PR1", "Project1");
+		final CrucibleProject PR_2 = new CrucibleProject("myid2", "PR2", "Project2");
+		final CrucibleProject PR_3 = new CrucibleProject("myid3", "PR3", "Project3");
+		EasyMock.expect(mock.getProjects()).andReturn(MiscUtil.buildArrayList(PR_1, PR_2));
+		EasyMock.expect(mock.getProjects()).andReturn(MiscUtil.buildArrayList(PR_1, PR_2, PR_3));
+		EasyMock.expect(mock.getProjects()).andReturn(MiscUtil.buildArrayList(PR_3));
+		EasyMock.replay(mock);
+		
+		TestUtil.assertHasOnlyElements(crucibleServerFacade.getProjects(SERVER_DATA), PR_1, PR_2);
+		TestUtil.assertHasOnlyElements(crucibleServerFacade.getProjects(SERVER_DATA), PR_1, PR_2, PR_3);
+		TestUtil.assertHasOnlyElements(crucibleServerFacade.getProjects(SERVER_DATA), PR_3);
+
 	}
 }

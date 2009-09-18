@@ -22,7 +22,24 @@ import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleLoginException;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCache;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
@@ -32,13 +49,14 @@ import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	private final Map<String, CrucibleSession> sessions = new HashMap<String, CrucibleSession>();
-
-	private static CrucibleServerFacadeImpl instance;
 
 	private CrucibleUserCache userCache;
 
@@ -96,6 +114,11 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	public String getDisplayName(@NotNull final ConnectionCfg server, @NotNull String username) {
 		final User user = userCache.getUser(this, server, username, true);
 		return user != null ? user.getDisplayName() : null;
+	}
+
+	@Nullable
+	public User getUser(@NotNull final ConnectionCfg server, String username) {
+		return userCache.getUser(this, server, username, false);
 	}
 
 
@@ -174,7 +197,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	/**
 	 * Creates new review in Crucible
 	 *
-	 * @param server
+	 * @param server connection configuration
 	 * @param review data for new review to create (some fields have to be set e.g. projectKey)
 	 * @return created revew date
 	 * @throws com.atlassian.theplugin.commons.crucible.api.CrucibleException
@@ -189,10 +212,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	public Review createReviewFromRevision(ConnectionCfg server, Review review, List<String> revisions)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		Review newReview = null;
-		newReview = session.createReviewFromRevision(review, revisions);
-
-		return newReview;
+		return session.createReviewFromRevision(review, revisions);
 	}
 
 	public Review addRevisionsToReview(ConnectionCfg server, PermId permId, String repository, List<String> revisions)
@@ -329,7 +349,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	/**
 	 * Creates new review in Crucible
 	 *
-	 * @param server
+	 * @param server connection configuration
 	 * @param review data for new review to create (some fields have to be set e.g. projectKey)
 	 * @param patch  patch to assign with the review
 	 * @return created revew date
@@ -458,11 +478,6 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	}
 
 
-    public List<User> getAllowedReviewers(ConnectionCfg server, String projectKey) throws RemoteApiException,
-            ServerPasswordNotProvidedException {
-        CrucibleSession session = getSession(server);
-		return session.getAllowedReviewers(projectKey);
-    }
 	public List<User> getUsers(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getUsers();
@@ -471,7 +486,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	/**
 	 * Retrieves list of projects defined on Crucible server
 	 *
-	 * @param server
+	 * @param server connection configuration
 	 * @return
 	 * @throws RemoteApiException
 	 * @throws ServerPasswordNotProvidedException
@@ -480,13 +495,13 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	public List<CrucibleProject> getProjects(ConnectionCfg server) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		return session.getProjectsFromCache();
+		return session.getProjects();
 	}
 
 	/**
 	 * Retrieves list of repositories defined on Crucible server
 	 *
-	 * @param server
+	 * @param server connection configuration
 	 * @return
 	 * @throws RemoteApiException
 	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException

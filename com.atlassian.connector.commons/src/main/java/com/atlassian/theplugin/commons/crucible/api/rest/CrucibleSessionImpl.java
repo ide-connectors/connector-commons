@@ -584,7 +584,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         if (getServerVersion().isVersion2OrGreater()) {
             List<User> allowedReviewers = new ArrayList<User>();
             for (String userName : project.getAllowedReviewers()) {
-                for(User u : reviewers) {
+                for (User u : reviewers) {
                     if (u.getUsername().equals(userName)) {
                         allowedReviewers.add(u);
                     }

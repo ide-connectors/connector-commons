@@ -25,13 +25,17 @@ import org.jdom.output.XMLOutputter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class GetProjectsCallback implements JettyMockServer.Callback {
 	private int size;
+    private boolean crucible2Version = false;
 
-	public GetProjectsCallback(int size) {
+    public GetProjectsCallback(int size, boolean isCrucible2Version) {
 		this.size = size;
-	}
+        crucible2Version = isCrucible2Version;
+    }
 
 	public void onExpectedRequest(String target,
 								  HttpServletRequest request, HttpServletResponse response)
@@ -64,6 +68,13 @@ public class GetProjectsCallback implements JettyMockServer.Callback {
 		addTag(projectData, "name", "ProjectName" + Integer.toString(i));
 		addTag(projectData, "permissionSchemeId", "1");
 
+        if (crucible2Version) {
+            Collection<String> userNames = new ArrayList<String>();
+            userNames.add("u" + i);
+            userNames.add("w" + i);
+            addUserNames(projectData, "allowedReviewers", "userName", userNames);
+        }
+
 		return projectData;
 	}
 
@@ -71,6 +82,17 @@ public class GetProjectsCallback implements JettyMockServer.Callback {
     void addTag(Element root, String tagName, String tagValue) {
 		Element newElement = new Element(tagName);
 		newElement.addContent(tagValue);
+        root.getContent().add(newElement);
+	}
+
+     @SuppressWarnings("unchecked")
+    void addUserNames(Element root, String tagName, String elementName, Collection<String> tagValues) {
+		Element newElement = new Element(tagName);
+        for (String value : tagValues) {
+            Element el = new Element(elementName);
+            el.addContent(value);
+            newElement.addContent(el);
+        }
         root.getContent().add(newElement);
 	}
 }

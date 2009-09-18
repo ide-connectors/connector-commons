@@ -17,20 +17,32 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 import java.io.Serializable;
+import java.util.Collection;
 
+//
+//* @parm allowedReviewers is != null for Cru 2.0 or greater
+//*
 public class CrucibleProject implements Serializable {
 	private final String id;
 	private final String key;
 	private final String name;
-	private static final int HASH_INT = 31;
 
-	public CrucibleProject(String id, String key, String name) {
+    private final Collection<String> allowedReviewers;
+    private static final int HASH_INT = 31;
+
+	public CrucibleProject(String id, String key, String name, Collection<String> allowedReviewers) {
 		this.id = id;
 		this.key = key;
 		this.name = name;
-	}
+        this.allowedReviewers = allowedReviewers;
+    }
 
-	public String getId() {
+    /* @Nullable */
+    public Collection<String> getAllowedReviewers() {
+        return allowedReviewers;
+    }
+
+    public String getId() {
 		return id;
 	}
 
@@ -70,6 +82,7 @@ public class CrucibleProject implements Serializable {
 		result = (id != null ? id.hashCode() : 0);
 		result = HASH_INT * result + (key != null ? key.hashCode() : 0);
 		result = HASH_INT * result + (name != null ? name.hashCode() : 0);
+        result = HASH_INT * result + (allowedReviewers != null ? allowedReviewers.hashCode() : 0);
 		return result;
 	}
 }

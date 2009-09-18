@@ -6,7 +6,9 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import junit.framework.TestCase;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class ProjectCacheTest extends TestCase {
@@ -94,14 +96,22 @@ public class ProjectCacheTest extends TestCase {
 	}
 
 	private List<CrucibleProject> createProjectsList() {
-		CrucibleProject project1 = new CrucibleProject("id-1", "A", "A");
-		CrucibleProject project2 = new CrucibleProject("id-2", "B", "B");
+        Collection<String> usersNames = new ArrayList<String>();
+          usersNames.add("Ala");
+          usersNames.add("Zosia");
+
+		CrucibleProject project1 = new CrucibleProject("id-1", "A", "A", usersNames);
+		CrucibleProject project2 = new CrucibleProject("id-2", "B", "B", usersNames);
 		return Arrays.asList((CrucibleProject) project1, (CrucibleProject) project2);
 	}
 
 	private List<CrucibleProject> createProjectsList2() {
-		CrucibleProject project1 = new CrucibleProject("id-3", "C", "C");
-		CrucibleProject project2 = new CrucibleProject("id-4", "D", "D");
+        Collection<String> usersNames = new ArrayList<String>();
+          usersNames.add("Ala");
+          usersNames.add("Zosia");
+
+		CrucibleProject project1 = new CrucibleProject("id-3", "C", "C", usersNames);
+		CrucibleProject project2 = new CrucibleProject("id-4", "D", "D", usersNames);
 		return Arrays.asList((CrucibleProject) project1, (CrucibleProject) project2);
 	}
 }

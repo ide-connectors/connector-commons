@@ -43,6 +43,10 @@ public class CrucibleVersionInfoBean implements CrucibleVersionInfo {
         return releaseNumber;
     }
 
+    public boolean isVersion2OrGreater() {
+        return releaseNumber.length() > 3 && releaseNumber.startsWith("2");
+    }
+
     public void setReleaseNumber(String releaseNumber) {
         this.releaseNumber = releaseNumber;
     }

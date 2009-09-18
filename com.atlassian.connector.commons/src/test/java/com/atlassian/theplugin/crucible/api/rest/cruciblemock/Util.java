@@ -20,6 +20,7 @@ import static junit.framework.Assert.fail;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 public final class Util {
@@ -40,4 +41,9 @@ public final class Util {
 			fail(e.getMessage());
 		}
 	}
+
+    public static InputStream getResource(String resource) {
+        BufferedInputStream is = new BufferedInputStream(Util.class.getResourceAsStream(RESOURCE_BASE + resource));
+        return is;
+    }
 }

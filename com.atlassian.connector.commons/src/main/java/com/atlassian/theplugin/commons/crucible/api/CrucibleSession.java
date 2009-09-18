@@ -139,4 +139,6 @@ public interface CrucibleSession {
     void markCommentLeaveRead(PermId reviewId, PermId commentId) throws RemoteApiException;
 
     void markAllCommentsRead(PermId reviewId) throws RemoteApiException;
+
+    List<User> getAllowedReviewers(String projectKey) throws RemoteApiException;
 }

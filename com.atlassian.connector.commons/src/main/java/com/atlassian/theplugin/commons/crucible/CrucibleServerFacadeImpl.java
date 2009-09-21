@@ -49,6 +49,7 @@ import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -116,9 +117,11 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 		return user != null ? user.getDisplayName() : null;
 	}
 
+	// this method (and the method above is broken wrt to its design
+	// @todo eliminate user cache from here, do not swollow exception, etc.
 	@Nullable
 	public User getUser(@NotNull final ConnectionCfg server, String username) {
-		return userCache.getUser(this, server, username, false);
+		return userCache.getUser(this, server, username, true);
 	}
 
 

@@ -6,13 +6,6 @@ import static junitx.framework.Assert.assertNotEquals;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * Created by IntelliJ IDEA.
- * User: pniewiadomski
- * Date: 2009-07-23
- * Time: 16:28:48
- * To change this template use File | Settings | File Templates.
- */
 public class CrucibleProjectTest extends TestCase {
 
 	public void testEquals() {
@@ -26,6 +19,7 @@ public class CrucibleProjectTest extends TestCase {
 		CrucibleProject p4 = new CrucibleProject("2", "X", "3", usersNames);
 		CrucibleProject p5 = new CrucibleProject("1", "2", "X", usersNames);
 
+		//noinspection ObjectEqualsNull
 		assertFalse(p1.equals(null));
 		assertTrue(p1.equals(p1));
 

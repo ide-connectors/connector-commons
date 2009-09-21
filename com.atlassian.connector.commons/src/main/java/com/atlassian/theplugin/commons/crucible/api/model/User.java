@@ -80,4 +80,9 @@ public class User implements Serializable {
     public int compareTo(User that) {
         return this.userName.compareTo(that.getUsername());
     }
+
+	@Override
+	public String toString() {
+		return "User [[" + userName + "], [" + displayName + "]]";
+	}
 }

@@ -283,7 +283,7 @@ public abstract class AbstractHttpSession {
 
 					throw new IOException(errorDescription);
 				} else {
-					final byte[] result = method.getResponseBody();
+					final byte[] result = method.getResponseBodyAsString().getBytes();
 					final String lastModified = method.getResponseHeader("Last-Modified") == null ? null
 							: method.getResponseHeader("Last-Modified").getValue();
 					final String eTag = method.getResponseHeader("Etag") == null ? null : method.getResponseHeader(

@@ -1,12 +1,13 @@
 package com.atlassian.theplugin.commons.crucible.api;
 
+// @todo ideally byte arrays should be replaced by input streams
 public class UploadItem {
 	private final String fileName;
-	private final String oldContent;
-	private final String newContent;
+	private final byte[] oldContent;
+	private final byte[] newContent;
 	private final String oldRevision;
 
-	public UploadItem(final String fileName, final String oldContent, final String newContent, final String oldRevision) {
+	public UploadItem(final String fileName, final byte[] oldContent, final byte[] newContent, final String oldRevision) {
 		this.fileName = fileName;
 		this.oldContent = oldContent;
 		this.newContent = newContent;
@@ -17,11 +18,11 @@ public class UploadItem {
 		return fileName;
 	}
 
-	public String getOldContent() {
+	public byte[] getOldContent() {
 		return oldContent;
 	}
 
-	public String getNewContent() {
+	public byte[] getNewContent() {
 		return newContent;
 	}
 

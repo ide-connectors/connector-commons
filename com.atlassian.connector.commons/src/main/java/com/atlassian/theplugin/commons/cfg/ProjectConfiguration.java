@@ -156,15 +156,19 @@ public class ProjectConfiguration {
 	}
 
 	public ServerIdImpl getDefaultCrucibleServerId() {
-		return defaultCrucibleServerId;
+		if (defaultCrucibleServerId == null && getAllCrucibleServers().size() == 1) {
+            defaultCrucibleServerId = getAllCrucibleServers().iterator().next().getServerId();
+        }
+
+        return defaultCrucibleServerId;
 	}
 
 	public CrucibleServerCfg getDefaultCrucibleServer() {
-		if (defaultCrucibleServerId == null) {
+		if (getDefaultCrucibleServerId() == null) {
 			return null;
 		}
 
-		ServerCfg serverCfg = getServerCfg(defaultCrucibleServerId);
+		ServerCfg serverCfg = getServerCfg(getDefaultCrucibleServerId());
 
 		// no additional check - let IDE handle such error in a standard way (error dialog)
 		// in unlikely event of some fuck-up
@@ -184,15 +188,18 @@ public class ProjectConfiguration {
 	}
 
 	public ServerIdImpl getDefaultFishEyeServerId() {
+        if (defaultFishEyeServerId == null && getAllFisheyeServers().size() == 1) {
+            defaultFishEyeServerId = getAllFisheyeServers().iterator().next().getServerId();
+        }
 		return defaultFishEyeServerId;
 	}
 
 	public FishEyeServer getDefaultFishEyeServer() {
-		if (defaultFishEyeServerId == null) {
+		if (getDefaultFishEyeServerId() == null) {
 			return null;
 		}
 
-		final ServerCfg serverCfg = getServerCfg(defaultFishEyeServerId);
+		final ServerCfg serverCfg = getServerCfg(getDefaultFishEyeServerId());
 
 		// no additional check - let IDE handle such error in a standard way (error dialog)
 		// in unlikely event of some fuck-up
@@ -215,15 +222,19 @@ public class ProjectConfiguration {
 	}
 
 	public ServerId getDefaultJiraServerId() {
+        if (defaultJiraServerId == null && getAllJIRAServers().size() == 1) {
+             defaultJiraServerId = getAllJIRAServers().iterator().next().getServerId();
+        }
+
 		return defaultJiraServerId;
 	}
 
 	public JiraServerCfg getDefaultJiraServer() {
-		if (defaultJiraServerId == null) {
+		if (getDefaultJiraServerId() == null) {
 			return null;
 		}
 
-		ServerCfg serverCfg = getServerCfg(defaultJiraServerId);
+		ServerCfg serverCfg = getServerCfg(getDefaultJiraServerId());
 
 		// no additional check - let IDE handle such error in a standard way (error dialog)
 		// in unlikely event of some fuck-up
@@ -271,11 +282,11 @@ public class ProjectConfiguration {
 	}
 
 	public boolean isDefaultFishEyeServerValid() {
-		if (defaultFishEyeServerId == null) {
+		if (getDefaultFishEyeServerId() == null) {
 			return true;
 		}
 
-		ServerCfg serverCfg = getServerCfg(defaultFishEyeServerId);
+		ServerCfg serverCfg = getServerCfg(getDefaultFishEyeServerId());
 		if (serverCfg == null) {
 			return false;
 		}
@@ -285,11 +296,11 @@ public class ProjectConfiguration {
 	}
 
 	public boolean isDefaultCrucibleServerValid() {
-		if (defaultCrucibleServerId == null) {
+		if (getDefaultCrucibleServerId() == null) {
 			return true;
 		}
 
-		ServerCfg serverCfg = getServerCfg(defaultCrucibleServerId);
+		ServerCfg serverCfg = getServerCfg(getDefaultCrucibleServerId());
 
 		// no additional check - let IDE handle such error in a standard way (error dialog)
 		// in unlikely event of some fuck-up
@@ -298,11 +309,11 @@ public class ProjectConfiguration {
 	}
 
 	public boolean isDefaultJiraServerValid() {
-		if (defaultJiraServerId == null) {
+		if (getDefaultJiraServerId() == null) {
 			return true;
 		}
 
-		ServerCfg serverCfg = getServerCfg(defaultJiraServerId);
+		ServerCfg serverCfg = getServerCfg(getDefaultJiraServerId());
 
 		// no additional check - let IDE handle such error in a standard way (error dialog)
 		// in unlikely event of some fuck-up

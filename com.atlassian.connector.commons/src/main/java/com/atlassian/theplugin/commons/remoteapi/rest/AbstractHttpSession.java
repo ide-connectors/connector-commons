@@ -45,10 +45,12 @@ import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -211,7 +213,7 @@ public abstract class AbstractHttpSession {
 					throw new IOException("HTTP " + method.getStatusCode() + " ("
 							+ HttpStatus.getStatusText(method.getStatusCode()) + ")\n" + method.getStatusText());
 				} else {
-					return method.getResponseBodyAsString();
+					return getResponseBodyAsString(method);
 				}
 			} catch (NullPointerException e) {
 				throw createIOException("Connection error", e);
@@ -275,7 +277,7 @@ public abstract class AbstractHttpSession {
 							+ HttpStatus.getStatusText(method.getStatusCode()) + ")";
 					LoggerImpl.getInstance().info(errorDescription + "\n" + method.getStatusText());
 
-					throw createIOException(errorDescription, new Exception(method.getResponseBodyAsString()));
+					throw createIOException(errorDescription, new Exception(getResponseBodyAsString(method)));
 				} else if (method.getStatusCode() != HttpStatus.SC_OK) {
 					final String errorDescription = "HTTP " + method.getStatusCode() + " ("
 							+ HttpStatus.getStatusText(method.getStatusCode()) + ")";
@@ -283,7 +285,7 @@ public abstract class AbstractHttpSession {
 
 					throw new IOException(errorDescription);
 				} else {
-					final byte[] result = method.getResponseBodyAsString().getBytes();
+					final byte[] result = getResponseBodyAsString(method).getBytes();
 					final String lastModified = method.getResponseHeader("Last-Modified") == null ? null
 							: method.getResponseHeader("Last-Modified").getValue();
 					final String eTag = method.getResponseHeader("Etag") == null ? null : method.getResponseHeader(
@@ -306,6 +308,26 @@ public abstract class AbstractHttpSession {
 			}
 		}
 	}
+
+
+    private String getResponseBodyAsString(final GetMethod method) throws IOException {
+        BufferedInputStream bis = new BufferedInputStream(method.getResponseBodyAsStream());
+        String dataStr = null;
+        StringBuffer sb = new StringBuffer();
+        byte[] bytes = new byte[8192]; // reading as chunk of 8192
+
+        int count = bis.read(bytes);
+        while (count != -1 && count <= 8192) {
+            dataStr = new String(Arrays.copyOf(bytes, count));
+            sb.append(dataStr);
+            dataStr = null;
+            count = bis.read(bytes);
+        }
+
+        bis.close();
+
+        return sb.toString();
+    }
 
 	/**
 	 * Helper method needed because IOException in Java 1.5 does not have constructor taking "cause"

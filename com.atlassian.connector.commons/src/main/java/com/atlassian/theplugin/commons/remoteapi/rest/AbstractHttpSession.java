@@ -50,7 +50,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -318,7 +317,7 @@ public abstract class AbstractHttpSession {
 
         int count = bis.read(bytes);
         while (count != -1 && count <= 8192) {
-            dataStr = new String(Arrays.copyOf(bytes, count));
+            dataStr = getString(bytes, count);
             sb.append(dataStr);
             dataStr = null;
             count = bis.read(bytes);
@@ -327,6 +326,12 @@ public abstract class AbstractHttpSession {
         bis.close();
 
         return sb.toString();
+    }
+
+    private String getString(final byte[] bytes, final int size) {        
+        byte[] newBytes = new byte[size];
+        System.arraycopy(bytes, 0, newBytes, 0, size);
+        return new String(newBytes);
     }
 
 	/**

@@ -211,7 +211,7 @@ public abstract class AbstractHttpSession {
 					throw new IOException("HTTP " + method.getStatusCode() + " ("
 							+ HttpStatus.getStatusText(method.getStatusCode()) + ")\n" + method.getStatusText());
 				} else {
-					return new String(method.getResponseBody());
+					return method.getResponseBodyAsString();
 				}
 			} catch (NullPointerException e) {
 				throw createIOException("Connection error", e);
@@ -275,7 +275,7 @@ public abstract class AbstractHttpSession {
 							+ HttpStatus.getStatusText(method.getStatusCode()) + ")";
 					LoggerImpl.getInstance().info(errorDescription + "\n" + method.getStatusText());
 
-					throw createIOException(errorDescription, new Exception(new String(method.getResponseBodyAsString())));
+					throw createIOException(errorDescription, new Exception(method.getResponseBodyAsString()));
 				} else if (method.getStatusCode() != HttpStatus.SC_OK) {
 					final String errorDescription = "HTTP " + method.getStatusCode() + " ("
 							+ HttpStatus.getStatusText(method.getStatusCode()) + ")";
@@ -306,7 +306,6 @@ public abstract class AbstractHttpSession {
 			}
 		}
 	}
-
 
 	/**
 	 * Helper method needed because IOException in Java 1.5 does not have constructor taking "cause"

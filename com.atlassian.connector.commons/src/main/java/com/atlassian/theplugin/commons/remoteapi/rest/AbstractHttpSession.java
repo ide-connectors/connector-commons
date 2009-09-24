@@ -211,7 +211,7 @@ public abstract class AbstractHttpSession {
 					throw new IOException("HTTP " + method.getStatusCode() + " ("
 							+ HttpStatus.getStatusText(method.getStatusCode()) + ")\n" + method.getStatusText());
 				} else {
-					return new String(getResponseBodyAsBytes(method));
+					return new String(method.getResponseBody());
 				}
 			} catch (NullPointerException e) {
 				throw createIOException("Connection error", e);
@@ -275,7 +275,7 @@ public abstract class AbstractHttpSession {
 							+ HttpStatus.getStatusText(method.getStatusCode()) + ")";
 					LoggerImpl.getInstance().info(errorDescription + "\n" + method.getStatusText());
 
-					throw createIOException(errorDescription, new Exception(new String(getResponseBodyAsBytes(method))));
+					throw createIOException(errorDescription, new Exception(new String(method.getResponseBodyAsString())));
 				} else if (method.getStatusCode() != HttpStatus.SC_OK) {
 					final String errorDescription = "HTTP " + method.getStatusCode() + " ("
 							+ HttpStatus.getStatusText(method.getStatusCode()) + ")";
@@ -283,7 +283,7 @@ public abstract class AbstractHttpSession {
 
 					throw new IOException(errorDescription);
 				} else {
-					final byte[] result = getResponseBodyAsBytes(method);
+					final byte[] result = method.getResponseBody();
 					final String lastModified = method.getResponseHeader("Last-Modified") == null ? null
 							: method.getResponseHeader("Last-Modified").getValue();
 					final String eTag = method.getResponseHeader("Etag") == null ? null : method.getResponseHeader(
@@ -307,36 +307,6 @@ public abstract class AbstractHttpSession {
 		}
 	}
 
-
-
-
-     private byte[] getResponseBodyAsBytes(final GetMethod method) throws IOException {
-//        BufferedInputStream bis = new BufferedInputStream(method.getResponseBodyAsStream());
-//        String dataStr = null;
-//        StringBuffer sb = new StringBuffer();
-//        byte[] bytes = new byte[8192]; // reading as chunk of 8192
-//        byte[] totalBytes = null;
-//        int totalBytesCount = 0;
-//
-//        int count = bis.read(bytes);
-//        while (count != -1 && count <= 8192) {
-//            byte[] tmpBuffer = new byte[totalBytesCount + count];
-//            if (totalBytesCount > 0) {
-//                System.arraycopy(totalBytes, 0, tmpBuffer, 0, totalBytesCount);
-//            }
-//
-//            System.arraycopy(bytes, 0, tmpBuffer, totalBytesCount, count);
-//
-//            totalBytes = tmpBuffer;
-//            totalBytesCount += count;
-//            count = bis.read(bytes);
-//        }
-//
-//        bis.close();
-//
-//        return totalBytes;
-         return method.getResponseBodyAsString().getBytes();
-    }
 
 	/**
 	 * Helper method needed because IOException in Java 1.5 does not have constructor taking "cause"

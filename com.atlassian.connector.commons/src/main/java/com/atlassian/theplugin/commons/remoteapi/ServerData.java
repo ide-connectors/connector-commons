@@ -16,6 +16,7 @@
 package com.atlassian.theplugin.commons.remoteapi;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.connector.commons.api.HttpConnectionCfg;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.cfg.Server;
 import com.atlassian.theplugin.commons.cfg.ServerId;
@@ -30,7 +31,8 @@ public class ServerData implements Comparable<ServerData> {
 	private final String username;
 	private final String password;
 
-	/**
+
+    /**
 	 * That constructor should not be used as it is not compatible with default credentials. UnitTest usages should be removed
 	 * and replaced by other mechanism.
 	 *
@@ -127,6 +129,7 @@ public class ServerData implements Comparable<ServerData> {
 		return true;
 	}
 
+
 	@Override
 	public int hashCode() {
 		int result;
@@ -146,5 +149,10 @@ public class ServerData implements Comparable<ServerData> {
 	public int compareTo(ServerData o) {
 		ServerDataComparator c = new ServerDataComparator();
 		return c.compare(this, o);
+    }
+
+
+    public HttpConnectionCfg toHttpConnectionCfg() {
+        return new HttpConnectionCfg(getServerId().getId(), getUrl(), getUsername(), getPassword(), false);
     }
 }

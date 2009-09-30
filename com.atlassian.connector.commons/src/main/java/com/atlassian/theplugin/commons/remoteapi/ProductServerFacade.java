@@ -16,12 +16,12 @@
 
 package com.atlassian.theplugin.commons.remoteapi;
 
-import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.connector.commons.api.HttpConnectionCfg;
 import com.atlassian.theplugin.commons.ServerType;
 
 public interface ProductServerFacade {
 
-	void testServerConnection(ConnectionCfg connectionCfg) throws RemoteApiException;
+	void testServerConnection(HttpConnectionCfg httpConnectionCfg) throws RemoteApiException;
 
 	ServerType getServerType();
 }

@@ -1,8 +1,9 @@
 package com.atlassian.theplugin.commons.jira;
 
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
+import com.atlassian.connector.commons.api.HttpConnectionCfg;
 import com.atlassian.theplugin.commons.cfg.Server;
 import com.atlassian.theplugin.commons.cfg.UserCfg;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -25,5 +26,9 @@ public class JiraServerData extends ServerData {
 
     public boolean isDontUseBasicAuth() {
         return dontUseBasicAuth;
+    }
+
+    public HttpConnectionCfg toHttpConnectionCfg() {
+        return new HttpConnectionCfg(getServerId().toString(), getUrl(), getUsername(), getPassword(), !dontUseBasicAuth);
     }
 }

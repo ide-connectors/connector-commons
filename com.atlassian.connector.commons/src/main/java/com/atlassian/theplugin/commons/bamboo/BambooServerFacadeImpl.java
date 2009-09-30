@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.bamboo;
 
 import com.atlassian.connector.commons.api.BambooServerFacade2;
 import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.connector.commons.api.HttpConnectionCfg;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.bamboo.api.AutoRenewBambooSession;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
@@ -118,15 +119,15 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 	/**
 	 * Test connection to Bamboo server.
 	 *
-	 * @param serverData
+	 * @param httpConnectionCfg
 	 *            The configuration for the server that we want to test the connection for
 	 * @throws RemoteApiException
 	 *             on failed login
 	 * @see RemoteApiLoginFailedException
 	 */
-	public void testServerConnection(ConnectionCfg serverData) throws RemoteApiException {
-		ProductSession apiHandler = bambooSessionFactory.createLoginSession(serverData, callback);
-		apiHandler.login(serverData.getUsername(), serverData.getPassword().toCharArray());
+	public void testServerConnection(HttpConnectionCfg httpConnectionCfg) throws RemoteApiException {
+		ProductSession apiHandler = bambooSessionFactory.createLoginSession(httpConnectionCfg, callback);
+		apiHandler.login(httpConnectionCfg.getUsername(), httpConnectionCfg.getPassword().toCharArray());
 		apiHandler.logout();
 	}
 

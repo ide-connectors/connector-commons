@@ -353,7 +353,6 @@ public class ProjectConfiguration {
 				crucibleServers.add((CrucibleServerCfg) server);
 			}
 		}
-
 		return crucibleServers;
 
 	}

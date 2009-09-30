@@ -17,6 +17,7 @@
 package com.atlassian.theplugin.commons.crucible;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.connector.commons.api.HttpConnectionCfg;
 import com.atlassian.connector.commons.crucible.CrucibleServerFacade2;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleLoginException;
@@ -171,7 +172,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	 *                            if Crucible version is not supported
 	 * @throws RemoteApiException if it's not possible to authenticate user on specified server
 	 */
-	public void testServerConnection(ConnectionCfg serverCfg) throws RemoteApiException {
+	public void testServerConnection(HttpConnectionCfg serverCfg) throws RemoteApiException {
 		final CrucibleSession session = new CrucibleSessionImpl(serverCfg, callback);
 		session.login();
 		try {

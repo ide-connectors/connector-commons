@@ -1,6 +1,7 @@
 package com.atlassian.theplugin.commons.fisheye;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.connector.commons.api.HttpConnectionCfg;
 import com.atlassian.connector.commons.fisheye.FishEyeServerFacade2;
 import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
@@ -91,7 +92,7 @@ public class FishEyeServerFacadeTest extends TestCase {
 	public void testConnectionTestInvalidUrlIncludesPassword() throws Exception {
 		try {
 			FishEyeServerFacade2 facade = new FishEyeServerFacadeImpl(new TestHttpSessionCallbackImpl());
-			facade.testServerConnection(new ConnectionCfg("id", "http://invalid url", USER_NAME, PASSWORD));
+			facade.testServerConnection(new HttpConnectionCfg("id", "http://invalid url", USER_NAME, PASSWORD, false));
 			fail("Should throw RemoteApiLoginException");
 		} catch (RemoteApiException e) {
 			assertFalse("Message should not include users's password", e.getMessage().contains(PASSWORD));

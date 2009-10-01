@@ -20,4 +20,7 @@ public class HttpConnectionCfg extends ConnectionCfg {
         return useBasicHttpAuth;
     }
 
+    public ConnectionCfg toConnectionCfg() {
+        return new ConnectionCfg(getId(), getUsername(), getUrl(), getPassword());
+    }
 }

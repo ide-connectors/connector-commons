@@ -16,7 +16,7 @@
 
 package com.atlassian.theplugin.crucible;
 
-import com.atlassian.connector.commons.api.HttpConnectionCfg;
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.crucible.CrucibleServerFacade2;
 import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
@@ -41,7 +41,7 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 	private String mockBaseUrl;
 	public static final String INVALID_PROJECT_KEY = "INVALID project key";
 	private CrucibleServerFacade2 testedCrucibleServerFacade;
-	private HttpConnectionCfg crucibleServerCfg;
+	private ConnectionCfg crucibleServerCfg;
 
 	@Override
 	protected void setUp() throws Exception {
@@ -56,8 +56,8 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 		ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
 	}
 
-	private static HttpConnectionCfg createCrucibleTestConfiguration(String serverUrl, boolean isPassInitialized) {
-		return new HttpConnectionCfg("id", serverUrl, USER_NAME, isPassInitialized ? PASSWORD : "", false);
+	private static ConnectionCfg createCrucibleTestConfiguration(String serverUrl, boolean isPassInitialized) {
+		return new ConnectionCfg("id", serverUrl, USER_NAME, isPassInitialized ? PASSWORD : "");
 	}
 
 	@Override
@@ -107,9 +107,9 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 
 	public void testConnectionTestFailedNullUser() throws Exception {
 		try {
-			HttpConnectionCfg server =
-					new HttpConnectionCfg(crucibleServerCfg.getId(), crucibleServerCfg.getUrl(), null, crucibleServerCfg
-							.getPassword(), false);
+			ConnectionCfg server =
+					new ConnectionCfg(crucibleServerCfg.getId(), crucibleServerCfg.getUrl(), null, crucibleServerCfg
+							.getPassword());
 			testedCrucibleServerFacade.testServerConnection(server);
 			fail();
 		} catch (RemoteApiLoginException e) {
@@ -120,9 +120,9 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 
 	public void testConnectionTestFailedNullPassword() throws Exception {
 		try {
-			HttpConnectionCfg server =
-					new HttpConnectionCfg(crucibleServerCfg.getId(), crucibleServerCfg.getUrl(), crucibleServerCfg.getUsername(),
-							null, false);
+			ConnectionCfg server =
+					new ConnectionCfg(crucibleServerCfg.getId(), crucibleServerCfg.getUrl(), crucibleServerCfg.getUsername(),
+							null);
 			testedCrucibleServerFacade.testServerConnection(server);
 			fail();
 		} catch (RemoteApiLoginException e) {
@@ -132,9 +132,9 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 
 	public void testConnectionTestFailedNullUrl() throws Exception {
 		try {
-			HttpConnectionCfg server =
-					new HttpConnectionCfg(crucibleServerCfg.getId(), null, crucibleServerCfg.getUsername(), crucibleServerCfg
-							.getPassword(), false);
+			ConnectionCfg server =
+					new ConnectionCfg(crucibleServerCfg.getId(), null, crucibleServerCfg.getUsername(), crucibleServerCfg
+							.getPassword());
 			testedCrucibleServerFacade.testServerConnection(server);
 			fail();
 		} catch (RemoteApiMalformedUrlException e) {

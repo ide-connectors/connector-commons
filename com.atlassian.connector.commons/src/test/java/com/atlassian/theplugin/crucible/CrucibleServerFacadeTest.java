@@ -16,7 +16,7 @@
 
 package com.atlassian.theplugin.crucible;
 
-import com.atlassian.connector.commons.api.HttpConnectionCfg;
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.crucible.CrucibleServerFacade2;
 import com.atlassian.connector.commons.misc.ErrorResponse;
 import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
@@ -795,8 +795,8 @@ public class CrucibleServerFacadeTest extends TestCase {
 		}
 	}
 
-	private HttpConnectionCfg getServerData(final ServerCfg serverCfg) {
-		return new HttpConnectionCfg(serverCfg.getServerId().getId(), serverCfg.getUrl(), serverCfg.getUsername(), serverCfg
-				.getPassword(), false);
+	private ConnectionCfg getServerData(final ServerCfg serverCfg) {
+		return new ConnectionCfg(serverCfg.getServerId().getId(), serverCfg.getUrl(), serverCfg.getUsername(), serverCfg
+				.getPassword());
 	}
 }

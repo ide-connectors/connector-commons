@@ -167,13 +167,17 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 //	}
 
 	/**
-	 * @param serverCfg The configuration for the server that we want to test the connection for
+	 * @param httpConnectionCfg The configuration for the server that we want to test the connection for
 	 * @throws com.atlassian.theplugin.commons.crucible.api.CrucibleException
 	 *                            if Crucible version is not supported
 	 * @throws RemoteApiException if it's not possible to authenticate user on specified server
 	 */
-	public void testServerConnection(HttpConnectionCfg serverCfg) throws RemoteApiException {
-		final CrucibleSession session = new CrucibleSessionImpl(serverCfg, callback);
+	public void testServerConnection(HttpConnectionCfg httpConnectionCfg) throws RemoteApiException {
+	    testServerConnection(httpConnectionCfg.toConnectionCfg());
+	}
+
+    public void testServerConnection(ConnectionCfg connectionCfg) throws RemoteApiException {
+       	final CrucibleSession session = new CrucibleSessionImpl(connectionCfg, callback);
 		session.login();
 		try {
 			session.getServerVersion();
@@ -190,7 +194,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 			throw e;
 		}
 		session.logout();
-	}
+    }
 
 //	public CrucibleVersionInfo getServerVersion(CrucibleServerCfg server)
 //			throws RemoteApiException, ServerPasswordNotProvidedException {

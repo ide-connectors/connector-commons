@@ -126,12 +126,16 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 	 * @see RemoteApiLoginFailedException
 	 */
 	public void testServerConnection(HttpConnectionCfg httpConnectionCfg) throws RemoteApiException {
+        testServerConnection(httpConnectionCfg.toConnectionCfg());
+	}
+
+    public void testServerConnection(ConnectionCfg httpConnectionCfg) throws RemoteApiException {
 		ProductSession apiHandler = bambooSessionFactory.createLoginSession(httpConnectionCfg, callback);
 		apiHandler.login(httpConnectionCfg.getUsername(), httpConnectionCfg.getPassword().toCharArray());
 		apiHandler.logout();
-	}
+    }
 
-	/**
+    /**
 	 * List projects defined on Bamboo server.
 	 *
 	 * @param bambooServer Bamboo server information

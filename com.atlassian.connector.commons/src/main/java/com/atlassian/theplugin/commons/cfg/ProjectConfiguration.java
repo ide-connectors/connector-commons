@@ -157,7 +157,11 @@ public class ProjectConfiguration {
 
 	public ServerIdImpl getDefaultCrucibleServerId() {
 		if (defaultCrucibleServerId == null && getAllCrucibleServers().size() == 1) {
-            defaultCrucibleServerId = getAllCrucibleServers().iterator().next().getServerId();
+
+            final CrucibleServerCfg serverCfg = getAllCrucibleServers().iterator().next();
+            if (serverCfg.isEnabled()) {
+                defaultCrucibleServerId = serverCfg.getServerId();
+            }
         }
 
         return defaultCrucibleServerId;
@@ -189,7 +193,10 @@ public class ProjectConfiguration {
 
 	public ServerIdImpl getDefaultFishEyeServerId() {
         if (defaultFishEyeServerId == null && getAllFisheyeServers().size() == 1) {
-            defaultFishEyeServerId = getAllFisheyeServers().iterator().next().getServerId();
+            final FishEyeServerCfg cfg = getAllFisheyeServers().iterator().next();
+            if (cfg.isEnabled()) {
+                defaultFishEyeServerId = cfg.getServerId();
+            }
         }
 		return defaultFishEyeServerId;
 	}
@@ -223,7 +230,10 @@ public class ProjectConfiguration {
 
 	public ServerId getDefaultJiraServerId() {
         if (defaultJiraServerId == null && getAllJIRAServers().size() == 1) {
-             defaultJiraServerId = getAllJIRAServers().iterator().next().getServerId();
+            final JiraServerCfg jiraServerCfg = getAllJIRAServers().iterator().next();
+            if (jiraServerCfg.isEnabled()) {
+                defaultJiraServerId = jiraServerCfg.getServerId();
+            }
         }
 
 		return defaultJiraServerId;

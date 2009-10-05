@@ -21,6 +21,6 @@ public class HttpConnectionCfg extends ConnectionCfg {
     }
 
     public ConnectionCfg toConnectionCfg() {
-        return new ConnectionCfg(getId(), getUsername(), getUrl(), getPassword());
+        return new ConnectionCfg(getId(), getUrl(), getUsername(), getPassword());
     }
 }

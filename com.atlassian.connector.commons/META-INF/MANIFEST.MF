@@ -10,7 +10,9 @@ Require-Bundle: org.apache.commons.httpclient,
  org.joda.time,
  com.thoughtworks.xstream,
  org.jdom_jaxen,
- org.jetbrains.annotations;resolution:=optional
+ org.jetbrains.annotations;resolution:=optional,
+ org.apache.axis,
+ javax.xml.rpc
 Export-Package: com.atlassian.connector.cfg,
  com.atlassian.connector.commons.api,
  com.atlassian.connector.commons.crucible,

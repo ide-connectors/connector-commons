@@ -28,6 +28,7 @@ import java.util.TreeSet;
 public final class BambooBuildInfo implements BambooBuild {
 	private final Date pollingTime;
 	private final ConnectionCfg server;
+	@Nullable
 	private final String projectName;
 	private final String planName;
 	@NotNull
@@ -35,6 +36,7 @@ public final class BambooBuildInfo implements BambooBuild {
 	private final boolean enabled;
 	@NotNull
 	private final BuildStatus status;
+	@Nullable
 	private final Integer number;
 	@Nullable
 	private final String reason;
@@ -117,6 +119,7 @@ public final class BambooBuildInfo implements BambooBuild {
 		return url;
 	}
 
+	@Nullable
 	public String getProjectName() {
 		return projectName;
 	}

@@ -30,6 +30,7 @@ public interface BambooBuild {
 
 	String getServerUrl();
 
+	@Nullable
 	String getProjectName();
 
 	String getBuildUrl();

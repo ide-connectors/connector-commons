@@ -7,6 +7,14 @@ public class UploadItem {
 	private final byte[] newContent;
 	private final String oldRevision;
 
+	/**
+	 *
+	 * @param fileName
+	 * @param oldContent
+	 * @param newContent
+	 * @param oldRevision
+	 *            ignored now by ACC and Crucible as well
+	 */
 	public UploadItem(final String fileName, final byte[] oldContent, final byte[] newContent, final String oldRevision) {
 		this.fileName = fileName;
 		this.oldContent = oldContent;

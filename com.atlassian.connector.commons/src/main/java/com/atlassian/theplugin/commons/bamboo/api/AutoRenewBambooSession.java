@@ -22,10 +22,13 @@ import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
 import com.atlassian.theplugin.commons.bamboo.BuildIssue;
+import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
+import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
+import com.atlassian.theplugin.commons.util.Logger;
 import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.List;
@@ -35,8 +38,9 @@ public class AutoRenewBambooSession implements BambooSession {
 	private String userName;
 	private char[] password;
 
-	public AutoRenewBambooSession(ConnectionCfg serverCfg, HttpSessionCallback callback) throws RemoteApiException {
-		this.delegate = new BambooSessionImpl(serverCfg, callback);
+	public AutoRenewBambooSession(ConnectionCfg serverCfg, HttpSessionCallback callback, Logger logger)
+			throws RemoteApiException {
+		this.delegate = new BambooSessionImpl(serverCfg, callback, logger);
 	}
 
 	AutoRenewBambooSession(BambooSession bambooSession) throws RemoteApiException {
@@ -91,14 +95,13 @@ public class AutoRenewBambooSession implements BambooSession {
 	}
 
 	@NotNull
-	public BambooBuild getLatestBuildForPlan(@NotNull final String planKey, final boolean isPlanEnabled,
-			final int timezoneOffset)
+	public BambooBuild getLatestBuildForPlan(@NotNull final String planKey, final int timezoneOffset)
 			throws RemoteApiException {
 		try {
-			return delegate.getLatestBuildForPlan(planKey, isPlanEnabled, timezoneOffset);
+			return delegate.getLatestBuildForPlan(planKey, timezoneOffset);
 		} catch (RemoteApiSessionExpiredException e) {
 			delegate.login(userName, password);
-			return delegate.getLatestBuildForPlan(planKey, isPlanEnabled, timezoneOffset);
+			return delegate.getLatestBuildForPlan(planKey, timezoneOffset);
 		}
 	}
 
@@ -113,15 +116,15 @@ public class AutoRenewBambooSession implements BambooSession {
 		}
 	}
 
-	@NotNull
-	public BambooBuild getLatestBuildForPlan(@NotNull String planKey, final int timezoneOffset) throws RemoteApiException {
-		try {
-			return delegate.getLatestBuildForPlan(planKey, timezoneOffset);
-		} catch (RemoteApiSessionExpiredException e) {
-			delegate.login(userName, password);
-			return delegate.getLatestBuildForPlan(planKey, timezoneOffset);
-		}
-	}
+	// @NotNull
+	// public BambooBuild getLatestBuildForPlan(@NotNull String planKey, final int timezoneOffset) throws RemoteApiException {
+	// try {
+	// return delegate.getLatestBuildForPlan(planKey, timezoneOffset);
+	// } catch (RemoteApiSessionExpiredException e) {
+	// delegate.login(userName, password);
+	// return delegate.getLatestBuildForPlan(planKey, timezoneOffset);
+	// }
+	// }
 
 	public boolean isLoggedIn() {
 		return delegate.isLoggedIn();
@@ -188,13 +191,12 @@ public class AutoRenewBambooSession implements BambooSession {
 
 	}
 
-	@NotNull
-	public List<BambooPlan> listPlanNames() throws RemoteApiException {
+	public Collection<BambooPlan> getPlanList() throws ServerPasswordNotProvidedException, RemoteApiException {
 		try {
-			return delegate.listPlanNames();
+			return delegate.getPlanList();
 		} catch (RemoteApiSessionExpiredException e) {
 			delegate.login(userName, password);
-			return delegate.listPlanNames();
+			return delegate.getPlanList();
 		}
 	}
 
@@ -225,6 +227,16 @@ public class AutoRenewBambooSession implements BambooSession {
 		} catch (RemoteApiSessionExpiredException e) {
 			delegate.login(userName, password);
 			return delegate.getBamboBuildNumber();
+		}
+	}
+
+	public Collection<BambooBuild> getSubscribedPlansResults(Collection<SubscribedPlan> plans, boolean isUseFavourities,
+			int timezoneOffset) throws RemoteApiException {
+		try {
+			return delegate.getSubscribedPlansResults(plans, isUseFavourities, timezoneOffset);
+		} catch (RemoteApiSessionExpiredException e) {
+			delegate.login(userName, password);
+			return delegate.getSubscribedPlansResults(plans, isUseFavourities, timezoneOffset);
 		}
 	}
 }

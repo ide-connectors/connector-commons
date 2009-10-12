@@ -130,8 +130,4 @@ public class BambooPlan implements Serializable {
 	public int hashCode() {
 		return (key != null ? key.hashCode() : 0);
 	}
-
-	public enum PlanState {
-		BUILDING, IN_QUEUE, STANDING
-	}
 }

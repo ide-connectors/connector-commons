@@ -21,10 +21,11 @@ import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
 import com.atlassian.theplugin.commons.bamboo.BuildIssue;
+import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
+import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public interface BambooSession extends ProductSession {
 	List<BambooProject> listProjectNames() throws RemoteApiException;
 
 	@NotNull
-	List<BambooPlan> listPlanNames() throws RemoteApiException;
+	Collection<BambooPlan> getPlanList() throws ServerPasswordNotProvidedException, RemoteApiException;
 
 	/**
 	 * This result of this method does not contain properly set information about whether given build is enabled
@@ -63,15 +64,15 @@ public interface BambooSession extends ProductSession {
 	BambooBuild getLatestBuildForPlan(@NotNull String planKey, final int timezoneOffset) throws RemoteApiException;
 
 	@NotNull
-	BambooBuild getLatestBuildForPlan(@NotNull String planKey, boolean isPlanEnabled, final int timezoneOffset)
-			throws RemoteApiException;
-
-	@NotNull
 	BambooBuild getBuildForPlanAndNumber(@NotNull String planKey, final int buildNumber, final int timezoneOffset)
 			throws RemoteApiException;
 
 	@NotNull
 	List<String> getFavouriteUserPlans() throws RemoteApiException;
+
+	@NotNull
+	Collection<BambooBuild> getSubscribedPlansResults(final Collection<SubscribedPlan> plans, boolean isUseFavourities,
+			int timezoneOffset) throws RemoteApiException;
 
 	@NotNull
 	BuildDetails getBuildResultDetails(@NotNull String planKey, int buildNumber) throws RemoteApiException;

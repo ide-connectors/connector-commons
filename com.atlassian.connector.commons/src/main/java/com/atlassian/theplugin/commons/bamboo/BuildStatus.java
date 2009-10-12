@@ -28,9 +28,7 @@ public enum BuildStatus {
 	/**
 	 * Status unknown due to data retrieval problem
 	 */
-	UNKNOWN("Unknown"),
-	BUILDING("Building"),
-	IN_QUEUE("In Queue");
+	UNKNOWN("Unknown");
 
 	private String name;
 
@@ -46,4 +44,4 @@ public enum BuildStatus {
 	public String getName() {
 		return name;
 	}
-} 
+}

@@ -49,19 +49,16 @@ import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
-import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
-import org.easymock.IAnswer;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * {@link com.atlassian.theplugin.commons.bamboo.BambooServerFacadeImpl} test.
@@ -241,40 +238,24 @@ public class BambooServerFacadeTest extends TestCase {
 			}
 		}, new TestHttpSessionCallbackImpl());
 
+		final int hourOffset = -7;
 		final String key1 = "pl";
 		final DateTime buildDate1 = new DateTime(2009, 1, 10, 21, 29, 4, 0);
 		final BambooPlan plan1 = new BambooPlan("planname1", key1);
-		final BambooPlan plan2 = new BambooPlan("planname2-nofavourite", "keya");
 		final String key3 = "keyb";
 		final DateTime buildDate3 = new DateTime(2009, 3, 27, 1, 9, 0, 0);
 		final BambooPlan plan3 = new BambooPlan("planname3", key3, false);
 
-		List<BambooPlan> plans = MiscUtil.buildArrayList(plan1, plan2, plan3);
-		EasyMock.expect(mockSession.listPlanNames()).andReturn(plans).anyTimes();
-		EasyMock.expect(mockSession.getFavouriteUserPlans())
-				.andReturn(MiscUtil.buildArrayList("pl", "keyb"))
-				.anyTimes();
+		final BambooBuild b1 = createBambooBuildInfo(bambooServerCfg, key1, plan1.getName(), buildDate1.plusHours(hourOffset));
+		final BambooBuild b2 = createBambooBuildInfo(bambooServerCfg, key3, plan3.getName(), buildDate3.plusHours(hourOffset));
+		EasyMock.expect(mockSession.getSubscribedPlansResults(bambooServerCfg.getPlans(), true, hourOffset))
+				.andReturn(MiscUtil.buildArrayList(b1, b2));
+
 		EasyMock.expect(mockSession.isLoggedIn()).andReturn(true).anyTimes();
-		EasyMock.expect(mockSession.getLatestBuildForPlan(key1, true, -7)).andAnswer(new IAnswer<BambooBuild>() {
-			public BambooBuild answer() throws Throwable {
-				synchronized (bambooServerCfg) {
-					return createBambooBuildInfo(bambooServerCfg, key1, plan1.getName(),
-							buildDate1.plusHours(bambooServerCfg.getTimezoneOffset()));
-				}
-			}
-		}).anyTimes();
-		EasyMock.expect(mockSession.getLatestBuildForPlan(key3, false, -7)).andAnswer(new IAnswer<BambooBuild>() {
-			public BambooBuild answer() throws Throwable {
-				synchronized (bambooServerCfg) {
-					return createBambooBuildInfo(bambooServerCfg, key3, plan3.getName(),
-							buildDate3.plusHours(bambooServerCfg.getTimezoneOffset()));
-				}
-			}
-		}).anyTimes();
 		EasyMock.replay(mockSession);
 		bambooServerCfg.setUseFavourites(true);
 
-		getAndVerifyDates(facade, buildDate1, buildDate3, -7);
+		getAndVerifyDates(facade, buildDate1, buildDate3, hourOffset);
 		EasyMock.verify(mockSession);
 	}
 
@@ -296,41 +277,26 @@ public class BambooServerFacadeTest extends TestCase {
 		final String key1 = "pl";
 		final DateTime buildDate1 = new DateTime(2009, 1, 10, 21, 29, 4, 0);
 		final BambooPlan plan1 = new BambooPlan("planname1", key1);
-		final BambooPlan plan2 = new BambooPlan("planname2-nofavourite", "keya");
 		final String key3 = "keyb";
 		final DateTime buildDate3 = new DateTime(2009, 3, 27, 1, 9, 0, 0);
 		final BambooPlan plan3 = new BambooPlan("planname3", key3, false);
-		List<BambooPlan> plans = MiscUtil.buildArrayList(plan1, plan2, plan3);
-		EasyMock.expect(mockSession.listPlanNames()).andReturn(plans).anyTimes();
-		EasyMock.expect(mockSession.getFavouriteUserPlans())
-				.andReturn(MiscUtil.buildArrayList("pl", "keyb"))
-				.anyTimes();
+
+		final int hourOffset = 2;
+		final BambooBuild b1 = createBambooBuildInfo(bambooServerCfg, key1, plan1.getName(), buildDate1.plusHours(hourOffset));
+		final BambooBuild b2 = createBambooBuildInfo(bambooServerCfg, key3, plan3.getName(), buildDate3.plusHours(hourOffset));
+		EasyMock.expect(mockSession.getSubscribedPlansResults(bambooServerCfg.getPlans(), true, hourOffset)).andReturn(
+				MiscUtil.buildArrayList(b1, b2));
+
 		EasyMock.expect(mockSession.isLoggedIn()).andReturn(true).anyTimes();
-		EasyMock.expect(mockSession.getLatestBuildForPlan(key1, true, 2)).andAnswer(new IAnswer<BambooBuild>() {
-			public BambooBuild answer() throws Throwable {
-				synchronized (bambooServerCfg) {
-					return createBambooBuildInfo(bambooServerCfg, key1, plan1.getName(),
-							buildDate1.plusHours(bambooServerCfg.getTimezoneOffset()));
-				}
-			}
-		}).anyTimes();
-		EasyMock.expect(mockSession.getLatestBuildForPlan(key3, false, 2)).andAnswer(new IAnswer<BambooBuild>() {
-			public BambooBuild answer() throws Throwable {
-				synchronized (bambooServerCfg) {
-					return createBambooBuildInfo(bambooServerCfg, key3, plan3.getName(),
-							buildDate3.plusHours(bambooServerCfg.getTimezoneOffset()));
-				}
-			}
-		}).anyTimes();
 		EasyMock.replay(mockSession);
 		bambooServerCfg.setUseFavourites(true);
 
-		getAndVerifyDates(facade, buildDate1, buildDate3, 2);
+		getAndVerifyDates(facade, buildDate1, buildDate3, hourOffset);
 		EasyMock.verify(mockSession);
 	}
 
 	private Collection<BambooBuild> getAndVerifyDates(final BambooServerFacade2 facade, final DateTime buildDate1,
-			final DateTime buildDate3, final int hourOffset) throws ServerPasswordNotProvidedException, RemoteApiLoginException {
+			final DateTime buildDate3, final int hourOffset) throws ServerPasswordNotProvidedException, RemoteApiException {
 		synchronized (bambooServerCfg) {
 			bambooServerCfg.setTimezoneOffset(hourOffset);
 		}
@@ -513,7 +479,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.verify();
 	}
 
-	public void testBambooConnectionWithEmptyPlan() throws RemoteApiLoginException, CloneNotSupportedException,
+	public void testBambooConnectionWithEmptyPlan() throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
@@ -703,7 +669,8 @@ public class BambooServerFacadeTest extends TestCase {
 		assertEquals("TP-DEF", build.getPlanKey());
 		assertEquals("Plugin Default", build.getPlanName());
 		assertEquals("The Plugin", build.getProjectName());
-		assertEquals(BuildStatus.IN_QUEUE, build.getStatus());
+		assertEquals(BuildStatus.SUCCESS, build.getStatus());
+		assertEquals(PlanState.IN_QUEUE, build.getPlanState());
 		assertTrue(build.getEnabled());
 		assertTrue(build.getPollingTime().getTime() <= System.currentTimeMillis());
 		assertTrue(build.getPollingTime().getTime() >= start);

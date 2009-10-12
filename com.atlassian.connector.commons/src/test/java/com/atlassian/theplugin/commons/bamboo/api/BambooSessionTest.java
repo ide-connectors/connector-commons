@@ -29,13 +29,13 @@ import com.atlassian.theplugin.bamboo.api.bamboomock.ExecuteBuildCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultVelocityBallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LatestPlanCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LogoutCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.ProjectListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.RecentCompletedBuildResultsCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.Util;
-import com.atlassian.theplugin.bamboo.api.bamboomock.LatestPlanCallback;
 import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
@@ -45,21 +45,22 @@ import com.atlassian.theplugin.commons.bamboo.TestResult;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
-import junit.framework.Assert;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import junit.framework.Assert;
 
 
 /**
@@ -151,14 +152,15 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.verify();
 	}
 
-	public void testPlanList() throws Exception {
+	public void testGetPlanList() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
+		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		List<BambooPlan> plans = apiHandler.listPlanNames();
+		Collection<BambooPlan> plans = apiHandler.getPlanList();
 		apiHandler.logout();
 
 		Util.verifyPlanListResult(plans);
@@ -193,14 +195,15 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	private void implTestBuildForPlanSuccess(int timezoneOffset) throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		//mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		ConnectionCfg bambooServerCfg = createServerData();
-		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new TestHttpSessionCallbackImpl());
+		BambooSession apiHandler =
+				new BambooSessionImpl(bambooServerCfg, new TestHttpSessionCallbackImpl(), LoggerImpl.getInstance());
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", false, timezoneOffset);
+		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", timezoneOffset);
 		apiHandler.logout();
 
 		Util.verifySuccessfulBuildResult(build, mockBaseUrl);
@@ -235,7 +238,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 		Date now = new Date();
 		ConnectionCfg bambooServerCfg = createServerData();
-		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new TestHttpSessionCallbackImpl());
+		BambooSession apiHandler =
+				new BambooSessionImpl(bambooServerCfg, new TestHttpSessionCallbackImpl(), LoggerImpl.getInstance());
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		final BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", 0);
 		apiHandler.logout();
@@ -272,7 +276,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		ConnectionCfg bambooServerCfg = createServerData();
-		BambooSession apiHandler = new BambooSessionImpl(bambooServerCfg, new TestHttpSessionCallbackImpl());
+		BambooSession apiHandler =
+				new BambooSessionImpl(bambooServerCfg, new TestHttpSessionCallbackImpl(), LoggerImpl.getInstance());
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", timezoneOffset);
 		apiHandler.logout();
@@ -304,12 +309,13 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildForPlanFailure() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("FAILED"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", true, 0);
+		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", 0);
 		apiHandler.logout();
 
 		Util.verifyFailedBuildResult(build, mockBaseUrl);
@@ -338,12 +344,13 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildForNonExistingPlan() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("WRONG"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		BambooSession apiHandler = createBambooSession(mockBaseUrl);
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", false, 0);
+		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", 0);
 		apiHandler.logout();
 
 		Util.verifyErrorBuildResult(build);
@@ -825,7 +832,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/listProjectNames.action", new ProjectListCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-		BambooSession apiHandler = new AutoRenewBambooSession(createServerData(), new TestHttpSessionCallbackImpl());
+		BambooSession apiHandler =
+				new AutoRenewBambooSession(createServerData(), new TestHttpSessionCallbackImpl(), LoggerImpl.getInstance());
 
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
 		apiHandler.listProjectNames();
@@ -910,7 +918,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 	}
 
 	public static BambooSession createBambooSession(@Nullable String url) throws RemoteApiMalformedUrlException {
-		return new BambooSessionImpl(new ConnectionCfg("", url, "", ""), new TestHttpSessionCallbackImpl());
+		return new BambooSessionImpl(new ConnectionCfg("", url, "", ""), new TestHttpSessionCallbackImpl(), LoggerImpl
+				.getInstance());
 	}
 
 
@@ -960,7 +969,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 			BambooPlan plan = session.getPlanDetails("ECL-DPL");
 			fail("RemoteApiException excpected");
 		} catch(RemoteApiException e) {
-			assertEquals("Malformed server reply: no 'plan' element", e.getMessage());		
+			assertEquals("Malformed server reply: no 'plan' element", e.getMessage());
 		}
 
 		session.logout();

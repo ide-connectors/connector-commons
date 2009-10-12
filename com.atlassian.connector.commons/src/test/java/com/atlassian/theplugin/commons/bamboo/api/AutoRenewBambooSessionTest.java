@@ -27,8 +27,10 @@ import com.atlassian.theplugin.commons.bamboo.BuildStatus;
 import com.atlassian.theplugin.commons.bamboo.TestDetails;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.spartez.util.junit3.TestUtil;
 import org.easymock.EasyMock;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import junit.framework.TestCase;
 
@@ -127,20 +129,21 @@ public class AutoRenewBambooSessionTest extends TestCase {
 	public void testListPlanNames() throws Exception {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
-		mockDelegate.listPlanNames();
+		mockDelegate.getPlanList();
 		EasyMock.expectLastCall().andThrow(new RemoteApiSessionExpiredException(""));
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
-		mockDelegate.listPlanNames();
-		EasyMock.expectLastCall().andReturn(Arrays.asList(new BambooPlan("planName1", "planKey", false, false),
-				new BambooPlan("planName2", "planKey2", false, false)));
+		mockDelegate.getPlanList();
+		final BambooPlan bp1 = new BambooPlan("planName1", "planKey", false, false);
+		final BambooPlan bp2 = new BambooPlan("planName2", "planKey2", false, false);
+		EasyMock.expectLastCall().andReturn(Arrays.asList(bp1, bp2));
 
 		EasyMock.replay(mockDelegate);
 
 		testedSession.login(LOGIN, A_PASSWORD);
-		List<BambooPlan> plans = testedSession.listPlanNames();
+		Collection<BambooPlan> plans = testedSession.getPlanList();
 		assertNotNull(plans);
-		assertEquals(2, plans.size());
+		TestUtil.assertHasOnlyElements(plans, bp1, bp2);
 
 		EasyMock.verify(mockDelegate);
 	}

@@ -34,12 +34,9 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.Logger;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -47,24 +44,26 @@ import java.util.WeakHashMap;
  * Class used for communication wiht Bamboo Server.
  *
  * @author sginter + others Date: Jan 15, 2008
+ * @deprecated this class is evil. You should use directly BambooSession(Impl) instead of this
  */
+@Deprecated
 public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 	private final Map<String, BambooSession> sessions = new WeakHashMap<String, BambooSession>();
 
-	private final Logger loger;
+	private final Logger logger;
 
 	private final BambooSessionFactory bambooSessionFactory;
 
 	private final HttpSessionCallback callback;
 
 	public BambooServerFacadeImpl(Logger loger, @NotNull BambooSessionFactory factory, @NotNull HttpSessionCallback callback) {
-		this.loger = loger;
+		this.logger = loger;
 		this.callback = callback;
 		this.bambooSessionFactory = factory;
 	}
 
 	public BambooServerFacadeImpl(Logger loger, HttpSessionCallback callback) {
-		this(loger, new SimpleBambooSessionFactory(), callback);
+		this(loger, new SimpleBambooSessionFactory(loger), callback);
 	}
 
 	public ServerType getServerType() {
@@ -148,7 +147,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 		try {
 			return getSession(bambooServer).listProjectNames();
 		} catch (RemoteApiException e) {
-			loger.error("Bamboo exception: " + e.getMessage(), e);
+			logger.error("Bamboo exception: " + e.getMessage(), e);
 			throw e;
 		}
 	}
@@ -164,22 +163,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 	public Collection<BambooPlan> getPlanList(ConnectionCfg bambooServer) throws ServerPasswordNotProvidedException,
 			RemoteApiException {
 		BambooSession api = getSession(bambooServer);
-		List<BambooPlan> plans = api.listPlanNames();
-		try {
-			List<String> favPlans = api.getFavouriteUserPlans();
-			for (String fav : favPlans) {
-				for (ListIterator<BambooPlan> it = plans.listIterator(); it.hasNext();) {
-					final BambooPlan plan = it.next();
-					if (plan.getKey().equalsIgnoreCase(fav)) {
-						it.set(plan.withFavourite(true));
-						break;
-					}
-				}
-			}
-		} catch (RemoteApiException e) {
-			// lack of favourite info is not a blocker here
-		}
-		return plans;
+		return api.getPlanList();
 	}
 
 	/**
@@ -201,9 +185,13 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 	 */
 	public Collection<BambooBuild> getSubscribedPlansResults(ConnectionCfg bambooServer,
 			final Collection<SubscribedPlan> plans, boolean isUseFavourities, int timezoneOffset)
-			throws ServerPasswordNotProvidedException, RemoteApiLoginException {
-		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
+			throws ServerPasswordNotProvidedException, RemoteApiException {
 
+		// This method is internally somewhat broken. It messes up error handling with proper results
+		// generally it hides IntelliJ Connector inability to survive remote exceptions and maintain
+		// last displayed status
+
+		final Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
 		Throwable connectionError;
 		BambooSession api = null;
 		try {
@@ -211,7 +199,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 			connectionError = null;
 		} catch (RemoteApiLoginFailedException e) {
 			if (bambooServer.getPassword().length() > 0) {
-				loger.error("Bamboo login exception: " + e.getMessage());
+				logger.error("Bamboo login exception: " + e.getMessage());
 				connectionError = e;
 				throw e;
 			} else {
@@ -220,61 +208,18 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 		} catch (RemoteApiLoginException e) {
 			throw e;
 		} catch (RemoteApiException e) {
-			loger.error("Bamboo exception: " + e.getMessage());
+			logger.error("Bamboo exception: " + e.getMessage());
 			connectionError = e;
-		}
-
-		Collection<BambooPlan> plansForServer = null;
-		try {
-			plansForServer = getPlanList(bambooServer);
-		} catch (RemoteApiException e) {
-			// can go further, no disabled info will be available
-			loger.warn("Cannot fetch plan list from Bamboo server [" + bambooServer.getUrl() + "]");
-		}
-
-		if (isUseFavourities) {
-			if (plansForServer != null) {
-				for (BambooPlan bambooPlan : plansForServer) {
-					if (bambooPlan.isFavourite()) {
-						if (api != null && api.isLoggedIn()) {
-							try {
-								BambooBuild buildInfo = api.getLatestBuildForPlan(bambooPlan.getKey(),
-										bambooPlan.isEnabled(), timezoneOffset);
-								builds.add(buildInfo);
-							} catch (RemoteApiException e) {
-								// go ahead, there are other builds
-								loger.warn("Cannot fetch latest build for plan [" + bambooPlan.getKey()
-										+ "] from Bamboo server [" + bambooServer.getUrl() + "]");
-							}
-						} else {
-							builds.add(constructBuildErrorInfo(bambooServer, bambooPlan.getKey(),
-									bambooPlan.getName(), connectionError == null ? ""
-									: connectionError.getMessage(), connectionError));
-						}
-					}
-				}
-			}
-		} else {
-			for (SubscribedPlan plan : plans) {
-				if (api != null && api.isLoggedIn()) {
-					try {
-						final Boolean isEnabled = plansForServer != null ? BambooSessionImpl.isPlanEnabled(
-								plansForServer, plan.getKey()) : null;
-						BambooBuild buildInfo = api.getLatestBuildForPlan(plan.getKey(), isEnabled != null ? isEnabled
-								: true, timezoneOffset);
-						builds.add(buildInfo);
-					} catch (RemoteApiException e) {
-						// go ahead, there are other builds
-						// todo what about any error info
-					}
-				} else {
+			if (!isUseFavourities) {
+				for (SubscribedPlan plan : plans) {
 					builds.add(constructBuildErrorInfo(bambooServer, plan.getKey(), null, connectionError == null ? ""
 							: connectionError.getMessage(), connectionError));
 				}
 			}
-		}
+			return builds;
 
-		return builds;
+		}
+		return api.getSubscribedPlansResults(plans, isUseFavourities, timezoneOffset);
 	}
 
 	/**
@@ -308,7 +253,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 			connectionError = null;
 		} catch (RemoteApiLoginFailedException e) {
 			if (bambooServer.getPassword().length() > 0) {
-				loger.error("Bamboo login exception: " + e.getMessage());
+				logger.error("Bamboo login exception: " + e.getMessage());
 				connectionError = e;
 				throw e;
 			} else {
@@ -317,7 +262,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 		} catch (RemoteApiLoginException e) {
 			throw e;
 		} catch (RemoteApiException e) {
-			loger.error("Bamboo exception: " + e.getMessage());
+			logger.error("Bamboo exception: " + e.getMessage());
 			connectionError = e;
 		}
 
@@ -326,7 +271,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 			plansForServer = getPlanList(bambooServer);
 		} catch (RemoteApiException e) {
 			// can go further, no disabled info will be available
-			loger.warn("Cannot fetch plan list from Bamboo server [" + bambooServer.getUrl() + "]");
+			logger.warn("Cannot fetch plan list from Bamboo server [" + bambooServer.getUrl() + "]");
 		}
 
 		if (isUseFavourities) {
@@ -340,7 +285,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 								builds.add(buildInfo);
 							} catch (RemoteApiException e) {
 								// go ahead, there are other builds
-								loger.warn("Cannot fetch latest build for plan [" + bambooPlan.getKey()
+								logger.warn("Cannot fetch latest build for plan [" + bambooPlan.getKey()
 										+ "] from Bamboo server [" + bambooServer.getUrl() + "]");
 							}
 						} else {
@@ -363,7 +308,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 					} catch (RemoteApiException e) {
 						// go ahead, there are other builds
 						// go ahead, there are other builds
-						loger.warn("Cannot fetch latest build for plan [" + plan.getKey() + "] from Bamboo server ["
+						logger.warn("Cannot fetch latest build for plan [" + plan.getKey() + "] from Bamboo server ["
 								+ bambooServer.getUrl() + "]");
 					}
 				} else {
@@ -403,14 +348,14 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 		} catch (RemoteApiLoginFailedException e) {
 			// TODO wseliga used to be bambooServer.getIsConfigInitialized() here
 			if (bambooServer.getPassword().length() > 0) {
-				loger.error("Bamboo login exception: " + e.getMessage());
+				logger.error("Bamboo login exception: " + e.getMessage());
 				builds.add(constructBuildErrorInfo(bambooServer, planKey, null, e.getMessage(), e));
 				return builds;
 			} else {
 				throw new ServerPasswordNotProvidedException(e);
 			}
 		} catch (RemoteApiException e) {
-			loger.error("Bamboo exception: " + e.getMessage());
+			logger.error("Bamboo exception: " + e.getMessage());
 			builds.add(constructBuildErrorInfo(bambooServer, planKey, null, e.getMessage(), e));
 			return builds;
 		}
@@ -418,7 +363,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 		try {
 			builds.addAll(api.getRecentBuildsForPlan(planKey, timezoneOffset));
 		} catch (RemoteApiException e) {
-			loger.error("Bamboo exception: " + e.getMessage());
+			logger.error("Bamboo exception: " + e.getMessage());
 			builds.add(constructBuildErrorInfo(bambooServer, planKey, null, e.getMessage(), e));
 		}
 
@@ -450,14 +395,14 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 			api = getSession(bambooServer);
 		} catch (RemoteApiLoginFailedException e) {
 			if (bambooServer.getPassword().length() > 0) {
-				loger.error("Bamboo login exception: " + e.getMessage());
+				logger.error("Bamboo login exception: " + e.getMessage());
 				builds.add(constructBuildErrorInfo(bambooServer, "", null, e.getMessage(), e));
 				return builds;
 			} else {
 				throw new ServerPasswordNotProvidedException(e);
 			}
 		} catch (RemoteApiException e) {
-			loger.error("Bamboo exception: " + e.getMessage());
+			logger.error("Bamboo exception: " + e.getMessage());
 			builds.add(constructBuildErrorInfo(bambooServer, "", null, e.getMessage(), e));
 			return builds;
 		}
@@ -465,7 +410,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 		try {
 			builds.addAll(api.getRecentBuildsForUser(timezoneOffset));
 		} catch (RemoteApiException e) {
-			loger.error("Bamboo exception: " + e.getMessage());
+			logger.error("Bamboo exception: " + e.getMessage());
 			builds.add(constructBuildErrorInfo(bambooServer, "", null, e.getMessage(), e));
 		}
 
@@ -487,7 +432,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 			BambooSession api = getSession(bambooServer);
 			return api.getBuildResultDetails(planKey, buildNumber);
 		} catch (RemoteApiException e) {
-			loger.info("Bamboo exception: " + e.getMessage());
+			logger.info("Bamboo exception: " + e.getMessage());
 			throw e;
 		}
 	}
@@ -499,7 +444,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 			BambooSession api = getSession(bambooServer);
 			return api.getBuildForPlanAndNumber(planKey, buildNumber, timezoneOffset);
 		} catch (RemoteApiException e) {
-			loger.info("Bamboo exception: " + e.getMessage());
+			logger.info("Bamboo exception: " + e.getMessage());
 			throw e;
 		}
 	}
@@ -519,7 +464,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 			BambooSession api = getSession(bambooServer);
 			api.addLabelToBuild(planKey, buildNumber, buildLabel);
 		} catch (RemoteApiException e) {
-			loger.info("Bamboo exception: " + e.getMessage());
+			logger.info("Bamboo exception: " + e.getMessage());
 			throw e;
 		}
 	}
@@ -539,7 +484,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 			BambooSession api = getSession(bambooServer);
 			api.addCommentToBuild(planKey, buildNumber, buildComment);
 		} catch (RemoteApiException e) {
-			loger.info("Bamboo exception: " + e.getMessage());
+			logger.info("Bamboo exception: " + e.getMessage());
 			throw e;
 		}
 	}
@@ -559,7 +504,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 			BambooSession api = getSession(bambooServer);
 			api.executeBuild(buildKey);
 		} catch (RemoteApiException e) {
-			loger.info("Bamboo exception: " + e.getMessage());
+			logger.info("Bamboo exception: " + e.getMessage());
 			throw e;
 		}
 	}
@@ -570,18 +515,18 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 			BambooSession api = getSession(bambooServer);
 			return api.getBuildLogs(planKey, buildNumber);
 		} catch (RemoteApiException e) {
-			loger.info("Bamboo exception: " + e.getMessage());
+			logger.info("Bamboo exception: " + e.getMessage());
 			throw e;
 		}
 	}
 
-    public Collection<BuildIssue> getIssuesForBuild(ConnectionCfg bambooServer, @NotNull String planKey, int buildNumber) 
+    public Collection<BuildIssue> getIssuesForBuild(ConnectionCfg bambooServer, @NotNull String planKey, int buildNumber)
             throws ServerPasswordNotProvidedException, RemoteApiException {
         try {
             BambooSession api = getSession(bambooServer);
             return api.getIssuesForBuild(planKey, buildNumber);
         } catch (RemoteApiException e) {
-            loger.info("Bamboo exception: " + e.getMessage());
+            logger.info("Bamboo exception: " + e.getMessage());
             throw e;
         }
     }
@@ -601,7 +546,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 		try {
 			return getSession(bambooServer).getFavouriteUserPlans();
 		} catch (RemoteApiException e) {
-			loger.error("Bamboo exception: " + e.getMessage());
+			logger.error("Bamboo exception: " + e.getMessage());
 			throw e;
 		}
 	}
@@ -614,9 +559,15 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 
 	private static class SimpleBambooSessionFactory implements BambooSessionFactory {
 
+		private final Logger logger;
+
+		SimpleBambooSessionFactory(Logger logger) {
+			this.logger = logger;
+		}
+
 		public BambooSession createSession(final ConnectionCfg serverData, final HttpSessionCallback callback)
 				throws RemoteApiException {
-			return new AutoRenewBambooSession(serverData, callback);
+			return new AutoRenewBambooSession(serverData, callback, logger);
 		}
 
 		public ProductSession createLoginSession(final ConnectionCfg serverData, final HttpSessionCallback callback)

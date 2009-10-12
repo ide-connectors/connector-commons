@@ -55,6 +55,15 @@ public interface BambooBuild {
 	@NotNull
 	BuildStatus getStatus();
 
+	/**
+	 * In the future we could think about better plan and build separation
+	 *
+	 * @return info whether something is happening to the plan this build belongs to
+	 * @since Bamboo 2.3+ returns this information.
+	 */
+	@Nullable
+	PlanState getPlanState();
+
 	@Nullable
 	String getErrorMessage();
 
@@ -99,8 +108,6 @@ public interface BambooBuild {
 
 	Date getPollingTime();
 
-	Throwable getException();
-
 	@Nullable
-	BuildStatus getLastStatus();
+	Throwable getException();
 }

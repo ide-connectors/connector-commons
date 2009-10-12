@@ -51,6 +51,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -303,7 +304,6 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	 * Introduces new plan state 'building' and 'in queue'
 	 *
 	 * @param planKey
-	 * @param isPlanEnabled
 	 * @param timezoneOffset
 	 * @return
 	 * @throws RemoteApiException
@@ -316,10 +316,6 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 		try {
 			Document doc = retrieveGetResponse(planUrl);
-//			String exception = getExceptionMessages(doc);
-//			if (null != exception) {
-//				return constructBuildErrorInfo(planKey, exception, new Date());
-//			}
 
 			@SuppressWarnings("unchecked")
 			final List<Element> elements = XPath.newInstance("/plan").selectNodes(doc);
@@ -895,8 +891,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
     }
 
 	@NotNull
-	public Collection<BambooPlan> getPlanList() throws RemoteApiException,
-			RemoteApiException {
+	public Collection<BambooPlan> getPlanList() throws RemoteApiException {
 		List<BambooPlan> plans = listPlanNames();
 		try {
 			List<String> favPlans = getFavouriteUserPlans();
@@ -915,9 +910,9 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		return plans;
 	}
 
+	@NotNull
 	public Collection<BambooBuild> getSubscribedPlansResults(final Collection<SubscribedPlan> plans, boolean isUseFavourities,
-			int timezoneOffset)
- throws RemoteApiLoginException {
+			int timezoneOffset) throws RemoteApiLoginException {
 		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
 
 		Collection<BambooPlan> plansForServer = null;

@@ -19,6 +19,7 @@ package com.atlassian.theplugin.commons.bamboo;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -225,8 +226,14 @@ public final class BambooBuildInfo implements BambooBuild {
 		return commiters;
 	}
 
+	@NotNull
 	public Date getPollingTime() {
 		return new Date(pollingTime.getTime());
+	}
+
+	@Nullable
+	public PlanState getPlanState() {
+		return planState;
 	}
 
 	@Override
@@ -234,7 +241,7 @@ public final class BambooBuildInfo implements BambooBuild {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((number == null) ? 0 : number.hashCode());
-		result = prime * result + ((planKey == null) ? 0 : planKey.hashCode());
+		result = prime * result + planKey.hashCode();
 		result = prime * result + ((planName == null) ? 0 : planName.hashCode());
 		result = prime * result + ((projectName == null) ? 0 : projectName.hashCode());
 		result = prime * result + ((server == null) ? 0 : server.hashCode());
@@ -262,11 +269,7 @@ public final class BambooBuildInfo implements BambooBuild {
 		} else if (!number.equals(other.number)) {
 			return false;
 		}
-		if (planKey == null) {
-			if (other.planKey != null) {
-				return false;
-			}
-		} else if (!planKey.equals(other.planKey)) {
+		if (!planKey.equals(other.planKey)) {
 			return false;
 		}
 		if (planName == null) {
@@ -293,10 +296,6 @@ public final class BambooBuildInfo implements BambooBuild {
 		return true;
 	}
 
-	public PlanState getPlanState() {
-		return planState;
-	}
-
 	@SuppressWarnings({"InnerClassFieldHidesOuterClassField"})
 	public static class Builder {
 		private final String planKey;
@@ -310,6 +309,7 @@ public final class BambooBuildInfo implements BambooBuild {
 		private String message;
 		private Date startTime;
 		private Collection<String> commiters;
+		@NotNull
 		private Date pollingTime = new Date();
 		private String buildReason;
 		@Nullable
@@ -324,8 +324,6 @@ public final class BambooBuildInfo implements BambooBuild {
 		@Nullable
 		private String durationDescription;
 		private Throwable exception;
-		// @Nullable
-		// private BuildStatus lastStatus;
 		@Nullable
 		private PlanState planState;
 
@@ -347,32 +345,6 @@ public final class BambooBuildInfo implements BambooBuild {
 			this.buildNumber = buildNumber;
 			this.buildState = state;
 		}
-
-		// public Builder(BambooBuild latestBuildForPlan) {
-		// this.planKey = latestBuildForPlan.getPlanKey();
-		// this.planName = latestBuildForPlan.getPlanName();
-		// this.serverData = latestBuildForPlan.getServer();
-		// this.projectName = latestBuildForPlan.getProjectName();
-		// this.buildNumber = latestBuildForPlan.getNumber();
-		// this.buildState = latestBuildForPlan.getStatus();
-		//
-		// this.isEnabled = latestBuildForPlan.getEnabled();
-		// this.message = latestBuildForPlan.getErrorMessage();
-		// this.startTime = latestBuildForPlan.getStartDate();
-		// this.commiters = latestBuildForPlan.getCommiters();
-		// this.pollingTime = latestBuildForPlan.getPollingTime();
-		// this.buildReason = latestBuildForPlan.getReason();
-		// this.testSummary = latestBuildForPlan.getTestSummary();
-		// // this.commitComment
-		// this.testsPassedCount = latestBuildForPlan.getTestsPassed();
-		// this.testsFailedCount = latestBuildForPlan.getTestsFailed();
-		// this.completionTime = latestBuildForPlan.getCompletionDate();
-		// this.relativeBuildDate = latestBuildForPlan.getRelativeBuildDate();
-		// this.durationDescription = latestBuildForPlan.getDurationDescription();
-		// this.exception = latestBuildForPlan.getException();
-		// this.lastStatus = latestBuildForPlan.getLastStatus();
-		// this.pla
-		// }
 
 		public Builder enabled(boolean aIsEnabled) {
 			isEnabled = aIsEnabled;
@@ -421,7 +393,7 @@ public final class BambooBuildInfo implements BambooBuild {
 			return this;
 		}
 
-		public Builder pollingTime(final Date aPollingTime) {
+		public Builder pollingTime(@NotNull final Date aPollingTime) {
 			this.pollingTime = aPollingTime;
 			return this;
 		}
@@ -446,8 +418,9 @@ public final class BambooBuildInfo implements BambooBuild {
 			return this;
 		}
 
-		public void planState(PlanState planState) {
-			this.planState = planState;
+		public Builder planState(PlanState aPlanState) {
+			this.planState = aPlanState;
+			return this;
 		}
 
 		public BambooBuildInfo build() {

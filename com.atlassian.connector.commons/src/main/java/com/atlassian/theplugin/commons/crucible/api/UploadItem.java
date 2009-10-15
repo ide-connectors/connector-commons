@@ -5,21 +5,17 @@ public class UploadItem {
 	private final String fileName;
 	private final byte[] oldContent;
 	private final byte[] newContent;
-	private final String oldRevision;
 
 	/**
 	 *
 	 * @param fileName
 	 * @param oldContent
 	 * @param newContent
-	 * @param oldRevision
-	 *            ignored now by ACC and Crucible as well
 	 */
-	public UploadItem(final String fileName, final byte[] oldContent, final byte[] newContent, final String oldRevision) {
+	public UploadItem(final String fileName, final byte[] oldContent, final byte[] newContent) {
 		this.fileName = fileName;
 		this.oldContent = oldContent;
 		this.newContent = newContent;
-		this.oldRevision = oldRevision;
 	}
 
 	public String getFileName() {
@@ -32,9 +28,5 @@ public class UploadItem {
 
 	public byte[] getNewContent() {
 		return newContent;
-	}
-
-	public String getOldRevision() {
-		return oldRevision;
 	}
 }

@@ -1256,10 +1256,21 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		try {
 			String urlString = getBaseUrl() + REVIEW_SERVICE + "/" + newReview.getPermId().getId() + ADD_FILE;
 			for (UploadItem uploadItem : uploadItems) {
-				ByteArrayPartSource targetOldFile =
-						new ByteArrayPartSource(uploadItem.getFileName(), uploadItem.getOldContent());
-				ByteArrayPartSource targetNewFile =
-						new ByteArrayPartSource(uploadItem.getFileName(), uploadItem.getNewContent());
+                String bogusOld = "[--item is empty--]";
+                String bogusNew = "[--item deleted--]";
+
+                byte[] oldContent = uploadItem.getOldContent();
+                byte[] newContent = uploadItem.getNewContent();
+
+                if (oldContent == null) {
+                    oldContent = bogusOld.getBytes();
+                }
+                if (newContent == null) {
+                    newContent = bogusNew.getBytes();
+                }
+
+                ByteArrayPartSource targetOldFile =	new ByteArrayPartSource(uploadItem.getFileName(), oldContent);
+                ByteArrayPartSource targetNewFile =	new ByteArrayPartSource(uploadItem.getFileName(), newContent);
 
 				Part[] parts = { new FilePart("file", targetNewFile), new FilePart("diffFile", targetOldFile) };
 

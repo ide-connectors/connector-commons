@@ -36,6 +36,7 @@ public abstract class AbstractSessionTest extends TestCase {
 		ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
 
 
+        
         server = new Server(0);
 		server.start();
 

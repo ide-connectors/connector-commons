@@ -18,6 +18,7 @@ import java.net.UnknownHostException;
 /**
  * User: pmaruszak
  */
+
 public abstract class AbstractSessionTest extends TestCase {
 	protected static final String USER_NAME = "someUser";
 
@@ -33,9 +34,11 @@ public abstract class AbstractSessionTest extends TestCase {
 	protected void setUp() throws Exception {
 		ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
 
-		server = new Server(0);
+
+        server = new Server(0);
 		server.start();
 
+        
 		mockBaseUrl = "http://localhost:" + server.getConnectors()[0].getLocalPort();
 		mockServer = new JettyMockServer(server);
 	}

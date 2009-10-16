@@ -87,6 +87,7 @@ public abstract class AbstractSessionTest extends TestCase {
 		tryMalformedUrl("http://loca:lhost/path");
 	}
 
+
 	@SuppressWarnings("null")
 	public void testWrongUrlLogin() throws Exception {
 		ErrorResponse error = new ErrorResponse(400, "Bad Request/reason phrase");

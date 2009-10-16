@@ -62,6 +62,7 @@ public abstract class AbstractSessionTest extends TestCase {
 		}
 
 	}
+    
 	protected abstract ProductSession getProductSession(final String url) throws RemoteApiMalformedUrlException;
 	public void testMalformedUrlLogin() {
 		tryMalformedUrl("noprotocol.url/path");

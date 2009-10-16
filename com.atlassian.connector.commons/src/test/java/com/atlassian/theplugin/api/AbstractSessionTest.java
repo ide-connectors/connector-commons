@@ -24,6 +24,7 @@ public abstract class AbstractSessionTest extends TestCase {
 
 	protected static final String PASSWORD = "somePassword";
 
+
     
 	private Server server;
 

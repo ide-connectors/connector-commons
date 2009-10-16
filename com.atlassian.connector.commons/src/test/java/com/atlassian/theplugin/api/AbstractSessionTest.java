@@ -7,12 +7,13 @@ import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.mortbay.jetty.Server;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
-import junit.framework.TestCase;
 
 /**
  * User: pmaruszak
@@ -35,6 +36,7 @@ public abstract class AbstractSessionTest extends TestCase {
 		server = new Server(0);
 		server.start();
 
+        
 		mockBaseUrl = "http://localhost:" + server.getConnectors()[0].getLocalPort();
 		mockServer = new JettyMockServer(server);
 	}

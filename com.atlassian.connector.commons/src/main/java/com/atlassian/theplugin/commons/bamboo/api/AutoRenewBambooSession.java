@@ -30,6 +30,7 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredExceptio
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.Logger;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -191,6 +192,7 @@ public class AutoRenewBambooSession implements BambooSession {
 
 	}
 
+	@NotNull
 	public Collection<BambooPlan> getPlanList() throws ServerPasswordNotProvidedException, RemoteApiException {
 		try {
 			return delegate.getPlanList();
@@ -230,6 +232,7 @@ public class AutoRenewBambooSession implements BambooSession {
 		}
 	}
 
+	@NotNull
 	public Collection<BambooBuild> getSubscribedPlansResults(Collection<SubscribedPlan> plans, boolean isUseFavourities,
 			int timezoneOffset) throws RemoteApiException {
 		try {

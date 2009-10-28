@@ -16,39 +16,13 @@
 
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
-import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
+import com.atlassian.connector.commons.misc.IntRanges;
 import com.atlassian.connector.commons.misc.IntRangesParser;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.CrucibleVersion;
-import com.atlassian.theplugin.commons.crucible.api.model.Comment;
-import com.atlassian.theplugin.commons.crucible.api.model.CommentBean;
-import com.atlassian.theplugin.commons.crucible.api.model.CommitType;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfoImpl;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfoBean;
-import com.atlassian.theplugin.commons.crucible.api.model.CustomField;
-import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldBean;
-import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDefBean;
-import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldValue;
-import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldValueType;
-import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.FileType;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
-import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
-import com.atlassian.theplugin.commons.crucible.api.model.PermId;
-import com.atlassian.theplugin.commons.crucible.api.model.Repository;
-import com.atlassian.theplugin.commons.crucible.api.model.RepositoryType;
-import com.atlassian.theplugin.commons.crucible.api.model.Review;
-import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
-import com.atlassian.theplugin.commons.crucible.api.model.State;
-import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
-import com.atlassian.theplugin.commons.crucible.api.model.User;
-import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
-import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
+import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
+import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.util.LoggerImpl;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.CDATA;
 import org.jdom.Document;
@@ -57,11 +31,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public final class CrucibleRestXmlHelper {
@@ -589,6 +566,7 @@ public final class CrucibleRestXmlHelper {
 							commentBean.isToLineInfo(),
 							commentBean.getFromEndLine(),
 							commentBean.getToEndLine(),
+                            commentBean.getLineRanges(),
                             trimWikiMarkers
 					);
 					if (reply != null) {
@@ -749,13 +727,19 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	///CHECKSTYLE:OFF
-	public static VersionedCommentBean parseVersionedCommentNodeWithHints(String myUsername, Element reviewCommentNode,
-			boolean fromLineInfo, int fromStartLine, int toStartLine,
-            boolean toLineInfo, int fromEndLine, int toEndLine, boolean trimWikiMarkers) {
+	public static VersionedCommentBean parseVersionedCommentNodeWithHints(
+            String myUsername, Element reviewCommentNode, boolean fromLineInfo, int fromStartLine, int toStartLine,
+            boolean toLineInfo, int fromEndLine, int toEndLine, Map<String, IntRanges> lineRanges,
+            boolean trimWikiMarkers) {
+
 		VersionedCommentBean result = parseVersionedCommentNode(myUsername, reviewCommentNode, trimWikiMarkers);
 		if (result == null) {
 			return null;
 		}
+        if (result.getLineRanges() == null && lineRanges != null) {
+            result.setLineRanges(lineRanges);
+        }
+
 		if (!result.isFromLineInfo() && fromLineInfo) {
 			result.setFromLineInfo(true);
 			result.setFromStartLine(fromStartLine);
@@ -790,7 +774,7 @@ public final class CrucibleRestXmlHelper {
 				try {
 					comment.setFromLineRanges(IntRangesParser.parse(fromLineRange));
 				} catch (NumberFormatException e) {
-					// @todo add some logging here at least
+                    LoggerImpl.getInstance().error(e);
 				}
 			}
 		}
@@ -801,15 +785,34 @@ public final class CrucibleRestXmlHelper {
 				try {
 					comment.setToLineRanges(IntRangesParser.parse(toLineRange));
 				} catch (NumberFormatException e) {
-					// @todo add some logging here at least
+                    LoggerImpl.getInstance().error(e);
 				}
 			}
 		}
 
+        Element child = reviewCommentNode.getChild("lineRanges");
+        if (child != null) {
+            parseAndFillLineRanges(comment, child);
+        }
 		return comment;
 	}
 
-	private static Element prepareCustomFieldValue(CustomField value) {
+    private static void parseAndFillLineRanges(VersionedCommentBean comment, Element lineRangesNode) {
+        Map<String, IntRanges> rangesMap = new LinkedHashMap<String, IntRanges>();
+        List<Element> entries = getChildElements(lineRangesNode, "lineRange");
+        for (Element rangeNode : entries) {
+            String revisionStr = rangeNode.getAttributeValue("revision");
+            String rangeStr = rangeNode.getAttributeValue("range");
+            try {
+                rangesMap.put(revisionStr, IntRangesParser.parse(rangeStr));
+            } catch (NumberFormatException e) {
+                LoggerImpl.getInstance().error(e);
+            }
+        }
+        comment.setLineRanges(rangesMap);
+    }
+
+    private static Element prepareCustomFieldValue(CustomField value) {
 		Element entry = new Element("value");
 		addTag(entry, "configVersion", Integer.toString(value.getConfigVersion()));
 		addTag(entry, "value", value.getValue());

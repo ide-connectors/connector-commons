@@ -19,6 +19,7 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 import com.atlassian.connector.commons.misc.IntRanges;
 
 import java.util.List;
+import java.util.Map;
 
 public class VersionedCommentBean extends CommentBean implements VersionedComment {
 	private PermId reviewItemId;
@@ -38,6 +39,8 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 	private IntRanges toLineRanges;
 
 	private IntRanges fromLineRanges;
+
+    private Map<String, IntRanges> lineRanges;
 
 	public VersionedCommentBean(VersionedComment bean) {
 		super(bean);
@@ -96,7 +99,15 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		return toLineRanges;
 	}
 
-	public void setToLineRanges(IntRanges toLineRanges) {
+    public Map<String, IntRanges> getLineRanges() {
+        return lineRanges;
+    }
+
+    public void setLineRanges(Map<String, IntRanges> lineRanges) {
+        this.lineRanges = lineRanges;
+    }
+
+    public void setToLineRanges(IntRanges toLineRanges) {
 		this.toLineRanges = toLineRanges;
 		setToLineInfo(true);
 		setToStartLine(toLineRanges.getTotalMin());
@@ -170,6 +181,11 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		if (toStartLine != that.toStartLine) {
 			return false;
 		}
+
+        if (lineRangesNotEqual(that.lineRanges)) {
+            return false;
+        }
+
 		if (getReplies() != null ? !getReplies().equals(that.getReplies()) : that.getReplies() != null) {
 			return false;
 		}
@@ -197,7 +213,20 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		return true;
 	}
 
-	@SuppressWarnings("unchecked")
+    private boolean lineRangesNotEqual(Map<String, IntRanges> thatLineRanges) {
+        if (lineRanges == null && thatLineRanges == null) {
+            return true;
+        }
+        if (lineRanges == null) {
+            return false;
+        }
+        if (thatLineRanges == null) {
+            return false;
+        }
+        return lineRanges.equals(thatLineRanges);
+    }
+
+    @SuppressWarnings("unchecked")
 	@Deprecated
 	public List<VersionedComment> getReplies2() {
 		// wseliga: I don't know how to make it compilable with these casts.
@@ -205,6 +234,4 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		//noinspection RedundantCast
 		return (List<VersionedComment>) (List<?>) getReplies();
 	}
-
-
 }

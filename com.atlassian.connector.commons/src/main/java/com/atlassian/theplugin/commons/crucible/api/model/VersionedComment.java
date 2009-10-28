@@ -20,6 +20,7 @@ import com.atlassian.connector.commons.misc.IntRanges;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 public interface VersionedComment extends Comment {
 	PermId getPermId();
@@ -60,4 +61,9 @@ public interface VersionedComment extends Comment {
 	@Deprecated
 	List<VersionedComment> getReplies2();
 
+    /**
+     * @return line ranges per revision - used by iterative reviews
+     */
+    @Nullable
+    Map<String, IntRanges> getLineRanges();
 }

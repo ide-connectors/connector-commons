@@ -249,7 +249,7 @@ public class ProjectConfiguration {
 		// no additional check - let IDE handle such error in a standard way (error dialog)
 		// in unlikely event of some fuck-up
 		final JiraServerCfg jiraServerCfg = (JiraServerCfg) serverCfg;
-		if (!jiraServerCfg.isEnabled()) {
+		if (jiraServerCfg == null || !jiraServerCfg.isEnabled()) {
 			return null;
 		}
 		return jiraServerCfg;

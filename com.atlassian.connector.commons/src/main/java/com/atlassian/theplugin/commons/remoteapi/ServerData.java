@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author pmaruszak
  */
-public class ServerData implements Comparable<ServerData> {
+public class ServerData {
 	private final Server server;
 	private final String username;
 	private final String password;
@@ -145,11 +145,6 @@ public class ServerData implements Comparable<ServerData> {
 	public ConnectionCfg toConnectionCfg() {
 		return new ConnectionCfg(getServerId().getId(), getUrl(), getUsername(), getPassword());
 	}
-
-	public int compareTo(ServerData o) {
-		ServerDataComparator c = new ServerDataComparator();
-		return c.compare(this, o);
-    }
 
 
     public HttpConnectionCfg toHttpConnectionCfg() {

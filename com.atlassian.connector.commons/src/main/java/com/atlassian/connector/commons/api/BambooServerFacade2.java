@@ -107,5 +107,4 @@ public interface BambooServerFacade2 extends ProductServerFacade {
 
     Collection<BuildIssue> getIssuesForBuild(ConnectionCfg bambooServer, @NotNull String planKey, int buildNumber)
             throws ServerPasswordNotProvidedException, RemoteApiException;
-
 }

@@ -100,7 +100,7 @@ public interface BambooServerFacade2 extends ProductServerFacade {
 
 	boolean isBamboo2M9(final ConnectionCfg bambooServerData);
 
-	boolean isBamboo2_4(final ConnectionCfg bambooServerData);
+	boolean isBamboo24(final ConnectionCfg bambooServerData);
 
 	Collection<BambooBuild> getSubscribedPlansResultsNew(ConnectionCfg bambooServer, Collection<SubscribedPlan> plans,
 			boolean isUseFavourities, int timezoneOffset) throws ServerPasswordNotProvidedException, RemoteApiLoginException;

@@ -100,7 +100,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 		}
 	}
 
-	public boolean isBamboo2_4(final ConnectionCfg bambooServerData) {
+	public boolean isBamboo24(final ConnectionCfg bambooServerData) {
 		BambooSession session;
 		try {
 			session = getSession(bambooServerData);

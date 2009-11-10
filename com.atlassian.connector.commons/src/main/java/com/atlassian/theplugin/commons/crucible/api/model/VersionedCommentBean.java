@@ -17,7 +17,6 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.connector.commons.misc.IntRanges;
-
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +66,7 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		this.reviewItemId = reviewItemId;
 	}
 
+	@Deprecated
 	public int getFromStartLine() {
 		return fromStartLine;
 	}
@@ -75,10 +75,12 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		this.fromStartLine = startLine;
 	}
 
+	@Deprecated
 	public int getFromEndLine() {
 		return fromEndLine;
 	}
 
+	@Deprecated
 	public IntRanges getFromLineRanges() {
 		return fromLineRanges;
 	}
@@ -95,6 +97,7 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		setFromEndLine(fromLineRanges.getTotalMax());
 	}
 
+	@Deprecated
 	public IntRanges getToLineRanges() {
 		return toLineRanges;
 	}
@@ -118,6 +121,7 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		this.fromEndLine = endLine;
 	}
 
+	@Deprecated
 	public int getToStartLine() {
 		return toStartLine;
 	}
@@ -126,6 +130,7 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		this.toStartLine = startLine;
 	}
 
+	@Deprecated
 	public int getToEndLine() {
 		return toEndLine;
 	}
@@ -134,6 +139,7 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		this.toEndLine = endLine;
 	}
 
+	@Deprecated
 	public boolean isFromLineInfo() {
 		return fromLineInfo;
 	}
@@ -142,6 +148,7 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		this.fromLineInfo = fromLineInfo;
 	}
 
+	@Deprecated
 	public boolean isToLineInfo() {
 		return toLineInfo;
 	}
@@ -230,7 +237,7 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 	@Deprecated
 	public List<VersionedComment> getReplies2() {
 		// wseliga: I don't know how to make it compilable with these casts.
-		// We are somewhat guaranteed that all replies will be here really of VersionedComment type, so I dare cast 
+		// We are somewhat guaranteed that all replies will be here really of VersionedComment type, so I dare cast
 		//noinspection RedundantCast
 		return (List<VersionedComment>) (List<?>) getReplies();
 	}

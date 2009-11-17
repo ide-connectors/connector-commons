@@ -66,13 +66,9 @@ public class GeneralConfigurationBean {
     }
 
     public long getUid() {
-        if (anonymousEnhancedFeedbackEnabled != null && anonymousEnhancedFeedbackEnabled) {
-            if (uid == 0) {
-                // generate if there was no uid yet
-                uid = System.currentTimeMillis() + (long) (Math.random() * ID_DISCRIMINATOR);
-            }
-        } else {
-            return 0;
+        if (uid == 0) {
+            // generate if there was no uid yet
+            uid = System.currentTimeMillis() + (long) (Math.random() * ID_DISCRIMINATOR);
         }
         return uid;
     }

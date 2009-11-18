@@ -8,11 +8,11 @@
 				<use-favourites>false</use-favourites>
 				<bamboo2>false</bamboo2>
 				<isBamboo2M9>false</isBamboo2M9>
-                <isBamboo24>false</isBamboo24>
 				<plans>
 					<plan key="MYID" />
 					<plan key="PLANID2" />
 				</plans>
+                <isBamboo24>false</isBamboo24>
 			</bamboo>
 			<fisheye>
 				<server-id>341d662c-e744-4690-a5f8-6e127c0bc84d</server-id>

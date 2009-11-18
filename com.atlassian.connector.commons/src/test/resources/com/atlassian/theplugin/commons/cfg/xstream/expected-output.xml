@@ -8,6 +8,7 @@
 				<use-favourites>false</use-favourites>
 				<bamboo2>false</bamboo2>
 				<isBamboo2M9>false</isBamboo2M9>
+                <isBamboo24>false</isBamboo24>
 				<plans>
 					<plan key="MYID" />
 					<plan key="PLANID2" />

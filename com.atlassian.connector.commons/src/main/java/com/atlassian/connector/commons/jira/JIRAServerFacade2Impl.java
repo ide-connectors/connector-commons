@@ -123,7 +123,18 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
 		JIRAServerFacade2Impl.logger = logger;
 	}
 
-	public List<JIRAIssue> getIssues(HttpConnectionCfg httpConnectionCfg,
+    public List<JIRAIssue> getIssues(HttpConnectionCfg httpConnectionCfg, String queryString, String sort,
+                                     String sortOrder, int start, int size) throws JIRAException {
+        JIRARssClient rss;
+        try {
+            rss = getRssSession(httpConnectionCfg);
+        } catch (RemoteApiException e) {
+            throw new JIRAException(e.getMessage(), e);
+        }
+        return rss.getIssues(queryString, sort, sortOrder, start, size);
+    }
+
+    public List<JIRAIssue> getIssues(HttpConnectionCfg httpConnectionCfg,
 			List<JIRAQueryFragment> query,
 			String sort,
 			String sortOrder,

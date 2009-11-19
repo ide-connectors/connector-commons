@@ -35,6 +35,10 @@ import java.util.Collection;
 import java.util.List;
 
 public interface JIRAServerFacade2 extends ProductServerFacade {    
+
+    List<JIRAIssue> getIssues(HttpConnectionCfg httpConnectionCfg, String queryString, String sort,
+                              String sortOrder, int start, int size) throws JIRAException;
+
 	List<JIRAIssue> getIssues(HttpConnectionCfg httpConnectionCfg, List<JIRAQueryFragment> query,
 			String sort,
 			String sortOrder,

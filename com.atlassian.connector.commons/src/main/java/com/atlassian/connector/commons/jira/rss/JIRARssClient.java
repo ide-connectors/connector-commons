@@ -72,23 +72,44 @@ public class JIRARssClient extends AbstractHttpSession {
         return "Basic " + StringUtil.encode(getUsername() + ":" + getPassword());
 	}
 
-	public List<JIRAIssue> getIssues(List<JIRAQueryFragment> fragments,
-			String sortBy,
-			String sortOrder, int start, int max) throws JIRAException {
 
-       /* JiraQueryUrl queryUrl = new JiraQueryUrl.Builder()
-                                .serverUrl(getBaseUrl())
-                                .userName(getUsername())
-                                .queryFragments(fragments)
-                                .sortBy(sortBy)
-                                .sortOrder(sortOrder)
-                                .start(start)
-                                .max(max)
-                                .build();
+    public List<JIRAIssue> getIssues(String queryString, String sortBy, String sortOrder, int start, int max)
+            throws JIRAException {
 
-        queryUrl.buildRssSearchUrl();*/
-		StringBuilder url = new StringBuilder(getBaseUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?");
+        StringBuilder url =
+                new StringBuilder(getBaseUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?");
 
+        url.append(queryString);
+
+        url.append("&sorter/field=").append(sortBy);
+        url.append("&sorter/order=").append(sortOrder);
+        url.append("&pager/start=").append(start);
+        url.append("&tempMax=").append(max);
+        url.append(appendAuthentication(false));
+
+        try {
+            Document doc = retrieveGetResponse(url.toString());
+            Element root = doc.getRootElement();
+            Element channel = root.getChild("channel");
+            if (channel != null && !channel.getChildren("item").isEmpty()) {
+                return makeIssues(channel.getChildren("item"));
+            }
+            return Collections.emptyList();
+        }  catch (AuthenticationException e) {
+            throw new JIRAException("Authentication error", e);
+        } catch (IOException e) {
+            throw new JIRAException("Connection error: " + e.getMessage(), e);
+        } catch (JDOMException e) {
+            throw new JIRAException(e.getMessage(), e);
+        } catch (RemoteApiSessionExpiredException e) {
+            throw new JIRAException(e.getMessage(), e);
+        }
+    }
+
+	public List<JIRAIssue> getIssues(List<JIRAQueryFragment> fragments, String sortBy,
+                                     String sortOrder, int start, int max) throws JIRAException {
+
+        StringBuilder query = new StringBuilder();
 
 		List<JIRAQueryFragment> fragmentsWithoutAnys = new ArrayList<JIRAQueryFragment>();
 		for (JIRAQueryFragment jiraQueryFragment : fragments) {
@@ -99,34 +120,11 @@ public class JIRARssClient extends AbstractHttpSession {
 
 		for (JIRAQueryFragment fragment : fragmentsWithoutAnys) {
 			if (fragment.getQueryStringFragment() != null) {
-				url.append("&").append(fragment.getQueryStringFragment());
+				query.append("&").append(fragment.getQueryStringFragment());
 			}
 		}
 
-		url.append("&sorter/field=").append(sortBy);
-		url.append("&sorter/order=").append(sortOrder);
-		url.append("&pager/start=").append(start);
-		url.append("&tempMax=").append(max);
-		url.append(appendAuthentication(false));
-
-		try {
-			Document doc = retrieveGetResponse(url.toString());
-			Element root = doc.getRootElement();
-			Element channel = root.getChild("channel");
-			if (channel != null && !channel.getChildren("item").isEmpty()) {
-				return makeIssues(channel.getChildren("item"));
-			}
-			return Collections.emptyList();
-		}  catch (AuthenticationException e) {
-            throw new JIRAException("Authentication error", e);
-        } catch (IOException e) {
-			throw new JIRAException("Connection error: " + e.getMessage(), e);
-		} catch (JDOMException e) {
-			throw new JIRAException(e.getMessage(), e);
-		} catch (RemoteApiSessionExpiredException e) {
-			throw new JIRAException(e.getMessage(), e);
-        }
-
+        return getIssues(query.toString(), sortBy, sortOrder, start, max);
 	}
 
 	public List<JIRAIssue> getAssignedIssues(String assignee) throws JIRAException {

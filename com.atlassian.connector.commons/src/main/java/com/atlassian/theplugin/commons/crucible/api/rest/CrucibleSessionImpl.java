@@ -30,6 +30,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
@@ -1387,6 +1388,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
+	// TODO should be named addChangesetToReview
 	public Review addRevisionsToReview(PermId permId, String repository, List<String> revisions)
 			throws RemoteApiException {
 		if (!isLoggedIn()) {
@@ -1415,6 +1417,40 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         }
 
         return null;
+	}
+
+	public void addFileToReview(PermId permId, NewReviewItem newReviewItem) throws RemoteApiException {
+		if (!isLoggedIn()) {
+			throwNotLoggedIn();
+		}
+
+		Document request = CrucibleRestXmlHelper.prepareAddItemNode(newReviewItem);
+
+		// TODO jj improve xml retrieve
+		// XmlUtil.printXml(request);
+
+		try {
+			String url = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + REVIEW_ITEMS;
+			Document doc = retrievePostResponse(url, request);
+
+			// XmlUtil.printXml(doc);
+
+			// reviewItemData is returned
+			// XPath xpath = XPath.newInstance("/reviewData");
+			// @SuppressWarnings("unchecked")
+			// List<Element> elements = xpath.selectNodes(doc);
+			//
+			// if (elements != null && !elements.isEmpty()) {
+			// return CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), elements.iterator().next(), shouldTrimWikiMarkers());
+			// }
+			return;
+		} catch (IOException e) {
+			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+		} catch (JDOMException e) {
+			throwMalformedResponseReturned(e);
+		}
+
+		return;
 	}
 
 	public Review addPatchToReview(PermId permId, String repository, String patch) throws RemoteApiException {

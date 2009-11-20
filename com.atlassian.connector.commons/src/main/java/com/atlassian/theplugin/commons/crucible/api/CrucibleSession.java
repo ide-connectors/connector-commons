@@ -24,6 +24,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
@@ -57,6 +58,8 @@ public interface CrucibleSession {
 	List<CrucibleAction> getAvailableTransitions(PermId permId) throws RemoteApiException;
 
 	Review addRevisionsToReview(PermId permId, String repository, List<String> revisions) throws RemoteApiException;
+
+	void addFileToReview(PermId permId, NewReviewItem newReviewItem) throws RemoteApiException;
 
 	Review addPatchToReview(PermId permId, String repository, String patch) throws RemoteApiException;
 

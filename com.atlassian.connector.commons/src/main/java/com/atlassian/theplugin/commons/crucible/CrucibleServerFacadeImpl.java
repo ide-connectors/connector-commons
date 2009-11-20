@@ -530,7 +530,8 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	 * @throws com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException
 	 *
 	 */
-	public List<Repository> getRepositories(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException {
+	public List<Repository> getRepositories(ConnectionCfg server) throws RemoteApiException, 
+			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getRepositories();
 	}

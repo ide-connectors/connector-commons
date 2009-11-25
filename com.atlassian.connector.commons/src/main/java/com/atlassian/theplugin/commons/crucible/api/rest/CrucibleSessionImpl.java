@@ -21,6 +21,7 @@ import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
+import com.atlassian.theplugin.commons.crucible.api.PathAndRevision;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
@@ -146,6 +147,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	private static final String UNCOMPLETE_ACTION = "/uncomplete";
 
 	private static final String ADD_CHANGESET = "/addChangeset";
+
+    private static final String ADD_REVISIONS = "/reviewitems/revisions";
 
 	private static final String ADD_PATCH = "/addPatch";
 
@@ -1388,9 +1391,50 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	// TODO should be named addChangesetToReview
-	public Review addRevisionsToReview(PermId permId, String repository, List<String> revisions)
+    public Review addRevisionsToReview(PermId permId, String repository, List<String> revisions)
+            throws RemoteApiException {
+
+        return addChangesetRevisionsToReview(permId, repository, revisions);
+    }
+
+    public Review addFileRevisionsToReview(PermId permId, String repository, List<PathAndRevision> revisions)
+            throws RemoteApiException {
+
+        if (!isLoggedIn()) {
+            throwNotLoggedIn();
+        }
+
+        if (!getServerVersion().isVersion21OrGreater()) {
+            throw new RemoteApiException("Crucible 2.1 or newer is required");
+        }
+
+        Document request = CrucibleRestXmlHelper.prepareRevisionDataNode(repository, revisions);
+
+        try {
+            String url = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + ADD_REVISIONS;
+            Document doc = retrievePostResponse(url, request);
+
+            XPath xpath = XPath.newInstance("/detailedReviewData");
+            @SuppressWarnings("unchecked")
+            List<Element> elements = xpath.selectNodes(doc);
+
+            if (elements != null && !elements.isEmpty()) {
+                return CrucibleRestXmlHelper.parseReviewNode(
+                        getBaseUrl(), elements.iterator().next(), shouldTrimWikiMarkers());
+            }
+            return null;
+        } catch (IOException e) {
+            throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+        } catch (JDOMException e) {
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
+    }
+
+    private Review addChangesetRevisionsToReview(PermId permId, String repository, List<String> revisions)
 			throws RemoteApiException {
+        
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }

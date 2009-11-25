@@ -29,4 +29,6 @@ public interface CrucibleVersionInfo {
     String getReleaseNumber();
 
     boolean isVersion2OrGreater();
+
+    boolean isVersion21OrGreater();
 }

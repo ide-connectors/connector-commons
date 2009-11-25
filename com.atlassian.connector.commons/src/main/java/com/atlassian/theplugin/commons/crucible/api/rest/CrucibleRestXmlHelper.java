@@ -22,6 +22,7 @@ import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.CrucibleVersion;
 import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
 import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.PathAndRevision;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.CDATA;
@@ -343,6 +344,23 @@ public final class CrucibleRestXmlHelper {
 		}
 		return doc;
 	}
+
+
+    public static Document prepareRevisionDataNode(String repository, List<PathAndRevision> files) {
+        Element root = new Element("revisions");
+        Document doc = new Document(root);
+
+        for (PathAndRevision file : files) {
+            Element revData = new Element("revisionData");
+            addTag(revData, "rev", file.getRevision());
+            addTag(revData, "source", repository);
+            addTag(revData, "path", file.getPath());
+            getContent(root).add(revData);
+        }
+        addTag(root, "repository", repository);
+
+        return doc;
+    }
 
 	public static Document prepareAddChangesetNode(String repoName, List<String> revisions) {
 		Element root = new Element("addChangeset");

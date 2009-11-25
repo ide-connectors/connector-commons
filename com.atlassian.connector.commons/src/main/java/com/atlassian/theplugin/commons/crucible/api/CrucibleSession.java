@@ -59,6 +59,9 @@ public interface CrucibleSession {
 
 	Review addRevisionsToReview(PermId permId, String repository, List<String> revisions) throws RemoteApiException;
 
+    Review addFileRevisionsToReview(PermId permId, String repository, List<PathAndRevision> revisions)
+            throws RemoteApiException;
+    
 	void addFileToReview(PermId permId, NewReviewItem newReviewItem) throws RemoteApiException;
 
 	Review addPatchToReview(PermId permId, String repository, String patch) throws RemoteApiException;

@@ -45,6 +45,7 @@ public class GeneralConfigurationBean {
     private int httpServerPort = HTTP_SERVER_PORT;
 
     private boolean askedAboutDefaultServers = false;
+    private boolean informedAboutIdea9TaskExperimentalSupport = false;
 
     public GeneralConfigurationBean() {
 
@@ -63,6 +64,8 @@ public class GeneralConfigurationBean {
         this.statsCountersMap = Collections.synchronizedMap(generalConfigurationData.getStatsCountersMap());
         this.checkNowButtonOption = generalConfigurationData.getCheckNowButtonOption();
         this.askedAboutDefaultServers = generalConfigurationData.isAskedAboutDefaultServers();
+        this.informedAboutIdea9TaskExperimentalSupport =
+                generalConfigurationData.isInformedAboutIdea9TaskExperimentalSupport();
     }
 
     public long getUid() {
@@ -178,9 +181,18 @@ public class GeneralConfigurationBean {
         return askedAboutDefaultServers;
     }
 
+    public boolean isInformedAboutIdea9TaskExperimentalSupport() {
+        return informedAboutIdea9TaskExperimentalSupport;
+    }
+
+    public void setInformedAboutIdea9TaskExperimentalSupport(boolean informedAboutIdea9TaskExperimentalSupport) {
+        this.informedAboutIdea9TaskExperimentalSupport = informedAboutIdea9TaskExperimentalSupport;
+    }
+
     public void setAskedAboutDefaultServers(boolean askedAboutDefaultServers) {
         this.askedAboutDefaultServers = askedAboutDefaultServers;
     }
+
 
     public void resetCounter(String counterName) {
         getStatsCountersMap().put(counterName, 0);
@@ -254,6 +266,7 @@ public class GeneralConfigurationBean {
     public int hashCode() {
         int result;
         result = (autoUpdateEnabled ? 1 : 0);
+        result = THIRTY_ONE * result + (informedAboutIdea9TaskExperimentalSupport ? 1 : 0);
         result = THIRTY_ONE * result + (askedAboutDefaultServers ? 1 : 0);
         result = THIRTY_ONE * result + (httpServerEnabled ? 1 : 0);
         result = THIRTY_ONE * result + httpServerPort;

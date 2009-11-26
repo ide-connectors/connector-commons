@@ -352,7 +352,9 @@ public final class CrucibleRestXmlHelper {
 
         for (PathAndRevision file : files) {
             Element revData = new Element("revisionData");
-            addTag(revData, "rev", file.getRevision());
+            for (String revision : file.getRevisions()) {
+                addTag(revData, "rev", revision);
+            }
             addTag(revData, "source", repository);
             addTag(revData, "path", file.getPath());
             getContent(root).add(revData);

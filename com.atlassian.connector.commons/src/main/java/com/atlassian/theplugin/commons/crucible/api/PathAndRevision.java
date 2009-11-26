@@ -1,5 +1,8 @@
 package com.atlassian.theplugin.commons.crucible.api;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * User: kalamon
  * Date: 2009-11-20
@@ -7,14 +10,15 @@ package com.atlassian.theplugin.commons.crucible.api;
  */
 public class PathAndRevision {
     private String path;
-    private String revision;
+    private List<String> revisions;
 
     public PathAndRevision() {
+        revisions = new ArrayList<String>();
     }
 
-    public PathAndRevision(String path, String revision) {
+    public PathAndRevision(String path, List<String> revisions) {
         this.path = path;
-        this.revision = revision;
+        this.revisions = revisions;
     }
 
     public String getPath() {
@@ -25,11 +29,11 @@ public class PathAndRevision {
         this.path = path;
     }
 
-    public String getRevision() {
-        return revision;
+    public List<String> getRevisions() {
+        return revisions;
     }
 
-    public void setRevision(String revision) {
-        this.revision = revision;
+    public void setRevisions(List<String> revisions) {
+        this.revisions = revisions;
     }
 }

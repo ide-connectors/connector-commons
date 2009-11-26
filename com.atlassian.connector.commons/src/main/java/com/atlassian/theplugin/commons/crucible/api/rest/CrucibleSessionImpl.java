@@ -20,8 +20,8 @@ import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
-import com.atlassian.theplugin.commons.crucible.api.UploadItem;
 import com.atlassian.theplugin.commons.crucible.api.PathAndRevision;
+import com.atlassian.theplugin.commons.crucible.api.UploadItem;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
@@ -1434,7 +1434,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
     private Review addChangesetRevisionsToReview(PermId permId, String repository, List<String> revisions)
 			throws RemoteApiException {
-        
+
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
@@ -1470,23 +1470,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 		Document request = CrucibleRestXmlHelper.prepareAddItemNode(newReviewItem);
 
-		// TODO jj improve xml retrieve
-		// XmlUtil.printXml(request);
-
 		try {
 			String url = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + REVIEW_ITEMS;
 			Document doc = retrievePostResponse(url, request);
 
-			// XmlUtil.printXml(doc);
-
-			// reviewItemData is returned
-			// XPath xpath = XPath.newInstance("/reviewData");
-			// @SuppressWarnings("unchecked")
-			// List<Element> elements = xpath.selectNodes(doc);
-			//
-			// if (elements != null && !elements.isEmpty()) {
-			// return CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), elements.iterator().next(), shouldTrimWikiMarkers());
-			// }
+			// TODO retrieve post response if necessary
 			return;
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);

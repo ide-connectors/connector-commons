@@ -29,6 +29,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.CommentBean;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCache;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
@@ -52,7 +53,6 @@ import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -235,7 +235,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 		return review;
 	}
 
-    public Review addFileRevisionsToReview(ConnectionCfg server, PermId permId, String repository, 
+    public Review addFileRevisionsToReview(ConnectionCfg server, PermId permId, String repository,
                                            List<PathAndRevision> revisions)
             throws RemoteApiException, ServerPasswordNotProvidedException {
 
@@ -246,11 +246,17 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
         }
         return review;
     }
-    
+
 	public void addFileToReview(ConnectionCfg server, PermId permId, NewReviewItem newReviewItem) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		session.addFileToReview(permId, newReviewItem);
+	}
+
+	public CrucibleVersionInfo getServerVersion(ConnectionCfg server) throws RemoteApiException,
+			ServerPasswordNotProvidedException {
+		CrucibleSession session = getSession(server);
+		return session.getServerVersion();
 	}
 
 	public Review addPatchToReview(ConnectionCfg server, PermId permId, String repository, String patch)

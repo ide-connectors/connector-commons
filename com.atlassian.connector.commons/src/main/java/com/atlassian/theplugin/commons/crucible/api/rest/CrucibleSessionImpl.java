@@ -1468,13 +1468,17 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			throwNotLoggedIn();
 		}
 
+		if (!getServerVersion().isVersion21OrGreater()) {
+			throw new RemoteApiException("Crucible 2.1 or newer is required");
+		}
+
 		Document request = CrucibleRestXmlHelper.prepareAddItemNode(newReviewItem);
 
 		try {
 			String url = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + REVIEW_ITEMS;
 			Document doc = retrievePostResponse(url, request);
 
-			// TODO retrieve post response if necessary
+			// TODO parse response if necessary (review item is returned)
 			return;
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);

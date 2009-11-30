@@ -17,6 +17,7 @@ import com.atlassian.theplugin.commons.crucible.api.UploadItem;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
@@ -34,7 +35,6 @@ import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -60,7 +60,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 
     void addFileToReview(ConnectionCfg server, PermId permId, NewReviewItem newReviewItem) throws RemoteApiException,
             ServerPasswordNotProvidedException;
-    
+
 	Review addPatchToReview(ConnectionCfg server, PermId permId, String repository, String patch) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
@@ -228,4 +228,6 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 
     void markAllCommentsRead(@NotNull ConnectionCfg server, PermId reviewId)  throws RemoteApiException,
 			ServerPasswordNotProvidedException;
+
+	CrucibleVersionInfo getServerVersion(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
 }

@@ -16,13 +16,42 @@
 
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
+import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
 import com.atlassian.connector.commons.misc.IntRanges;
 import com.atlassian.connector.commons.misc.IntRangesParser;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.CrucibleVersion;
-import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
 import com.atlassian.theplugin.commons.crucible.api.PathAndRevision;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CommitType;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfoImpl;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfoBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomField;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDefBean;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldValue;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldValueType;
+import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.FileType;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.RepositoryType;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.RevisionData;
+import com.atlassian.theplugin.commons.crucible.api.model.State;
+import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.CDATA;
@@ -32,7 +61,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -137,7 +165,7 @@ public final class CrucibleRestXmlHelper {
         }
         return null;
     }
-    
+
 	private static void parseReview(Element reviewNode, Review review, boolean trimWikiMarkers) {
 		if (reviewNode.getChild("author") != null) {
 			review.setAuthor(parseUserNode(reviewNode.getChild("author")));
@@ -345,6 +373,35 @@ public final class CrucibleRestXmlHelper {
 		return doc;
 	}
 
+	public static Element prepareRevisionData(RevisionData revData) {
+		Element root = new Element("revisionData");
+		Element source = new Element("source");
+		source.addContent(revData.getSource());
+		getContent(root).add(source);
+
+		Element path = new Element("path");
+		path.addContent(revData.getPath());
+		getContent(root).add(path);
+
+		for (String revision : revData.getRevisions()) {
+			Element rev = new Element("rev");
+			rev.addContent(revision);
+			getContent(root).add(rev);
+		}
+		return root;
+	}
+
+	public static Document prepareRevisions(Collection<RevisionData> revisions) {
+		Element root = new Element("revisions");
+		Document doc = new Document(root);
+
+		if (!revisions.isEmpty()) {
+			for (RevisionData revData : revisions) {
+				getContent(root).add(prepareRevisionData(revData));
+			}
+		}
+		return doc;
+	}
 
     public static Document prepareRevisionDataNode(String repository, List<PathAndRevision> files) {
         Element root = new Element("revisions");

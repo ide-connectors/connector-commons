@@ -12,6 +12,7 @@
 package com.atlassian.connector.commons.crucible;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.PathAndRevision;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
@@ -46,6 +47,13 @@ import java.util.Set;
 public interface CrucibleServerFacade2 extends ProductServerFacade {
 	// CrucibleVersionInfo getServerVersion(CrucibleServerCfg server)
 	// throws RemoteApiException, ServerPasswordNotProvidedException;
+
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
+	CrucibleSession getSession(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	Review createReview(ConnectionCfg server, Review review) throws RemoteApiException, ServerPasswordNotProvidedException;
 

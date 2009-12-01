@@ -18,10 +18,10 @@ package com.atlassian.theplugin.commons.crucible;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.util.MiscUtil;
@@ -39,7 +39,7 @@ public class CrucibleServerFacadeImplTest extends TestCase {
 		final CrucibleServerFacadeImpl crucibleServerFacade = new CrucibleServerFacadeImpl(null,
 				new TestHttpSessionCallbackImpl()) {
 			@Override
-			protected CrucibleSession getSession(final ConnectionCfg server)
+					public CrucibleSession getSession(final ConnectionCfg server)
 					throws RemoteApiException, ServerPasswordNotProvidedException {
 				return mock;
 			}
@@ -77,7 +77,7 @@ public class CrucibleServerFacadeImplTest extends TestCase {
 		final CrucibleServerFacadeImpl crucibleServerFacade = new CrucibleServerFacadeImpl(null,
 				new TestHttpSessionCallbackImpl()) {
 			@Override
-			protected CrucibleSession getSession(final ConnectionCfg server)
+					public CrucibleSession getSession(final ConnectionCfg server)
 					throws RemoteApiException, ServerPasswordNotProvidedException {
 				return mock;
 			}
@@ -89,7 +89,7 @@ public class CrucibleServerFacadeImplTest extends TestCase {
 		EasyMock.expect(mock.getProjects()).andReturn(MiscUtil.buildArrayList(PR_1, PR_2, PR_3));
 		EasyMock.expect(mock.getProjects()).andReturn(MiscUtil.buildArrayList(PR_3));
 		EasyMock.replay(mock);
-		
+
 		TestUtil.assertHasOnlyElements(crucibleServerFacade.getProjects(SERVER_DATA), PR_1, PR_2);
 		TestUtil.assertHasOnlyElements(crucibleServerFacade.getProjects(SERVER_DATA), PR_1, PR_2, PR_3);
 		TestUtil.assertHasOnlyElements(crucibleServerFacade.getProjects(SERVER_DATA), PR_3);

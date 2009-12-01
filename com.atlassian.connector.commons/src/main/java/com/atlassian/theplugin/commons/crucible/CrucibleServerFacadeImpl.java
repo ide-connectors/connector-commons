@@ -79,7 +79,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 		return ServerType.CRUCIBLE_SERVER;
 	}
 
-	protected synchronized CrucibleSession getSession(ConnectionCfg server) throws RemoteApiException,
+	public synchronized CrucibleSession getSession(ConnectionCfg server) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		String key = server.getUrl() + server.getUsername() + server.getPassword();
 		CrucibleSession session = sessions.get(key);

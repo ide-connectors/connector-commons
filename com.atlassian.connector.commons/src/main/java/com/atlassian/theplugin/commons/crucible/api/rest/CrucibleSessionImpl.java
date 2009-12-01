@@ -37,6 +37,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.RevisionData;
 import com.atlassian.theplugin.commons.crucible.api.model.State;
 import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
@@ -109,6 +110,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	private static final String REVIEWERS = "/reviewers";
 
 	private static final String REVIEW_ITEMS = "/reviewitems";
+
+	private static final String REVISIONS = "/revisions";
 
 	private static final String METRICS = "/metrics";
 
@@ -1811,5 +1814,38 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		// Refresh login to fix problem with https://studio.atlassian.com/browse/ACC-31
 		realLogin();
 		return authToken != null;
+	}
+
+	public Review addRevisionsToReviewItems(PermId permId, Collection<RevisionData> revisions)
+			throws RemoteApiException {
+
+		if (!isLoggedIn()) {
+			throwNotLoggedIn();
+		}
+
+		Document request = CrucibleRestXmlHelper.prepareRevisions(revisions);
+
+		try {
+			String url = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + REVIEW_ITEMS + REVISIONS;
+			Document doc = retrievePostResponse(url, request);
+
+			XPath xpath = XPath.newInstance("/detailedReviewData");
+
+			@SuppressWarnings("unchecked")
+			List<Element> elements = xpath.selectNodes(doc);
+
+			if (elements != null && !elements.isEmpty()) {
+				for (Element element : elements) {
+					return prepareDetailReview(element);
+				}
+			}
+			return null;
+		} catch (IOException e) {
+			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+		} catch (JDOMException e) {
+			throwMalformedResponseReturned(e);
+		}
+
+		return null;
 	}
 }

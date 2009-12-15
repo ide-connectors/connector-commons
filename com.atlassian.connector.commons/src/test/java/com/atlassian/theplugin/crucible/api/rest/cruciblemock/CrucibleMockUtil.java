@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-package com.atlassian.theplugin.commons.fisheye.api;
+package com.atlassian.theplugin.crucible.api.rest.cruciblemock;
 
-import com.atlassian.theplugin.commons.remoteapi.ProductSession;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
+import static junit.framework.Assert.fail;
 
-import java.util.Collection;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-public interface FishEyeSession extends ProductSession {
-	Collection<String> getRepositories() throws RemoteApiException;
+import com.atlassian.theplugin.util.AbstractMockUtil;
 
-    Collection<FisheyePathHistoryItem> getPathHistory(String repo, String path) throws RemoteApiException;
+public final class CrucibleMockUtil extends AbstractMockUtil {
+
+	private static final String RESOURCE_BASE = "/mock/crucible/api/rest/";
+
+	public CrucibleMockUtil() {
+	}
+
+    protected String getBase() {
+        return RESOURCE_BASE;
+    }
 }

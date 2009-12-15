@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.atlassian.theplugin.crucible.api.rest.cruciblemock;
+package com.atlassian.theplugin.commons.fisheye.api.rest.mock;
 
 import static junit.framework.Assert.fail;
 
@@ -23,27 +23,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public final class Util {
+import com.atlassian.theplugin.util.AbstractMockUtil;
 
-	private static final String RESOURCE_BASE = "/mock/crucible/api/rest/";
+public final class FisheyeMockUtil extends AbstractMockUtil {
 
-	private Util() {
+	private static final String RESOURCE_BASE = "/mock/fisheye/api/rest/";
+
+	public FisheyeMockUtil() {
 	}
 
-	public static void copyResource(OutputStream outputStream, String resource) {
-		BufferedInputStream is = new BufferedInputStream(Util.class.getResourceAsStream(RESOURCE_BASE + resource));
-		int c;
-		try {
-			while ((c = is.read()) != -1) {
-				outputStream.write(c);
-			}
-		} catch (IOException e) {
-			fail(e.getMessage());
-		}
-	}
-
-    public static InputStream getResource(String resource) {
-        BufferedInputStream is = new BufferedInputStream(Util.class.getResourceAsStream(RESOURCE_BASE + resource));
-        return is;
+    protected String getBase() {
+        return RESOURCE_BASE;
     }
 }

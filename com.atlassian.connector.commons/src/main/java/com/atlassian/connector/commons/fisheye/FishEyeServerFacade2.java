@@ -14,10 +14,14 @@ package com.atlassian.connector.commons.fisheye;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
 
 import java.util.Collection;
 
 public interface FishEyeServerFacade2 extends ProductServerFacade {
 
 	Collection<String> getRepositories(final ConnectionCfg server) throws RemoteApiException;
+
+    Collection<FisheyePathHistoryItem> getPathHistory(final ConnectionCfg server, String repo, String path)
+            throws RemoteApiException;
 }

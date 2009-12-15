@@ -17,9 +17,9 @@ public class VersionInfoCallback implements JettyMockServer.Callback {
 		assertTrue(request.getPathInfo().endsWith("/rest-service/reviews-v1/versionInfo"));
 
 		if (cru16) {
-			Util.copyResource(response.getOutputStream(), "versionInfoSuccessResponse.xml");
+			new CrucibleMockUtil().copyResource(response.getOutputStream(), "versionInfoSuccessResponse.xml");
 		} else {
-			Util.copyResource(response.getOutputStream(), "versionInfoFailureResponse.xml");
+			new CrucibleMockUtil().copyResource(response.getOutputStream(), "versionInfoFailureResponse.xml");
 			response.setStatus(500);
 		}
 		response.getOutputStream().flush();

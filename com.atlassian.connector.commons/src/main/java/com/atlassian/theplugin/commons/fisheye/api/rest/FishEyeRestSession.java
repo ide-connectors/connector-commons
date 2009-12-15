@@ -17,6 +17,7 @@ package com.atlassian.theplugin.commons.fisheye.api.rest;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
+import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
@@ -37,6 +38,7 @@ import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collection;
 
 public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSession {
 	private static final String REST_BASE_URL = "/api/rest/";
@@ -47,11 +49,17 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 
 	static final String LIST_REPOSITORIES_ACTION = REST_BASE_URL + "repositories";
 
+    public static final String LIST_HISTORY_ACTION = "/rest-service-fe/revisionData-v1/pathHistory/";
+
 	private String authToken;
 
 	private boolean loggedIn;
 
-	/**
+    private static final String EXCEPTION_ENCOUNTERED_WHILE_LOGOUT = "Exception encountered while logout:";
+    private static final String CALLING_METHOD_WITHOUT_CALLING_LOGIN_FIRST = "Calling method without calling login() first";
+    public static final String SERVER_RETURNED_MALFORMED_RESPONSE = "Server returned malformed response";
+
+    /**
 	 * Public constructor for AbstractHttpSession
 	 *
 	 * @param server   The server configuration for this session
@@ -121,7 +129,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 		} catch (IOException e) {
 			throw new RemoteApiLoginException(e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiLoginException("Server returned malformed response", e);
+			throw new RemoteApiLoginException(SERVER_RETURNED_MALFORMED_RESPONSE, e);
 		} catch (RemoteApiSessionExpiredException e) {
 			throw new RemoteApiLoginException("Session expired", e);
 		} catch (IllegalArgumentException e) {
@@ -146,11 +154,11 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 			String logoutUrl = getBaseUrl() + LOGOUT_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
 			retrieveGetResponse(logoutUrl);
 		} catch (IOException e) {
-			LoggerImpl.getInstance().error("Exception encountered while logout:" + e.getMessage(), e);
+			LoggerImpl.getInstance().error(EXCEPTION_ENCOUNTERED_WHILE_LOGOUT + e.getMessage(), e);
 		} catch (JDOMException e) {
-			LoggerImpl.getInstance().error("Exception encountered while logout:" + e.getMessage(), e);
+			LoggerImpl.getInstance().error(EXCEPTION_ENCOUNTERED_WHILE_LOGOUT + e.getMessage(), e);
 		} catch (RemoteApiSessionExpiredException e) {
-			LoggerImpl.getInstance().debug("Exception encountered while logout:" + e.getMessage(), e);
+			LoggerImpl.getInstance().debug(EXCEPTION_ENCOUNTERED_WHILE_LOGOUT + e.getMessage(), e);
 		}
 
 		authToken = null;
@@ -164,7 +172,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 
 	public List<String> getRepositories() throws RemoteApiException {
 		if (!isLoggedIn()) {
-			throw new IllegalStateException("Calling method without calling login() first");
+			throw new IllegalStateException(CALLING_METHOD_WITHOUT_CALLING_LOGIN_FIRST);
 		}
 
 		String requestUrl = getBaseUrl() + LIST_REPOSITORIES_ACTION;
@@ -185,8 +193,42 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
-			throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
+			throw new RemoteApiException(getBaseUrl() + ": " + SERVER_RETURNED_MALFORMED_RESPONSE, e);
 		}
 	}
 
+    public Collection<FisheyePathHistoryItem> getPathHistory(String repo, String path) throws RemoteApiException {
+
+        if (!isLoggedIn()) {
+            throw new IllegalStateException(CALLING_METHOD_WITHOUT_CALLING_LOGIN_FIRST);
+        }
+
+        String requestUrl = getBaseUrl() + LIST_HISTORY_ACTION + repo + "?path=" + path;
+        try {
+            Document doc = retrieveGetResponse(requestUrl);
+
+            XPath xpath = XPath.newInstance("/fileRevisionList");
+            //noinspection unchecked
+            List<Element> elements = xpath.selectNodes(doc);
+            if (elements == null || elements.size() != 1) {
+                // hmm, what about error conditions? 
+                throw new RemoteApiException(getBaseUrl() + ": " + SERVER_RETURNED_MALFORMED_RESPONSE);
+            }
+            xpath = XPath.newInstance("/fileRevisionList/fileRevision");
+            //noinspection unchecked
+            elements = xpath.selectNodes(doc);
+            List<FisheyePathHistoryItem> list = new ArrayList<FisheyePathHistoryItem>();
+
+            if (elements != null && !elements.isEmpty()) {
+                for (Element element : elements) {
+                    list.add(new FisheyePathHistoryItem(element));
+                }
+            }
+            return list;
+        } catch (IOException e) {
+            throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+        } catch (JDOMException e) {
+            throw new RemoteApiException(getBaseUrl() + ": " + SERVER_RETURNED_MALFORMED_RESPONSE, e);
+        }
+    }
 }

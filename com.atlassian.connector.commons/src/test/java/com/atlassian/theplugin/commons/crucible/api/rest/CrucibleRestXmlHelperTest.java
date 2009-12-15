@@ -1,7 +1,7 @@
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
-import com.atlassian.theplugin.crucible.api.rest.cruciblemock.Util;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CrucibleMockUtil;
 import junit.framework.TestCase;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -20,7 +20,7 @@ public class CrucibleRestXmlHelperTest extends TestCase {
     public void testParseProjectNode() throws JDOMException, IOException {
         XPath xpath = XPath.newInstance("projectData");
         final SAXBuilder builder = new SAXBuilder();
-		Document doc = builder.build(Util.getResource("projectDataCrucible1_6.xml"));
+		Document doc = builder.build(new CrucibleMockUtil().getResource("projectDataCrucible1_6.xml"));
         
 		@SuppressWarnings("unchecked")
         List<Element> elements = xpath.selectNodes(doc);
@@ -29,7 +29,7 @@ public class CrucibleRestXmlHelperTest extends TestCase {
         assertEquals(cp.getAllowedReviewers(), null);
 
 
-        doc = builder.build(Util.getResource("projectDataCrucible2_0.xml"));
+        doc = builder.build(new CrucibleMockUtil().getResource("projectDataCrucible2_0.xml"));
         elements = xpath.selectNodes(doc);
         cp = CrucibleRestXmlHelper.parseProjectNode(elements.get(0));
 

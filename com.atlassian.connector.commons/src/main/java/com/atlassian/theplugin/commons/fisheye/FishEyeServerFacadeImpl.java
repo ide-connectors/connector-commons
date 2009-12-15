@@ -5,6 +5,7 @@ import com.atlassian.connector.commons.api.HttpConnectionCfg;
 import com.atlassian.connector.commons.fisheye.FishEyeServerFacade2;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
+import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
 import com.atlassian.theplugin.commons.fisheye.api.rest.FishEyeRestSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
@@ -62,4 +63,15 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade2 {
 		fishEyeSession.logout();
 		return repositories;
 	}
+
+    public Collection<FisheyePathHistoryItem> getPathHistory(ConnectionCfg server, String repo, String path)
+            throws RemoteApiException {
+        FishEyeSession fishEyeSession = getSession(server);
+        Collection<FisheyePathHistoryItem> items;
+
+        fishEyeSession.login(server.getUsername(), server.getPassword().toCharArray());
+        items = fishEyeSession.getPathHistory(repo, path);
+        fishEyeSession.logout();
+        return items;
+    }
 }

@@ -15,7 +15,7 @@ public class GetMetricsCallback implements JettyMockServer.Callback {
 			throws Exception {
 
 		assertTrue(request.getPathInfo().endsWith("/rest-service/reviews-v1/metrics/1"));
-		Util.copyResource(response.getOutputStream(), "metricsResponse.xml");
+		new CrucibleMockUtil().copyResource(response.getOutputStream(), "metricsResponse.xml");
 		response.getOutputStream().flush();
 	}
 

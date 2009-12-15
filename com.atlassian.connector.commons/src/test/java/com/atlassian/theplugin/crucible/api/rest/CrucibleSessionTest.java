@@ -38,7 +38,7 @@ import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetReviewersCallba
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetReviewsCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.MalformedResponseCallback;
-import com.atlassian.theplugin.crucible.api.rest.cruciblemock.Util;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CrucibleMockUtil;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetMetricsCallback;
 import junit.framework.TestCase;
@@ -949,7 +949,7 @@ public class CrucibleSessionTest extends TestCase {
 		mockServer.expect("/rest-service/reviews-v1/" + permId.getId() + "/details", new JettyMockServer.Callback() {
 			public void onExpectedRequest(final String target, final HttpServletRequest request,
 					final HttpServletResponse response) throws Exception {
-				Util.copyResource(response.getOutputStream(), resource);
+				new CrucibleMockUtil().copyResource(response.getOutputStream(), resource);
 				response.getOutputStream().flush();
 			}
 		});

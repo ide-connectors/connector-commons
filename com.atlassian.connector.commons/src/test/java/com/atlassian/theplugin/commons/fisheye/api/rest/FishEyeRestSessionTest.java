@@ -20,10 +20,17 @@ import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
 import com.atlassian.theplugin.api.AbstractSessionTest;
 import com.atlassian.theplugin.commons.fisheye.api.rest.mock.FishEyeLoginCallback;
 import com.atlassian.theplugin.commons.fisheye.api.rest.mock.FishEyeLogoutCallback;
+import com.atlassian.theplugin.commons.fisheye.api.rest.mock.FisheyeMockUtil;
+import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CrucibleMockUtil;
 import org.ddsteps.mock.httpserver.JettyMockServer;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Collection;
 
 /**
  * FishEyeRestSession Tester.
@@ -112,6 +119,88 @@ public class FishEyeRestSessionTest extends AbstractSessionTest {
 		} catch (RemoteApiException ex) {
 		}
 	}
+
+    public void testGetPathHistory() throws Exception {
+        mockServer.expect(FishEyeRestSession.LOGIN_ACTION, new FishEyeLoginCallback(USER_NAME, PASSWORD));
+        mockServer.expect(FishEyeRestSession.LIST_HISTORY_ACTION + "a",
+                new JettyMockServer.Callback() {
+                    public void onExpectedRequest(String target, HttpServletRequest request,
+                                                  HttpServletResponse response) throws Exception {
+                        assertEquals("b", request.getParameter("path"));
+                        new FisheyeMockUtil().copyResource(response.getOutputStream(), "pathHistorySuccessResponse.xml");
+                        response.getOutputStream().flush();
+                    }
+                });
+        mockServer.expect(FishEyeRestSession.LOGOUT_ACTION, new FishEyeLogoutCallback(FishEyeLoginCallback.AUTH_TOKEN));
+
+        FishEyeRestSession apiHandler = createSession(mockBaseUrl + "/");
+        apiHandler.login(USER_NAME, PASSWORD.toCharArray());
+        Collection<FisheyePathHistoryItem> history = apiHandler.getPathHistory("a", "b");
+        apiHandler.logout();
+
+        assertNotNull(history);
+        assertEquals(132, history.size());
+        for (FisheyePathHistoryItem item : history) {
+            assertNotNull(item.getPath());
+            assertNotNull(item.getAuthor());
+            assertNotNull(item.getRev());
+            assertNotNull(item.getAncestor());
+        }
+
+        mockServer.verify();
+    }
+
+    public void testGetPathHistoryFailure() throws Exception {
+        mockServer.expect(FishEyeRestSession.LOGIN_ACTION, new FishEyeLoginCallback(USER_NAME, PASSWORD));
+        mockServer.expect(FishEyeRestSession.LIST_HISTORY_ACTION + "a",
+                new JettyMockServer.Callback() {
+                    public void onExpectedRequest(String target, HttpServletRequest request,
+                                                  HttpServletResponse response) throws Exception {
+                        assertEquals("b", request.getParameter("path"));
+                        new FisheyeMockUtil().copyResource(response.getOutputStream(), "pathHistoryErrorResponse.xml");
+                        response.getOutputStream().flush();
+                    }
+                });
+        mockServer.expect(FishEyeRestSession.LOGOUT_ACTION, new FishEyeLogoutCallback(FishEyeLoginCallback.AUTH_TOKEN));
+
+        try {
+            FishEyeRestSession apiHandler = createSession(mockBaseUrl + "/");
+            apiHandler.login(USER_NAME, PASSWORD.toCharArray());
+            apiHandler.getPathHistory("a", "b");
+            apiHandler.logout();
+
+            mockServer.verify();
+            fail();
+        } catch (RemoteApiException e) {
+            assertTrue(e.getMessage().endsWith(FishEyeRestSession.SERVER_RETURNED_MALFORMED_RESPONSE));
+        }
+    }
+
+    public void testGetPathHistoryBogusResponse() throws Exception {
+        mockServer.expect(FishEyeRestSession.LOGIN_ACTION, new FishEyeLoginCallback(USER_NAME, PASSWORD));
+        mockServer.expect(FishEyeRestSession.LIST_HISTORY_ACTION + "a",
+                new JettyMockServer.Callback() {
+                    public void onExpectedRequest(String target, HttpServletRequest request,
+                                                  HttpServletResponse response) throws Exception {
+                        assertEquals("b", request.getParameter("path"));
+                        new FisheyeMockUtil().copyResource(response.getOutputStream(), "corruptResponse.xml");
+                        response.getOutputStream().flush();
+                    }
+                });
+        mockServer.expect(FishEyeRestSession.LOGOUT_ACTION, new FishEyeLogoutCallback(FishEyeLoginCallback.AUTH_TOKEN));
+
+        try {
+            FishEyeRestSession apiHandler = createSession(mockBaseUrl + "/");
+            apiHandler.login(USER_NAME, PASSWORD.toCharArray());
+            apiHandler.getPathHistory("a", "b");
+            apiHandler.logout();
+
+            mockServer.verify();
+            fail();
+        } catch (RemoteApiException e) {
+            assertTrue(e.getMessage().endsWith(FishEyeRestSession.SERVER_RETURNED_MALFORMED_RESPONSE));
+        }
+    }
 
 	private FishEyeRestSession createSession(String url) throws RemoteApiMalformedUrlException {
 		return new FishEyeRestSession(new ConnectionCfg("id", url, "", ""), new TestHttpSessionCallbackImpl());

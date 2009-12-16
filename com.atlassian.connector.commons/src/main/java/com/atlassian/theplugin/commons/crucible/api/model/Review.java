@@ -34,7 +34,7 @@ public class Review {
 	private User author;
 	private User creator;
 	private String description;
-	private User moderator;
+	@Nullable private User moderator;
 	private String name;
 	private PermId parentReview;
 	private PermId permId;
@@ -115,7 +115,7 @@ public class Review {
 //		reviewItems = new ArrayList<CrucibleReviewItemInfo>();
 	}
 
-	public Review(@NotNull String serverUrl, @NotNull String projectKey, @NotNull User author, @NotNull User moderator) {
+	public Review(@NotNull String serverUrl, @NotNull String projectKey, @NotNull User author, @Nullable User moderator) {
 		this.serverUrl = serverUrl;
 		this.projectKey = projectKey;
 		this.author = author;

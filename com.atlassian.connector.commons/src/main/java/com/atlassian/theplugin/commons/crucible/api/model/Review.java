@@ -222,8 +222,8 @@ public class Review {
 	 *
 	 * @return possible object is
 	 *         {@link com.atlassian.theplugin.commons.crucible.api.model.User }
+	 * @remark moderator can be null since Crucible 2.2M1
 	 */
-	@NotNull
 	public User getModerator() {
 		return moderator;
 	}
@@ -233,8 +233,9 @@ public class Review {
 	 *
 	 * @param value allowed object is
 	 *              {@link com.atlassian.theplugin.commons.crucible.api.model.User }
+	 * @remark moderator can be null since Crucible 2.2M1
 	 */
-	public void setModerator(@NotNull User value) {
+	public void setModerator(User value) {
 		this.moderator = value;
 	}
 

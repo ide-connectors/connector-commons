@@ -902,6 +902,14 @@ public class CrucibleSessionTest extends TestCase {
 		assertEquals(new IntRanges(new IntRange(3, 5)), vc2.getToLineRanges());
 	}
 
+	public void testGetReviewDetailsWithoutModerator() throws Exception {
+		PermId permId = new PermId("TST-9");
+
+		final Review review = getReview(permId, "reviewDetailsResponse-withoutModerator.xml", 1);
+		assertNotNull(review);
+		assertNull(review.getModerator());
+	}
+    
 	public void testGetReviewDetails() throws Exception {
 		PermId permId = new PermId("TST-9");
 
@@ -910,6 +918,7 @@ public class CrucibleSessionTest extends TestCase {
 		assertFalse(review.isAllowReviewerToJoin());
 		assertEquals(permId, review.getPermId());
 		assertEquals("TST", review.getProjectKey());
+		assertNotNull(review.getModerator());
 		final Set<CrucibleFileInfo> files = review.getFiles();
 		assertEquals(1, files.size());
 		final CrucibleFileInfo fileInfo = files.iterator().next();

@@ -51,7 +51,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -312,7 +311,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	public BambooBuild getLatestBuildForPlanNew(@NotNull final String planKey, final boolean isPlanEnabled,
 			final int timezoneOffset) throws RemoteApiException {
 
-		String planUrl = getBaseUrl() + PLAN_STATE + UrlUtil.encodeUrl(planKey) + "?auth=" + UrlUtil.encodeUrl(authToken);
+		String planUrl = getBaseUrl() + PLAN_STATE + UrlUtil.encodeUrl(planKey);
 
 		try {
 			Document doc = retrieveGetResponse(planUrl);
@@ -327,6 +326,14 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 				latestBuildBuilderForPlan.planState(plan.getState());
 				latestBuildBuilderForPlan.enabled(isPlanEnabled);
 				return latestBuildBuilderForPlan.build();
+
+				// TODO we can retrieve comments and labels together with build details
+				// below new API call can be made instead of old getBuild method
+				// String buildUrl =
+				// getBaseUrl() + "/rest/api/latest/build/" + UrlUtil.encodeUrl(planKey) + "/latest"
+				// + "?expand=comments.comment,labels";
+				// Document d = retrieveGetResponse(buildUrl);
+
 			} else {
 				return constructBuildErrorInfo(planKey, "Malformed server reply: no 'plan' element", new Date()).build();
 			}

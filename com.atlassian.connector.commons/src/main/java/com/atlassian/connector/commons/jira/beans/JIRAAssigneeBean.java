@@ -36,7 +36,7 @@ public class JIRAAssigneeBean extends JIRAUserBean {
 
 	@Override
 	public String getQueryStringFragment() {
-		return "assigneeSelect=" + getValue();
+		return getValue().equalsIgnoreCase("unassigned") ? "assigneeSelect=" + getValue() : "assignee=" + getValue();
 	}
 
 	public JIRAAssigneeBean getClone() {

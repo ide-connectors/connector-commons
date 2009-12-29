@@ -18,7 +18,6 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.connector.commons.misc.IntRanges;
 import org.jetbrains.annotations.Nullable;
-import java.util.List;
 import java.util.Map;
 
 public interface VersionedComment extends Comment {
@@ -85,16 +84,6 @@ public interface VersionedComment extends Comment {
 	@Deprecated
 	@Nullable
 	IntRanges getToLineRanges();
-
-	/**
-	 *
-	 * @return list of replies for this comment
-	 * @deprecated this method is left to make Eclipse Connector compile. In the future it will be eliminated as all
-	 *             replies (regardless of which type of comment they belong to) are just generic comments (they don't
-	 *             have line number, file revision, etc.)
-	 */
-	@Deprecated
-	List<VersionedComment> getReplies2();
 
 	/**
 	 * @return line ranges per revision - used by iterative reviews, for Crucibles older than 2.1 it will return null

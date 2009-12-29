@@ -28,7 +28,7 @@ import java.util.Set;
 
 public class Review {
 	private Set<Reviewer> reviewers;
-	private List<GeneralComment> generalComments;
+	private List<Comment> generalComments;
 	private EnumSet<CrucibleAction> transitions;
 	private EnumSet<CrucibleAction> actions;
 	private User author;
@@ -53,7 +53,7 @@ public class Review {
 		this.reviewers = reviewers;
 	}
 
-	public void setGeneralComments(List<GeneralComment> generalComments) {
+	public void setGeneralComments(List<Comment> generalComments) {
 		this.generalComments = generalComments;
 	}
 
@@ -62,11 +62,11 @@ public class Review {
 	 *
 	 * @param generalComment comment to be removed
 	 */
-	public void removeGeneralComment(final GeneralComment generalComment) {
+	public void removeGeneralComment(final Comment generalComment) {
 		if (!generalComment.isReply()) {
 			generalComments.remove(generalComment);
 		} else {
-			for (GeneralComment comment : generalComments) {
+			for (Comment comment : generalComments) {
 				if (comment.getReplies().remove(generalComment)) {
 					return;
 				}
@@ -134,7 +134,7 @@ public class Review {
 		return reviewers;
 	}
 
-	public List<GeneralComment> getGeneralComments() throws ValueNotYetInitialized {
+	public List<Comment> getGeneralComments() throws ValueNotYetInitialized {
 		if (generalComments == null) {
 			throw new ValueNotYetInitialized("Object trasferred only partially");
 		}
@@ -488,7 +488,7 @@ public class Review {
 
 	public int getNumberOfGeneralComments(final String userName) throws ValueNotYetInitialized {
 		int num = 0;
-		for (GeneralComment comment : getGeneralComments()) {
+		for (Comment comment : getGeneralComments()) {
 			if (comment.getAuthor().getUsername().equals(userName)) {
 				++num;
 			}
@@ -563,7 +563,7 @@ public class Review {
 
 	public int getNumberOfGeneralCommentsDrafts() throws ValueNotYetInitialized {
 		int num = 0;
-		for (GeneralComment comment : getGeneralComments()) {
+		for (Comment comment : getGeneralComments()) {
 			if (comment.isDraft()) {
 				++num;
 			}
@@ -578,7 +578,7 @@ public class Review {
 
 	public int getNumberOfGeneralCommentsDrafts(final String userName) throws ValueNotYetInitialized {
 		int num = 0;
-		for (GeneralComment comment : getGeneralComments()) {
+		for (Comment comment : getGeneralComments()) {
 			if (comment.isDraft() && comment.getAuthor().getUsername().equals(userName)) {
 				++num;
 			}
@@ -593,7 +593,7 @@ public class Review {
 
 	public int getNumberOfGeneralCommentsDefects() throws ValueNotYetInitialized {
 		int num = 0;
-		for (GeneralComment comment : getGeneralComments()) {
+		for (Comment comment : getGeneralComments()) {
 			if (comment.isDefectRaised()) {
 				++num;
 			}
@@ -608,7 +608,7 @@ public class Review {
 
 	public int getNumberOfGeneralCommentsDefects(final String userName) throws ValueNotYetInitialized {
 		int num = 0;
-		for (GeneralComment comment : getGeneralComments()) {
+		for (Comment comment : getGeneralComments()) {
 			if (comment.isDefectRaised() && comment.getAuthor().getUsername().equals(userName)) {
 				++num;
 			}
@@ -623,7 +623,7 @@ public class Review {
 
 	public int getNumberOfGeneralComments() throws ValueNotYetInitialized {
 		int num = getGeneralComments().size();
-		for (GeneralComment comment : getGeneralComments()) {
+		for (Comment comment : getGeneralComments()) {
 			num += comment.getReplies().size();
 		}
 		return num;

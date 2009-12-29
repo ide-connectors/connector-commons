@@ -2,9 +2,9 @@ package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfoImpl;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
@@ -53,8 +53,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		return new Reviewer(userName, displayName, completed);
 	}
 
-	private GeneralComment prepareGeneralComment(final String message, final PermId permId, final Date date,
-			final GeneralComment reply) {
+	private Comment prepareGeneralComment(final String message, final PermId permId, final Date date, final Comment reply) {
 		GeneralCommentBean bean = new GeneralCommentBean();
 		bean.setMessage(message);
 		bean.setPermId(permId);
@@ -91,7 +90,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	private Review prepareReview1(State state, Date commentsDate) throws ValueNotYetInitialized {
 		Review review1 = prepareReview();
-		review1.setGeneralComments(new ArrayList<GeneralComment>());
+		review1.setGeneralComments(new ArrayList<Comment>());
 		review1.setPermId(reviewId1);
 		review1.setState(state);
 		review1.setReviewers(MiscUtil.<Reviewer> buildHashSet(prepareReviewer("bob", "Bob", false), prepareReviewer(
@@ -322,6 +321,91 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(CrucibleNotificationType.REMOVED_REPLY, notifications.get(1).getType());
 	}
 
+	/*
+	public void testAddedGeneralCommentReplyToReply() throws ValueNotYetInitialized {
+		// test same review - fiels and versioned comments not empty
+		Date commentDate = new Date();
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
+
+		review.getGeneralComments().get(0).getReplies().add(
+				prepareGeneralComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		review1.getGeneralComments().get(0).getReplies().add(
+				prepareGeneralComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		review1.getGeneralComments().get(0).getReplies().get(0).getReplies().add(
+				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
+		List<CrucibleNotification> notifications = p.getDiff();
+
+		assertEquals(2, notifications.size());
+		assertFalse(p.isShortEqual());
+		assertFalse(p.isFilesEqual());
+		assertEquals(CrucibleNotificationType.NEW_REPLY, notifications.get(1).getType());
+	}
+
+	public void testUpdatedGeneralCommentReplyToReply() throws ValueNotYetInitialized {
+		// test same review - fiels and versioned comments not empty
+		Date commentDate = new Date();
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
+
+		review.getGeneralComments().get(0).getReplies().add(
+				prepareGeneralComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		review.getGeneralComments().get(0).getReplies().get(0).getReplies().add(
+				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		review1.getGeneralComments().get(0).getReplies().add(
+				prepareGeneralComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		review1.getGeneralComments().get(0).getReplies().get(0).getReplies().add(
+				prepareVersionedComment("reply 2 updated", new PermId("CMT:41"), new Date(), null));
+
+		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
+		List<CrucibleNotification> notifications = p.getDiff();
+
+		assertEquals(0, notifications.size());
+		assertTrue(p.isShortEqual());
+		assertTrue(p.isFilesEqual());
+
+		((GeneralCommentBean) review1.getGeneralComments().get(0).getReplies().get(0)).setMessage("new reply message");
+
+		p = new ReviewDifferenceProducer(review, review1);
+		notifications = p.getDiff();
+
+		assertEquals(2, notifications.size());
+		assertFalse(p.isShortEqual());
+		assertFalse(p.isFilesEqual());
+		assertEquals(CrucibleNotificationType.UPDATED_REPLY, notifications.get(1).getType());
+	}
+
+	public void testRemovedGeneralCommentReplyToReply() throws ValueNotYetInitialized {
+		// test same review - fiels and versioned comments not empty
+		Date commentDate = new Date();
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
+
+		review.getGeneralComments().get(0).getReplies().add(
+				prepareGeneralComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		review.getGeneralComments().get(0).getReplies().get(0).getReplies().add(
+				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		review1.getGeneralComments().get(0).getReplies().add(
+				prepareGeneralComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
+		List<CrucibleNotification> notifications = p.getDiff();
+
+		assertEquals(2, notifications.size());
+		assertFalse(p.isShortEqual());
+		assertFalse(p.isFilesEqual());
+		assertEquals(CrucibleNotificationType.REMOVED_REPLY, notifications.get(1).getType());
+	}*/
+
 	public void testEditedGeneralComment() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
@@ -503,6 +587,108 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.REMOVED_REPLY, notifications.get(0).getType());
 	}
+
+	/*
+	public void testAddedVersionedCommentReplyToReply() throws ValueNotYetInitialized {
+		// test same review - fiels and versioned comments not empty
+		Date commentDate = new Date();
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
+
+		Iterator<CrucibleFileInfo> iter;
+
+		iter = review.getFiles().iterator();
+		assertTrue(iter.hasNext());
+		iter.next().getVersionedComments().get(0).getReplies().add(
+				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		iter = review1.getFiles().iterator();
+		assertTrue(iter.hasNext());
+		iter.next().getVersionedComments().get(0).getReplies().add(
+				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		iter = review1.getFiles().iterator();
+		assertTrue(iter.hasNext());
+		iter.next().getVersionedComments().get(0).getReplies().get(0).getReplies().add(
+				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
+		List<CrucibleNotification> notifications = p.getDiff();
+
+		assertEquals(1, notifications.size());
+		assertTrue(p.isShortEqual());
+		assertFalse(p.isFilesEqual());
+		assertEquals(CrucibleNotificationType.NEW_REPLY, notifications.get(0).getType());
+	}
+
+	public void testUpdatedVersionedCommentReplyToReply() throws ValueNotYetInitialized {
+		// test same review - fiels and versioned comments not empty
+		Date commentDate = new Date();
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
+
+		Iterator<CrucibleFileInfo> iter;
+
+		iter = review.getFiles().iterator();
+		assertTrue(iter.hasNext());
+		iter.next().getVersionedComments().get(0).getReplies().add(
+				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		iter = review.getFiles().iterator();
+		assertTrue(iter.hasNext());
+		iter.next().getVersionedComments().get(0).getReplies().get(0).getReplies().add(
+				prepareVersionedComment("reply 2", new PermId("CMT:41"), commentDate, null));
+
+		iter = review1.getFiles().iterator();
+		assertTrue(iter.hasNext());
+		iter.next().getVersionedComments().get(0).getReplies().add(
+				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		iter = review1.getFiles().iterator();
+		assertTrue(iter.hasNext());
+		iter.next().getVersionedComments().get(0).getReplies().get(0).getReplies().add(
+				prepareVersionedComment("reply 2 updated", new PermId("CMT:41"), commentDate, null));
+
+		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
+		List<CrucibleNotification> notifications = p.getDiff();
+
+		assertEquals(1, notifications.size());
+		assertTrue(p.isShortEqual());
+		assertFalse(p.isFilesEqual());
+		assertEquals(CrucibleNotificationType.UPDATED_REPLY, notifications.get(0).getType());
+	}
+
+	public void testRemovedVersionedCommentReplyToReply() throws ValueNotYetInitialized {
+		// test same review - fiels and versioned comments not empty
+		Date commentDate = new Date();
+		Review review = prepareReview1(State.REVIEW, commentDate);
+		Review review1 = prepareReview1(State.REVIEW, commentDate);
+
+		Iterator<CrucibleFileInfo> iter;
+
+		iter = review.getFiles().iterator();
+		assertTrue(iter.hasNext());
+		iter.next().getVersionedComments().get(0).getReplies().add(
+				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		iter = review.getFiles().iterator();
+		assertTrue(iter.hasNext());
+		iter.next().getVersionedComments().get(0).getReplies().get(0).getReplies().add(
+				prepareVersionedComment("reply 2", new PermId("CMT:41"), commentDate, null));
+
+		iter = review1.getFiles().iterator();
+		assertTrue(iter.hasNext());
+		iter.next().getVersionedComments().get(0).getReplies().add(
+				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
+
+		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
+		List<CrucibleNotification> notifications = p.getDiff();
+
+		assertEquals(1, notifications.size());
+		assertTrue(p.isShortEqual());
+		assertFalse(p.isFilesEqual());
+		assertEquals(CrucibleNotificationType.REMOVED_REPLY, notifications.get(0).getType());
+	}*/
 
 	public void testStateChanges() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty

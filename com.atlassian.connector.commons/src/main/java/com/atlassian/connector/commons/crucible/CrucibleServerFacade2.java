@@ -21,7 +21,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
@@ -148,7 +147,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	// List<Comment> getComments(CrucibleServerCfg server, PermId permId)
 	// throws RemoteApiException, ServerPasswordNotProvidedException;
 
-	List<GeneralComment> getGeneralComments(ConnectionCfg server, PermId permId) throws RemoteApiException,
+	List<Comment> getGeneralComments(ConnectionCfg server, PermId permId) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
 	List<VersionedComment> getVersionedComments(ConnectionCfg server, PermId permId) throws RemoteApiException,
@@ -160,7 +159,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	// List<GeneralComment> getReplies(CrucibleServerCfg server, PermId permId, PermId commentId)
 	// throws RemoteApiException, ServerPasswordNotProvidedException;
 
-	GeneralComment addGeneralComment(ConnectionCfg server, PermId permId, GeneralComment comment) throws RemoteApiException,
+	Comment addGeneralComment(ConnectionCfg server, PermId permId, Comment comment) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
 	VersionedComment addVersionedComment(ConnectionCfg server, PermId permId, PermId riId, VersionedComment comment)
@@ -175,7 +174,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	void publishAllCommentsForReview(ConnectionCfg server, PermId reviewId) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
-	GeneralComment addGeneralCommentReply(ConnectionCfg server, PermId id, PermId cId, GeneralComment comment)
+	Comment addGeneralCommentReply(ConnectionCfg server, PermId id, PermId cId, Comment comment)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	VersionedComment addVersionedCommentReply(ConnectionCfg server, PermId id, PermId cId, VersionedComment comment)

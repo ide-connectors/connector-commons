@@ -32,7 +32,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCache;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
@@ -417,7 +416,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 		review.setFilesAndVersionedComments(files, comments);
 	}
 
-	public List<GeneralComment> getGeneralComments(ConnectionCfg server, PermId permId) throws RemoteApiException,
+	public List<Comment> getGeneralComments(ConnectionCfg server, PermId permId) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getGeneralComments(permId);
@@ -435,13 +434,13 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 		return session.getVersionedComments(permId, reviewItemId);
 	}
 
-	public List<GeneralComment> getReplies(ConnectionCfg server, PermId permId, PermId commentId)
+	public List<Comment> getReplies(ConnectionCfg server, PermId permId, PermId commentId)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getReplies(permId, commentId);
 	}
 
-	public GeneralComment addGeneralComment(ConnectionCfg server, PermId permId, GeneralComment comment)
+	public Comment addGeneralComment(ConnectionCfg server, PermId permId, Comment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		GeneralCommentBean newComment = (GeneralCommentBean) session.addGeneralComment(permId, comment);
@@ -479,7 +478,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 		session.publishComment(reviewId, null);
 	}
 
-	public GeneralComment addGeneralCommentReply(ConnectionCfg server, PermId id, PermId cId, GeneralComment comment)
+	public Comment addGeneralCommentReply(ConnectionCfg server, PermId id, PermId cId, Comment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		GeneralCommentBean newReply = (GeneralCommentBean) session.addGeneralCommentReply(id, cId, comment);

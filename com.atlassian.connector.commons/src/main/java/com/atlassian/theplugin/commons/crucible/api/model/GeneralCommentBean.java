@@ -16,22 +16,21 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import java.util.List;
 
-public class GeneralCommentBean extends CommentBean implements GeneralComment {
+public class GeneralCommentBean extends CommentBean implements Comment {
 	private static final int HASH_INT = 31;
 
 	public GeneralCommentBean() {
 		super();
 	}
 
-	public GeneralCommentBean(final GeneralComment bean) {
+	public GeneralCommentBean(final Comment bean) {
 		super(bean);
 	}
 
 	@Override
 	protected Comment createReplyBean(Comment reply) {
-		return new GeneralCommentBean((GeneralComment) reply);
+		return new GeneralCommentBean(reply);
 	}
 
 	@Override
@@ -60,15 +59,6 @@ public class GeneralCommentBean extends CommentBean implements GeneralComment {
 		int result = super.hashCode();
 		result = HASH_INT * result + (getReplies() != null ? getReplies().hashCode() : 0);
 		return result;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Deprecated
-	public List<GeneralComment> getReplies2() {
-		// wseliga: I don't know how to make it compilable with these casts.
-		// We are somewhat guaranteed that all replies will be here really of VersionedComment type, so I dare cast
-		//noinspection RedundantCast
-		return (List<GeneralComment>) (List<?>) getReplies();
 	}
 
 }

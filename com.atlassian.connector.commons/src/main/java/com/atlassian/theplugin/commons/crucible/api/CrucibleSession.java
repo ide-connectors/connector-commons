@@ -23,7 +23,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
@@ -118,15 +117,15 @@ public interface CrucibleSession {
 
 //	List<Comment> getComments(PermId id) throws RemoteApiException;
 
-	List<GeneralComment> getGeneralComments(PermId id) throws RemoteApiException;
+	List<Comment> getGeneralComments(PermId id) throws RemoteApiException;
 
 	List<VersionedComment> getAllVersionedComments(PermId id) throws RemoteApiException;
 
 	List<VersionedComment> getVersionedComments(PermId id, PermId reviewItemId) throws RemoteApiException;
 
-	List<GeneralComment> getReplies(PermId id, PermId commentId) throws RemoteApiException;
+	List<Comment> getReplies(PermId id, PermId commentId) throws RemoteApiException;
 
-	GeneralComment addGeneralComment(PermId id, GeneralComment comment) throws RemoteApiException;
+	Comment addGeneralComment(PermId id, Comment comment) throws RemoteApiException;
 
 	VersionedComment addVersionedComment(PermId id, PermId riId, VersionedComment comment) throws RemoteApiException;
 
@@ -136,12 +135,12 @@ public interface CrucibleSession {
 
 	void publishComment(PermId reviewId, PermId commentId) throws RemoteApiException;
 
-	GeneralComment addGeneralCommentReply(PermId id, PermId cId, GeneralComment comment) throws RemoteApiException;
+	Comment addGeneralCommentReply(PermId id, PermId cId, Comment comment) throws RemoteApiException;
 
 	VersionedComment addVersionedCommentReply(PermId id, PermId cId, VersionedComment comment)
 			throws RemoteApiException;
 
-	void updateReply(PermId id, PermId cId, PermId rId, GeneralComment comment) throws RemoteApiException;
+	void updateReply(PermId id, PermId cId, PermId rId, Comment comment) throws RemoteApiException;
 
 	List<CustomFieldDef> getMetrics(int version) throws RemoteApiException;
 

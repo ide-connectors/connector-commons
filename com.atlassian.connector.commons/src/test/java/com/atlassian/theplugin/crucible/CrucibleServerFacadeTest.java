@@ -16,6 +16,8 @@
 
 package com.atlassian.theplugin.crucible;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.crucible.CrucibleServerFacade2;
 import com.atlassian.connector.commons.misc.ErrorResponse;
@@ -28,11 +30,11 @@ import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.CrucibleServerFacadeImpl;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCacheImpl;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
@@ -44,14 +46,10 @@ import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedExcept
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
-import junit.framework.TestCase;
 import org.apache.commons.httpclient.HttpStatus;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
 import org.mortbay.jetty.Server;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,6 +59,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import junit.framework.TestCase;
 
 public class CrucibleServerFacadeTest extends TestCase {
 	private static final User VALID_LOGIN = new User("validLogin");
@@ -568,7 +567,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public List<GeneralComment> getGeneralComments() throws ValueNotYetInitialized {
+			public List<Comment> getGeneralComments() throws ValueNotYetInitialized {
 				return null;
 			}
 
@@ -588,12 +587,12 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public void setGeneralComments(final List<GeneralComment> generalComments) {
+			public void setGeneralComments(final List<Comment> generalComments) {
 				// not implemented
 			}
 
 			@Override
-			public void removeGeneralComment(final GeneralComment comment) {
+			public void removeGeneralComment(final Comment comment) {
 				// not implemented
 			}
 
@@ -678,12 +677,12 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public void setGeneralComments(final List<GeneralComment> generalComments) {
+			public void setGeneralComments(final List<Comment> generalComments) {
 				// not implemented
 			}
 
 			@Override
-			public void removeGeneralComment(final GeneralComment comment) {
+			public void removeGeneralComment(final Comment comment) {
 				// not implemented
 			}
 
@@ -704,7 +703,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public List<GeneralComment> getGeneralComments() {
+			public List<Comment> getGeneralComments() {
 				return null;
 			}
 

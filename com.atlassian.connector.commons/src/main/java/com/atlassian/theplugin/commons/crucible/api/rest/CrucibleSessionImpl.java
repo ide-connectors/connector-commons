@@ -29,7 +29,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
@@ -51,6 +50,7 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
+import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.ProductVersionUtil;
 import com.atlassian.theplugin.commons.util.StringUtil;
 import org.apache.commons.httpclient.Header;
@@ -824,7 +824,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 //		}
 //	}
 
-	public List<GeneralComment> getGeneralComments(PermId id) throws RemoteApiException {
+	public List<Comment> getGeneralComments(PermId id) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
@@ -836,11 +836,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			XPath xpath = XPath.newInstance("comments/generalCommentData");
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
-			List<GeneralComment> comments = new ArrayList<GeneralComment>();
+			List<Comment> comments = MiscUtil.buildArrayList();
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					GeneralComment c = CrucibleRestXmlHelper.parseGeneralCommentNode(
+					Comment c = CrucibleRestXmlHelper.parseGeneralCommentNode(
                             getUsername(), element, shouldTrimWikiMarkers());
 					if (c != null) {
 						comments.add(c);
@@ -924,7 +924,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	public List<GeneralComment> getReplies(PermId id, PermId commentId) throws RemoteApiException {
+	public List<Comment> getReplies(PermId id, PermId commentId) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
@@ -937,11 +937,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			XPath xpath = XPath.newInstance("comments/generalCommentData");
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
-			List<GeneralComment> comments = new ArrayList<GeneralComment>();
+			List<Comment> comments = MiscUtil.buildArrayList();
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					GeneralComment c = CrucibleRestXmlHelper.parseGeneralCommentNode(
+					Comment c = CrucibleRestXmlHelper.parseGeneralCommentNode(
                             getUsername(), element, shouldTrimWikiMarkers());
 					if (c != null) {
 						comments.add(c);
@@ -1018,7 +1018,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 //		}
 //	}
 
-	public GeneralComment addGeneralComment(PermId id, GeneralComment comment) throws RemoteApiException {
+	public Comment addGeneralComment(PermId id, Comment comment) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
@@ -1129,7 +1129,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	public GeneralComment addGeneralCommentReply(PermId id, PermId cId, GeneralComment comment)
+	public Comment addGeneralCommentReply(PermId id, PermId cId, Comment comment)
 			throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
@@ -1203,7 +1203,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	public void updateReply(PermId id, PermId cId, PermId rId, GeneralComment comment) throws RemoteApiException {
+	public void updateReply(PermId id, PermId cId, PermId rId, Comment comment) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }

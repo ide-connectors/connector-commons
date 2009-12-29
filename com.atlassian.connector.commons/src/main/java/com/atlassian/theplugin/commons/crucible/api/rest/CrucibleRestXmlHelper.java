@@ -38,7 +38,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldValue;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldValueType;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.FileType;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
@@ -233,10 +232,10 @@ public final class CrucibleRestXmlHelper {
 		List<Element> generalCommentsNode = getChildElements(reviewNode, "generalComments");
 		for (Element generalComment : generalCommentsNode) {
 			List<Element> generalCommentsDataNode = getChildElements(generalComment, "generalCommentData");
-			List<GeneralComment> generalComments = new ArrayList<GeneralComment>();
+			List<Comment> generalComments = new ArrayList<Comment>();
 
 			for (Element generalCommentData : generalCommentsDataNode) {
-				GeneralComment c = parseGeneralCommentNode(myUsername, generalCommentData, trimWikiMarkers);
+				Comment c = parseGeneralCommentNode(myUsername, generalCommentData, trimWikiMarkers);
 				if (c != null) {
 					generalComments.add(c);
 				}

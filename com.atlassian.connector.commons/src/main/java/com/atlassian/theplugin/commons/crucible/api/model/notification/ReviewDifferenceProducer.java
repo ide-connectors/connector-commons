@@ -5,7 +5,6 @@ import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
@@ -142,8 +141,8 @@ public class ReviewDifferenceProducer {
 	}
 
 	private boolean areGeneralCommentsEqual() {
-		List<GeneralComment> l = null;
-		List<GeneralComment> r = null;
+		List<Comment> l = null;
+		List<Comment> r = null;
 		try {
 			l = oldReview.getGeneralComments();
 		} catch (ValueNotYetInitialized e) {	/* ignore */ }
@@ -244,14 +243,14 @@ public class ReviewDifferenceProducer {
 		}
 	}
 
-	private int checkGeneralReplies(Review review, GeneralComment oldComment, GeneralComment newComment) {
+	private int checkGeneralReplies(Review review, Comment oldComment, Comment newComment) {
 		int replyChanges = 0;
 		for (Comment reply : newComment.getReplies()) {
-			GeneralComment existingReply = null;
+			Comment existingReply = null;
 			if (oldComment != null) {
 				for (Comment oldReply : oldComment.getReplies()) {
 					if (reply.getPermId().getId().equals(oldReply.getPermId().getId())) {
-						existingReply = (GeneralComment) oldReply;
+						existingReply = oldReply;
 						break;
 					}
 				}
@@ -332,9 +331,9 @@ public class ReviewDifferenceProducer {
 			throws ValueNotYetInitialized {
 		int commentChanges = 0;
 
-		for (GeneralComment comment : aNewReview.getGeneralComments()) {
-			GeneralComment existing = null;
-			for (GeneralComment oldComment : anOldReview.getGeneralComments()) {
+		for (Comment comment : aNewReview.getGeneralComments()) {
+			Comment existing = null;
+			for (Comment oldComment : anOldReview.getGeneralComments()) {
 				if (comment.getPermId().getId().equals(oldComment.getPermId().getId())) {
 					existing = oldComment;
 					break;
@@ -359,9 +358,9 @@ public class ReviewDifferenceProducer {
 			commentChanges += checkGeneralReplies(aNewReview, existing, comment);
 		}
 
-		List<GeneralComment> deletedGen = getDeletedComments(
+		List<Comment> deletedGen = getDeletedComments(
 				anOldReview.getGeneralComments(), aNewReview.getGeneralComments());
-		for (GeneralComment gc : deletedGen) {
+		for (Comment gc : deletedGen) {
 			commentChanges++;
 			notifications.add(new RemovedGeneralCommentNotification(aNewReview, gc, gc.getAuthor(), gc.isDraft()));
 		}

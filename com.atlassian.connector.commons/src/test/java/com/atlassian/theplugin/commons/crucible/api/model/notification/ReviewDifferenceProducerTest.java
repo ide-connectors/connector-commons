@@ -185,8 +185,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
-		assertEquals(1, notifications.size());
-		assertFalse(p.isShortEqual());
+		assertEquals(2, notifications.size());
+		assertTrue(p.isShortEqual());
 		assertTrue(p.isFilesEqual());
 
 		review1.setGeneralComments(null);
@@ -210,10 +210,11 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
-		assertEquals(3, notifications.size());
-		assertFalse(p.isShortEqual());
-		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.NEW_GENERAL_COMMENT, notifications.get(1).getType());
+		assertEquals(2, notifications.size());
+		assertTrue(p.isShortEqual());
+		assertTrue(p.isFilesEqual());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(0).getType());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(1).getType());
 	}
 
 	public void testReviewItemAdded() throws ValueNotYetInitialized {
@@ -231,10 +232,10 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.NEW_REVIEW_ITEM, notifications.get(0).getType());
 		assertEquals(CrucibleNotificationType.NEW_REVIEW_ITEM, notifications.get(1).getType());
-		assertEquals(CrucibleNotificationType.NEW_VERSIONED_COMMENT, notifications.get(2).getType());
-		assertEquals(CrucibleNotificationType.NEW_VERSIONED_COMMENT, notifications.get(3).getType());
-		assertEquals(CrucibleNotificationType.NEW_VERSIONED_COMMENT, notifications.get(4).getType());
-		assertEquals(CrucibleNotificationType.NEW_VERSIONED_COMMENT, notifications.get(5).getType());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(2).getType());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(3).getType());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(4).getType());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(5).getType());
 	}
 
 	public void testReviewItemRemoved() throws ValueNotYetInitialized {
@@ -265,10 +266,10 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
-		assertEquals(2, notifications.size());
-		assertFalse(p.isShortEqual());
-		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.NEW_REPLY, notifications.get(1).getType());
+		assertEquals(1, notifications.size());
+		assertTrue(p.isShortEqual());
+		assertTrue(p.isFilesEqual());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(0).getType());
 	}
 
 	public void testUpdatedGeneralCommentReply() throws ValueNotYetInitialized {
@@ -298,10 +299,10 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		p = new ReviewDifferenceProducer(review, review1);
 		notifications = p.getDiff();
 
-		assertEquals(2, notifications.size());
-		assertFalse(p.isShortEqual());
-		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.UPDATED_REPLY, notifications.get(1).getType());
+		assertEquals(1, notifications.size());
+		assertTrue(p.isShortEqual());
+		assertTrue(p.isFilesEqual());
+		assertEquals(CrucibleNotificationType.UPDATED_COMMENT, notifications.get(0).getType());
 	}
 
 	public void testRemovedGeneralCommentReply() throws ValueNotYetInitialized {
@@ -315,13 +316,12 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
-		assertEquals(2, notifications.size());
-		assertFalse(p.isShortEqual());
-		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.REMOVED_REPLY, notifications.get(1).getType());
+		assertEquals(1, notifications.size());
+		assertTrue(p.isShortEqual());
+		assertTrue(p.isFilesEqual());
+		assertEquals(CrucibleNotificationType.REMOVED_COMMENT, notifications.get(0).getType());
 	}
 
-	/*
 	public void testAddedGeneralCommentReplyToReply() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
@@ -335,19 +335,19 @@ public class ReviewDifferenceProducerTest extends TestCase {
 				prepareGeneralComment("reply", new PermId("CMT:41"), commentDate, null));
 
 		review1.getGeneralComments().get(0).getReplies().get(0).getReplies().add(
-				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
+				prepareVersionedComment("reply", new PermId("CMT:42"), commentDate, null));
 
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
-		assertEquals(2, notifications.size());
-		assertFalse(p.isShortEqual());
-		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.NEW_REPLY, notifications.get(1).getType());
+		assertEquals(1, notifications.size());
+		assertTrue(p.isShortEqual());
+		assertTrue(p.isFilesEqual());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(0).getType());
 	}
 
 	public void testUpdatedGeneralCommentReplyToReply() throws ValueNotYetInitialized {
-		// test same review - fiels and versioned comments not empty
+		// test same review - fields and versioned comments not empty
 		Date commentDate = new Date();
 		Review review = prepareReview1(State.REVIEW, commentDate);
 		Review review1 = prepareReview1(State.REVIEW, commentDate);
@@ -356,30 +356,21 @@ public class ReviewDifferenceProducerTest extends TestCase {
 				prepareGeneralComment("reply", new PermId("CMT:41"), commentDate, null));
 
 		review.getGeneralComments().get(0).getReplies().get(0).getReplies().add(
-				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
+				prepareVersionedComment("reply", new PermId("CMT:42"), commentDate, null));
 
 		review1.getGeneralComments().get(0).getReplies().add(
 				prepareGeneralComment("reply", new PermId("CMT:41"), commentDate, null));
 
 		review1.getGeneralComments().get(0).getReplies().get(0).getReplies().add(
-				prepareVersionedComment("reply 2 updated", new PermId("CMT:41"), new Date(), null));
+				prepareVersionedComment("reply 2 updated", new PermId("CMT:42"), new Date(), null));
 
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
-		assertEquals(0, notifications.size());
+		assertEquals(1, notifications.size());
 		assertTrue(p.isShortEqual());
 		assertTrue(p.isFilesEqual());
-
-		((GeneralCommentBean) review1.getGeneralComments().get(0).getReplies().get(0)).setMessage("new reply message");
-
-		p = new ReviewDifferenceProducer(review, review1);
-		notifications = p.getDiff();
-
-		assertEquals(2, notifications.size());
-		assertFalse(p.isShortEqual());
-		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.UPDATED_REPLY, notifications.get(1).getType());
+		assertEquals(CrucibleNotificationType.UPDATED_COMMENT, notifications.get(0).getType());
 	}
 
 	public void testRemovedGeneralCommentReplyToReply() throws ValueNotYetInitialized {
@@ -392,7 +383,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 				prepareGeneralComment("reply", new PermId("CMT:41"), commentDate, null));
 
 		review.getGeneralComments().get(0).getReplies().get(0).getReplies().add(
-				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
+				prepareVersionedComment("reply", new PermId("CMT:42"), commentDate, null));
 
 		review1.getGeneralComments().get(0).getReplies().add(
 				prepareGeneralComment("reply", new PermId("CMT:41"), commentDate, null));
@@ -400,11 +391,11 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
-		assertEquals(2, notifications.size());
-		assertFalse(p.isShortEqual());
-		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.REMOVED_REPLY, notifications.get(1).getType());
-	}*/
+		assertEquals(1, notifications.size());
+		assertTrue(p.isShortEqual());
+		assertTrue(p.isFilesEqual());
+		assertEquals(CrucibleNotificationType.REMOVED_COMMENT, notifications.get(0).getType());
+	}
 
 	public void testEditedGeneralComment() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
@@ -417,10 +408,10 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
-		assertEquals(2, notifications.size());
-		assertFalse(p.isShortEqual());
-		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.UPDATED_GENERAL_COMMENT, notifications.get(1).getType());
+		assertEquals(1, notifications.size());
+		assertTrue(p.isShortEqual());
+		assertTrue(p.isFilesEqual());
+		assertEquals(CrucibleNotificationType.UPDATED_COMMENT, notifications.get(0).getType());
 	}
 
 	public void testRemovedGeneralComment() throws ValueNotYetInitialized {
@@ -434,10 +425,11 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
-		assertEquals(3, notifications.size());
-		assertFalse(p.isShortEqual());
-		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.REMOVED_GENERAL_COMMENT, notifications.get(1).getType());
+		assertEquals(2, notifications.size());
+		assertTrue(p.isShortEqual());
+		assertTrue(p.isFilesEqual());
+		assertEquals(CrucibleNotificationType.REMOVED_COMMENT, notifications.get(0).getType());
+		assertEquals(CrucibleNotificationType.REMOVED_COMMENT, notifications.get(1).getType());
 	}
 
 	public void testAddedVersionedComment() throws ValueNotYetInitialized {
@@ -455,8 +447,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(2, notifications.size());
 		assertTrue(p.isShortEqual());
 		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.NEW_VERSIONED_COMMENT, notifications.get(0).getType());
-		assertEquals(CrucibleNotificationType.NEW_VERSIONED_COMMENT, notifications.get(1).getType());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(0).getType());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(1).getType());
 
 		iter.next().getVersionedComments().clear();
 		p = new ReviewDifferenceProducer(review, review1);
@@ -465,10 +457,10 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(4, notifications.size());
 		assertTrue(p.isShortEqual());
 		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.NEW_VERSIONED_COMMENT, notifications.get(0).getType());
-		assertEquals(CrucibleNotificationType.NEW_VERSIONED_COMMENT, notifications.get(1).getType());
-		assertEquals(CrucibleNotificationType.NEW_VERSIONED_COMMENT, notifications.get(2).getType());
-		assertEquals(CrucibleNotificationType.NEW_VERSIONED_COMMENT, notifications.get(3).getType());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(0).getType());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(1).getType());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(2).getType());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(3).getType());
 	}
 
 	public void testEditedVersionedComment() throws ValueNotYetInitialized {
@@ -486,7 +478,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(1, notifications.size());
 		assertTrue(p.isShortEqual());
 		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.UPDATED_VERSIONED_COMMENT, notifications.get(0).getType());
+		assertEquals(CrucibleNotificationType.UPDATED_COMMENT, notifications.get(0).getType());
 
 		((VersionedCommentBean) iter.next().getVersionedComments().get(0)).setMessage("new message");
 		p = new ReviewDifferenceProducer(review, review1);
@@ -495,8 +487,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(2, notifications.size());
 		assertTrue(p.isShortEqual());
 		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.UPDATED_VERSIONED_COMMENT, notifications.get(0).getType());
-		assertEquals(CrucibleNotificationType.UPDATED_VERSIONED_COMMENT, notifications.get(1).getType());
+		assertEquals(CrucibleNotificationType.UPDATED_COMMENT, notifications.get(0).getType());
+		assertEquals(CrucibleNotificationType.UPDATED_COMMENT, notifications.get(1).getType());
 	}
 
 	public void testRemovedVersionedComment() throws ValueNotYetInitialized {
@@ -514,8 +506,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(2, notifications.size());
 		assertTrue(p.isShortEqual());
 		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.REMOVED_VERSIONED_COMMENT, notifications.get(0).getType());
-		assertEquals(CrucibleNotificationType.REMOVED_VERSIONED_COMMENT, notifications.get(1).getType());
+		assertEquals(CrucibleNotificationType.REMOVED_COMMENT, notifications.get(0).getType());
+		assertEquals(CrucibleNotificationType.REMOVED_COMMENT, notifications.get(1).getType());
 
 		iter.next().getVersionedComments().clear();
 		p = new ReviewDifferenceProducer(review, review1);
@@ -524,10 +516,10 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(4, notifications.size());
 		assertTrue(p.isShortEqual());
 		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.REMOVED_VERSIONED_COMMENT, notifications.get(0).getType());
-		assertEquals(CrucibleNotificationType.REMOVED_VERSIONED_COMMENT, notifications.get(1).getType());
-		assertEquals(CrucibleNotificationType.REMOVED_VERSIONED_COMMENT, notifications.get(2).getType());
-		assertEquals(CrucibleNotificationType.REMOVED_VERSIONED_COMMENT, notifications.get(3).getType());
+		assertEquals(CrucibleNotificationType.REMOVED_COMMENT, notifications.get(0).getType());
+		assertEquals(CrucibleNotificationType.REMOVED_COMMENT, notifications.get(1).getType());
+		assertEquals(CrucibleNotificationType.REMOVED_COMMENT, notifications.get(2).getType());
+		assertEquals(CrucibleNotificationType.REMOVED_COMMENT, notifications.get(3).getType());
 	}
 
 	public void testAddedVersionedCommentReply() throws ValueNotYetInitialized {
@@ -545,7 +537,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(1, notifications.size());
 		assertTrue(p.isShortEqual());
 		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.NEW_REPLY, notifications.get(0).getType());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(0).getType());
 	}
 
 	public void testUpdatedVersionedCommentReply() throws ValueNotYetInitialized {
@@ -567,7 +559,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(1, notifications.size());
 		assertTrue(p.isShortEqual());
 		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.UPDATED_REPLY, notifications.get(0).getType());
+		assertEquals(CrucibleNotificationType.UPDATED_COMMENT, notifications.get(0).getType());
 	}
 
 	public void testRemovedVersionedCommentReply() throws ValueNotYetInitialized {
@@ -585,10 +577,9 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(1, notifications.size());
 		assertTrue(p.isShortEqual());
 		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.REMOVED_REPLY, notifications.get(0).getType());
+		assertEquals(CrucibleNotificationType.REMOVED_COMMENT, notifications.get(0).getType());
 	}
 
-	/*
 	public void testAddedVersionedCommentReplyToReply() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty
 		Date commentDate = new Date();
@@ -610,7 +601,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		iter = review1.getFiles().iterator();
 		assertTrue(iter.hasNext());
 		iter.next().getVersionedComments().get(0).getReplies().get(0).getReplies().add(
-				prepareVersionedComment("reply", new PermId("CMT:41"), commentDate, null));
+				prepareVersionedComment("reply", new PermId("CMT:42"), commentDate, null));
 
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
@@ -618,7 +609,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(1, notifications.size());
 		assertTrue(p.isShortEqual());
 		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.NEW_REPLY, notifications.get(0).getType());
+		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(0).getType());
 	}
 
 	public void testUpdatedVersionedCommentReplyToReply() throws ValueNotYetInitialized {
@@ -637,7 +628,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		iter = review.getFiles().iterator();
 		assertTrue(iter.hasNext());
 		iter.next().getVersionedComments().get(0).getReplies().get(0).getReplies().add(
-				prepareVersionedComment("reply 2", new PermId("CMT:41"), commentDate, null));
+				prepareVersionedComment("reply 2", new PermId("CMT:42"), commentDate, null));
 
 		iter = review1.getFiles().iterator();
 		assertTrue(iter.hasNext());
@@ -647,7 +638,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		iter = review1.getFiles().iterator();
 		assertTrue(iter.hasNext());
 		iter.next().getVersionedComments().get(0).getReplies().get(0).getReplies().add(
-				prepareVersionedComment("reply 2 updated", new PermId("CMT:41"), commentDate, null));
+				prepareVersionedComment("reply 2 updated", new PermId("CMT:42"), commentDate, null));
 
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
@@ -655,7 +646,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(1, notifications.size());
 		assertTrue(p.isShortEqual());
 		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.UPDATED_REPLY, notifications.get(0).getType());
+		assertEquals(CrucibleNotificationType.UPDATED_COMMENT, notifications.get(0).getType());
 	}
 
 	public void testRemovedVersionedCommentReplyToReply() throws ValueNotYetInitialized {
@@ -674,7 +665,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		iter = review.getFiles().iterator();
 		assertTrue(iter.hasNext());
 		iter.next().getVersionedComments().get(0).getReplies().get(0).getReplies().add(
-				prepareVersionedComment("reply 2", new PermId("CMT:41"), commentDate, null));
+				prepareVersionedComment("reply 2", new PermId("CMT:42"), commentDate, null));
 
 		iter = review1.getFiles().iterator();
 		assertTrue(iter.hasNext());
@@ -687,8 +678,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(1, notifications.size());
 		assertTrue(p.isShortEqual());
 		assertFalse(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.REMOVED_REPLY, notifications.get(0).getType());
-	}*/
+		assertEquals(CrucibleNotificationType.REMOVED_COMMENT, notifications.get(0).getType());
+	}
 
 	public void testStateChanges() throws ValueNotYetInitialized {
 		// test same review - fiels and versioned comments not empty

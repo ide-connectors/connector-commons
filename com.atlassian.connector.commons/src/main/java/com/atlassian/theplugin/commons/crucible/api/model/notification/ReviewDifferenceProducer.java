@@ -7,7 +7,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
-import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -96,7 +95,6 @@ public class ReviewDifferenceProducer {
 
 	private boolean isShortContentEqual() {
 		return !stateChanged()
-				&& areGeneralCommentsEqual()
 				&& areActionsEqual()
 				&& oldReview.isAllowReviewerToJoin() == newReview.isAllowReviewerToJoin()
 				&& oldReview.getMetricsVersion() == newReview.getMetricsVersion()
@@ -138,18 +136,6 @@ public class ReviewDifferenceProducer {
 			}
 		}
 		return areFilesEqual;
-	}
-
-	private boolean areGeneralCommentsEqual() {
-		List<Comment> l = null;
-		List<Comment> r = null;
-		try {
-			l = oldReview.getGeneralComments();
-		} catch (ValueNotYetInitialized e) {	/* ignore */ }
-		try {
-			r = newReview.getGeneralComments();
-		} catch (ValueNotYetInitialized e) { /* ignore */ }
-		return areObjectsEqual(l, r);
 	}
 
 	private boolean areActionsEqual() {
@@ -243,97 +229,28 @@ public class ReviewDifferenceProducer {
 		}
 	}
 
-	private int checkGeneralReplies(Review review, Comment oldComment, Comment newComment) {
-		int replyChanges = 0;
-		for (Comment reply : newComment.getReplies()) {
-			Comment existingReply = null;
-			if (oldComment != null) {
-				for (Comment oldReply : oldComment.getReplies()) {
-					if (reply.getPermId().getId().equals(oldReply.getPermId().getId())) {
-						existingReply = oldReply;
-						break;
-					}
-				}
-				if ((existingReply == null)
-						|| !existingReply.getMessage().equals(reply.getMessage())
-						|| existingReply.isDraft() != reply.isDraft()
-                        || existingReply.getReadState() != reply.getReadState()) {
-                    replyChanges++;
-					if (existingReply == null) {
-						notifications.add(new NewReplyCommentNotification(review, newComment, reply, reply.getAuthor(),
-								reply.isDraft()));
-					} else {
-                        if (!existingReply.getMessage().equals(reply.getMessage())
-                                || existingReply.isDraft() != reply.isDraft()) {
-                            notifications.add(new UpdatedReplyCommentNotification(review, reply, reply.getAuthor(),
-                                    reply.isDraft(), existingReply.isDraft()));
-                        }
-                        checkAndNotifyReadUnreadStateChange(review, reply, existingReply);
-                    }
-                }
-            }
-        }
-
-		if (oldComment != null) {
-			List<Comment> deletedGen = getDeletedComments(
-					oldComment.getReplies(), newComment.getReplies());
-			for (Comment gc : deletedGen) {
-				replyChanges++;
-				notifications.add(new RemovedReplyCommentNotification(review, gc, gc.getAuthor(), gc.isDraft()));
-			}
-		}
-		return replyChanges;
-	}
-
-	private int checkVersionedReplies(Review review, VersionedComment oldComment, VersionedComment newComment) {
-		int replyChanges = 0;
-		for (Comment reply : newComment.getReplies()) {
-			VersionedComment existingReply = null;
-			if (oldComment != null) {
-				for (Comment oldReply : oldComment.getReplies()) {
-					if (reply.getPermId().getId().equals(oldReply.getPermId().getId())) {
-						existingReply = (VersionedComment) oldReply;
-						break;
-					}
-				}
-				if ((existingReply == null)
-						|| !existingReply.getMessage().equals(reply.getMessage())
-						|| existingReply.isDraft() != reply.isDraft()
-                        || existingReply.getReadState() != reply.getReadState()) {
-                    replyChanges++;
-					if (existingReply == null) {
-						notifications.add(new NewReplyCommentNotification(review, newComment, reply, reply.getAuthor(),
-								reply.isDraft()));
-					} else {
-                        if (!existingReply.getMessage().equals(reply.getMessage())
-                            || existingReply.isDraft() != reply.isDraft()) {
-                            notifications.add(new UpdatedReplyCommentNotification(review, reply, reply.getAuthor(),
-                                    reply.isDraft(), existingReply.isDraft()));
-                        }
-                        checkAndNotifyReadUnreadStateChange(review, reply, existingReply);
-					}
-				}
-			}
-		}
-
-		if (oldComment != null) {
-			List<Comment> deletedVcs = getDeletedComments(oldComment.getReplies(), newComment.getReplies());
-			for (Comment vc : deletedVcs) {
-				replyChanges++;
-				notifications.add(new RemovedReplyCommentNotification(review, vc, vc.getAuthor(), vc.isDraft()));
-			}
-		}
-		return replyChanges;
-	}
-
 	private int checkComments(final Review anOldReview, final Review aNewReview,
 			final boolean checkFiles)
 			throws ValueNotYetInitialized {
 		int commentChanges = 0;
 
-		for (Comment comment : aNewReview.getGeneralComments()) {
+		Set<Comment> allOldComments;
+		try {
+			allOldComments = getAllCommentsRecursively(anOldReview.getGeneralComments());
+		} catch (ValueNotYetInitialized e) {
+			allOldComments = MiscUtil.buildHashSet();
+		}
+
+		Set<Comment> allNewComments;
+		try {
+			allNewComments = getAllCommentsRecursively(aNewReview.getGeneralComments());
+		} catch (ValueNotYetInitialized e) {
+			allNewComments = MiscUtil.buildHashSet();
+		}
+
+		for (Comment comment : allNewComments) {
 			Comment existing = null;
-			for (Comment oldComment : anOldReview.getGeneralComments()) {
+			for (Comment oldComment : allOldComments) {
 				if (comment.getPermId().getId().equals(oldComment.getPermId().getId())) {
 					existing = oldComment;
 					break;
@@ -341,37 +258,36 @@ public class ReviewDifferenceProducer {
 			}
 
 			if ((existing == null)
-					|| commentContentesDiffer(existing, comment)
+					|| commentContentsDiffer(existing, comment)
                     || existing.getReadState() != comment.getReadState()) {
                 commentChanges++;
 				if (existing == null) {
-					notifications.add(new NewGeneralCommentNotification(aNewReview, comment, comment.getAuthor(),
-							comment.isDraft()));
+					notifications.add(new NewCommentNotification(aNewReview, comment));
 				} else {
-                    if (commentContentesDiffer(existing, comment)) {
-                        notifications.add(new UpdatedGeneralCommentNotification(aNewReview, comment.getAuthor(),
-                                comment.isDraft(), existing.isDraft()));
+                    if (commentContentsDiffer(existing, comment)) {
+						notifications.add(new UpdatedCommentNotification(aNewReview, comment, existing.isDraft()));
                     }
                     checkAndNotifyReadUnreadStateChange(aNewReview, comment, existing);
                 }
 			}
-			commentChanges += checkGeneralReplies(aNewReview, existing, comment);
 		}
 
-		List<Comment> deletedGen = getDeletedComments(
-				anOldReview.getGeneralComments(), aNewReview.getGeneralComments());
+		Set<Comment> deletedGen = getDeletedComments(allOldComments, allNewComments);
 		for (Comment gc : deletedGen) {
 			commentChanges++;
-			notifications.add(new RemovedGeneralCommentNotification(aNewReview, gc, gc.getAuthor(), gc.isDraft()));
+			notifications.add(new RemovedCommentNotification(aNewReview, gc));
 		}
 
 		if (checkFiles) {
+			int changes = 0;
 			for (CrucibleFileInfo fileInfo : aNewReview.getFiles()) {
-				for (VersionedComment comment : fileInfo.getVersionedComments()) {
-					VersionedComment existing = null;
+				allNewComments = getAllCommentsRecursively(fileInfo.getVersionedComments());
+				for (Comment comment : allNewComments) {
+					Comment existing = null;
 					for (CrucibleFileInfo oldFile : anOldReview.getFiles()) {
 						if (oldFile.getPermId().equals(fileInfo.getPermId())) {
-							for (VersionedComment oldComment : oldFile.getVersionedComments()) {
+							allOldComments = getAllCommentsRecursively(oldFile.getVersionedComments());
+							for (Comment oldComment : allOldComments) {
 								if (comment.getPermId().getId().equals(oldComment.getPermId().getId())) {
 									existing = oldComment;
 									break;
@@ -380,65 +296,71 @@ public class ReviewDifferenceProducer {
 						}
 					}
 					if ((existing == null)
-							|| commentContentesDiffer(existing, comment)
+							|| commentContentsDiffer(existing, comment)
                             || existing.getReadState() != comment.getReadState()) {
-                        commentChanges++;
+						changes++;
 						if (existing == null) {
-							notifications
-									.add(new NewVersionedCommentNotification(aNewReview, comment, comment.getAuthor(),
-											comment.isDraft()));
+							notifications.add(new NewCommentNotification(aNewReview, comment));
 						} else {
-                            if (commentContentesDiffer(existing, comment)) {
-                                notifications
-                                        .add(new UpdatedVersionedCommentNotification(aNewReview, comment.getAuthor(),
-                                                comment.isDraft(), existing.isDraft()));
+                            if (commentContentsDiffer(existing, comment)) {
+								notifications.add(new UpdatedCommentNotification(aNewReview, comment, existing.isDraft()));
                             }
                             checkAndNotifyReadUnreadStateChange(aNewReview, comment, existing);
                         }
 					}
-					commentChanges += checkVersionedReplies(aNewReview, existing, comment);
 				}
 			}
 
 			for (CrucibleFileInfo oldFile : anOldReview.getFiles()) {
 				for (CrucibleFileInfo newFile : aNewReview.getFiles()) {
 					if (oldFile.getPermId().equals(newFile.getPermId())) {
-						List<VersionedComment> oldVersionedComments = new ArrayList<VersionedComment>();
-						List<VersionedComment> newVersionedComments = new ArrayList<VersionedComment>();
-						oldVersionedComments.addAll(oldFile.getVersionedComments());
-						newVersionedComments.addAll(newFile.getVersionedComments());
-						List<VersionedComment> deletedVcs = getDeletedComments(
-								oldVersionedComments, newVersionedComments);
-						for (VersionedComment vc : deletedVcs) {
-							commentChanges++;
-							notifications.add(new RemovedVersionedCommentNotification(aNewReview, vc, vc.getAuthor(),
-									vc.isDraft()));
+						Set<Comment> oldVersionedComments = getAllCommentsRecursively(oldFile.getVersionedComments());
+						Set<Comment> newVersionedComments = getAllCommentsRecursively(newFile.getVersionedComments());
+						Set<Comment> deletedVcs = getDeletedComments(oldVersionedComments, newVersionedComments);
+						for (Comment vc : deletedVcs) {
+							changes++;
+							notifications.add(new RemovedCommentNotification(aNewReview, vc));
 						}
 					}
 				}
 			}
-		}
-		if (commentChanges > 0) {
-			filesEqual = false;
+
+			if (changes > 0) {
+				commentChanges += changes;
+				filesEqual = false;
+			}
 		}
 		return commentChanges;
 	}
 
-    private void checkAndNotifyReadUnreadStateChange(Review aNewReview, Comment comment, Comment existing) {
+	@NotNull
+	private <T extends Comment> Set<Comment> getAllCommentsRecursively(@NotNull List<T> generalComments) {
+		Set<Comment> result = MiscUtil.buildHashSet();
+		for (T c : generalComments) {
+			result.add(c);
+			List<Comment> replies = c.getReplies();
+			if (replies != null && replies.size() > 0) {
+				result.addAll(getAllCommentsRecursively(replies));
+			}
+		}
+		return result;
+	}
+
+	private void checkAndNotifyReadUnreadStateChange(Review aNewReview, Comment comment, Comment existing) {
         if (existing.getReadState() != comment.getReadState()) {
             notifications.add(new CommentReadUnreadStateChangedNotification(
                     aNewReview, comment.getReadState(), comment.getAuthor(), comment.isDraft()));
         }
     }
 
-    private boolean commentContentesDiffer(Comment existing, Comment comment) {
+    private boolean commentContentsDiffer(Comment existing, Comment comment) {
         return !existing.getMessage().equals(comment.getMessage())
                 || existing.isDefectRaised() != comment.isDefectRaised()
 				|| existing.isDraft() != comment.isDraft();
     }
 
-    private <T extends Comment> List<T> getDeletedComments(List<T> org, List<T> modified) {
-		List<T> deletedList = new ArrayList<T>();
+	private <T extends Comment> Set<T> getDeletedComments(Collection<T> org, Collection<T> modified) {
+		final Set<T> deletedList = MiscUtil.buildHashSet();
 
 		for (T corg : org) {
 			boolean found = false;

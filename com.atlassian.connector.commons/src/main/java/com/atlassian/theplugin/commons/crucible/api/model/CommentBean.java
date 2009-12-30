@@ -16,7 +16,11 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * User: lguminski
@@ -38,7 +42,7 @@ public abstract class CommentBean implements Comment {
 
 	private boolean isReply = false;
 
-	private Map<String, CustomField> customFields;
+	private final Map<String, CustomField> customFields;
 	private static final int HASH_INT = 31;
 
 	public CommentBean() {
@@ -178,6 +182,7 @@ public abstract class CommentBean implements Comment {
 		return getMessage();
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -225,6 +230,7 @@ public abstract class CommentBean implements Comment {
 		return true;
 	}
 
+	@Override
 	public int hashCode() {
 		int result;
 		result = (permId != null ? permId.hashCode() : 0);
@@ -237,7 +243,7 @@ public abstract class CommentBean implements Comment {
 		result = HASH_INT * result + (createDate != null ? createDate.hashCode() : 0);
 		result = HASH_INT * result + (isReply ? 1 : 0);
 		result = HASH_INT * result + (customFields != null ? customFields.hashCode() : 0);
-        result = HASH_INT * result + (readState.ordinal());
+		result = HASH_INT * result + (readState != null ? readState.ordinal() : 0);
 		return result;
 	}
 }

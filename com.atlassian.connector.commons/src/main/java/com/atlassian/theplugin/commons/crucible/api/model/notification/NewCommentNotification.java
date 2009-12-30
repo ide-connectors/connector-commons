@@ -18,24 +18,21 @@ package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
-import com.atlassian.theplugin.commons.crucible.api.model.User;
+import org.jetbrains.annotations.NotNull;
 
-public class NewReplyCommentNotification extends AbstractCommentNotification {
-	private final Comment reply;
+public class NewCommentNotification extends AbstractCommentNotification {
 
-	public NewReplyCommentNotification(final Review review, final Comment comment, final Comment reply, final User user,
-			final boolean isDraft) {
-		super(review, user, isDraft);
-		this.reply = reply;
+	public NewCommentNotification(@NotNull final Review review, @NotNull final Comment comment) {
+		super(review, comment.getAuthor(), comment.isDraft());
 	}
 
 	@Override
 	public CrucibleNotificationType getType() {
-		return CrucibleNotificationType.NEW_REPLY;
+		return CrucibleNotificationType.NEW_COMMENT;
 	}
 
 	@Override
 	public String getPresentationMessage() {
-		return "New reply added by " + reply.getAuthor().getDisplayName();
+		return "New comment added by " + getAuthor().getDisplayName();
 	}
 }

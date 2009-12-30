@@ -279,7 +279,7 @@ public class ReviewDifferenceProducer {
 		}
 
 		if (checkFiles) {
-			int changes = 0;
+			int versionedChanges = 0;
 			for (CrucibleFileInfo fileInfo : aNewReview.getFiles()) {
 				allNewComments = getAllCommentsRecursively(fileInfo.getVersionedComments());
 				for (Comment comment : allNewComments) {
@@ -298,7 +298,7 @@ public class ReviewDifferenceProducer {
 					if ((existing == null)
 							|| commentContentsDiffer(existing, comment)
                             || existing.getReadState() != comment.getReadState()) {
-						changes++;
+						versionedChanges++;
 						if (existing == null) {
 							notifications.add(new NewCommentNotification(aNewReview, comment));
 						} else {
@@ -318,15 +318,15 @@ public class ReviewDifferenceProducer {
 						Set<Comment> newVersionedComments = getAllCommentsRecursively(newFile.getVersionedComments());
 						Set<Comment> deletedVcs = getDeletedComments(oldVersionedComments, newVersionedComments);
 						for (Comment vc : deletedVcs) {
-							changes++;
+							versionedChanges++;
 							notifications.add(new RemovedCommentNotification(aNewReview, vc));
 						}
 					}
 				}
 			}
 
-			if (changes > 0) {
-				commentChanges += changes;
+			if (versionedChanges > 0) {
+				commentChanges += versionedChanges;
 				filesEqual = false;
 			}
 		}

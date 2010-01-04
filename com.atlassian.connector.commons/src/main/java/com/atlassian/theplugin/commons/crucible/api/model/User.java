@@ -16,6 +16,7 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 
 /**
@@ -26,6 +27,8 @@ public class User implements Serializable {
 
     protected String userName;
 	protected String displayName;
+	@Nullable
+	private String avatarUrl;
 
     public User(String userName) {
         this.userName = userName;
@@ -35,6 +38,14 @@ public class User implements Serializable {
         this.userName = userName;
         this.displayName = displayName;
     }
+
+	public void setAvatarUrl(String avatarUrl) {
+		this.avatarUrl = avatarUrl;
+	}
+
+	public String getAvatarUrl() {
+		return avatarUrl;
+	}
 
     public String getUsername() {
         return userName;

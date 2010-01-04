@@ -650,6 +650,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 					if (u.getDisplayName().equals("")) {
 						u = new User(u.getUsername(), u.getUsername());
 					}
+
+					// this is naive avatar handling - it will not go for production as it could be to expensive (remote call
+					// per each user
+//					final String fullUserProfileUrl = getBaseUrl() + USER_SERVICE + "/" + u.getUsername();
+//					final Document fullUserdoc = retrieveGetResponse(fullUserProfileUrl);
+//					final Object avatarUrlNode = XPath.newInstance("/restUserProfileData/avatarUrl").selectSingleNode(fullUserdoc);
+//
+//					if (avatarUrlNode != null) {
+//						u.setAvatarUrl(((Element) avatarUrlNode).getText().trim());
+//					}
 					users.add(u);
 				}
 			}

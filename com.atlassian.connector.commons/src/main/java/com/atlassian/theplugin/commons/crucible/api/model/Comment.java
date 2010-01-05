@@ -28,7 +28,7 @@ public interface Comment {
         UNREAD("Not read"),
         LEAVE_UNREAD("Leave unread");
 
-        private String name;
+        private final String name;
 
         ReadState(String name) {
             this.name = name;
@@ -64,4 +64,15 @@ public interface Comment {
 	Map<String, CustomField> getCustomFields();
 
     ReadState getReadState();
+
+	/**
+	 * @return number of all replies and replies to replies (when supported) to this comment
+	 */
+	int getNumReplies();
+
+	int getNumberOfUnreadReplies();
+
+	int getNumberOfDraftReplies();
+
+	boolean isEffectivelyUnread();
 }

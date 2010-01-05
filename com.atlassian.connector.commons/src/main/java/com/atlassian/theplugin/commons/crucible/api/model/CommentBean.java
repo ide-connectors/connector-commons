@@ -246,4 +246,50 @@ public abstract class CommentBean implements Comment {
 		result = HASH_INT * result + (readState != null ? readState.ordinal() : 0);
 		return result;
 	}
+
+	public int getNumReplies() {
+		if (replies == null) {
+			return 0;
+		}
+		int res = replies.size();
+		for (Comment reply : replies) {
+			res += reply.getNumReplies();
+		}
+		return res;
+	}
+
+	public int getNumberOfUnreadReplies() {
+		if (replies == null) {
+			return 0;
+		}
+
+		int counter = 0;
+		for (Comment reply : replies) {
+			if (reply.isEffectivelyUnread()) {
+				++counter;
+			}
+			counter += reply.getNumberOfUnreadReplies();
+		}
+		return counter;
+	}
+
+	public int getNumberOfDraftReplies() {
+		if (replies == null) {
+			return 0;
+		}
+
+		int counter = 0;
+		for (Comment reply : replies) {
+			if (reply.isDraft()) {
+				++counter;
+			}
+			counter += reply.getNumberOfDraftReplies();
+		}
+		return counter;
+	}
+
+	public boolean isEffectivelyUnread() {
+		return (getReadState() == Comment.ReadState.UNREAD || getReadState() == Comment.ReadState.LEAVE_UNREAD);
+	}
+
 }

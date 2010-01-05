@@ -17,13 +17,15 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
-
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class CrucibleFileInfoImpl implements CrucibleFileInfo {
+	@Nullable
 	private VersionedVirtualFile fileDescriptor;
+	@Nullable
 	private VersionedVirtualFile oldFileDescriptor;
 	private String repositoryName;
 	private FileType fileType;
@@ -37,7 +39,8 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 	private List<VersionedComment> versionedComments;
 	private static final int HASH_NUMBER = 31;
 
-	public CrucibleFileInfoImpl(VersionedVirtualFile fileDescriptor, VersionedVirtualFile oldFileDescriptor,
+	public CrucibleFileInfoImpl(@Nullable VersionedVirtualFile fileDescriptor,
+			@Nullable VersionedVirtualFile oldFileDescriptor,
 			PermId permId) {
 		this.fileDescriptor = fileDescriptor;
 		this.oldFileDescriptor = oldFileDescriptor;
@@ -100,11 +103,7 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 			if (comment.isDraft()) {
 				++counter;
 			}
-			for (Comment reply : comment.getReplies()) {
-				if (reply.isDraft()) {
-					++counter;
-				}
-			}
+			counter += comment.getNumberOfDraftReplies();
 		}
 		return counter;
 	}
@@ -151,16 +150,10 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 
         int counter = 0;
         for (VersionedComment comment : versionedComments) {
-            if (comment.getReadState() == Comment.ReadState.UNREAD
-                    || comment.getReadState() == Comment.ReadState.LEAVE_UNREAD) {
+			if (comment.isEffectivelyUnread()) {
                 ++counter;
             }
-            for (Comment reply : comment.getReplies()) {
-                if (reply.getReadState() == Comment.ReadState.UNREAD
-                    || reply.getReadState() == Comment.ReadState.LEAVE_UNREAD) {
-                    ++counter;
-                }
-            }
+			counter += comment.getNumberOfUnreadReplies();
         }
 
         return counter;
@@ -192,7 +185,7 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 		}
 		int n = versionedComments.size();
 		for (VersionedComment c : versionedComments) {
-			n += c.getReplies().size();
+			n += c.getNumReplies();
 		}
 		return n;
 	}
@@ -303,6 +296,7 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 		this.permId = aPermId;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -332,6 +326,7 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 		return true;
 	}
 
+	@Override
 	public int hashCode() {
 		///CLOVER:OFF
 		int result;

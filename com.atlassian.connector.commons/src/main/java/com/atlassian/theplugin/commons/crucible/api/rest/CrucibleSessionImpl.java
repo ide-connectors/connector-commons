@@ -688,9 +688,13 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 		String requestUrl = getBaseUrl() + PROJECTS_SERVICE;
 
-        if (getServerVersion().isVersion2OrGreater()) {
-            requestUrl += PROJECTS_EXPAND_ALLOWED_REVIEWERS;
-        }
+		try {
+			if (getServerVersion().isVersion2OrGreater()) {
+				requestUrl += PROJECTS_EXPAND_ALLOWED_REVIEWERS;
+			}
+		} catch (IncorrectVersionException e) {
+			throw new RemoteApiException(e);
+		}
 
 		try {
 			Document doc = retrieveGetResponse(requestUrl);
@@ -1418,9 +1422,13 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
             throwNotLoggedIn();
         }
 
-        if (!getServerVersion().isVersion21OrGreater()) {
-            throw new RemoteApiException("Crucible 2.1 or newer is required");
-        }
+		try {
+			if (!getServerVersion().isVersion21OrGreater()) {
+				throw new RemoteApiException("Crucible 2.1 or newer is required");
+			}
+		} catch (IncorrectVersionException e) {
+			throw new RemoteApiException(e);
+		}
 
         Document request = CrucibleRestXmlHelper.prepareRevisionDataNode(repository, revisions);
 
@@ -1482,8 +1490,12 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			throwNotLoggedIn();
 		}
 
-		if (!getServerVersion().isVersion21OrGreater()) {
-			throw new RemoteApiException("Crucible 2.1 or newer is required");
+		try {
+			if (!getServerVersion().isVersion21OrGreater()) {
+				throw new RemoteApiException("Crucible 2.1 or newer is required");
+			}
+		} catch (IncorrectVersionException e) {
+			throw new RemoteApiException(e);
 		}
 
 		Document request = CrucibleRestXmlHelper.prepareAddItemNode(newReviewItem);

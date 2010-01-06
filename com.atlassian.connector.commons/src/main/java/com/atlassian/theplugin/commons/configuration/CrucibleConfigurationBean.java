@@ -25,14 +25,19 @@ public class CrucibleConfigurationBean {
     private static final int DEFAULT_REVIEW_CREATION_TIMEOUT = 5;
     private static final int MIN_REVIEW_CREATION_TIMEOUT = 1;
     private int reviewCreationTimeout = DEFAULT_REVIEW_CREATION_TIMEOUT;
+    public static final int DEFAULT_REVIEW_FILE_CACHE_SIZE = 100;
+    public static int MIN_REVIEW_FILE_CACHE_SIZE = 50;
+    public static int MAX_REVIEW_FILE_CACHE_SIZE = 1000;
+    private int reviewFileCacheSize = DEFAULT_REVIEW_FILE_CACHE_SIZE;
 
-	public CrucibleConfigurationBean() {
+    public CrucibleConfigurationBean() {
     }
 
 	public CrucibleConfigurationBean(CrucibleConfigurationBean cfg) {
         crucibleTooltipOption = (cfg).getCrucibleTooltipOption();
 		pollTime = cfg.getPollTime();
         reviewCreationTimeout = cfg.getReviewCreationTimeout();
+        reviewFileCacheSize = cfg.getReviewFileCacheSize();
     }
 
 	public int getPollTime() {
@@ -81,6 +86,10 @@ public class CrucibleConfigurationBean {
 			return false;
 		}
 
+        if (reviewFileCacheSize != that.reviewFileCacheSize) {
+            return false;
+        }
+
 		return true;
 	}
 
@@ -90,6 +99,16 @@ public class CrucibleConfigurationBean {
 		result = (crucibleTooltipOption != null ? crucibleTooltipOption.hashCode() : 0);
 		result = HASHCODE_MAGIC * result + pollTime;
         result = HASHCODE_MAGIC * result + reviewCreationTimeout;
+        result = HASHCODE_MAGIC * result + reviewFileCacheSize;
 		return result;
 	}
+
+    public void setReviewFileCacheSize(int cacheSize) {
+        this.reviewFileCacheSize = cacheSize > MIN_REVIEW_FILE_CACHE_SIZE && cacheSize < MAX_REVIEW_FILE_CACHE_SIZE
+                ? cacheSize : DEFAULT_REVIEW_FILE_CACHE_SIZE;
+    }
+
+    public int getReviewFileCacheSize() {
+        return reviewFileCacheSize;
+    }
 }

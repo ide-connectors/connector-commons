@@ -75,7 +75,9 @@ public class CrucibleVersionInfoBean implements CrucibleVersionInfo {
 	private void tokenizeVersion() {
 		String[] tokens = releaseNumber.split("[.]");
 
-		major = minor = maintanance = null;
+		major = null;
+		minor = null;
+		maintanance = null;
 		build = null;
 
 		try {

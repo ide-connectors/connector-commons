@@ -38,7 +38,7 @@ public class SimpleLruCache<K, V> {
 
 	private static final float LOAD_FACTOR = 0.75f;
 	private final int cacheSize;
-	private final LinkedHashMap<K, V> map;
+	protected final LinkedHashMap<K, V> map;
 
 	/**
 	 * Creates a new LRU cache.
@@ -101,4 +101,7 @@ public class SimpleLruCache<K, V> {
 //		}
 //	}
 
+    public LinkedHashMap<K, V> getMap() {
+        return map;
+    }
 }

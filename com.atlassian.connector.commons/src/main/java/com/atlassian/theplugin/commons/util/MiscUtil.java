@@ -15,6 +15,7 @@
  */
 package com.atlassian.theplugin.commons.util;
 
+import org.jetbrains.annotations.Nullable;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,11 +40,11 @@ public final class MiscUtil {
 		return new ConcurrentHashMap<K, V>(initialCapacity);
 	}
 
-	public static <T> boolean isModified(T a, T b) {
+	public static <T> boolean isModified(@Nullable T a, @Nullable T b) {
         return a != null ? !a.equals(b) : b != null;
     }
 
-    public static <T> boolean isEqual(T a, T b) {
+	public static <T> boolean isEqual(@Nullable T a, @Nullable T b) {
         return a != null ? a.equals(b) : b == null;
     }
 

@@ -328,7 +328,6 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 
 	@Override
 	public int hashCode() {
-		///CLOVER:OFF
 		int result;
 		result = (repositoryName != null ? repositoryName.hashCode() : 0);
 		result = HASH_NUMBER * result + (fileDescriptor != null ? fileDescriptor.hashCode() : 0);
@@ -336,7 +335,6 @@ public class CrucibleFileInfoImpl implements CrucibleFileInfo {
 		result = HASH_NUMBER * result + (fileType != null ? fileType.hashCode() : 0);
 		result = HASH_NUMBER * result + permId.hashCode();
 		return result;
-		///CLOVER:ON
 	}
 
 	public RepositoryType getRepositoryType() {

@@ -3,6 +3,10 @@
  *
  * This file was auto-generated from WSDL
  * by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT) WSDL2Java emitter.
+ *
+ * pstefaniak, 18 Jan 2010:
+ * there is one manual change to this auto-generated file, around line 6738
+ * see PL-1918 for details... 
  */
 
 package com.atlassian.connector.commons.jira.soap.axis;
@@ -6731,7 +6735,7 @@ public class JirasoapserviceV2SoapBindingStub extends org.apache.axis.client.Stu
 				try {
 					return (com.atlassian.connector.commons.jira.soap.axis.RemoteAttachment[]) _resp;
 				} catch (ClassCastException e) {
-					throw new java.rmi.RemoteException(e.toString(), e);
+					throw e; // see PL-1918 for further information why this manual modification is needed here
 				} catch (java.lang.Exception _exception) {
 					return (com.atlassian.connector.commons.jira.soap.axis.RemoteAttachment[]) org.apache.axis.utils.JavaUtils
 							.convert(_resp, com.atlassian.connector.commons.jira.soap.axis.RemoteAttachment[].class);

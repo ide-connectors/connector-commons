@@ -690,6 +690,8 @@ public class JIRASessionImpl implements JIRASession {
             return attachmentList;
         } catch (RemoteException e) {
             throw new RemoteApiException(e.toString(), e);
-        }
+		} catch (ClassCastException e) {
+			throw new RemoteApiException(e.toString(), e);
+		}
     }
 }

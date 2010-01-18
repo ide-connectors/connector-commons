@@ -6730,6 +6730,8 @@ public class JirasoapserviceV2SoapBindingStub extends org.apache.axis.client.Stu
 				extractAttachments(_call);
 				try {
 					return (com.atlassian.connector.commons.jira.soap.axis.RemoteAttachment[]) _resp;
+				} catch (ClassCastException e) {
+					throw new java.rmi.RemoteException(e.toString(), e);
 				} catch (java.lang.Exception _exception) {
 					return (com.atlassian.connector.commons.jira.soap.axis.RemoteAttachment[]) org.apache.axis.utils.JavaUtils
 							.convert(_resp, com.atlassian.connector.commons.jira.soap.axis.RemoteAttachment[].class);

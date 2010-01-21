@@ -51,7 +51,13 @@ import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.changes.Change;
+import com.atlassian.theplugin.commons.crucible.api.model.changes.Changes;
+import com.atlassian.theplugin.commons.crucible.api.model.changes.Link;
+import com.atlassian.theplugin.commons.crucible.api.model.changes.Revision;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
+import com.atlassian.theplugin.commons.util.MiscUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.CDATA;
 import org.jdom.Document;
@@ -984,5 +990,45 @@ public final class CrucibleRestXmlHelper {
 		version.setBuildDate(getChildText(element, "buildDate"));
 		version.setReleaseNumber(getChildText(element, "releaseNumber"));
 		return version;
+	}
+
+	public static Changes parseChangesNode(Element changesNode) {
+		List<Change> changes = MiscUtil.buildArrayList();
+		for (Element changeNode : getChildElements(changesNode, "change")) {
+			changes.add(parseChangeNode(changeNode));
+		}
+		return new Changes(Boolean.parseBoolean(changesNode.getAttributeValue("olderChangeSetsExist")), Boolean
+				.parseBoolean(changesNode.getAttributeValue("newerChangeSetsExist")), changes);
+	}
+
+	private static Change parseChangeNode(Element changeNode) {
+		String author = changeNode.getAttributeValue("author");
+		String csid = changeNode.getAttributeValue("csid");
+		Date date = parseDateTime(changeNode.getAttributeValue("date"));
+		Link link = parseLinkNode(changeNode.getChild("link"));
+		String comment = getChildText(changeNode, "comment");
+		List<Revision> revisions = MiscUtil.buildArrayList();
+		for (Element revisionNode : getChildElements(changeNode, "revision")) {
+			revisions.add(parseRevisionNode(revisionNode));
+		}
+		return new Change(author, date, csid, link, comment, revisions);
+	}
+
+	private static Revision parseRevisionNode(Element revisionNode) {
+		String revision = revisionNode.getAttributeValue("revision");
+		String path = revisionNode.getAttributeValue("path");
+		List<Link> links = MiscUtil.buildArrayList();
+		for (Element linkNode : getChildElements(revisionNode, "link")) {
+			links.add(parseLinkNode(linkNode));
+		}
+		return new Revision(revision, path, links);
+	}
+
+	private static Link parseLinkNode(Element child) {
+		return new Link(child.getAttributeValue("rel"), child.getAttributeValue("href"));
+	}
+
+	public static void parseErrorAndThrowIt(Element errorNode) throws RemoteApiException {
+		throw new RemoteApiException(getChildText(errorNode, "message"), getChildText(errorNode, "stacktrace"));
 	}
 }

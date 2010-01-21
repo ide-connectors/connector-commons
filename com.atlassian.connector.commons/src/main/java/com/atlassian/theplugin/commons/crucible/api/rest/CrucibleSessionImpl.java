@@ -42,6 +42,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.changes.Changes;
 import com.atlassian.theplugin.commons.exception.IncorrectVersionException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
@@ -63,6 +64,8 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -164,7 +167,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
     private static final String MARK_ALL_READ = "/markAllAsRead";
 
     private static final String PROJECTS_EXPAND_ALLOWED_REVIEWERS = "?expand=projectData.allowedReviewers";
-    private static final String PROJECT_EXPAND_ALLOWED_REVIEWERS = "?expand=allowedReviewers";
+
+	private static final String CHANGES = "/changes/";
 
 	private String authToken;
 
@@ -599,6 +603,9 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		return review;
 	}
 
+	private Changes prepareChanges(Element element) throws RemoteApiException {
+		return CrucibleRestXmlHelper.parseChangesNode(element);
+	}
 
 	public List<Reviewer> getReviewers(PermId permId) throws RemoteApiException {
 		if (!isLoggedIn()) {
@@ -1870,5 +1877,52 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 
 		return null;
+	}
+
+	@NotNull
+	public Changes getChanges(@NotNull String repository, @Nullable String oldestCsid, boolean includeOldest,
+			@Nullable String newestCsid,
+			boolean includeNewest, @Nullable Integer max) throws RemoteApiException {
+		if (!isLoggedIn()) {
+			throwNotLoggedIn();
+		}
+
+		try {
+			String url = getBaseUrl() + REPOSITORIES_SERVICE + CHANGES + repository + "/?";
+			if (oldestCsid != null) {
+				url += "oldestCsid=" + oldestCsid + "&includeOldest=" + Boolean.toString(includeOldest) + "&";
+			}
+			if (newestCsid != null) {
+				url += "newestCsid=" + newestCsid + "&includeNewest=" + Boolean.toString(includeNewest) + "&";
+			}
+			if (max != null) {
+				url += "max=" + max.toString() + "&";
+			}
+
+			Document doc = retrieveGetResponse(url);
+
+			XPath xpath = XPath.newInstance("/changes");
+
+			@SuppressWarnings("unchecked")
+			List<Element> elements = xpath.selectNodes(doc);
+
+			if (elements != null && !elements.isEmpty()) {
+				for (Element element : elements) {
+					return prepareChanges(element);
+				}
+			}
+
+			xpath = XPath.newInstance("/error");
+			Element errorNode = (Element) xpath.selectSingleNode(doc);
+			if (errorNode != null) {
+				CrucibleRestXmlHelper.parseErrorAndThrowIt(errorNode);
+			}
+		} catch (IOException e) {
+			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+		} catch (JDOMException e) {
+			throwMalformedResponseReturned(e);
+		}
+
+		throw new RemoteApiException("No changes returned by server.");
 	}
 }

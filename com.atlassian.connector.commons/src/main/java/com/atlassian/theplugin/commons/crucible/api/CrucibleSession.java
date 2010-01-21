@@ -34,8 +34,11 @@ import com.atlassian.theplugin.commons.crucible.api.model.State;
 import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.crucible.api.model.changes.Changes;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -161,4 +164,8 @@ public interface CrucibleSession {
     void markCommentLeaveRead(PermId reviewId, PermId commentId) throws RemoteApiException;
 
     void markAllCommentsRead(PermId reviewId) throws RemoteApiException;
+
+	@NotNull
+	Changes getChanges(@NotNull String repository, @Nullable String oldestCsid, boolean includeOldest,
+			@Nullable String newestCsid, boolean includeNewest, @Nullable Integer max) throws RemoteApiException;
 }

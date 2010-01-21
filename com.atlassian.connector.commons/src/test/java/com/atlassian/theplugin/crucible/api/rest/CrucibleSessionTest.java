@@ -27,24 +27,31 @@ import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
-import com.atlassian.theplugin.commons.crucible.api.model.*;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.Repository;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
+import com.atlassian.theplugin.commons.crucible.api.model.State;
+import com.atlassian.theplugin.commons.crucible.api.model.User;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.crucible.api.model.changes.Changes;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CreateReviewCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CrucibleMockUtil;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetMetricsCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetProjectsCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetRepositoriesCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetReviewersCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetReviewsCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.MalformedResponseCallback;
-import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CrucibleMockUtil;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
-import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetMetricsCallback;
-import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.mortbay.jetty.Server;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -54,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import junit.framework.TestCase;
 
 /**
  * Test case for {#link BambooSessionImpl}
@@ -909,7 +917,7 @@ public class CrucibleSessionTest extends TestCase {
 		assertNotNull(review);
 		assertNull(review.getModerator());
 	}
-    
+
 	public void testGetReviewDetails() throws Exception {
 		PermId permId = new PermId("TST-9");
 
@@ -982,4 +990,46 @@ public class CrucibleSessionTest extends TestCase {
 				.getPassword());
 	}
 
+	public void testGetChanges() throws Exception {
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/rest-service/repositories-v1/changes/PLE/", new JettyMockServer.Callback() {
+			public void onExpectedRequest(String arg0, HttpServletRequest request, HttpServletResponse response)
+					throws Exception {
+				assertTrue(request.getPathInfo().endsWith("/rest-service/repositories-v1/changes/PLE/"));
+
+				new CrucibleMockUtil().copyResource(response.getOutputStream(), "changes.xml");
+				response.getOutputStream().flush();
+			}
+		});
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
+
+		apiHandler.login();
+		Changes changes = apiHandler.getChanges("PLE", null, false, null, false, null);
+		assertNotNull(changes.getChanges());
+
+		mockServer.verify();
+	}
+
+	public void testGetChangesForMissingRepository() throws Exception {
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/rest-service/repositories-v1/changes/PLE/", new JettyMockServer.Callback() {
+			public void onExpectedRequest(String arg0, HttpServletRequest request, HttpServletResponse response)
+					throws Exception {
+				assertTrue(request.getPathInfo().endsWith("/rest-service/repositories-v1/changes/PLE/"));
+
+				new CrucibleMockUtil().copyResource(response.getOutputStream(), "changes-repository-not-found.xml");
+				response.getOutputStream().flush();
+			}
+		});
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
+
+		apiHandler.login();
+		try {
+			apiHandler.getChanges("PLE", null, false, null, false, null);
+			fail();
+		} catch (RemoteApiException e) {
+		}
+
+		mockServer.verify();
+	}
 }

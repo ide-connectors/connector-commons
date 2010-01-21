@@ -69,7 +69,6 @@ import com.atlassian.theplugin.commons.util.HttpConfigurableAdapter;
 import com.atlassian.theplugin.commons.util.Logger;
 import org.apache.axis.AxisProperties;
 import org.xml.sax.SAXException;
-
 import javax.xml.rpc.ServiceException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -83,13 +82,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class JIRASessionImpl implements JIRASession {
 
 	private String token;
-	private JiraSoapService service;
-	private HttpConnectionCfg httpConnectionCfg;
+	private final JiraSoapService service;
+	private final HttpConnectionCfg httpConnectionCfg;
 
     public static final int ONE_DAY_AGO = -24;
 
 	private boolean loggedIn;
-    private Logger logger;
+    private final Logger logger;
 
     //
 	// AxisProperties are shit - if you try to set nonexistent property to null, NPE is thrown. Moreover, sometimes
@@ -357,7 +356,7 @@ public class JIRASessionImpl implements JIRASession {
         } catch (Exception e) {
             // PL-1644 - there is this bloke who seems to have some customized RPC plugin,
             // which returns non-standard fields in SOAP response. Axis croaks on it,
-            // we have to intercept  
+            // we have to intercept
             if (e instanceof SAXException && logger != null) {
                 logger.warn("Soap method 'getIssue' thrown SAXException. "
                             + "Probably some JIRA error or weird JIRA SOAP plugin.", e);
@@ -684,15 +683,15 @@ public class JIRASessionImpl implements JIRASession {
             List<JIRAAttachment> attachmentList = new ArrayList<JIRAAttachment>(attachements.length);
             for (RemoteAttachment a : attachements) {
                 attachmentList.add(new JIRAAttachment(a.getId(),
-                        a.getAuthor(), a.getFilename(), a.getFilesize(), 
+                        a.getAuthor(), a.getFilename(), a.getFilesize(),
                         a.getMimetype(), a.getCreated()));
             }
             return attachmentList;
         } catch (RemoteException e) {
             throw new RemoteApiException(e.toString(), e);
 		} catch (ClassCastException e) {
-			throw new RemoteApiException("Soap axis remote request failed to properly cast response while " +
-					"acquiring issue attachments", e);
+			throw new RemoteApiException("Soap axis remote request failed to properly cast response while "
+					+ "acquiring issue attachments", e);
 		}
     }
 }

@@ -30,7 +30,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfoImpl;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfoBean;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomField;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldBean;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDefBean;
@@ -986,10 +985,7 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	public static CrucibleVersionInfo parseVersionNode(Element element) {
-		CrucibleVersionInfoBean version = new CrucibleVersionInfoBean();
-		version.setBuildDate(getChildText(element, "buildDate"));
-		version.setReleaseNumber(getChildText(element, "releaseNumber"));
-		return version;
+		return new CrucibleVersionInfo(getChildText(element, "releaseNumber"), getChildText(element, "buildDate"));
 	}
 
 	public static Changes parseChangesNode(Element changesNode) {

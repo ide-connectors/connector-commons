@@ -17,20 +17,102 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.theplugin.commons.exception.IncorrectVersionException;
+import java.io.Serializable;
 
 /**
- * Created by IntelliJ IDEA.
- * User: marek
- * Date: Jul 21, 2008
- * Time: 3:47:41 PM
- * To change this template use File | Settings | File Templates.
+ * @author Marek Went
+ * @author Pawel Niewiadomski
  */
-public interface CrucibleVersionInfo {
-    String getBuildDate();
+@SuppressWarnings("serial")
+public class CrucibleVersionInfo implements Serializable {
+	private final String buildDate;
 
-    String getReleaseNumber();
+	private final String releaseNumber;
 
-	boolean isVersion2OrGreater() throws IncorrectVersionException;
+	private Integer major;
+	private Integer minor;
+	private Integer maintanance;
+	private String build;
 
-	boolean isVersion21OrGreater() throws IncorrectVersionException;
+	public CrucibleVersionInfo(String releaseNumber, String buildDate) {
+		this.buildDate = buildDate;
+		this.releaseNumber = releaseNumber;
+		tokenizeVersionAndSetFields(releaseNumber);
+	}
+
+	public String getBuildDate() {
+		return buildDate;
+	}
+
+	public String getReleaseNumber() {
+		return releaseNumber;
+	}
+
+	public boolean isVersion2OrGreater() throws IncorrectVersionException {
+		if (major == null) {
+			throw new IncorrectVersionException("Incorrect version of Crucible: " + releaseNumber);
+		}
+
+		if (major >= 2) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean isVersion21OrGreater() throws IncorrectVersionException {
+
+		if (major == null || minor == null) {
+			throw new IncorrectVersionException("Incorrect version of Crucible: " + releaseNumber);
+		}
+
+		if (major > 2 || (major == 2 && minor >= 1)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private void tokenizeVersionAndSetFields(String number) {
+		String[] tokens = number.split("[.]");
+
+		major = null;
+		minor = null;
+		maintanance = null;
+		build = null;
+
+		try {
+			if (tokens.length > 0) {
+				major = Integer.valueOf(tokens[0]);
+				if (tokens.length > 1) {
+					minor = Integer.valueOf(tokens[1]);
+					if (tokens.length > 2) {
+						maintanance = Integer.valueOf(tokens[2]);
+						if (tokens.length > 3) {
+							build = tokens[3];
+						}
+					}
+				}
+			}
+		} catch (NumberFormatException e) {
+			// stop parsing
+		}
+	}
+
+	public Integer getMajor() {
+		return major;
+	}
+
+	public Integer getMinor() {
+		return minor;
+	}
+
+	public Integer getMaintanance() {
+		return maintanance;
+	}
+
+	public String getBuild() {
+		return build;
+	}
+
 }

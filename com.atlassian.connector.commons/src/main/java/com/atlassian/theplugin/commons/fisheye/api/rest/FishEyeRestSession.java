@@ -16,8 +16,11 @@
 package com.atlassian.theplugin.commons.fisheye.api.rest;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleRestXmlHelper;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
 import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
+import com.atlassian.theplugin.commons.fisheye.api.model.changeset.Changeset;
+import com.atlassian.theplugin.commons.fisheye.api.model.changeset.FileRevisionKey;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
@@ -35,6 +38,8 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
@@ -52,9 +57,13 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 
 	static final String LIST_REPOSITORIES_ACTION = REST_BASE_URL + "repositories";
 
-    public static final String LIST_HISTORY_ACTION = "/rest-service-fe/revisionData-v1/pathHistory/";
+	public static final String REVISION_DATA = "/rest-service-fe/revisionData-v1/";
 
-	public static final String CHANGESET_LIST_ACTION = "/rest-service-fe/revisionData-v1/changesetList/";
+	public static final String LIST_HISTORY_ACTION = REVISION_DATA + "pathHistory/";
+
+	public static final String CHANGESET_LIST_ACTION = REVISION_DATA + "changesetList/";
+
+	public static final String CHANGESET_ACTION = REVISION_DATA + "changeset/";
 
 	private String authToken;
 
@@ -284,4 +293,58 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 			throw new RemoteApiException(getBaseUrl() + ": " + SERVER_RETURNED_MALFORMED_RESPONSE, e);
 		}
 	}
+
+	public Changeset getChangeset(String repository, String csid) throws RemoteApiException {
+		if (!isLoggedIn()) {
+			throw new IllegalStateException(CALLING_METHOD_WITHOUT_CALLING_LOGIN_FIRST);
+		}
+
+		String requestUrl = getBaseUrl() + CHANGESET_ACTION + repository + "/" + csid;
+
+		try {
+			Document doc = retrieveGetResponse(requestUrl);
+
+			XPath xpath = XPath.newInstance("/changeset");
+			Element changesetElement = (Element) xpath.selectSingleNode(doc);
+			if (changesetElement == null) {
+				// hmm, what about error conditions?
+				throw new RemoteApiException(getBaseUrl() + ": " + SERVER_RETURNED_MALFORMED_RESPONSE);
+			}
+			return parseChangeset(changesetElement);
+		} catch (IOException e) {
+			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+		} catch (JDOMException e) {
+			throw new RemoteApiException(getBaseUrl() + ": " + SERVER_RETURNED_MALFORMED_RESPONSE, e);
+		}
+	}
+
+	private Changeset parseChangeset(Element changesetElement) {
+		String csid = changesetElement.getAttributeValue("csid");
+		String author = changesetElement.getAttributeValue("author");
+		String comment = CrucibleRestXmlHelper.getChildText(changesetElement, "comment");
+		Date date = parseDateTime(changesetElement.getAttributeValue("date"));
+		String branch = changesetElement.getAttributeValue("branch");
+		List<FileRevisionKey> keys = MiscUtil.buildArrayList();
+
+		for (Element element : CrucibleRestXmlHelper.getChildElements(changesetElement, "fileRevisionKey")) {
+			keys.add(parseFileRevisionKey(element));
+		}
+
+		return new Changeset(date, csid, branch, author, comment, keys);
+	}
+
+	private FileRevisionKey parseFileRevisionKey(Element element) {
+		return new FileRevisionKey(element.getAttributeValue("rev"), element.getAttributeValue("path"));
+	}
+
+	private static final DateTimeFormatter CHANGESET_TIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+
+	public static Date parseDateTime(String date) {
+		if (date != null && !date.equals("")) {
+			return CHANGESET_TIME_FORMAT.parseDateTime(date).toDate();
+		} else {
+			return null;
+		}
+	}
+
 }

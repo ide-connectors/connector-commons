@@ -17,6 +17,7 @@
 package com.atlassian.theplugin.commons.fisheye.api;
 
 import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
+import com.atlassian.theplugin.commons.fisheye.api.model.changeset.Changeset;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import org.jetbrains.annotations.NotNull;
@@ -33,4 +34,8 @@ public interface FishEyeSession extends ProductSession {
 	@NotNull
 	Collection<String> getChangesetList(@NotNull String repository, @Nullable String path, @Nullable Date start,
 			@Nullable Date end, @Nullable Integer maxReturn) throws RemoteApiException;
+
+	@NotNull
+	Changeset getChangeset(@NotNull String repository, @NotNull String csid) throws RemoteApiException;
+
 }

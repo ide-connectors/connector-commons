@@ -95,7 +95,7 @@ public final class StringUtil {
 	 * @param text string to parse
 	 * @return string without trailing slashes
 	 */
-	public static String removeTrailingSlashes(String text) {
+	public static String removeLeadingAndTrailingSlashes(String text) {
 		if (text == null) {
 			return null;
 		}

@@ -224,7 +224,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 		return session.createReviewFromRevision(review, revisions);
 	}
 
-	public Review addRevisionsToReview(ConnectionCfg server, PermId permId, String repository, List<String> revisions)
+	public Review addRevisionsToReview(ConnectionCfg server, PermId permId, String repository, Collection<String> revisions)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		Review review = null;

@@ -60,7 +60,7 @@ public interface CrucibleSession {
 
 	List<CrucibleAction> getAvailableTransitions(PermId permId) throws RemoteApiException;
 
-	Review addRevisionsToReview(PermId permId, String repository, List<String> revisions) throws RemoteApiException;
+	Review addRevisionsToReview(PermId permId, String repository, Collection<String> revisions) throws RemoteApiException;
 
 	Review addRevisionsToReviewItems(PermId permId, Collection<RevisionData> revisions)
 			throws RemoteApiException;

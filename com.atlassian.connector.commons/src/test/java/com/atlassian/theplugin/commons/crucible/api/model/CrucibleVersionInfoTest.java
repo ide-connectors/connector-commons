@@ -11,9 +11,6 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import com.atlassian.theplugin.commons.exception.IncorrectVersionException;
-import com.spartez.util.junit3.IAction;
-import com.spartez.util.junit3.TestUtil;
 import java.util.Date;
 import junit.framework.TestCase;
 
@@ -29,52 +26,40 @@ public class CrucibleVersionInfoTest extends TestCase {
 	public void testIsVersionOrGreater() {
 		String buildDate = new Date().toString();
 
-		try {
-			crucibleVersion = new CrucibleVersionInfo("1.6", buildDate);
-			assertFalse(crucibleVersion.isVersion2OrGreater());
-			assertFalse(crucibleVersion.isVersion21OrGreater());
+		crucibleVersion = new CrucibleVersionInfo("1.6", buildDate);
+		assertFalse(crucibleVersion.isVersion2OrGreater());
+		assertFalse(crucibleVersion.isVersion21OrGreater());
 
-			crucibleVersion = new CrucibleVersionInfo("1.6.6.1", buildDate);
-			assertFalse(crucibleVersion.isVersion2OrGreater());
-			assertFalse(crucibleVersion.isVersion21OrGreater());
+		crucibleVersion = new CrucibleVersionInfo("1.6.6.1", buildDate);
+		assertFalse(crucibleVersion.isVersion2OrGreater());
+		assertFalse(crucibleVersion.isVersion21OrGreater());
 
-			crucibleVersion = new CrucibleVersionInfo("2.1", buildDate);
-			assertTrue(crucibleVersion.isVersion2OrGreater());
-			assertTrue(crucibleVersion.isVersion21OrGreater());
+		crucibleVersion = new CrucibleVersionInfo("2.1", buildDate);
+		assertTrue(crucibleVersion.isVersion2OrGreater());
+		assertTrue(crucibleVersion.isVersion21OrGreater());
 
-			crucibleVersion = new CrucibleVersionInfo("2.1.0", buildDate);
-			assertTrue(crucibleVersion.isVersion2OrGreater());
-			assertTrue(crucibleVersion.isVersion21OrGreater());
+		crucibleVersion = new CrucibleVersionInfo("2.1.0", buildDate);
+		assertTrue(crucibleVersion.isVersion2OrGreater());
+		assertTrue(crucibleVersion.isVersion21OrGreater());
 
-			crucibleVersion = new CrucibleVersionInfo("2.2", buildDate);
-			assertTrue(crucibleVersion.isVersion2OrGreater());
-			assertTrue(crucibleVersion.isVersion21OrGreater());
+		crucibleVersion = new CrucibleVersionInfo("2.2", buildDate);
+		assertTrue(crucibleVersion.isVersion2OrGreater());
+		assertTrue(crucibleVersion.isVersion21OrGreater());
 
-			crucibleVersion = new CrucibleVersionInfo("2.2.0", buildDate);
-			assertTrue(crucibleVersion.isVersion2OrGreater());
-			assertTrue(crucibleVersion.isVersion21OrGreater());
+		crucibleVersion = new CrucibleVersionInfo("2.2.0", buildDate);
+		assertTrue(crucibleVersion.isVersion2OrGreater());
+		assertTrue(crucibleVersion.isVersion21OrGreater());
 
-			crucibleVersion = new CrucibleVersionInfo("2.2.0.M1", buildDate);
-			assertTrue(crucibleVersion.isVersion2OrGreater());
-			assertTrue(crucibleVersion.isVersion21OrGreater());
+		crucibleVersion = new CrucibleVersionInfo("2.2.0.M1", buildDate);
+		assertTrue(crucibleVersion.isVersion2OrGreater());
+		assertTrue(crucibleVersion.isVersion21OrGreater());
 
-			crucibleVersion = new CrucibleVersionInfo("3.0", buildDate);
-			assertTrue(crucibleVersion.isVersion2OrGreater());
-			assertTrue(crucibleVersion.isVersion21OrGreater());
-
-			crucibleVersion = new CrucibleVersionInfo("3", buildDate);
-			assertTrue(crucibleVersion.isVersion2OrGreater());
-
-		} catch (IncorrectVersionException e) {
-			fail(e.getMessage());
-		}
+		crucibleVersion = new CrucibleVersionInfo("3.0", buildDate);
+		assertTrue(crucibleVersion.isVersion2OrGreater());
+		assertTrue(crucibleVersion.isVersion21OrGreater());
 
 		crucibleVersion = new CrucibleVersionInfo("3", buildDate);
-		TestUtil.assertThrows(IncorrectVersionException.class, new IAction() {
-			public void run() throws Throwable {
-				crucibleVersion.isVersion21OrGreater();
-			}
-		});
+		assertTrue(crucibleVersion.isVersion2OrGreater());
 	}
 
 }

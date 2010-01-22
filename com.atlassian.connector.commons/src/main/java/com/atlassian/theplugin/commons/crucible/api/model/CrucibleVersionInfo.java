@@ -16,7 +16,6 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import com.atlassian.theplugin.commons.exception.IncorrectVersionException;
 import java.io.Serializable;
 
 /**
@@ -48,22 +47,13 @@ public class CrucibleVersionInfo implements Serializable {
 		return releaseNumber;
 	}
 
-	public boolean isVersion2OrGreater() throws IncorrectVersionException {
-		if (major == null) {
-			throw new IncorrectVersionException("Incorrect version of Crucible: " + releaseNumber);
-		}
-
-		if (major >= 2) {
-			return true;
-		}
-
-		return false;
+	public boolean isVersion2OrGreater() {
+		return (major != null && major >= 2);
 	}
 
-	public boolean isVersion21OrGreater() throws IncorrectVersionException {
-
+	public boolean isVersion21OrGreater() {
 		if (major == null || minor == null) {
-			throw new IncorrectVersionException("Incorrect version of Crucible: " + releaseNumber);
+			return false;
 		}
 
 		if (major > 2 || (major == 2 && minor >= 1)) {

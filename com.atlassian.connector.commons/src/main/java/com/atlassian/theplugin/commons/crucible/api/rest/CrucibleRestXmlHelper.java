@@ -425,7 +425,7 @@ public final class CrucibleRestXmlHelper {
         return doc;
     }
 
-	public static Document prepareAddChangesetNode(String repoName, List<String> revisions) {
+	public static Document prepareAddChangesetNode(String repoName, Collection<String> revisions) {
 		Element root = new Element("addChangeset");
 		Document doc = new Document(root);
 

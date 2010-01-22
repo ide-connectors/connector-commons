@@ -59,7 +59,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	Review createReviewFromRevision(ConnectionCfg server, Review review, List<String> revisions) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
-	Review addRevisionsToReview(ConnectionCfg server, PermId permId, String repository, List<String> revisions)
+	Review addRevisionsToReview(ConnectionCfg server, PermId permId, String repository, Collection<String> revisions)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
     Review addFileRevisionsToReview(ConnectionCfg server, PermId permId, String repository, List<PathAndRevision> revisions)

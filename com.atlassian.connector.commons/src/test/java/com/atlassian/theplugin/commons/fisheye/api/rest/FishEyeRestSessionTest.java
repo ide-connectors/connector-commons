@@ -18,16 +18,14 @@ package com.atlassian.theplugin.commons.fisheye.api.rest;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
 import com.atlassian.theplugin.api.AbstractSessionTest;
+import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
 import com.atlassian.theplugin.commons.fisheye.api.rest.mock.FishEyeLoginCallback;
 import com.atlassian.theplugin.commons.fisheye.api.rest.mock.FishEyeLogoutCallback;
 import com.atlassian.theplugin.commons.fisheye.api.rest.mock.FisheyeMockUtil;
-import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
-import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CrucibleMockUtil;
 import org.ddsteps.mock.httpserver.JettyMockServer;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
@@ -204,5 +202,27 @@ public class FishEyeRestSessionTest extends AbstractSessionTest {
 
 	private FishEyeRestSession createSession(String url) throws RemoteApiMalformedUrlException {
 		return new FishEyeRestSession(new ConnectionCfg("id", url, "", ""), new TestHttpSessionCallbackImpl());
+	}
+
+	public void testGetChangesetList() throws Exception {
+		mockServer.expect(FishEyeRestSession.LOGIN_ACTION, new FishEyeLoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect(FishEyeRestSession.CHANGESET_LIST_ACTION + "a", new JettyMockServer.Callback() {
+			public void onExpectedRequest(String target, HttpServletRequest request, HttpServletResponse response)
+					throws Exception {
+				new FisheyeMockUtil().copyResource(response.getOutputStream(), "changesetList.xml");
+				response.getOutputStream().flush();
+			}
+		});
+		mockServer.expect(FishEyeRestSession.LOGOUT_ACTION, new FishEyeLogoutCallback(FishEyeLoginCallback.AUTH_TOKEN));
+
+		FishEyeRestSession apiHandler = createSession(mockBaseUrl + "/");
+		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
+		Collection<String> history = apiHandler.getChangesetList("a", null, null, null, null);
+		apiHandler.logout();
+
+		assertNotNull(history);
+		assertEquals(3000, history.size());
+
+		mockServer.verify();
 	}
 }

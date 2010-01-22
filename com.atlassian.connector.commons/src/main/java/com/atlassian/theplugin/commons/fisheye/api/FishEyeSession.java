@@ -16,14 +16,21 @@
 
 package com.atlassian.theplugin.commons.fisheye.api;
 
+import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
+import java.util.Date;
 
 public interface FishEyeSession extends ProductSession {
+
 	Collection<String> getRepositories() throws RemoteApiException;
 
     Collection<FisheyePathHistoryItem> getPathHistory(String repo, String path) throws RemoteApiException;
+
+	@NotNull
+	Collection<String> getChangesetList(@NotNull String repository, @Nullable String path, @Nullable Date start,
+			@Nullable Date end, @Nullable Integer maxReturn) throws RemoteApiException;
 }

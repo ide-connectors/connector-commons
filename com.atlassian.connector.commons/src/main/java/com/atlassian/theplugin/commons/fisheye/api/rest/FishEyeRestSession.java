@@ -26,9 +26,11 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredExceptio
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
+import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -37,8 +39,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSession {
 	private static final String REST_BASE_URL = "/api/rest/";
@@ -50,6 +53,8 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 	static final String LIST_REPOSITORIES_ACTION = REST_BASE_URL + "repositories";
 
     public static final String LIST_HISTORY_ACTION = "/rest-service-fe/revisionData-v1/pathHistory/";
+
+	public static final String CHANGESET_LIST_ACTION = "/rest-service-fe/revisionData-v1/changesetList/";
 
 	private String authToken;
 
@@ -211,7 +216,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
             //noinspection unchecked
             List<Element> elements = xpath.selectNodes(doc);
             if (elements == null || elements.size() != 1) {
-                // hmm, what about error conditions? 
+                // hmm, what about error conditions?
                 throw new RemoteApiException(getBaseUrl() + ": " + SERVER_RETURNED_MALFORMED_RESPONSE);
             }
             xpath = XPath.newInstance("/fileRevisionList/fileRevision");
@@ -231,4 +236,52 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
             throw new RemoteApiException(getBaseUrl() + ": " + SERVER_RETURNED_MALFORMED_RESPONSE, e);
         }
     }
+
+	@SuppressWarnings("unchecked")
+	public Collection<String> getChangesetList(String repository, String path, Date start, Date end, Integer maxReturn)
+			throws RemoteApiException {
+		if (!isLoggedIn()) {
+			throw new IllegalStateException(CALLING_METHOD_WITHOUT_CALLING_LOGIN_FIRST);
+		}
+
+		String requestUrl = getBaseUrl() + CHANGESET_LIST_ACTION + repository + "?";
+		if (path != null) {
+			requestUrl += "path=" + path + "&";
+		}
+		if (start != null) {
+			requestUrl += "start=" + DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.format(start) + "&";
+		}
+		if (end != null) {
+			requestUrl += "end=" + DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.format(end) + "&";
+		}
+		if (maxReturn != null) {
+			requestUrl += "maxReturn=" + maxReturn + "&";
+		}
+
+		try {
+			Document doc = retrieveGetResponse(requestUrl);
+
+			XPath xpath = XPath.newInstance("/changesetIdList");
+			List<Element> elements = xpath.selectNodes(doc);
+			if (elements == null || elements.size() != 1) {
+				// hmm, what about error conditions?
+				throw new RemoteApiException(getBaseUrl() + ": " + SERVER_RETURNED_MALFORMED_RESPONSE);
+			}
+			xpath = XPath.newInstance("/changesetIdList/csid");
+			elements = xpath.selectNodes(doc);
+
+			final List<String> list = MiscUtil.buildArrayList();
+
+			if (elements != null && !elements.isEmpty()) {
+				for (Element element : elements) {
+					list.add(element.getTextNormalize());
+				}
+			}
+			return list;
+		} catch (IOException e) {
+			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+		} catch (JDOMException e) {
+			throw new RemoteApiException(getBaseUrl() + ": " + SERVER_RETURNED_MALFORMED_RESPONSE, e);
+		}
+	}
 }

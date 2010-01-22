@@ -20,6 +20,7 @@ import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
 import com.atlassian.theplugin.api.AbstractSessionTest;
 import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
 import com.atlassian.theplugin.commons.fisheye.api.model.changeset.Changeset;
+import com.atlassian.theplugin.commons.fisheye.api.model.changeset.ChangesetIdList;
 import com.atlassian.theplugin.commons.fisheye.api.rest.mock.FishEyeLoginCallback;
 import com.atlassian.theplugin.commons.fisheye.api.rest.mock.FishEyeLogoutCallback;
 import com.atlassian.theplugin.commons.fisheye.api.rest.mock.FisheyeMockUtil;
@@ -218,11 +219,11 @@ public class FishEyeRestSessionTest extends AbstractSessionTest {
 
 		FishEyeRestSession apiHandler = createSession(mockBaseUrl + "/");
 		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-		Collection<String> history = apiHandler.getChangesetList("a", null, null, null, null);
+		ChangesetIdList history = apiHandler.getChangesetList("a", null, null, null, null);
 		apiHandler.logout();
 
 		assertNotNull(history);
-		assertEquals(3000, history.size());
+		assertEquals(3000, history.getCsids().size());
 
 		mockServer.verify();
 	}

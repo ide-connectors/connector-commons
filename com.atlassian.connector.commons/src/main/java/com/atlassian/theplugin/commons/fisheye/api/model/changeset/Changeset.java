@@ -31,7 +31,11 @@ public final class Changeset {
 		this.branch = branch;
 		this.author = author;
 		this.comment = comment;
-		this.revisionKeys = MiscUtil.buildArrayList(keys);
+		if (keys == null) {
+			this.revisionKeys = MiscUtil.buildArrayList();
+		} else {
+			this.revisionKeys = MiscUtil.buildArrayList(keys);
+		}
 	}
 
 	public String getCsid() {

@@ -51,6 +51,10 @@ public final class Change {
 		this.csid = csid;
 		this.link = link;
 		this.comment = comment;
-		this.revisions = MiscUtil.buildArrayList(revisions);
+		if (revisions == null) {
+			this.revisions = MiscUtil.buildArrayList();
+		} else {
+			this.revisions = MiscUtil.buildArrayList(revisions);
+		}
 	}
 }

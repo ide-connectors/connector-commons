@@ -20,6 +20,7 @@ import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleRestXmlHelper;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
 import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
 import com.atlassian.theplugin.commons.fisheye.api.model.changeset.Changeset;
+import com.atlassian.theplugin.commons.fisheye.api.model.changeset.ChangesetIdList;
 import com.atlassian.theplugin.commons.fisheye.api.model.changeset.FileRevisionKey;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
@@ -247,7 +248,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
     }
 
 	@SuppressWarnings("unchecked")
-	public Collection<String> getChangesetList(String repository, String path, Date start, Date end, Integer maxReturn)
+	public ChangesetIdList getChangesetList(String repository, String path, Date start, Date end, Integer maxReturn)
 			throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throw new IllegalStateException(CALLING_METHOD_WITHOUT_CALLING_LOGIN_FIRST);
@@ -286,7 +287,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 					list.add(element.getTextNormalize());
 				}
 			}
-			return list;
+			return new ChangesetIdList(list);
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
@@ -339,9 +340,15 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 
 	private static final DateTimeFormatter CHANGESET_TIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
 
+	private static final DateTimeFormatter CHANGESET1_TIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
 	public static Date parseDateTime(String date) {
 		if (date != null && !date.equals("")) {
-			return CHANGESET_TIME_FORMAT.parseDateTime(date).toDate();
+			try {
+				return CHANGESET_TIME_FORMAT.parseDateTime(date).toDate();
+			} catch (IllegalArgumentException e) {
+				return CHANGESET1_TIME_FORMAT.parseDateTime(date).toDate();
+			}
 		} else {
 			return null;
 		}

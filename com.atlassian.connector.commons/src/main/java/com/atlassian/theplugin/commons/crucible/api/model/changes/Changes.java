@@ -12,6 +12,7 @@
 package com.atlassian.theplugin.commons.crucible.api.model.changes;
 
 import com.atlassian.theplugin.commons.util.MiscUtil;
+import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public final class Changes {
 
 	private final List<Change> changes;
 
-	public Changes(boolean olderExist, boolean newestExist, Collection<Change> changes) {
+	public Changes(boolean olderExist, boolean newestExist, @NotNull Collection<Change> changes) {
 		olderChangeSetsExist = olderExist;
 		newerChangeSetsExist = newestExist;
 		this.changes = MiscUtil.buildArrayList(changes);

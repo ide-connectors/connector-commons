@@ -47,39 +47,76 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	// CrucibleVersionInfo getServerVersion(CrucibleServerCfg server)
 	// throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	CrucibleSession getSession(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
+
 	/**
 	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
 	 *             {@link CrucibleSession} directly.
 	 */
 	@Deprecated
-	CrucibleSession getSession(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
-
 	Review createReview(ConnectionCfg server, Review review) throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Review createReviewFromRevision(ConnectionCfg server, Review review, List<String> revisions) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Review addRevisionsToReview(ConnectionCfg server, PermId permId, String repository, Collection<String> revisions)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
     Review addFileRevisionsToReview(ConnectionCfg server, PermId permId, String repository, List<PathAndRevision> revisions)
             throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
     void addFileToReview(ConnectionCfg server, PermId permId, NewReviewItem newReviewItem) throws RemoteApiException,
             ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Review addPatchToReview(ConnectionCfg server, PermId permId, String repository, String patch) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
-	// CrucibleFileInfo addItemToReview(CrucibleServerCfg server, Review review, NewReviewItem newItem)
-	// throws RemoteApiException, ServerPasswordNotProvidedException;
-
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	List<Reviewer> getReviewers(ConnectionCfg server, PermId permId) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	void addReviewers(ConnectionCfg server, PermId permId, Set<String> userName) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	void removeReviewer(ConnectionCfg server, PermId permId, String userName) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
@@ -100,141 +137,324 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	 *             in case of some connection problems or malformed responses
 	 * @throws ServerPasswordNotProvidedException
 	 *             when password was not provided
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
 	 */
+	@Deprecated
 	void setReviewers(@NotNull ConnectionCfg server, @NotNull PermId permId, @NotNull Collection<String> usernames)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Review approveReview(ConnectionCfg server, PermId permId) throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Review submitReview(ConnectionCfg server, PermId permId) throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Review summarizeReview(ConnectionCfg server, PermId permId) throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Review abandonReview(ConnectionCfg server, PermId permId) throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Review closeReview(ConnectionCfg server, PermId permId, String summary) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Review recoverReview(ConnectionCfg server, PermId permId) throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Review reopenReview(ConnectionCfg server, PermId permId) throws RemoteApiException, ServerPasswordNotProvidedException;
 
-	// Review rejectReview(CrucibleServerCfg server, PermId permId)
-	// throws RemoteApiException, ServerPasswordNotProvidedException;
-
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	void completeReview(ConnectionCfg server, PermId permId, boolean complete) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	List<Review> getAllReviews(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	List<Review> getReviewsForFilter(ConnectionCfg server, PredefinedFilter filter) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	List<Review> getReviewsForCustomFilter(ConnectionCfg server, CustomFilter filter) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Review getReview(ConnectionCfg server, PermId permId) throws RemoteApiException, ServerPasswordNotProvidedException;
 
-	// List<Review> getAllReviewsForFile(CrucibleServerCfg server, String repoName, String path)
-	// throws RemoteApiException, ServerPasswordNotProvidedException;
-
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Review createReviewFromPatch(ConnectionCfg server, Review review, String patch) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Set<CrucibleFileInfo> getFiles(ConnectionCfg server, PermId permId) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
-	// List<Comment> getComments(CrucibleServerCfg server, PermId permId)
-	// throws RemoteApiException, ServerPasswordNotProvidedException;
-
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	List<Comment> getGeneralComments(ConnectionCfg server, PermId permId) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	List<VersionedComment> getVersionedComments(ConnectionCfg server, PermId permId) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	List<VersionedComment> getVersionedComments(ConnectionCfg server, PermId permId, PermId reviewItemId)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
-	// List<GeneralComment> getReplies(CrucibleServerCfg server, PermId permId, PermId commentId)
-	// throws RemoteApiException, ServerPasswordNotProvidedException;
-
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Comment addGeneralComment(ConnectionCfg server, PermId permId, Comment comment) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	VersionedComment addVersionedComment(ConnectionCfg server, PermId permId, PermId riId, VersionedComment comment)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	void updateComment(ConnectionCfg server, PermId id, Comment comment) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	void publishComment(ConnectionCfg server, PermId reviewId, PermId commentId) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	void publishAllCommentsForReview(ConnectionCfg server, PermId reviewId) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Comment addGeneralCommentReply(ConnectionCfg server, PermId id, PermId cId, Comment comment)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	VersionedComment addVersionedCommentReply(ConnectionCfg server, PermId id, PermId cId, VersionedComment comment)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
-	// void updateReply(CrucibleServerCfg server, PermId id, PermId cId, PermId rId, GeneralComment comment)
-	// throws RemoteApiException, ServerPasswordNotProvidedException;
-
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	void removeComment(ConnectionCfg server, PermId id, Comment comment) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	List<User> getUsers(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	List<CrucibleProject> getProjects(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	List<Repository> getRepositories(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	SvnRepository getRepository(ConnectionCfg server, String repoName) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	List<CustomFieldDef> getMetrics(ConnectionCfg server, int version) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	@Nullable
 	String getDisplayName(@NotNull final ConnectionCfg server, @NotNull String username);
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	boolean checkContentUrlAvailable(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Review createReviewFromUpload(ConnectionCfg server, Review review, Collection<UploadItem> uploadItems)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	byte[] getFileContent(@NotNull ConnectionCfg server, final String contentUrl) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	Review addItemsToReview(ConnectionCfg server, PermId permId, Collection<UploadItem> items) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
 	/**
 	 * Adds info about files, versioned comments and general comments to the review
-	 *
+	 * 
 	 * @param server
 	 * @param review
 	 *            review to fill with details
 	 * @throws RemoteApiException
 	 * @throws ServerPasswordNotProvidedException
-	 *
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
 	 */
+	@Deprecated
 	void fillDetailsForReview(@NotNull ConnectionCfg server, @NotNull Review review) throws RemoteApiException,
 			ServerPasswordNotProvidedException;
 
-	// void getDetailsForReview(final ReviewAdapter reviewItem) throws RemoteApiException, ServerPasswordNotProvidedException;
-
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
     void markCommentRead(@NotNull ConnectionCfg server, PermId reviewId, PermId commentId)  throws RemoteApiException,
 			ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
     void markCommentLeaveUnread(@NotNull ConnectionCfg server, PermId reviewId, PermId commentId)
             throws RemoteApiException, ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
     void markAllCommentsRead(@NotNull ConnectionCfg server, PermId reviewId)  throws RemoteApiException,
 			ServerPasswordNotProvidedException;
 
+	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+	@Deprecated
 	CrucibleVersionInfo getServerVersion(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
 }

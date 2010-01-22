@@ -12,16 +12,30 @@
 package com.atlassian.connector.commons.fisheye;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
+import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
+import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
 import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
-
 import java.util.Collection;
 
 public interface FishEyeServerFacade2 extends ProductServerFacade {
 
+	FishEyeSession getSession(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
+
+	/**
+	 * @deprecated We are going remove {@link FishEyeServerFacade2}, so getSession here is for new code that should use
+	 *             {@link FishEyeSession} directly.
+	 */
+	@Deprecated
+
 	Collection<String> getRepositories(final ConnectionCfg server) throws RemoteApiException;
 
+	/**
+	 * @deprecated We are going remove {@link FishEyeServerFacade2}, so getSession here is for new code that should use
+	 *             {@link FishEyeSession} directly.
+	 */
+	@Deprecated
     Collection<FisheyePathHistoryItem> getPathHistory(final ConnectionCfg server, String repo, String path)
             throws RemoteApiException;
 }

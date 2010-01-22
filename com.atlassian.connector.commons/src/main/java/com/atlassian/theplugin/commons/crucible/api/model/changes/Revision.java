@@ -38,7 +38,11 @@ public final class Revision {
 	public Revision(String revision, String path, Collection<Link> links) {
 		this.revision = revision;
 		this.path = path;
-		this.links = MiscUtil.buildArrayList(links);
+		if (links == null) {
+			this.links = MiscUtil.buildArrayList();
+		} else {
+			this.links = MiscUtil.buildArrayList(links);
+		}
 	}
 
 }

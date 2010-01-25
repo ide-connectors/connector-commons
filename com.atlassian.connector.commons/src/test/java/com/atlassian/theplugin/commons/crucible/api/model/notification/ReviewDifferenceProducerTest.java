@@ -45,6 +45,8 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	final Reviewer reviewer4 = prepareReviewer("alice", "Alice", false);
 
+	private final Review review = new Review("myurl.com");
+
 	private Review prepareReview() {
 		return new Review("http://bogus", "TEST", reviewer3, reviewer4);
 	}
@@ -54,7 +56,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	}
 
 	private Comment prepareGeneralComment(final String message, final PermId permId, final Date date, final Comment reply) {
-		GeneralCommentBean bean = new GeneralCommentBean();
+		GeneralCommentBean bean = new GeneralCommentBean(review);
 		bean.setMessage(message);
 		bean.setPermId(permId);
 		bean.setCreateDate(date);
@@ -67,7 +69,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	private VersionedComment prepareVersionedComment(final String message, final PermId permId, final Date date,
 			final VersionedComment reply) {
-		VersionedCommentBean bean = new VersionedCommentBean();
+		VersionedCommentBean bean = new VersionedCommentBean(review);
 		bean.setMessage(message);
 		bean.setPermId(permId);
 		bean.setCreateDate(date);

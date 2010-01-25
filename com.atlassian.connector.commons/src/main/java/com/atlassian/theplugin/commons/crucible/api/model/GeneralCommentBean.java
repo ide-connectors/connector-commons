@@ -20,8 +20,8 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 public class GeneralCommentBean extends CommentBean implements Comment {
 	private static final int HASH_INT = 31;
 
-	public GeneralCommentBean() {
-		super();
+	public GeneralCommentBean(Review review) {
+		super(review);
 	}
 
 	public GeneralCommentBean(final Comment bean) {

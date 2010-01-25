@@ -120,17 +120,17 @@ public interface CrucibleSession {
 
 //	List<Comment> getComments(PermId id) throws RemoteApiException;
 
-	List<Comment> getGeneralComments(PermId id) throws RemoteApiException;
+	List<Comment> getGeneralComments(Review review) throws RemoteApiException;
 
-	List<VersionedComment> getAllVersionedComments(PermId id) throws RemoteApiException;
+	List<VersionedComment> getAllVersionedComments(Review review) throws RemoteApiException;
 
-	List<VersionedComment> getVersionedComments(PermId id, PermId reviewItemId) throws RemoteApiException;
+	List<VersionedComment> getVersionedComments(Review review, PermId reviewItemId) throws RemoteApiException;
 
-	List<Comment> getReplies(PermId id, PermId commentId) throws RemoteApiException;
+	List<Comment> getReplies(Review review, PermId commentId) throws RemoteApiException;
 
-	Comment addGeneralComment(PermId id, Comment comment) throws RemoteApiException;
+	Comment addGeneralComment(Review review, Comment comment) throws RemoteApiException;
 
-	VersionedComment addVersionedComment(PermId id, PermId riId, VersionedComment comment) throws RemoteApiException;
+	VersionedComment addVersionedComment(Review review, PermId riId, VersionedComment comment) throws RemoteApiException;
 
 	void removeComment(PermId id, Comment comment) throws RemoteApiException;
 
@@ -138,9 +138,9 @@ public interface CrucibleSession {
 
 	void publishComment(PermId reviewId, PermId commentId) throws RemoteApiException;
 
-	Comment addGeneralCommentReply(PermId id, PermId cId, Comment comment) throws RemoteApiException;
+	Comment addGeneralCommentReply(Review review, PermId cId, Comment comment) throws RemoteApiException;
 
-	VersionedComment addVersionedCommentReply(PermId id, PermId cId, VersionedComment comment)
+	VersionedComment addVersionedCommentReply(Review review, PermId cId, VersionedComment comment)
 			throws RemoteApiException;
 
 	void updateReply(PermId id, PermId cId, PermId rId, Comment comment) throws RemoteApiException;

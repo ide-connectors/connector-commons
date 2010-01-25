@@ -16,17 +16,19 @@ import junit.framework.TestCase;
 
 public class CrucibleFileInfoImplTest extends TestCase {
 
+	private final Review review = new Review("http://myurl.com");
+
 	private CrucibleFileInfoImpl prepareCrucibleFileInfo() {
 		PermId permId1 = new PermId("1");
 		CrucibleFileInfoImpl cfi = new CrucibleFileInfoImpl(null, null, permId1);
-		VersionedCommentBean vc1 = new VersionedCommentBean();
-		VersionedCommentBean rpl1 = new VersionedCommentBean();
+		VersionedCommentBean vc1 = new VersionedCommentBean(review);
+		VersionedCommentBean rpl1 = new VersionedCommentBean(review);
 		rpl1.setDraft(true);
-		VersionedCommentBean rpl2 = new VersionedCommentBean();
+		VersionedCommentBean rpl2 = new VersionedCommentBean(review);
 		rpl2.setDraft(false);
-		VersionedCommentBean rpl3 = new VersionedCommentBean();
+		VersionedCommentBean rpl3 = new VersionedCommentBean(review);
 		rpl3.setDraft(true);
-		VersionedCommentBean rpl4 = new VersionedCommentBean();
+		VersionedCommentBean rpl4 = new VersionedCommentBean(review);
 		rpl4.setReadState(ReadState.UNREAD);
 		rpl4.setDraft(true);
 		vc1.addReply(rpl1);
@@ -34,8 +36,8 @@ public class CrucibleFileInfoImplTest extends TestCase {
 		rpl2.addReply(rpl3);
 		rpl2.addReply(rpl4);
 		cfi.addComment(vc1);
-		VersionedCommentBean vc2 = new VersionedCommentBean();
-		VersionedCommentBean rpl5 = new VersionedCommentBean();
+		VersionedCommentBean vc2 = new VersionedCommentBean(review);
+		VersionedCommentBean rpl5 = new VersionedCommentBean(review);
 		rpl5.setReadState(ReadState.UNREAD);
 		vc2.addReply(rpl5);
 		cfi.addComment(vc2);

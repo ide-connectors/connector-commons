@@ -41,6 +41,8 @@ public interface Comment {
         }
     }
 
+	Review getReview();
+
 	PermId getPermId();
 
 	String getMessage();

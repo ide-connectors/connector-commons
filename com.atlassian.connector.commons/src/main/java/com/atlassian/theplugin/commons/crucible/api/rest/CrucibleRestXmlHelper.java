@@ -218,7 +218,7 @@ public final class CrucibleRestXmlHelper {
 
 	public static Review parseDetailedReviewNode(String serverUrl, String myUsername,
                                                  Element reviewNode, boolean trimWikiMarkers) {
-		Review review = new Review(serverUrl);
+		final Review review = new Review(serverUrl);
 		parseReview(reviewNode, review, trimWikiMarkers);
 
 		List<Element> reviewersNode = getChildElements(reviewNode, "reviewers");
@@ -240,7 +240,7 @@ public final class CrucibleRestXmlHelper {
 			List<Comment> generalComments = new ArrayList<Comment>();
 
 			for (Element generalCommentData : generalCommentsDataNode) {
-				Comment c = parseGeneralCommentNode(myUsername, generalCommentData, trimWikiMarkers);
+				Comment c = parseGeneralCommentNode(review, myUsername, generalCommentData, trimWikiMarkers);
 				if (c != null) {
 					generalComments.add(c);
 				}
@@ -255,7 +255,7 @@ public final class CrucibleRestXmlHelper {
 			List<Element> versionedCommentsData = getChildElements(element, "versionedLineCommentData");
 			for (Element versionedElementData : versionedCommentsData) {
 				//ONLY COMMENTS NO FILES
-				VersionedComment c = parseVersionedCommentNode(myUsername, versionedElementData, trimWikiMarkers);
+				VersionedComment c = parseVersionedCommentNode(review, myUsername, versionedElementData, trimWikiMarkers);
 				if (c != null) {
 					comments.add(c);
 				}
@@ -294,6 +294,12 @@ public final class CrucibleRestXmlHelper {
 		for (Element action : actionsNode) {
 			List<Element> act = getChildElements(action, "actionData");
 			for (Element element : act) {
+// @todo wseliga: this code is probably need instead of the current line. Need to revisit it one day
+//				final CrucibleAction parseActionNode = parseActionNode(element);
+//				if (!(review.getState() == State.CLOSED && parseActionNode == CrucibleAction.MODIFY_FILES)) {
+//					actions.add(parseActionNode);
+//				}
+			
 				actions.add(parseActionNode(element));
 			}
 		}
@@ -587,7 +593,7 @@ public final class CrucibleRestXmlHelper {
 		return reviewItem;
 	}
 
-	private static boolean parseGeneralComment(String myUsername, GeneralCommentBean commentBean,
+	private static boolean parseGeneralComment(Review review, String myUsername, GeneralCommentBean commentBean,
 			Element reviewCommentNode, boolean trimWikiMarkers) {
 
 		if (!parseComment(myUsername, commentBean, reviewCommentNode, trimWikiMarkers)) {
@@ -599,7 +605,7 @@ public final class CrucibleRestXmlHelper {
 			for (Element repliesNode : replies) {
 				List<Element> entries = getChildElements(repliesNode, "generalCommentData");
 				for (Element replyNode : entries) {
-					GeneralCommentBean reply = parseGeneralCommentNode(myUsername, replyNode, trimWikiMarkers);
+					GeneralCommentBean reply = parseGeneralCommentNode(review, myUsername, replyNode, trimWikiMarkers);
 					if (reply != null) {
 						reply.setReply(true);
 						rep.add(reply);
@@ -612,7 +618,7 @@ public final class CrucibleRestXmlHelper {
 		return true;
 	}
 
-	private static boolean parseVersionedComment(String myUsername, VersionedCommentBean commentBean,
+	private static boolean parseVersionedComment(Review review, String myUsername, VersionedCommentBean commentBean,
 			Element reviewCommentNode, boolean trimWikiMarkers) {
 
 		if (!parseComment(myUsername, commentBean, reviewCommentNode, trimWikiMarkers)) {
@@ -640,7 +646,7 @@ public final class CrucibleRestXmlHelper {
 				List<Element> entries = getChildElements(repliesNode, "generalCommentData");
 				for (Element replyNode : entries) {
 					VersionedCommentBean reply =
-							parseVersionedCommentNodeWithHints(myUsername, replyNode,
+							parseVersionedCommentNodeWithHints(review, myUsername, replyNode,
 							commentBean.isFromLineInfo(),
 							commentBean.getFromStartLine(),
 							commentBean.getToStartLine(),
@@ -772,10 +778,10 @@ public final class CrucibleRestXmlHelper {
 		getContent(commentNode).add(replies);
 	}
 
-	public static GeneralCommentBean parseGeneralCommentNode(String myUsername,
+	public static GeneralCommentBean parseGeneralCommentNode(Review review, String myUsername,
                                                              Element reviewCommentNode, boolean trimWikiMarkers) {
-		GeneralCommentBean reviewCommentBean = new GeneralCommentBean();
-		if (!parseGeneralComment(myUsername, reviewCommentBean, reviewCommentNode, trimWikiMarkers)) {
+		GeneralCommentBean reviewCommentBean = new GeneralCommentBean(review);
+		if (!parseGeneralComment(review, myUsername, reviewCommentBean, reviewCommentNode, trimWikiMarkers)) {
 			return null;
 		}
 		return reviewCommentBean;
@@ -808,12 +814,12 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	///CHECKSTYLE:OFF
-	public static VersionedCommentBean parseVersionedCommentNodeWithHints(
+	public static VersionedCommentBean parseVersionedCommentNodeWithHints(Review review,
             String myUsername, Element reviewCommentNode, boolean fromLineInfo, int fromStartLine, int toStartLine,
             boolean toLineInfo, int fromEndLine, int toEndLine, Map<String, IntRanges> lineRanges,
             boolean trimWikiMarkers) {
 
-		VersionedCommentBean result = parseVersionedCommentNode(myUsername, reviewCommentNode, trimWikiMarkers);
+		VersionedCommentBean result = parseVersionedCommentNode(review, myUsername, reviewCommentNode, trimWikiMarkers);
 		if (result == null) {
 			return null;
 		}
@@ -836,10 +842,10 @@ public final class CrucibleRestXmlHelper {
 
 	///CHECKSTYLE:ON
 
-	public static VersionedCommentBean parseVersionedCommentNode(String myUsername,
+	public static VersionedCommentBean parseVersionedCommentNode(Review review, String myUsername,
                                                                  Element reviewCommentNode, boolean trimWikiMarkers) {
-		VersionedCommentBean comment = new VersionedCommentBean();
-		if (!parseVersionedComment(myUsername, comment, reviewCommentNode, trimWikiMarkers)) {
+		VersionedCommentBean comment = new VersionedCommentBean(review);
+		if (!parseVersionedComment(review, myUsername, comment, reviewCommentNode, trimWikiMarkers)) {
 			return null;
 		}
 

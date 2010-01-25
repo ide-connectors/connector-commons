@@ -253,7 +253,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	 *             {@link CrucibleSession} directly.
 	 */
 	@Deprecated
-	List<Comment> getGeneralComments(ConnectionCfg server, PermId permId) throws RemoteApiException,
+	List<Comment> getGeneralComments(ConnectionCfg server, Review review) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
 	/**
@@ -261,7 +261,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	 *             {@link CrucibleSession} directly.
 	 */
 	@Deprecated
-	List<VersionedComment> getVersionedComments(ConnectionCfg server, PermId permId) throws RemoteApiException,
+	List<VersionedComment> getVersionedComments(ConnectionCfg server, Review review) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
 	/**
@@ -269,7 +269,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	 *             {@link CrucibleSession} directly.
 	 */
 	@Deprecated
-	List<VersionedComment> getVersionedComments(ConnectionCfg server, PermId permId, PermId reviewItemId)
+	List<VersionedComment> getVersionedComments(ConnectionCfg server, Review review, PermId reviewItemId)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	/**
@@ -277,7 +277,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	 *             {@link CrucibleSession} directly.
 	 */
 	@Deprecated
-	Comment addGeneralComment(ConnectionCfg server, PermId permId, Comment comment) throws RemoteApiException,
+	Comment addGeneralComment(ConnectionCfg server, Review review, Comment comment) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
 	/**
@@ -285,7 +285,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	 *             {@link CrucibleSession} directly.
 	 */
 	@Deprecated
-	VersionedComment addVersionedComment(ConnectionCfg server, PermId permId, PermId riId, VersionedComment comment)
+	VersionedComment addVersionedComment(ConnectionCfg server, Review review, PermId riId, VersionedComment comment)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	/**
@@ -317,7 +317,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	 *             {@link CrucibleSession} directly.
 	 */
 	@Deprecated
-	Comment addGeneralCommentReply(ConnectionCfg server, PermId id, PermId cId, Comment comment)
+	Comment addGeneralCommentReply(ConnectionCfg server, Review review, PermId cId, Comment comment)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	/**
@@ -325,7 +325,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	 *             {@link CrucibleSession} directly.
 	 */
 	@Deprecated
-	VersionedComment addVersionedCommentReply(ConnectionCfg server, PermId id, PermId cId, VersionedComment comment)
+	VersionedComment addVersionedCommentReply(ConnectionCfg server, Review review, PermId cId, VersionedComment comment)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	/**
@@ -414,7 +414,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 
 	/**
 	 * Adds info about files, versioned comments and general comments to the review
-	 * 
+	 *
 	 * @param server
 	 * @param review
 	 *            review to fill with details

@@ -55,7 +55,8 @@ public class VersionedCommentBean extends CommentBean implements VersionedCommen
 		}
 	}
 
-	public VersionedCommentBean() {
+	public VersionedCommentBean(Review review) {
+		super(review);
 	}
 
 	public PermId getReviewItemId() {

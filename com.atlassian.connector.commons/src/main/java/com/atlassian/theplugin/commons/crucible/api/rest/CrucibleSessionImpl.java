@@ -842,12 +842,12 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 //		}
 //	}
 
-	public List<Comment> getGeneralComments(PermId id) throws RemoteApiException {
+	public List<Comment> getGeneralComments(Review review) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
 
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + GENERAL_COMMENTS;
+		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + review.getPermId().getId() + GENERAL_COMMENTS;
 		try {
 			Document doc = retrieveGetResponse(requestUrl);
 
@@ -858,7 +858,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					Comment c = CrucibleRestXmlHelper.parseGeneralCommentNode(
+					Comment c =
+							CrucibleRestXmlHelper.parseGeneralCommentNode(review,
                             getUsername(), element, shouldTrimWikiMarkers());
 					if (c != null) {
 						comments.add(c);
@@ -875,12 +876,12 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	public List<VersionedComment> getAllVersionedComments(PermId id) throws RemoteApiException {
+	public List<VersionedComment> getAllVersionedComments(Review review) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
 
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + VERSIONED_COMMENTS;
+		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + review.getPermId().getId() + VERSIONED_COMMENTS;
 		try {
 			Document doc = retrieveGetResponse(requestUrl);
 
@@ -891,7 +892,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					VersionedComment c = CrucibleRestXmlHelper.parseVersionedCommentNode(
+					VersionedComment c =
+							CrucibleRestXmlHelper.parseVersionedCommentNode(review,
                             getUsername(), element, shouldTrimWikiMarkers());
 					if (c != null) {
 						comments.add(c);
@@ -908,12 +910,13 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	public List<VersionedComment> getVersionedComments(PermId id, PermId reviewItemId) throws RemoteApiException {
+	public List<VersionedComment> getVersionedComments(Review review, PermId reviewItemId) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
 
-		final String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + REVIEW_ITEMS + "/"
+		final String requestUrl =
+				getBaseUrl() + REVIEW_SERVICE + "/" + review.getPermId().getId() + REVIEW_ITEMS + "/"
 				+ reviewItemId.getId() + COMMENTS;
 		try {
 			Document doc = retrieveGetResponse(requestUrl);
@@ -925,7 +928,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					VersionedComment c = CrucibleRestXmlHelper.parseVersionedCommentNode(
+					VersionedComment c =
+							CrucibleRestXmlHelper.parseVersionedCommentNode(review,
                             getUsername(), element, shouldTrimWikiMarkers());
 					if (c != null) {
 						comments.add(c);
@@ -942,12 +946,13 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	public List<Comment> getReplies(PermId id, PermId commentId) throws RemoteApiException {
+	public List<Comment> getReplies(Review review, PermId commentId) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
 
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + COMMENTS + "/" + commentId.getId()
+		String requestUrl =
+				getBaseUrl() + REVIEW_SERVICE + "/" + review.getPermId().getId() + COMMENTS + "/" + commentId.getId()
 				+ REPLIES;
 		try {
 			Document doc = retrieveGetResponse(requestUrl);
@@ -959,7 +964,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					Comment c = CrucibleRestXmlHelper.parseGeneralCommentNode(
+					Comment c =
+							CrucibleRestXmlHelper.parseGeneralCommentNode(review,
                             getUsername(), element, shouldTrimWikiMarkers());
 					if (c != null) {
 						comments.add(c);
@@ -1036,14 +1042,14 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 //		}
 //	}
 
-	public Comment addGeneralComment(PermId id, Comment comment) throws RemoteApiException {
+	public Comment addGeneralComment(Review review, Comment comment) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
 
 		Document request = CrucibleRestXmlHelper.prepareGeneralComment(comment);
 
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + COMMENTS;
+		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + review.getPermId().getId() + COMMENTS;
 		try {
 			Document doc = retrievePostResponse(requestUrl, request);
 
@@ -1053,7 +1059,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					return CrucibleRestXmlHelper.parseGeneralCommentNode(getUsername(), element, shouldTrimWikiMarkers());
+					return CrucibleRestXmlHelper.parseGeneralCommentNode(review, getUsername(), element,
+							shouldTrimWikiMarkers());
 				}
 			}
 			return null;
@@ -1116,14 +1123,15 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	public VersionedComment addVersionedComment(PermId id, PermId riId, VersionedComment comment)
+	public VersionedComment addVersionedComment(Review review, PermId riId, VersionedComment comment)
 			throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
 
 		Document request = CrucibleRestXmlHelper.prepareVersionedComment(riId, comment);
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + REVIEW_ITEMS + "/" + riId.getId()
+		String requestUrl =
+				getBaseUrl() + REVIEW_SERVICE + "/" + review.getPermId().getId() + REVIEW_ITEMS + "/" + riId.getId()
 				+ COMMENTS;
 		try {
 			Document doc = retrievePostResponse(requestUrl, request);
@@ -1133,7 +1141,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					return CrucibleRestXmlHelper.parseVersionedCommentNode(
+					return CrucibleRestXmlHelper.parseVersionedCommentNode(review,
                             getUsername(), element, shouldTrimWikiMarkers());
 				}
 			}
@@ -1147,7 +1155,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	public Comment addGeneralCommentReply(PermId id, PermId cId, Comment comment)
+	public Comment addGeneralCommentReply(Review review, PermId cId, Comment comment)
 			throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
@@ -1155,7 +1163,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 		Document request = CrucibleRestXmlHelper.prepareGeneralComment(comment);
 
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + COMMENTS + "/" + cId.getId() + REPLIES;
+		String requestUrl =
+				getBaseUrl() + REVIEW_SERVICE + "/" + review.getPermId().getId() + COMMENTS + "/" + cId.getId() + REPLIES;
 
 		try {
 			Document doc = retrievePostResponse(requestUrl, request);
@@ -1166,7 +1175,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					GeneralCommentBean reply = CrucibleRestXmlHelper.parseGeneralCommentNode(
+					GeneralCommentBean reply =
+							CrucibleRestXmlHelper.parseGeneralCommentNode(review,
                             getUsername(), element, shouldTrimWikiMarkers());
 					if (reply != null) {
 						reply.setReply(true);
@@ -1184,7 +1194,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	public VersionedComment addVersionedCommentReply(PermId id, PermId cId, VersionedComment comment)
+	public VersionedComment addVersionedCommentReply(Review review, PermId cId, VersionedComment comment)
 			throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
@@ -1192,7 +1202,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 		Document request = CrucibleRestXmlHelper.prepareGeneralComment(comment);
 
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + id.getId() + COMMENTS + "/" + cId.getId() + REPLIES;
+		String requestUrl =
+				getBaseUrl() + REVIEW_SERVICE + "/" + review.getPermId().getId() + COMMENTS + "/" + cId.getId() + REPLIES;
 
 		try {
 			Document doc = retrievePostResponse(requestUrl, request);
@@ -1203,7 +1214,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					VersionedCommentBean reply = CrucibleRestXmlHelper.parseVersionedCommentNode(
+					VersionedCommentBean reply =
+							CrucibleRestXmlHelper.parseVersionedCommentNode(review,
                             getUsername(), element, shouldTrimWikiMarkers());
 					if (reply != null) {
 						reply.setReply(true);

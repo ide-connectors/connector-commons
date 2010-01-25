@@ -409,51 +409,51 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 
 	public void fillDetailsForReview(@NotNull ConnectionCfg server, @NotNull Review review) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
-		review.setGeneralComments(getGeneralComments(server, review.getPermId()));
-		List<VersionedComment> comments = getVersionedComments(server, review.getPermId());
+		review.setGeneralComments(getGeneralComments(server, review));
+		List<VersionedComment> comments = getVersionedComments(server, review);
 		Set<CrucibleFileInfo> files;
 		files = getFiles(server, review.getPermId());
 		review.setFilesAndVersionedComments(files, comments);
 	}
 
-	public List<Comment> getGeneralComments(ConnectionCfg server, PermId permId) throws RemoteApiException,
+	public List<Comment> getGeneralComments(ConnectionCfg server, Review review) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		return session.getGeneralComments(permId);
+		return session.getGeneralComments(review);
 	}
 
-	public List<VersionedComment> getVersionedComments(ConnectionCfg server, PermId permId) throws RemoteApiException,
+	public List<VersionedComment> getVersionedComments(ConnectionCfg server, Review review) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		return session.getAllVersionedComments(permId);
+		return session.getAllVersionedComments(review);
 	}
 
-	public List<VersionedComment> getVersionedComments(ConnectionCfg server, PermId permId, PermId reviewItemId)
+	public List<VersionedComment> getVersionedComments(ConnectionCfg server, Review review, PermId reviewItemId)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		return session.getVersionedComments(permId, reviewItemId);
+		return session.getVersionedComments(review, reviewItemId);
 	}
 
-	public List<Comment> getReplies(ConnectionCfg server, PermId permId, PermId commentId)
+	public List<Comment> getReplies(ConnectionCfg server, Review review, PermId commentId)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		return session.getReplies(permId, commentId);
+		return session.getReplies(review, commentId);
 	}
 
-	public Comment addGeneralComment(ConnectionCfg server, PermId permId, Comment comment)
+	public Comment addGeneralComment(ConnectionCfg server, Review review, Comment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		GeneralCommentBean newComment = (GeneralCommentBean) session.addGeneralComment(permId, comment);
+		GeneralCommentBean newComment = (GeneralCommentBean) session.addGeneralComment(review, comment);
 		if (newComment != null) {
 			fixUserName(server, newComment);
 		}
 		return newComment;
 	}
 
-	public VersionedComment addVersionedComment(ConnectionCfg server, PermId permId, PermId riId, VersionedComment comment)
+	public VersionedComment addVersionedComment(ConnectionCfg server, Review review, PermId riId, VersionedComment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		VersionedCommentBean newComment = (VersionedCommentBean) session.addVersionedComment(permId, riId, comment);
+		VersionedCommentBean newComment = (VersionedCommentBean) session.addVersionedComment(review, riId, comment);
 		if (newComment != null) {
 			fixUserName(server, newComment);
 		}
@@ -478,20 +478,20 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 		session.publishComment(reviewId, null);
 	}
 
-	public Comment addGeneralCommentReply(ConnectionCfg server, PermId id, PermId cId, Comment comment)
+	public Comment addGeneralCommentReply(ConnectionCfg server, Review review, PermId cId, Comment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		GeneralCommentBean newReply = (GeneralCommentBean) session.addGeneralCommentReply(id, cId, comment);
+		GeneralCommentBean newReply = (GeneralCommentBean) session.addGeneralCommentReply(review, cId, comment);
 		if (newReply != null) {
 			fixUserName(server, newReply);
 		}
 		return newReply;
 	}
 
-	public VersionedComment addVersionedCommentReply(ConnectionCfg server, PermId id, PermId cId, VersionedComment comment)
+	public VersionedComment addVersionedCommentReply(ConnectionCfg server, Review review, PermId cId, VersionedComment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		VersionedCommentBean newReply = (VersionedCommentBean) session.addVersionedCommentReply(id, cId, comment);
+		VersionedCommentBean newReply = (VersionedCommentBean) session.addVersionedCommentReply(review, cId, comment);
 		if (newReply != null) {
 			fixUserName(server, newReply);
 		}

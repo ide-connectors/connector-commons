@@ -22,11 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * User: lguminski
- * Date: Jul 16, 2008
- * Time: 11:42:30 PM
- */
 public abstract class CommentBean implements Comment {
 	private PermId permId;
 	private String message = null;
@@ -42,16 +37,17 @@ public abstract class CommentBean implements Comment {
 
 	private boolean isReply = false;
 
-	private final Map<String, CustomField> customFields;
+	private final Map<String, CustomField> customFields = new HashMap<String, CustomField>();;
 	private static final int HASH_INT = 31;
 
-	public CommentBean() {
-		super();
-		customFields = new HashMap<String, CustomField>();
+	private final Review review;
+
+	public CommentBean(Review review) {
+		this.review = review;
 	}
 
 	public CommentBean(Comment bean) {
-		this();
+		review = bean.getReview();
 		setPermId(bean.getPermId());
 		setMessage(bean.getMessage());
 		setDraft(bean.isDraft());
@@ -78,6 +74,10 @@ public abstract class CommentBean implements Comment {
 	}
 
     protected abstract Comment createReplyBean(Comment reply);
+
+	public Review getReview() {
+		return review;
+	}
 
     public PermId getPermId() {
 		return permId;

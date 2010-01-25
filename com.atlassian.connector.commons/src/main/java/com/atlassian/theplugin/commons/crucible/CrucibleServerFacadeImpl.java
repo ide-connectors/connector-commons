@@ -25,7 +25,6 @@ import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.PathAndRevision;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
-import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCache;
@@ -41,7 +40,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
 import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
-import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
@@ -453,7 +451,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	public VersionedComment addVersionedComment(ConnectionCfg server, Review review, PermId riId, VersionedComment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		VersionedComment newComment = (VersionedComment) session.addVersionedComment(review, riId, comment);
+		VersionedComment newComment = session.addVersionedComment(review, riId, comment);
 		if (newComment != null) {
 			fixUserName(server, newComment);
 		}
@@ -491,7 +489,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	public VersionedComment addVersionedCommentReply(ConnectionCfg server, Review review, PermId cId, VersionedComment comment)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
-		VersionedComment newReply = (VersionedComment) session.addVersionedCommentReply(review, cId, comment);
+		VersionedComment newReply = session.addVersionedCommentReply(review, cId, comment);
 		if (newReply != null) {
 			fixUserName(server, newReply);
 		}

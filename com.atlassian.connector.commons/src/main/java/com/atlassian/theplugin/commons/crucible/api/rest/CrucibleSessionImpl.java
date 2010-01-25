@@ -41,7 +41,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.State;
 import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
-import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.crucible.api.model.changes.Changes;
 import com.atlassian.theplugin.commons.exception.IncorrectVersionException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;

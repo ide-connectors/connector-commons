@@ -17,78 +17,229 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.connector.commons.misc.IntRanges;
-import org.jetbrains.annotations.Nullable;
+import java.util.List;
 import java.util.Map;
 
-public interface VersionedComment extends Comment {
-	PermId getPermId();
+public class VersionedComment extends Comment {
+	private PermId reviewItemId;
 
-	PermId getReviewItemId();
+	private int fromStartLine;
 
-	/**
-	 * @deprecated as of Crucible 2.1 you should use {@link #getLineRanges()}
-	 * @return
-	 */
+	private int fromEndLine;
+
+	private boolean fromLineInfo;
+
+	private int toStartLine;
+
+	private int toEndLine;
+
+	private boolean toLineInfo;
+
+	private IntRanges toLineRanges;
+
+	private IntRanges fromLineRanges;
+
+    private Map<String, IntRanges> lineRanges;
+
+	public VersionedComment(VersionedComment bean) {
+		super(bean);
+		if (bean.isFromLineInfo()) {
+			setFromLineInfo(true);
+			setFromStartLine(bean.getFromStartLine());
+			setFromEndLine(bean.getFromEndLine());
+		}
+		if (bean.isToLineInfo()) {
+			setToLineInfo(true);
+			setToStartLine(bean.getToStartLine());
+			setToEndLine(bean.getToEndLine());
+		}
+	}
+
+	public VersionedComment(Review review) {
+		super(review);
+	}
+
+	public PermId getReviewItemId() {
+		return reviewItemId;
+	}
+
+	public void setReviewItemId(PermId reviewItemId) {
+		this.reviewItemId = reviewItemId;
+	}
+
 	@Deprecated
-	boolean isToLineInfo();
+	public int getFromStartLine() {
+		return fromStartLine;
+	}
 
-	/**
-	 * @deprecated as of Crucible 2.1 you should use {@link #getLineRanges()}
-	 * @return
-	 */
+	public void setFromStartLine(int startLine) {
+		this.fromStartLine = startLine;
+	}
+
 	@Deprecated
-	int getToStartLine();
+	public int getFromEndLine() {
+		return fromEndLine;
+	}
 
-	/**
-	 * @deprecated as of Crucible 2.1 you should use {@link #getLineRanges()}
-	 * @return
-	 */
 	@Deprecated
-	int getToEndLine();
+	public IntRanges getFromLineRanges() {
+		return fromLineRanges;
+	}
 
-	/**
-	 * @deprecated as of Crucible 2.1 you should use {@link #getLineRanges()}
-	 * @return
-	 */
+	@Override
+	protected Comment createReplyBean(Comment reply) {
+		return new VersionedComment((VersionedComment) reply);
+	}
+
+	public void setFromLineRanges(final IntRanges fromLineRanges) {
+		this.fromLineRanges = fromLineRanges;
+		setFromLineInfo(true);
+		setFromStartLine(fromLineRanges.getTotalMin());
+		setFromEndLine(fromLineRanges.getTotalMax());
+	}
+
 	@Deprecated
-	boolean isFromLineInfo();
+	public IntRanges getToLineRanges() {
+		return toLineRanges;
+	}
 
-	/**
-	 * @deprecated as of Crucible 2.1 you should use {@link #getLineRanges()}
-	 * @return
-	 */
+    public Map<String, IntRanges> getLineRanges() {
+        return lineRanges;
+    }
+
+    public void setLineRanges(Map<String, IntRanges> lineRanges) {
+        this.lineRanges = lineRanges;
+    }
+
+    public void setToLineRanges(IntRanges toLineRanges) {
+		this.toLineRanges = toLineRanges;
+		setToLineInfo(true);
+		setToStartLine(toLineRanges.getTotalMin());
+		setToEndLine(toLineRanges.getTotalMax());
+	}
+
+	public void setFromEndLine(int endLine) {
+		this.fromEndLine = endLine;
+	}
+
 	@Deprecated
-	int getFromStartLine();
+	public int getToStartLine() {
+		return toStartLine;
+	}
 
-	/**
-	 * @deprecated as of Crucible 2.1 you should use {@link #getLineRanges()}
-	 * @return
-	 */
+	public void setToStartLine(int startLine) {
+		this.toStartLine = startLine;
+	}
+
 	@Deprecated
-	int getFromEndLine();
+	public int getToEndLine() {
+		return toEndLine;
+	}
 
-	/**
-	 * @return precise information about lines this comment references in "from" revision
-	 * @deprecated as of Crucible 2.1 you should use {@link #getLineRanges()}
-	 * @since Crucible 2.0
-	 */
-	@Nullable
+	public void setToEndLine(int endLine) {
+		this.toEndLine = endLine;
+	}
+
 	@Deprecated
-	IntRanges getFromLineRanges();
+	public boolean isFromLineInfo() {
+		return fromLineInfo;
+	}
 
-	/**
-	 * @return precise information about lines this comment references in "to" revision
-	 * @deprecated as of Crucible 2.1 you should use {@link #getLineRanges()}
-	 * @since Crucible 2.0
-	 */
+	public void setFromLineInfo(boolean fromLineInfo) {
+		this.fromLineInfo = fromLineInfo;
+	}
+
 	@Deprecated
-	@Nullable
-	IntRanges getToLineRanges();
+	public boolean isToLineInfo() {
+		return toLineInfo;
+	}
 
-	/**
-	 * @return line ranges per revision - used by iterative reviews, for Crucibles older than 2.1 it will return null
-	 * @since Crucible 2.1
-	 */
-    @Nullable
-    Map<String, IntRanges> getLineRanges();
+	public void setToLineInfo(boolean toLineInfo) {
+		this.toLineInfo = toLineInfo;
+	}
+
+	public boolean deepEquals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof VersionedComment)) {
+			return false;
+		}
+		if (!super.equals(o)) {
+			return false;
+		}
+
+		VersionedComment that = (VersionedComment) o;
+
+		if (fromEndLine != that.fromEndLine) {
+			return false;
+		}
+		if (fromLineInfo != that.fromLineInfo) {
+			return false;
+		}
+		if (fromStartLine != that.fromStartLine) {
+			return false;
+		}
+		if (toEndLine != that.toEndLine) {
+			return false;
+		}
+		if (toLineInfo != that.toLineInfo) {
+			return false;
+		}
+		if (toStartLine != that.toStartLine) {
+			return false;
+		}
+
+        if (lineRangesNotEqual(that.lineRanges)) {
+            return false;
+        }
+
+		if (getReplies() != null ? !getReplies().equals(that.getReplies()) : that.getReplies() != null) {
+			return false;
+		}
+		if (!reviewItemId.equals(that.reviewItemId)) {
+			return false;
+		}
+
+		if (getReplies().size() != that.getReplies().size()) {
+			return false;
+		}
+
+		for (Comment vc : getReplies()) {
+			boolean found = false;
+			for (Comment tvc : that.getReplies()) {
+				if (vc.getPermId() == tvc.getPermId() && ((VersionedComment) vc).deepEquals(vc)) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+    private boolean lineRangesNotEqual(Map<String, IntRanges> thatLineRanges) {
+        if (lineRanges == null && thatLineRanges == null) {
+            return true;
+        }
+        if (lineRanges == null) {
+            return false;
+        }
+        if (thatLineRanges == null) {
+            return false;
+        }
+        return lineRanges.equals(thatLineRanges);
+    }
+
+    @SuppressWarnings("unchecked")
+	@Deprecated
+	public List<VersionedComment> getReplies2() {
+		// wseliga: I don't know how to make it compilable with these casts.
+		// We are somewhat guaranteed that all replies will be here really of VersionedComment type, so I dare cast
+		//noinspection RedundantCast
+		return (List<VersionedComment>) (List<?>) getReplies();
+	}
 }

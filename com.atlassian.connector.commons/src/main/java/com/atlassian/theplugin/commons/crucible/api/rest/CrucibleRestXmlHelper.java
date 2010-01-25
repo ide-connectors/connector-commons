@@ -23,7 +23,7 @@ import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.CrucibleVersion;
 import com.atlassian.theplugin.commons.crucible.api.PathAndRevision;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
-import com.atlassian.theplugin.commons.crucible.api.model.CommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CommitType;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
@@ -37,7 +37,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldValue;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldValueType;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.FileType;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
@@ -49,7 +49,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.State;
 import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
-import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.crucible.api.model.changes.Change;
 import com.atlassian.theplugin.commons.crucible.api.model.changes.Changes;
 import com.atlassian.theplugin.commons.crucible.api.model.changes.Link;
@@ -593,7 +593,7 @@ public final class CrucibleRestXmlHelper {
 		return reviewItem;
 	}
 
-	private static boolean parseGeneralComment(Review review, String myUsername, GeneralCommentBean commentBean,
+	private static boolean parseGeneralComment(Review review, String myUsername, GeneralComment commentBean,
 			Element reviewCommentNode, boolean trimWikiMarkers) {
 
 		if (!parseComment(myUsername, commentBean, reviewCommentNode, trimWikiMarkers)) {
@@ -605,7 +605,7 @@ public final class CrucibleRestXmlHelper {
 			for (Element repliesNode : replies) {
 				List<Element> entries = getChildElements(repliesNode, "generalCommentData");
 				for (Element replyNode : entries) {
-					GeneralCommentBean reply = parseGeneralCommentNode(review, myUsername, replyNode, trimWikiMarkers);
+					GeneralComment reply = parseGeneralCommentNode(review, myUsername, replyNode, trimWikiMarkers);
 					if (reply != null) {
 						reply.setReply(true);
 						rep.add(reply);
@@ -618,7 +618,7 @@ public final class CrucibleRestXmlHelper {
 		return true;
 	}
 
-	private static boolean parseVersionedComment(Review review, String myUsername, VersionedCommentBean commentBean,
+	private static boolean parseVersionedComment(Review review, String myUsername, VersionedComment commentBean,
 			Element reviewCommentNode, boolean trimWikiMarkers) {
 
 		if (!parseComment(myUsername, commentBean, reviewCommentNode, trimWikiMarkers)) {
@@ -645,7 +645,7 @@ public final class CrucibleRestXmlHelper {
 			for (Element repliesNode : replies) {
 				List<Element> entries = getChildElements(repliesNode, "generalCommentData");
 				for (Element replyNode : entries) {
-					VersionedCommentBean reply =
+					VersionedComment reply =
 							parseVersionedCommentNodeWithHints(review, myUsername, replyNode,
 							commentBean.isFromLineInfo(),
 							commentBean.getFromStartLine(),
@@ -668,7 +668,7 @@ public final class CrucibleRestXmlHelper {
 		return true;
 	}
 
-	private static boolean parseComment(String myUsername, CommentBean commentBean,
+	private static boolean parseComment(String myUsername, Comment commentBean,
                                         Element reviewCommentNode, boolean trimWikiMarkers) {
 
 		boolean isDraft = Boolean.parseBoolean(getChildText(reviewCommentNode, "draft"));
@@ -778,9 +778,9 @@ public final class CrucibleRestXmlHelper {
 		getContent(commentNode).add(replies);
 	}
 
-	public static GeneralCommentBean parseGeneralCommentNode(Review review, String myUsername,
+	public static GeneralComment parseGeneralCommentNode(Review review, String myUsername,
                                                              Element reviewCommentNode, boolean trimWikiMarkers) {
-		GeneralCommentBean reviewCommentBean = new GeneralCommentBean(review);
+		GeneralComment reviewCommentBean = new GeneralComment(review);
 		if (!parseGeneralComment(review, myUsername, reviewCommentBean, reviewCommentNode, trimWikiMarkers)) {
 			return null;
 		}
@@ -814,12 +814,12 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	///CHECKSTYLE:OFF
-	public static VersionedCommentBean parseVersionedCommentNodeWithHints(Review review,
+	public static VersionedComment parseVersionedCommentNodeWithHints(Review review,
             String myUsername, Element reviewCommentNode, boolean fromLineInfo, int fromStartLine, int toStartLine,
             boolean toLineInfo, int fromEndLine, int toEndLine, Map<String, IntRanges> lineRanges,
             boolean trimWikiMarkers) {
 
-		VersionedCommentBean result = parseVersionedCommentNode(review, myUsername, reviewCommentNode, trimWikiMarkers);
+		VersionedComment result = parseVersionedCommentNode(review, myUsername, reviewCommentNode, trimWikiMarkers);
 		if (result == null) {
 			return null;
 		}
@@ -842,9 +842,9 @@ public final class CrucibleRestXmlHelper {
 
 	///CHECKSTYLE:ON
 
-	public static VersionedCommentBean parseVersionedCommentNode(Review review, String myUsername,
+	public static VersionedComment parseVersionedCommentNode(Review review, String myUsername,
                                                                  Element reviewCommentNode, boolean trimWikiMarkers) {
-		VersionedCommentBean comment = new VersionedCommentBean(review);
+		VersionedComment comment = new VersionedComment(review);
 		if (!parseVersionedComment(review, myUsername, comment, reviewCommentNode, trimWikiMarkers)) {
 			return null;
 		}
@@ -884,7 +884,7 @@ public final class CrucibleRestXmlHelper {
 		return comment;
 	}
 
-    private static void parseAndFillLineRanges(VersionedCommentBean comment, Element lineRangesNode) {
+    private static void parseAndFillLineRanges(VersionedComment comment, Element lineRangesNode) {
         Map<String, IntRanges> rangesMap = new LinkedHashMap<String, IntRanges>();
         List<Element> entries = getChildElements(lineRangesNode, "lineRange");
         for (Element rangeNode : entries) {

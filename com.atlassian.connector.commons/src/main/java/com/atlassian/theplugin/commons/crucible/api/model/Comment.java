@@ -16,65 +16,296 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public interface Comment {
+public abstract class Comment {
 
-    enum ReadState {
-        UNKNOWN("Unknown"),
-        READ("Read"),
-        UNREAD("Not read"),
-        LEAVE_UNREAD("Leave unread");
+	public enum ReadState {
+		UNKNOWN("Unknown"), READ("Read"), UNREAD("Not read"), LEAVE_UNREAD("Leave unread");
 
-        private final String name;
+		private final String name;
 
-        ReadState(String name) {
-            this.name = name;
+		ReadState(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+
+	private PermId permId;
+	private String message = null;
+	private boolean draft = false;
+	private boolean deleted = false;
+	private boolean defectRaised = false;
+	private boolean defectApproved = false;
+	private User author = null;
+	private Date createDate = new Date();
+    private ReadState readState;
+
+    private List<Comment> replies = new ArrayList<Comment>();
+
+	private boolean isReply = false;
+
+	private final Map<String, CustomField> customFields = new HashMap<String, CustomField>();;
+	private static final int HASH_INT = 31;
+
+	private final Review review;
+
+	public Comment(Review review) {
+		this.review = review;
+	}
+
+	public Comment(Comment bean) {
+		review = bean.getReview();
+		setPermId(bean.getPermId());
+		setMessage(bean.getMessage());
+		setDraft(bean.isDraft());
+		setCreateDate(bean.getCreateDate());
+		setDefectApproved(bean.isDefectApproved());
+		setDefectRaised(bean.isDefectRaised());
+		setDeleted(bean.isDeleted());
+		setAuthor(bean.getAuthor());
+		setAuthor(bean.getAuthor());
+		setReply(bean.isReply());
+        setReadState(bean.getReadState());
+
+		if (bean.getCustomFields() != null) {
+			for (Map.Entry<String, CustomField> entry : bean.getCustomFields().entrySet()) {
+				getCustomFields().put(entry.getKey(), new CustomFieldBean(entry.getValue()));
+			}
+		}
+
+        if (bean.getReplies() != null) {
+            for (Comment reply : bean.getReplies()) {
+                replies.add(createReplyBean(reply));
+            }
         }
+	}
 
+    protected abstract Comment createReplyBean(Comment reply);
 
-        @Override
-        public String toString() {
-            return name;
-        }
+	public Review getReview() {
+		return review;
+	}
+
+    public PermId getPermId() {
+		return permId;
+	}
+
+	public void setPermId(PermId permId) {
+		this.permId = permId;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isDraft() {
+		return draft;
+	}
+
+	public void setDraft(boolean draft) {
+		this.draft = draft;
+	}
+
+	public boolean isDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+
+	public boolean isDefectRaised() {
+		return defectRaised;
+	}
+
+	public void setDefectRaised(boolean defectRaised) {
+		this.defectRaised = defectRaised;
+	}
+
+	public boolean isDefectApproved() {
+		return defectApproved;
+	}
+
+	public boolean isReply() {
+		return isReply;
+	}
+
+	public void setReply(boolean reply) {
+		isReply = reply;
+	}
+
+    public void setReplies(List<Comment> replies) {
+        this.replies = replies;
     }
 
-	Review getReview();
+    public void addReply(Comment comment) {
+        replies.add(comment);
+    }
 
-	PermId getPermId();
+    public List<Comment> getReplies() {
+        return replies;
+    }
 
-	String getMessage();
+	public void setDefectApproved(boolean defectApproved) {
+		this.defectApproved = defectApproved;
+	}
 
-	boolean isDraft();
+	public User getAuthor() {
+		return author;
+	}
 
-	boolean isDeleted();
+	public void setAuthor(User author) {
+		this.author = author;
+	}
 
-	boolean isDefectRaised();
+	public Date getCreateDate() {
+		return new Date(createDate.getTime());
+	}
 
-	boolean isDefectApproved();
+	public void setCreateDate(Date createDate) {
+		if (createDate != null) {
+			this.createDate = new Date(createDate.getTime());
+		}
+	}
 
-	boolean isReply();
+	public Map<String, CustomField> getCustomFields() {
+		return customFields;
+	}
 
-    List<Comment> getReplies();
+    public ReadState getReadState() {
+        return readState;
+    }
 
-	User getAuthor();
+    public void setReadState(ReadState readState) {
+        this.readState = readState;
+    }
 
-	Date getCreateDate();
+    @Override
+	public String toString() {
+		return getMessage();
+	}
 
-	Map<String, CustomField> getCustomFields();
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
-    ReadState getReadState();
+		Comment that = (Comment) o;
 
-	/**
-	 * @return number of all replies and replies to replies (when supported) to this comment
-	 */
-	int getNumReplies();
+		if (defectApproved != that.defectApproved) {
+			return false;
+		}
+		if (defectRaised != that.defectRaised) {
+			return false;
+		}
+		if (deleted != that.deleted) {
+			return false;
+		}
+		if (draft != that.draft) {
+			return false;
+		}
+		if (isReply != that.isReply) {
+			return false;
+		}
+		if (author != null ? !author.equals(that.author) : that.author != null) {
+			return false;
+		}
+		if (createDate != null ? !createDate.equals(that.createDate) : that.createDate != null) {
+			return false;
+		}
+		if (customFields != null ? !customFields.equals(that.customFields) : that.customFields != null) {
+			return false;
+		}
+		if (message != null ? !message.equals(that.message) : that.message != null) {
+			return false;
+		}
+		if (permId != null ? !permId.equals(that.permId) : that.permId != null) {
+			return false;
+		}
+        if (readState != null ? !readState.equals(that.readState) : that.readState != null) {
+            return false;
+        }
 
-	int getNumberOfUnreadReplies();
+		return true;
+	}
 
-	int getNumberOfDraftReplies();
+	@Override
+	public int hashCode() {
+		int result;
+		result = (permId != null ? permId.hashCode() : 0);
+		result = HASH_INT * result + (message != null ? message.hashCode() : 0);
+		result = HASH_INT * result + (draft ? 1 : 0);
+		result = HASH_INT * result + (deleted ? 1 : 0);
+		result = HASH_INT * result + (defectRaised ? 1 : 0);
+		result = HASH_INT * result + (defectApproved ? 1 : 0);
+		result = HASH_INT * result + (author != null ? author.hashCode() : 0);
+		result = HASH_INT * result + (createDate != null ? createDate.hashCode() : 0);
+		result = HASH_INT * result + (isReply ? 1 : 0);
+		result = HASH_INT * result + (customFields != null ? customFields.hashCode() : 0);
+		result = HASH_INT * result + (readState != null ? readState.ordinal() : 0);
+		return result;
+	}
 
-	boolean isEffectivelyUnread();
+	public int getNumReplies() {
+		if (replies == null) {
+			return 0;
+		}
+		int res = replies.size();
+		for (Comment reply : replies) {
+			res += reply.getNumReplies();
+		}
+		return res;
+	}
+
+	public int getNumberOfUnreadReplies() {
+		if (replies == null) {
+			return 0;
+		}
+
+		int counter = 0;
+		for (Comment reply : replies) {
+			if (reply.isEffectivelyUnread()) {
+				++counter;
+			}
+			counter += reply.getNumberOfUnreadReplies();
+		}
+		return counter;
+	}
+
+	public int getNumberOfDraftReplies() {
+		if (replies == null) {
+			return 0;
+		}
+
+		int counter = 0;
+		for (Comment reply : replies) {
+			if (reply.isDraft()) {
+				++counter;
+			}
+			counter += reply.getNumberOfDraftReplies();
+		}
+		return counter;
+	}
+
+	public boolean isEffectivelyUnread() {
+		return (getReadState() == Comment.ReadState.UNREAD || getReadState() == Comment.ReadState.LEAVE_UNREAD);
+	}
+
 }

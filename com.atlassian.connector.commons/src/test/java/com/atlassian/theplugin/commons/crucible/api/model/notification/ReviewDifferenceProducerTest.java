@@ -5,14 +5,14 @@ import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfoImpl;
-import com.atlassian.theplugin.commons.crucible.api.model.GeneralCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
 import com.atlassian.theplugin.commons.crucible.api.model.State;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
-import com.atlassian.theplugin.commons.crucible.api.model.VersionedCommentBean;
+import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,7 +56,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	}
 
 	private Comment prepareGeneralComment(final String message, final PermId permId, final Date date, final Comment reply) {
-		GeneralCommentBean bean = new GeneralCommentBean(review);
+		GeneralComment bean = new GeneralComment(review);
 		bean.setMessage(message);
 		bean.setPermId(permId);
 		bean.setCreateDate(date);
@@ -69,7 +69,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	private VersionedComment prepareVersionedComment(final String message, final PermId permId, final Date date,
 			final VersionedComment reply) {
-		VersionedCommentBean bean = new VersionedCommentBean(review);
+		VersionedComment bean = new VersionedComment(review);
 		bean.setMessage(message);
 		bean.setPermId(permId);
 		bean.setCreateDate(date);
@@ -296,7 +296,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertTrue(p.isShortEqual());
 		assertTrue(p.isFilesEqual());
 
-		((GeneralCommentBean) review1.getGeneralComments().get(0).getReplies().get(0)).setMessage("new reply message");
+		((GeneralComment) review1.getGeneralComments().get(0).getReplies().get(0)).setMessage("new reply message");
 
 		p = new ReviewDifferenceProducer(review, review1);
 		notifications = p.getDiff();
@@ -406,7 +406,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		Review review1 = prepareReview1(State.REVIEW, commentDate);
 
 		// change general for second review
-		((GeneralCommentBean) review1.getGeneralComments().get(0)).setMessage("new message");
+		((GeneralComment) review1.getGeneralComments().get(0)).setMessage("new message");
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
@@ -473,7 +473,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 		Iterator<CrucibleFileInfo> iter = review.getFiles().iterator();
 
-		((VersionedCommentBean) iter.next().getVersionedComments().get(0)).setMessage("new message");
+		((VersionedComment) iter.next().getVersionedComments().get(0)).setMessage("new message");
 		ReviewDifferenceProducer p = new ReviewDifferenceProducer(review, review1);
 		List<CrucibleNotification> notifications = p.getDiff();
 
@@ -482,7 +482,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertFalse(p.isFilesEqual());
 		assertEquals(CrucibleNotificationType.UPDATED_COMMENT, notifications.get(0).getType());
 
-		((VersionedCommentBean) iter.next().getVersionedComments().get(0)).setMessage("new message");
+		((VersionedComment) iter.next().getVersionedComments().get(0)).setMessage("new message");
 		p = new ReviewDifferenceProducer(review, review1);
 		notifications = p.getDiff();
 

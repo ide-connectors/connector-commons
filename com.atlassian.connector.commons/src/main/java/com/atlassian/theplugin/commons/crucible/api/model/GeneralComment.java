@@ -17,20 +17,20 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 
-public class GeneralCommentBean extends CommentBean implements Comment {
+public class GeneralComment extends Comment {
 	private static final int HASH_INT = 31;
 
-	public GeneralCommentBean(Review review) {
+	public GeneralComment(Review review) {
 		super(review);
 	}
 
-	public GeneralCommentBean(final Comment bean) {
+	public GeneralComment(final Comment bean) {
 		super(bean);
 	}
 
 	@Override
 	protected Comment createReplyBean(Comment reply) {
-		return new GeneralCommentBean(reply);
+		return new GeneralComment(reply);
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class GeneralCommentBean extends CommentBean implements Comment {
 			return false;
 		}
 
-		GeneralCommentBean that = (GeneralCommentBean) o;
+		GeneralComment that = (GeneralComment) o;
 
 		if (getReplies() != null ? !getReplies().equals(that.getReplies()) : that.getReplies() != null) {
 			return false;

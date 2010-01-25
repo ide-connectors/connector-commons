@@ -27,7 +27,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CommitType;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfoImpl;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomField;
@@ -516,7 +516,7 @@ public final class CrucibleRestXmlHelper {
 
 
 	public static CrucibleFileInfo parseReviewItemNode(final Review review, final Element reviewItemNode) {
-		CrucibleFileInfoImpl reviewItem = new CrucibleFileInfoImpl(
+		CrucibleFileInfo reviewItem = new CrucibleFileInfo(
 				new VersionedVirtualFile(
 						getChildText(reviewItemNode, "toPath"),
 						getChildText(reviewItemNode, "toRevision")

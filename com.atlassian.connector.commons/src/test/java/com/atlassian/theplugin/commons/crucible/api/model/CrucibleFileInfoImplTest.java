@@ -18,9 +18,9 @@ public class CrucibleFileInfoImplTest extends TestCase {
 
 	private final Review review = new Review("http://myurl.com");
 
-	private CrucibleFileInfoImpl prepareCrucibleFileInfo() {
+	private CrucibleFileInfo prepareCrucibleFileInfo() {
 		PermId permId1 = new PermId("1");
-		CrucibleFileInfoImpl cfi = new CrucibleFileInfoImpl(null, null, permId1);
+		CrucibleFileInfo cfi = new CrucibleFileInfo(null, null, permId1);
 		VersionedComment vc1 = new VersionedComment(review);
 		VersionedComment rpl1 = new VersionedComment(review);
 		rpl1.setDraft(true);
@@ -45,17 +45,17 @@ public class CrucibleFileInfoImplTest extends TestCase {
 	}
 
 	public void testGetNumberOfUnreadComments() {
-		CrucibleFileInfoImpl cfi = prepareCrucibleFileInfo();
+		CrucibleFileInfo cfi = prepareCrucibleFileInfo();
 		assertEquals(2, cfi.getNumberOfUnreadComments());
 	}
 
 	public void testGetNumberOfComments() {
-		CrucibleFileInfoImpl cfi = prepareCrucibleFileInfo();
+		CrucibleFileInfo cfi = prepareCrucibleFileInfo();
 		assertEquals(7, cfi.getNumberOfComments());
 	}
 
 	public void testGetNumberOfDraftComments() {
-		CrucibleFileInfoImpl cfi = prepareCrucibleFileInfo();
+		CrucibleFileInfo cfi = prepareCrucibleFileInfo();
 		assertEquals(3, cfi.getNumberOfCommentsDrafts());
 	}
 

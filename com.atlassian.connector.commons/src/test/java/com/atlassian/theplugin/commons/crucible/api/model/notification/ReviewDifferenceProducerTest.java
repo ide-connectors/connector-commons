@@ -4,7 +4,7 @@ import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfoImpl;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
@@ -84,7 +84,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 			final List<VersionedComment> comments) {
 		VersionedVirtualFile oldFileInfo = new VersionedVirtualFile("http://old.file", "1.1");
 		VersionedVirtualFile newFileInfo = new VersionedVirtualFile("http://new.file", "1.3");
-		CrucibleFileInfoImpl bean = new CrucibleFileInfoImpl(newFileInfo, oldFileInfo, permId);
+		CrucibleFileInfo bean = new CrucibleFileInfo(newFileInfo, oldFileInfo, permId);
 		bean.setCommitDate(date);
 		bean.setVersionedComments(comments);
 		return bean;

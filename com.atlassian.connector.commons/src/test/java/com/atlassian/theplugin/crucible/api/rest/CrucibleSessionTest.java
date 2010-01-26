@@ -27,6 +27,7 @@ import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
@@ -40,6 +41,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.changes.Changes;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
+import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CreateReviewCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CrucibleMockUtil;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetMetricsCallback;
@@ -849,7 +851,8 @@ public class CrucibleSessionTest extends TestCase {
 	private CrucibleSessionImpl createCrucibleSession(String url) throws RemoteApiException {
 		CrucibleServerCfg serverCfg = new CrucibleServerCfg(url, new ServerIdImpl());
 		serverCfg.setUrl(url);
-		return new CrucibleSessionImpl(createServerData(serverCfg), new TestHttpSessionCallbackImpl());
+		return new CrucibleSessionImpl(createServerData(serverCfg), new TestHttpSessionCallbackImpl(),
+				LoggerImpl.getInstance());
 	}
 
 	private CrucibleSessionImpl createCrucibleSession(String url, String username, String password)
@@ -858,7 +861,8 @@ public class CrucibleSessionTest extends TestCase {
 		serverCfg.setUrl(url);
 		serverCfg.setUsername(username);
 		serverCfg.setPassword(password);
-		return new CrucibleSessionImpl(createServerData(serverCfg), new TestHttpSessionCallbackImpl());
+		return new CrucibleSessionImpl(createServerData(serverCfg), new TestHttpSessionCallbackImpl(),
+				LoggerImpl.getInstance());
 	}
 
 	public void testGetReviewDetailsWithAddedFile() throws Exception {
@@ -916,6 +920,24 @@ public class CrucibleSessionTest extends TestCase {
 		final Review review = getReview(permId, "reviewDetailsResponse-withoutModerator.xml", 1);
 		assertNotNull(review);
 		assertNull(review.getModerator());
+	}
+
+	public void testGetReviewDetailsWithReplies() throws Exception {
+		PermId permId = new PermId("TST-9");
+
+		final Review review = getReview(permId, "reviewDetailsResponse-withReplies.xml", 1);
+		assertNotNull(review);
+		assertEquals("wseliga", review.getModerator().getUsername());
+		assertEquals("Wojciech Seliga", review.getModerator().getDisplayName());
+		assertEquals(3, review.getFiles().size());
+		final CrucibleFileInfo reviewItem = review.getFileByPermId(new PermId("CFR-45"));
+		assertNotNull(reviewItem);
+		assertEquals(1, reviewItem.getVersionedComments().size());
+		final VersionedComment versionedComment = reviewItem.getVersionedComments().get(0);
+		assertEquals("a constructor here", versionedComment.getMessage());
+		assertEquals(1, versionedComment.getReplies().size());
+		final Comment reply = versionedComment.getReplies().get(0);
+		assertEquals("xx", reply.getMessage());
 	}
 
 	public void testGetReviewDetails() throws Exception {

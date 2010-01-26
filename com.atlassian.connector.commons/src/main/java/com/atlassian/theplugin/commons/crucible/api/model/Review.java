@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -396,29 +397,16 @@ public class Review {
 		this.closeDate = closeDate;
 	}
 
-	public void setFilesAndVersionedComments(final Set<CrucibleFileInfo> aFiles, List<VersionedComment> commentList) {
-		this.files = aFiles;
-//		this.versionedComments = commentList;
+	public void setFilesAndVersionedComments(final Collection<CrucibleFileInfo> aFiles, List<VersionedComment> commentList) {
+		this.files = aFiles != null ? new HashSet<CrucibleFileInfo>(aFiles) : null;
 
 		if (files != null && commentList != null) {
 			for (VersionedComment comment : commentList) {
-				for (CrucibleFileInfo f : aFiles) {
-					if (f.getPermId().equals(comment.getReviewItemId())) {
-						f.addComment(comment);
-					}
-				}
+				comment.getCrucibleFileInfo().addComment(comment);
 			}
 		}
 	}
 
-//	public List<VersionedComment> getVersionedComments() throws ValueNotYetInitialized {
-
-	//		return files;
-	//			throw new ValueNotYetInitialized("Object trasferred only partially");
-//		if (versionedComments == null) {
-//		}
-
-	//	}
 
 	@Override
 	public boolean equals(Object o) {

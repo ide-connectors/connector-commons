@@ -248,28 +248,13 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	Set<CrucibleFileInfo> getFiles(ConnectionCfg server, PermId permId) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
-	/**
-	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
-	 *             {@link CrucibleSession} directly.
-	 */
-	@Deprecated
-	List<Comment> getGeneralComments(ConnectionCfg server, Review review) throws RemoteApiException,
-		ServerPasswordNotProvidedException;
 
 	/**
 	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
 	 *             {@link CrucibleSession} directly.
 	 */
 	@Deprecated
-	List<VersionedComment> getVersionedComments(ConnectionCfg server, Review review) throws RemoteApiException,
-		ServerPasswordNotProvidedException;
-
-	/**
-	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
-	 *             {@link CrucibleSession} directly.
-	 */
-	@Deprecated
-	List<VersionedComment> getVersionedComments(ConnectionCfg server, Review review, PermId reviewItemId)
+	List<VersionedComment> getVersionedComments(ConnectionCfg server, Review review, CrucibleFileInfo reviewItem)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	/**
@@ -317,7 +302,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	 *             {@link CrucibleSession} directly.
 	 */
 	@Deprecated
-	Comment addGeneralCommentReply(ConnectionCfg server, Review review, PermId cId, Comment comment)
+	Comment addGeneralCommentReply(ConnectionCfg server, Comment reply)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	/**
@@ -412,20 +397,6 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	Review addItemsToReview(ConnectionCfg server, PermId permId, Collection<UploadItem> items) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
-	/**
-	 * Adds info about files, versioned comments and general comments to the review
-	 *
-	 * @param server
-	 * @param review
-	 *            review to fill with details
-	 * @throws RemoteApiException
-	 * @throws ServerPasswordNotProvidedException
-	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
-	 *             {@link CrucibleSession} directly.
-	 */
-	@Deprecated
-	void fillDetailsForReview(@NotNull ConnectionCfg server, @NotNull Review review) throws RemoteApiException,
-			ServerPasswordNotProvidedException;
 
 	/**
 	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use

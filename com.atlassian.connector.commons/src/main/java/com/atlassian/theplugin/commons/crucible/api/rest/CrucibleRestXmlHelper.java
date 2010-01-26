@@ -62,8 +62,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -214,7 +216,7 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	public static Review parseDetailedReviewNode(String serverUrl, String myUsername,
-                                                 Element reviewNode, boolean trimWikiMarkers) {
+			Element reviewNode, boolean trimWikiMarkers) throws ParseException {
 		final Review review = new Review(serverUrl);
 		parseReview(reviewNode, review, trimWikiMarkers);
 
@@ -237,12 +239,25 @@ public final class CrucibleRestXmlHelper {
 			List<Comment> generalComments = new ArrayList<Comment>();
 
 			for (Element generalCommentData : generalCommentsDataNode) {
-				Comment c = parseGeneralCommentNode(review, myUsername, generalCommentData, trimWikiMarkers);
+				Comment c = parseGeneralCommentNode(review, null, myUsername, generalCommentData, trimWikiMarkers);
 				if (c != null) {
 					generalComments.add(c);
 				}
 			}
 			review.setGeneralComments(generalComments);
+		}
+
+		// ***** Files ******
+		List<Element> fileNode = getChildElements(reviewNode, "reviewItems");
+		LinkedHashMap<PermId, CrucibleFileInfo> files = new LinkedHashMap<PermId, CrucibleFileInfo>();
+		if (fileNode.size() > 0) {
+			for (Element element : fileNode) {
+				List<Element> fileElements = getChildElements(element, "reviewItem");
+				for (Element file : fileElements) {
+					CrucibleFileInfo fileInfo = CrucibleRestXmlHelper.parseReviewItemNode(review, file);
+					files.put(fileInfo.getPermId(), fileInfo);
+				}
+			}
 		}
 
 		// ***** VerionedComments ******
@@ -252,29 +267,14 @@ public final class CrucibleRestXmlHelper {
 			List<Element> versionedCommentsData = getChildElements(element, "versionedLineCommentData");
 			for (Element versionedElementData : versionedCommentsData) {
 				//ONLY COMMENTS NO FILES
-				VersionedComment c = parseVersionedCommentNode(review, myUsername, versionedElementData, trimWikiMarkers);
-				if (c != null) {
+				VersionedComment c = parseVersionedCommentNode(review, files, myUsername, versionedElementData,
+						trimWikiMarkers);
 					comments.add(c);
-				}
 			}
 		}
 
-		// ***** Files ******
-		List<Element> fileNode = getChildElements(reviewNode, "reviewItems");
-		Set<CrucibleFileInfo> files = null;
-		if (fileNode.size() > 0) {
-			files = new HashSet<CrucibleFileInfo>();
-			for (Element element : fileNode) {
-				List<Element> fileElements = getChildElements(element, "reviewItem");
-				for (Element file : fileElements) {
-					CrucibleFileInfo fileInfo = CrucibleRestXmlHelper.parseReviewItemNode(review, file);
-					files.add(fileInfo);
-				}
-			}
-		}
 
-		review.setFilesAndVersionedComments(files, comments);
-		//	review.setReviewItems(reviewItems);
+		review.setFilesAndVersionedComments(files.values(), comments);
 
 		List<Element> transitionsNode = getChildElements(reviewNode, "transitions");
 		List<CrucibleAction> transitions = new ArrayList<CrucibleAction>();
@@ -296,7 +296,7 @@ public final class CrucibleRestXmlHelper {
 //				if (!(review.getState() == State.CLOSED && parseActionNode == CrucibleAction.MODIFY_FILES)) {
 //					actions.add(parseActionNode);
 //				}
-			
+
 				actions.add(parseActionNode(element));
 			}
 		}
@@ -602,7 +602,8 @@ public final class CrucibleRestXmlHelper {
 			for (Element repliesNode : replies) {
 				List<Element> entries = getChildElements(repliesNode, "generalCommentData");
 				for (Element replyNode : entries) {
-					GeneralComment reply = parseGeneralCommentNode(review, myUsername, replyNode, trimWikiMarkers);
+					GeneralComment reply = parseGeneralCommentNode(review, commentBean, myUsername, replyNode,
+							trimWikiMarkers);
 					if (reply != null) {
 						reply.setReply(true);
 						rep.add(reply);
@@ -615,25 +616,39 @@ public final class CrucibleRestXmlHelper {
 		return true;
 	}
 
-	private static boolean parseVersionedComment(Review review, String myUsername, VersionedComment commentBean,
-			Element reviewCommentNode, boolean trimWikiMarkers) {
-
-		if (!parseComment(myUsername, commentBean, reviewCommentNode, trimWikiMarkers)) {
-			return false;
-		}
+	@NotNull
+	private static VersionedComment parseVersionedComment(Review review, String myUsername, Element reviewCommentNode,
+			boolean trimWikiMarkers, Map<PermId, CrucibleFileInfo> crucibleFileInfos) throws ParseException {
 
 		// read following xml
 		// <reviewItemId>
 		// 	<id>CFR-126</id>
 		// </reviewItemId>
+		VersionedComment commentBean = null;
 		List<Element> reviewIds = getChildElements(reviewCommentNode, "reviewItemId");
 		for (Element reviewId : reviewIds) {
 			List<Element> ids = getChildElements(reviewId, "id");
 			for (Element id : ids) {
-				commentBean.setReviewItemId(new PermId(id.getText()));
+				final PermId permId = new PermId(id.getText());
+				final CrucibleFileInfo crucibleFileInfo = crucibleFileInfos.get(permId);
+				if (crucibleFileInfo == null) {
+					throw new ParseException("Cannot find reviewItemId [" + permId + "] in the review description", 0);
+				}
+
+				commentBean = new VersionedComment(review, crucibleFileInfo);
+				commentBean.setReviewItemId(permId);
 				break;
 			}
 			break;
+		}
+
+		if (commentBean == null) {
+			throw new ParseException("Cannot parse comment - reviewItemId -> id not found", 0);
+
+		}
+
+		if (!parseComment(myUsername, commentBean, reviewCommentNode, trimWikiMarkers)) {
+			throw new ParseException("Cannot parse comment", 0);
 		}
 
 		List<Element> replies = getChildElements(reviewCommentNode, "replies");
@@ -642,17 +657,8 @@ public final class CrucibleRestXmlHelper {
 			for (Element repliesNode : replies) {
 				List<Element> entries = getChildElements(repliesNode, "generalCommentData");
 				for (Element replyNode : entries) {
-					VersionedComment reply =
-							parseVersionedCommentNodeWithHints(review, myUsername, replyNode,
-							commentBean.isFromLineInfo(),
-							commentBean.getFromStartLine(),
-							commentBean.getToStartLine(),
-							commentBean.isToLineInfo(),
-							commentBean.getFromEndLine(),
-							commentBean.getToEndLine(),
-                            commentBean.getLineRanges(),
-                            trimWikiMarkers
-					);
+					final GeneralComment reply = new GeneralComment(review, commentBean);
+					parseGeneralComment(review, myUsername, reply, replyNode, trimWikiMarkers);
 					if (reply != null) {
 						reply.setReply(true);
 						rep.add(reply);
@@ -662,7 +668,7 @@ public final class CrucibleRestXmlHelper {
 			commentBean.setReplies(rep);
 		}
 
-		return true;
+		return commentBean;
 	}
 
 	private static boolean parseComment(String myUsername, Comment commentBean,
@@ -672,7 +678,7 @@ public final class CrucibleRestXmlHelper {
 		for (Element element : getChildElements(reviewCommentNode, "user")) {
 			User commentAuthor = parseUserNode(element);
 
-			// drop comments in draft state where I am the author - bug PL-772 and PL-900
+			// drop comments in draft state where I am not the author - bug PL-772 and PL-900
 			if (isDraft && !commentAuthor.getUsername().equals(myUsername)) {
 				return false;
 			}
@@ -775,9 +781,9 @@ public final class CrucibleRestXmlHelper {
 		getContent(commentNode).add(replies);
 	}
 
-	public static GeneralComment parseGeneralCommentNode(Review review, String myUsername,
+	public static GeneralComment parseGeneralCommentNode(Review review, @Nullable Comment parentComment, String myUsername,
                                                              Element reviewCommentNode, boolean trimWikiMarkers) {
-		GeneralComment reviewCommentBean = new GeneralComment(review);
+		GeneralComment reviewCommentBean = new GeneralComment(review, parentComment);
 		if (!parseGeneralComment(review, myUsername, reviewCommentBean, reviewCommentNode, trimWikiMarkers)) {
 			return null;
 		}
@@ -811,15 +817,16 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	///CHECKSTYLE:OFF
-	public static VersionedComment parseVersionedCommentNodeWithHints(Review review,
+	@NotNull
+	public static VersionedComment parseVersionedCommentNodeWithHints(Review review, CrucibleFileInfo parentFileInfo,
             String myUsername, Element reviewCommentNode, boolean fromLineInfo, int fromStartLine, int toStartLine,
-            boolean toLineInfo, int fromEndLine, int toEndLine, Map<String, IntRanges> lineRanges,
-            boolean trimWikiMarkers) {
+			boolean toLineInfo, int fromEndLine, int toEndLine, Map<String, IntRanges> lineRanges, boolean trimWikiMarkers)
+			throws ParseException {
 
-		VersionedComment result = parseVersionedCommentNode(review, myUsername, reviewCommentNode, trimWikiMarkers);
-		if (result == null) {
-			return null;
-		}
+
+		VersionedComment result =
+				parseVersionedCommentNode(review, Collections.singletonMap(parentFileInfo.getPermId(), parentFileInfo),
+						myUsername, reviewCommentNode, trimWikiMarkers);
         if (result.getLineRanges() == null && lineRanges != null) {
             result.setLineRanges(lineRanges);
         }
@@ -839,18 +846,17 @@ public final class CrucibleRestXmlHelper {
 
 	///CHECKSTYLE:ON
 
-	public static VersionedComment parseVersionedCommentNode(Review review, String myUsername,
-                                                                 Element reviewCommentNode, boolean trimWikiMarkers) {
-		VersionedComment comment = new VersionedComment(review);
-		if (!parseVersionedComment(review, myUsername, comment, reviewCommentNode, trimWikiMarkers)) {
-			return null;
-		}
+	public static VersionedComment parseVersionedCommentNode(Review review, Map<PermId, CrucibleFileInfo> crucibleFileInfos,
+			String myUsername, Element reviewCommentNode, boolean trimWikiMarkers) throws ParseException {
 
-		if (reviewCommentNode.getChild("reviewItemId") != null) {
-			PermId reviewItemId = new PermId(reviewCommentNode.getChild("reviewItemId").getChild("id").getText());
-			comment.setReviewItemId(reviewItemId);
+		final VersionedComment comment =
+				parseVersionedComment(review, myUsername, reviewCommentNode, trimWikiMarkers, crucibleFileInfos);
 
-		}
+		// if (reviewCommentNode.getChild("reviewItemId") != null) {
+		// PermId reviewItemId = new PermId(reviewCommentNode.getChild("reviewItemId").getChild("id").getText());
+		// comment.setReviewItemId(reviewItemId);
+		//
+		// }
 
 		if (reviewCommentNode.getChild("fromLineRange") != null) {
 			final String fromLineRange = getChildText(reviewCommentNode, "fromLineRange");

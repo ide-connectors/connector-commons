@@ -118,15 +118,7 @@ public interface CrucibleSession {
 
 	Set<CrucibleFileInfo> getFiles(PermId id) throws RemoteApiException;
 
-//	List<Comment> getComments(PermId id) throws RemoteApiException;
-
-	List<Comment> getGeneralComments(Review review) throws RemoteApiException;
-
-	List<VersionedComment> getAllVersionedComments(Review review) throws RemoteApiException;
-
-	List<VersionedComment> getVersionedComments(Review review, PermId reviewItemId) throws RemoteApiException;
-
-	List<Comment> getReplies(Review review, PermId commentId) throws RemoteApiException;
+	List<VersionedComment> getVersionedComments(Review review, CrucibleFileInfo reviewItem) throws RemoteApiException;
 
 	Comment addGeneralComment(Review review, Comment comment) throws RemoteApiException;
 
@@ -138,7 +130,7 @@ public interface CrucibleSession {
 
 	void publishComment(PermId reviewId, PermId commentId) throws RemoteApiException;
 
-	Comment addGeneralCommentReply(Review review, PermId cId, Comment comment) throws RemoteApiException;
+	Comment addGeneralCommentReply(Review review, Comment reply) throws RemoteApiException;
 
 	VersionedComment addVersionedCommentReply(Review review, PermId cId, VersionedComment comment)
 			throws RemoteApiException;

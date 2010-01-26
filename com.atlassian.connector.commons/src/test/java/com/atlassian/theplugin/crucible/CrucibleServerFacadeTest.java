@@ -44,6 +44,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
 import org.apache.commons.httpclient.HttpStatus;
@@ -87,7 +88,8 @@ public class CrucibleServerFacadeTest extends TestCase {
 		crucibleServerCfg.setPassword(VALID_PASSWORD);
 		crucibleServerCfg.setUsername(VALID_LOGIN.getUsername());
 
-		facade = new CrucibleServerFacadeImpl(new CrucibleUserCacheImpl(), new TestHttpSessionCallbackImpl());
+		facade = new CrucibleServerFacadeImpl(LoggerImpl.getInstance(), new CrucibleUserCacheImpl(),
+				new TestHttpSessionCallbackImpl());
 
 		try {
 			Field f = CrucibleServerFacadeImpl.class.getDeclaredField("sessions");
@@ -602,9 +604,8 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public void setFilesAndVersionedComments(final Set<CrucibleFileInfo> files,
+			public void setFilesAndVersionedComments(final Collection<CrucibleFileInfo> files,
 					final List<VersionedComment> commentList) {
-
 			}
 
 			@Override
@@ -692,9 +693,8 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public void setFilesAndVersionedComments(final Set<CrucibleFileInfo> files,
+			public void setFilesAndVersionedComments(final Collection<CrucibleFileInfo> files,
 					final List<VersionedComment> commentList) {
-
 			}
 
 			@Override

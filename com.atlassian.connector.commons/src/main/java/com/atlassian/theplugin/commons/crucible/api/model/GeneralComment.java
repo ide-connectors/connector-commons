@@ -16,12 +16,14 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import org.jetbrains.annotations.Nullable;
+
 
 public class GeneralComment extends Comment {
 	private static final int HASH_INT = 31;
 
-	public GeneralComment(Review review) {
-		super(review);
+	public GeneralComment(Review review, @Nullable Comment parentComment) {
+		super(review, parentComment);
 	}
 
 	public GeneralComment(final Comment bean) {
@@ -42,12 +44,6 @@ public class GeneralComment extends Comment {
 			return false;
 		}
 		if (!super.equals(o)) {
-			return false;
-		}
-
-		GeneralComment that = (GeneralComment) o;
-
-		if (getReplies() != null ? !getReplies().equals(that.getReplies()) : that.getReplies() != null) {
 			return false;
 		}
 

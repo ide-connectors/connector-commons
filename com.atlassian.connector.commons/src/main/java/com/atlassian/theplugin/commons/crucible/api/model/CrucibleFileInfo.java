@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.theplugin.commons.VersionedFileInfo;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,7 +43,7 @@ public class CrucibleFileInfo implements VersionedFileInfo {
 
 	public CrucibleFileInfo(@Nullable VersionedVirtualFile fileDescriptor,
 			@Nullable VersionedVirtualFile oldFileDescriptor,
-			PermId permId) {
+			@NotNull PermId permId) {
 		this.fileDescriptor = fileDescriptor;
 		this.oldFileDescriptor = oldFileDescriptor;
 		this.permId = permId;

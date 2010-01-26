@@ -17,7 +17,8 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 import com.atlassian.connector.commons.misc.IntRanges;
-import java.util.List;
+import com.atlassian.theplugin.commons.util.MiscUtil;
+import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 public class VersionedComment extends Comment {
@@ -41,6 +42,9 @@ public class VersionedComment extends Comment {
 
     private Map<String, IntRanges> lineRanges;
 
+	@NotNull
+	private final CrucibleFileInfo crucibleFileInfo;
+
 	public VersionedComment(VersionedComment bean) {
 		super(bean);
 		if (bean.isFromLineInfo()) {
@@ -53,16 +57,27 @@ public class VersionedComment extends Comment {
 			setToStartLine(bean.getToStartLine());
 			setToEndLine(bean.getToEndLine());
 		}
+		this.crucibleFileInfo = bean.crucibleFileInfo;
 	}
 
-	public VersionedComment(Review review) {
-		super(review);
+	public VersionedComment(Review review, @NotNull CrucibleFileInfo crucibleFileInfo) {
+		super(review, null); // I assume that versioned comments are always root comments (not replies)
+		this.crucibleFileInfo = crucibleFileInfo;
+	}
+
+	@NotNull
+	public CrucibleFileInfo getCrucibleFileInfo() {
+		return crucibleFileInfo;
 	}
 
 	public PermId getReviewItemId() {
 		return reviewItemId;
 	}
 
+	/**
+	 * I am goint to remove this method as soon as refactoring around injecting here parent CrucibleFileInfo is finished
+	 */
+	@Deprecated
 	public void setReviewItemId(PermId reviewItemId) {
 		this.reviewItemId = reviewItemId;
 	}
@@ -158,6 +173,62 @@ public class VersionedComment extends Comment {
 		this.toLineInfo = toLineInfo;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof VersionedComment)) {
+			return false;
+		}
+		VersionedComment other = (VersionedComment) obj;
+		if (!MiscUtil.isEqual(crucibleFileInfo, other.crucibleFileInfo)) {
+			return false;
+		}
+
+		if (fromEndLine != other.fromEndLine) {
+			return false;
+		}
+		if (fromLineInfo != other.fromLineInfo) {
+			return false;
+		}
+
+		if (!MiscUtil.isEqual(fromLineRanges, other.fromLineRanges)) {
+			return false;
+		}
+
+		if (fromStartLine != other.fromStartLine) {
+			return false;
+		}
+
+		if (!MiscUtil.isEqual(lineRanges, other.lineRanges)) {
+			return false;
+		}
+
+		if (!MiscUtil.isEqual(reviewItemId, other.reviewItemId)) {
+			return false;
+		}
+
+		if (toEndLine != other.toEndLine) {
+			return false;
+		}
+		if (toLineInfo != other.toLineInfo) {
+			return false;
+		}
+
+		if (!MiscUtil.isEqual(toLineRanges, other.toLineRanges)) {
+			return false;
+		}
+
+		if (toStartLine != other.toStartLine) {
+			return false;
+		}
+		return true;
+	}
+
 	public boolean deepEquals(Object o) {
 		if (this == o) {
 			return true;
@@ -234,12 +305,4 @@ public class VersionedComment extends Comment {
         return lineRanges.equals(thatLineRanges);
     }
 
-    @SuppressWarnings("unchecked")
-	@Deprecated
-	public List<VersionedComment> getReplies2() {
-		// wseliga: I don't know how to make it compilable with these casts.
-		// We are somewhat guaranteed that all replies will be here really of VersionedComment type, so I dare cast
-		//noinspection RedundantCast
-		return (List<VersionedComment>) (List<?>) getReplies();
-	}
 }

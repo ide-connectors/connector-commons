@@ -16,6 +16,8 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import com.atlassian.theplugin.commons.util.MiscUtil;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -58,12 +60,18 @@ public abstract class Comment {
 
 	private final Review review;
 
-	public Comment(Review review) {
+	@Nullable
+	private final Comment parentComment;
+
+	public Comment(Review review, @Nullable Comment parentComment) {
 		this.review = review;
+		this.parentComment = parentComment;
 	}
+
 
 	public Comment(Comment bean) {
 		review = bean.getReview();
+		parentComment = bean.parentComment;
 		setPermId(bean.getPermId());
 		setMessage(bean.getMessage());
 		setDraft(bean.isDraft());
@@ -90,6 +98,10 @@ public abstract class Comment {
 	}
 
     protected abstract Comment createReplyBean(Comment reply);
+
+	public Comment getParentComment() {
+		return parentComment;
+	}
 
 	public Review getReview() {
 		return review;
@@ -208,6 +220,21 @@ public abstract class Comment {
 		}
 
 		Comment that = (Comment) o;
+
+		if (!MiscUtil.isEqual(review.getPermId(), that.review.getPermId())) {
+			return false;
+		}
+
+		// if (parentComment == null) {
+		// if (that.parentComment != null) {
+		// return false;
+		// }
+		// } else {
+		//
+		// }
+		if (!MiscUtil.isEqual(parentComment, that.parentComment)) {
+			return false;
+		}
 
 		if (defectApproved != that.defectApproved) {
 			return false;

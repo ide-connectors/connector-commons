@@ -27,10 +27,11 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCacheImpl;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
-import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
+import junit.framework.TestCase;
 
 public class CrucibleServerFacadeConnectionTest extends TestCase {
 	private static final String USER_NAME = "someUser";
@@ -52,7 +53,8 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 
 		mockServer = new JettyMockServer(httpServer);
 		crucibleServerCfg = createCrucibleTestConfiguration(mockBaseUrl, true);
-		testedCrucibleServerFacade = new CrucibleServerFacadeImpl(new CrucibleUserCacheImpl(), new TestHttpSessionCallbackImpl());
+		testedCrucibleServerFacade = new CrucibleServerFacadeImpl(LoggerImpl.getInstance(), new CrucibleUserCacheImpl(),
+				new TestHttpSessionCallbackImpl());
 		ConfigurationFactory.setConfiguration(new PluginConfigurationBean());
 	}
 

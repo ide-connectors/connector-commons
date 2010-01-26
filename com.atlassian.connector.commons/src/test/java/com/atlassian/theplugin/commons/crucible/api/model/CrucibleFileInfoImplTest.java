@@ -21,14 +21,14 @@ public class CrucibleFileInfoImplTest extends TestCase {
 	private CrucibleFileInfo prepareCrucibleFileInfo() {
 		PermId permId1 = new PermId("1");
 		CrucibleFileInfo cfi = new CrucibleFileInfo(null, null, permId1);
-		VersionedComment vc1 = new VersionedComment(review);
-		VersionedComment rpl1 = new VersionedComment(review);
+		VersionedComment vc1 = new VersionedComment(review, cfi);
+		VersionedComment rpl1 = new VersionedComment(review, cfi);
 		rpl1.setDraft(true);
-		VersionedComment rpl2 = new VersionedComment(review);
+		VersionedComment rpl2 = new VersionedComment(review, cfi);
 		rpl2.setDraft(false);
-		VersionedComment rpl3 = new VersionedComment(review);
+		VersionedComment rpl3 = new VersionedComment(review, cfi);
 		rpl3.setDraft(true);
-		VersionedComment rpl4 = new VersionedComment(review);
+		VersionedComment rpl4 = new VersionedComment(review, cfi);
 		rpl4.setReadState(ReadState.UNREAD);
 		rpl4.setDraft(true);
 		vc1.addReply(rpl1);
@@ -36,8 +36,8 @@ public class CrucibleFileInfoImplTest extends TestCase {
 		rpl2.addReply(rpl3);
 		rpl2.addReply(rpl4);
 		cfi.addComment(vc1);
-		VersionedComment vc2 = new VersionedComment(review);
-		VersionedComment rpl5 = new VersionedComment(review);
+		VersionedComment vc2 = new VersionedComment(review, cfi);
+		VersionedComment rpl5 = new VersionedComment(review, cfi);
 		rpl5.setReadState(ReadState.UNREAD);
 		vc2.addReply(rpl5);
 		cfi.addComment(vc2);

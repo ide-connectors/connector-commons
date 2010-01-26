@@ -24,6 +24,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.spartez.util.junit3.TestUtil;
 import org.easymock.EasyMock;
@@ -36,7 +37,7 @@ public class CrucibleServerFacadeImplTest extends TestCase {
 
 	public void testSetReviewers() throws RemoteApiException, ServerPasswordNotProvidedException {
 		final CrucibleSession mock = EasyMock.createNiceMock(CrucibleSession.class);
-		final CrucibleServerFacadeImpl crucibleServerFacade = new CrucibleServerFacadeImpl(null,
+		final CrucibleServerFacadeImpl crucibleServerFacade = new CrucibleServerFacadeImpl(LoggerImpl.getInstance(), null,
 				new TestHttpSessionCallbackImpl()) {
 			@Override
 					public CrucibleSession getSession(final ConnectionCfg server)
@@ -74,7 +75,7 @@ public class CrucibleServerFacadeImplTest extends TestCase {
 	public void testUpdateProjects() throws RemoteApiException, ServerPasswordNotProvidedException {
 		// testing if there is no bad caching on facade level (as it used to be)
 		final CrucibleSession mock = EasyMock.createNiceMock(CrucibleSession.class);
-		final CrucibleServerFacadeImpl crucibleServerFacade = new CrucibleServerFacadeImpl(null,
+		final CrucibleServerFacadeImpl crucibleServerFacade = new CrucibleServerFacadeImpl(LoggerImpl.getInstance(), null,
 				new TestHttpSessionCallbackImpl()) {
 			@Override
 					public CrucibleSession getSession(final ConnectionCfg server)

@@ -50,4 +50,19 @@ public class CommentTest extends TestCase {
 		return gc1;
 	}
 
+	public void testHasDraftParents() {
+		GeneralComment gc1 = createGeneralComment(r1, null, "gc1");
+		GeneralComment gc2 = createGeneralComment(r1, gc1, "gc1");
+		GeneralComment gc3 = createGeneralComment(r1, gc2, "gc3");
+		GeneralComment gc4 = createGeneralComment(r1, gc2, "gc4");
+		GeneralComment gc5 = createGeneralComment(r1, gc3, "gc5");
+		GeneralComment gc6 = createGeneralComment(r1, gc5, "gc6");
+		gc3.setDraft(true);
+		assertTrue(gc5.hasDraftParents());
+		assertTrue(gc6.hasDraftParents());
+		assertFalse(gc4.hasDraftParents());
+		assertFalse(gc3.hasDraftParents());
+		assertFalse(gc2.hasDraftParents());
+		assertFalse(gc1.hasDraftParents());
+	}
 }

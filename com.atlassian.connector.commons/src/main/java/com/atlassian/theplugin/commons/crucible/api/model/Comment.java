@@ -335,4 +335,11 @@ public abstract class Comment {
 		return (getReadState() == Comment.ReadState.UNREAD || getReadState() == Comment.ReadState.LEAVE_UNREAD);
 	}
 
+	public boolean hasDraftParents() {
+		if (parentComment == null) {
+			return false;
+		}
+		return parentComment.isDraft() || parentComment.hasDraftParents();
+	}
+
 }

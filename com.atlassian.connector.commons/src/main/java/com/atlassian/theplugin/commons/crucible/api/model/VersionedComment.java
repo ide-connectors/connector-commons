@@ -173,6 +173,15 @@ public class VersionedComment extends Comment {
 		this.toLineInfo = toLineInfo;
 	}
 
+	private static final int HASH_INT = 31;
+
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = HASH_INT * result + (lineRanges != null ? lineRanges.hashCode() : 0);
+		return super.hashCode();
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {

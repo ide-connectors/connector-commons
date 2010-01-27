@@ -16,7 +16,6 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
@@ -75,8 +74,7 @@ public class Review {
 		}
 	}
 
-	public void removeVersionedComment(final VersionedComment comment, final CrucibleFileInfo file)
-			throws ValueNotYetInitialized {
+	public void removeVersionedComment(final VersionedComment comment, final CrucibleFileInfo file) {
 
 		CrucibleFileInfo f = getFileByPermId(file.getPermId());
 
@@ -128,32 +126,20 @@ public class Review {
 		return serverUrl;
 	}
 
-	public Set<Reviewer> getReviewers() throws ValueNotYetInitialized {
-		if (reviewers == null) {
-			throw new ValueNotYetInitialized("Object trasferred only partially");
-		}
+	public Set<Reviewer> getReviewers() {
 		return reviewers;
 	}
 
-	public List<Comment> getGeneralComments() throws ValueNotYetInitialized {
-		if (generalComments == null) {
-			throw new ValueNotYetInitialized("Object trasferred only partially");
-		}
+	public List<Comment> getGeneralComments() {
 		return generalComments;
 	}
 
 
-	public EnumSet<CrucibleAction> getTransitions() throws ValueNotYetInitialized {
-		if (transitions == null) {
-			throw new ValueNotYetInitialized("Object trasferred only partially");
-		}
+	public EnumSet<CrucibleAction> getTransitions() {
 		return transitions;
 	}
 
-	public EnumSet<CrucibleAction> getActions() throws ValueNotYetInitialized {
-		if (actions == null) {
-			throw new ValueNotYetInitialized("Object trasferred only partially");
-		}
+	public EnumSet<CrucibleAction> getActions() {
 		return actions;
 	}
 
@@ -438,7 +424,7 @@ public class Review {
 	}
 
 	@Nullable
-	public CrucibleFileInfo getFileByPermId(PermId id) throws ValueNotYetInitialized {
+	public CrucibleFileInfo getFileByPermId(PermId id) {
 //		List<CrucibleFileInfo> lFiles = CrucibleFileInfoManager.getInstance().getFiles(this);
 		for (CrucibleFileInfo f : getFiles()) {
 			if (f.getPermId().equals(id)) {
@@ -448,17 +434,14 @@ public class Review {
 		return null;
 	}
 
-	public Set<CrucibleFileInfo> getFiles() throws ValueNotYetInitialized {
-		if (files == null) {
-			throw new ValueNotYetInitialized("Files haven't been downloaded yet");
-		}
+	public Set<CrucibleFileInfo> getFiles() {
 		return files;
 	}
 
 	/**
 	 * @return total number of versioned comments including replies (for all files)
 	 */
-	public int getNumberOfVersionedComments() throws ValueNotYetInitialized {
+	public int getNumberOfVersionedComments() {
 		int num = 0;
 		for (CrucibleFileInfo file : getFiles()) {
 			num += file.getNumberOfComments();
@@ -466,7 +449,7 @@ public class Review {
 		return num;
 	}
 
-	public int getNumberOfVersionedComments(final String userName) throws ValueNotYetInitialized {
+	public int getNumberOfVersionedComments(final String userName) {
 		int num = 0;
 		for (CrucibleFileInfo file : getFiles()) {
 			num += file.getNumberOfComments(userName);
@@ -474,7 +457,7 @@ public class Review {
 		return num;
 	}
 
-	public int getNumberOfGeneralComments(final String userName) throws ValueNotYetInitialized {
+	public int getNumberOfGeneralComments(final String userName) {
 		int num = 0;
 		for (Comment comment : getGeneralComments()) {
 			if (comment.getAuthor().getUsername().equals(userName)) {
@@ -490,7 +473,7 @@ public class Review {
 	}
 
 
-    public int getNumberOfUnreadComments() throws ValueNotYetInitialized {
+	public int getNumberOfUnreadComments() {
         List<Comment> allComments = new ArrayList<Comment>();
         allComments.addAll(getGeneralComments());
         for (CrucibleFileInfo file : getFiles()) {
@@ -517,7 +500,7 @@ public class Review {
 		this.files = files;
 	}
 
-	public int getNumberOfVersionedCommentsDefects() throws ValueNotYetInitialized {
+	public int getNumberOfVersionedCommentsDefects() {
 		int num = 0;
 		for (CrucibleFileInfo file : getFiles()) {
 			num += file.getNumberOfCommentsDefects();
@@ -525,7 +508,7 @@ public class Review {
 		return num;
 	}
 
-	public int getNumberOfVersionedCommentsDefects(final String userName) throws ValueNotYetInitialized {
+	public int getNumberOfVersionedCommentsDefects(final String userName) {
 		int num = 0;
 		for (CrucibleFileInfo file : getFiles()) {
 			num += file.getNumberOfCommentsDefects(userName);
@@ -533,7 +516,7 @@ public class Review {
 		return num;
 	}
 
-	public int getNumberOfVersionedCommentsDrafts() throws ValueNotYetInitialized {
+	public int getNumberOfVersionedCommentsDrafts() {
 		int num = 0;
 		for (CrucibleFileInfo file : getFiles()) {
 			num += file.getNumberOfCommentsDrafts();
@@ -541,7 +524,7 @@ public class Review {
 		return num;
 	}
 
-	public int getNumberOfVersionedCommentsDrafts(final String userName) throws ValueNotYetInitialized {
+	public int getNumberOfVersionedCommentsDrafts(final String userName) {
 		int num = 0;
 		for (CrucibleFileInfo file : getFiles()) {
 			num += file.getNumberOfCommentsDrafts(userName);
@@ -549,7 +532,7 @@ public class Review {
 		return num;
 	}
 
-	public int getNumberOfGeneralCommentsDrafts() throws ValueNotYetInitialized {
+	public int getNumberOfGeneralCommentsDrafts() {
 		int num = 0;
 		for (Comment comment : getGeneralComments()) {
 			if (comment.isDraft()) {
@@ -564,7 +547,7 @@ public class Review {
 		return num;
 	}
 
-	public int getNumberOfGeneralCommentsDrafts(final String userName) throws ValueNotYetInitialized {
+	public int getNumberOfGeneralCommentsDrafts(final String userName) {
 		int num = 0;
 		for (Comment comment : getGeneralComments()) {
 			if (comment.isDraft() && comment.getAuthor().getUsername().equals(userName)) {
@@ -579,7 +562,7 @@ public class Review {
 		return num;
 	}
 
-	public int getNumberOfGeneralCommentsDefects() throws ValueNotYetInitialized {
+	public int getNumberOfGeneralCommentsDefects() {
 		int num = 0;
 		for (Comment comment : getGeneralComments()) {
 			if (comment.isDefectRaised()) {
@@ -594,7 +577,7 @@ public class Review {
 		return num;
 	}
 
-	public int getNumberOfGeneralCommentsDefects(final String userName) throws ValueNotYetInitialized {
+	public int getNumberOfGeneralCommentsDefects(final String userName) {
 		int num = 0;
 		for (Comment comment : getGeneralComments()) {
 			if (comment.isDefectRaised() && comment.getAuthor().getUsername().equals(userName)) {
@@ -609,7 +592,7 @@ public class Review {
 		return num;
 	}
 
-	public int getNumberOfGeneralComments() throws ValueNotYetInitialized {
+	public int getNumberOfGeneralComments() {
 		int num = getGeneralComments().size();
 		for (Comment comment : getGeneralComments()) {
 			num += comment.getReplies().size();

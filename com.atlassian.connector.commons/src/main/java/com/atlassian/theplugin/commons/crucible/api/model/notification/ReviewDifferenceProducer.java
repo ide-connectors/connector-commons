@@ -1,7 +1,6 @@
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
 import static com.atlassian.theplugin.commons.util.MiscUtil.isModified;
-import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
@@ -84,11 +83,7 @@ public class ReviewDifferenceProducer {
 		}
 		filesEqual = areFilesEqual();
 		// check comments status
-		try {
 			changes = checkComments(oldReview, newReview, true);
-		} catch (ValueNotYetInitialized valueNotYetInitialized) {
-			//all is it correct
-		}
 
 		return notifications;
 	}
@@ -107,14 +102,8 @@ public class ReviewDifferenceProducer {
 	}
 
 	private boolean areFilesEqual() {
-		Set<CrucibleFileInfo> l = null;
-		Set<CrucibleFileInfo> r = null;
-		try {
-			l = oldReview.getFiles();
-		} catch (ValueNotYetInitialized e) {	/* ignore */ }
-		try {
-			r = newReview.getFiles();
-		} catch (ValueNotYetInitialized e) { /* ignore */ }
+		Set<CrucibleFileInfo> l = oldReview.getFiles();
+		Set<CrucibleFileInfo> r = newReview.getFiles();
 
 		if (l == null && r == null) {
 			return true;
@@ -139,26 +128,14 @@ public class ReviewDifferenceProducer {
 	}
 
 	private boolean areActionsEqual() {
-		Set<CrucibleAction> l = null;
-		Set<CrucibleAction> r = null;
-		try {
-			l = oldReview.getActions();
-		} catch (ValueNotYetInitialized e) {	/* ignore */ }
-		try {
-			r = newReview.getActions();
-		} catch (ValueNotYetInitialized e) { /* ignore */ }
+		Set<CrucibleAction> l = oldReview.getActions();
+		Set<CrucibleAction> r = newReview.getActions();
 		return areObjectsEqual(l, r);
 	}
 
 	private boolean areTransitionsEqual() {
-		EnumSet<CrucibleAction> l = null;
-		EnumSet<CrucibleAction> r = null;
-		try {
-			l = oldReview.getTransitions();
-		} catch (ValueNotYetInitialized e) {	/* ignore */ }
-		try {
-			r = newReview.getTransitions();
-		} catch (ValueNotYetInitialized e) { /* ignore */ }
+		EnumSet<CrucibleAction> l = oldReview.getTransitions();
+		EnumSet<CrucibleAction> r = newReview.getTransitions();
 		return areObjectsEqual(l, r);
 	}
 
@@ -190,14 +167,8 @@ public class ReviewDifferenceProducer {
 		boolean allCompleted = true;
 		boolean atLeastOneChanged = false;
 
-		Set<Reviewer> oldReviewers = null;
-		Set<Reviewer> newReviewers = null;
-		try {
-			oldReviewers = oldReview.getReviewers();
-		} catch (ValueNotYetInitialized e) {	/* ignore */ }
-		try {
-			newReviewers = newReview.getReviewers();
-		} catch (ValueNotYetInitialized e) { /* ignore */ }
+		Set<Reviewer> oldReviewers = oldReview.getReviewers();
+		Set<Reviewer> newReviewers = newReview.getReviewers();
 
 		final Collection<String> oldR = buildReviewerSet(oldReviewers);
 		final Collection<String> newR = buildReviewerSet(newReviewers);
@@ -230,23 +201,12 @@ public class ReviewDifferenceProducer {
 	}
 
 	private int checkComments(final Review anOldReview, final Review aNewReview,
-			final boolean checkFiles)
-			throws ValueNotYetInitialized {
+			final boolean checkFiles) {
 		int commentChanges = 0;
 
-		Set<Comment> allOldComments;
-		try {
-			allOldComments = getAllCommentsRecursively(anOldReview.getGeneralComments());
-		} catch (ValueNotYetInitialized e) {
-			allOldComments = MiscUtil.buildHashSet();
-		}
+		Set<Comment> allOldComments = getAllCommentsRecursively(anOldReview.getGeneralComments());
 
-		Set<Comment> allNewComments;
-		try {
-			allNewComments = getAllCommentsRecursively(aNewReview.getGeneralComments());
-		} catch (ValueNotYetInitialized e) {
-			allNewComments = MiscUtil.buildHashSet();
-		}
+		Set<Comment> allNewComments = getAllCommentsRecursively(aNewReview.getGeneralComments());
 
 		for (Comment comment : allNewComments) {
 			Comment existing = null;

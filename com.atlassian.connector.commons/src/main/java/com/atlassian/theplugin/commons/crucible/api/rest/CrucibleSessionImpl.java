@@ -18,7 +18,6 @@ package com.atlassian.theplugin.commons.crucible.api.rest;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
-import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.PathAndRevision;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
@@ -503,6 +502,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
+	// this method is completely untested - it will almost certainly fail. You were warned!
 	public List<Review> getAllReviewsForFile(String repoName, String path) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
@@ -602,12 +602,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			throw new RemoteApiException(e);
 		}
 
-		try {
-			for (CrucibleFileInfo fileInfo : review.getFiles()) {
-				fillRepositoryData(fileInfo);
-			}
-		} catch (ValueNotYetInitialized valueNotYetInitialized) {
-			// cannot fill
+		for (CrucibleFileInfo fileInfo : review.getFiles()) {
+			fillRepositoryData(fileInfo);
 		}
 		return review;
 	}

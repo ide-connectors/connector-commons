@@ -28,7 +28,6 @@ import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.CrucibleServerFacadeImpl;
-import com.atlassian.theplugin.commons.crucible.ValueNotYetInitialized;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
@@ -564,12 +563,12 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public Set<Reviewer> getReviewers() throws ValueNotYetInitialized {
+			public Set<Reviewer> getReviewers() {
 				return null;
 			}
 
 			@Override
-			public List<Comment> getGeneralComments() throws ValueNotYetInitialized {
+			public List<Comment> getGeneralComments() {
 				return null;
 			}
 
@@ -579,12 +578,12 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public EnumSet<CrucibleAction> getTransitions() throws ValueNotYetInitialized {
+			public EnumSet<CrucibleAction> getTransitions() {
 				return null;
 			}
 
 			@Override
-			public EnumSet<CrucibleAction> getActions() throws ValueNotYetInitialized {
+			public EnumSet<CrucibleAction> getActions() {
 				return null;
 			}
 
@@ -718,7 +717,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public EnumSet<CrucibleAction> getActions() throws ValueNotYetInitialized {
+			public EnumSet<CrucibleAction> getActions() {
 				return null;
 			}
 

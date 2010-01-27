@@ -102,7 +102,8 @@ public interface CrucibleSession {
 
 	List<Review> getReviewsForCustomFilter(CustomFilter filter) throws RemoteApiException;
 
-	List<Review> getAllReviewsForFile(String repoName, String path) throws RemoteApiException;
+	// this method is untested - don't use it
+	// List<Review> getAllReviewsForFile(String repoName, String path) throws RemoteApiException;
 
 	Review getReview(PermId permId) throws RemoteApiException;
 

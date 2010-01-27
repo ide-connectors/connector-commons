@@ -302,29 +302,25 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 		// removing potential duplicates
 		final Set<String> usernames = MiscUtil.buildHashSet(aUsernames);
 
-		try {
-			for (String username : usernames) {
-				if (!contains(review.getReviewers(), username)) {
-					reviewersForAdd.add(username);
-				}
+		for (String username : usernames) {
+			if (!contains(review.getReviewers(), username)) {
+				reviewersForAdd.add(username);
 			}
+		}
 
-			for (Reviewer reviewer : review.getReviewers()) {
-				if (!usernames.contains(reviewer.getUsername())) {
-					reviewersForRemove.add(reviewer.getUsername());
-				}
+		for (Reviewer reviewer : review.getReviewers()) {
+			if (!usernames.contains(reviewer.getUsername())) {
+				reviewersForRemove.add(reviewer.getUsername());
 			}
+		}
 
-			if (!reviewersForAdd.isEmpty()) {
-				addReviewers(server, permId, reviewersForAdd);
+		if (!reviewersForAdd.isEmpty()) {
+			addReviewers(server, permId, reviewersForAdd);
+		}
+		if (!reviewersForRemove.isEmpty()) {
+			for (String reviewer : reviewersForRemove) {
+				removeReviewer(server, permId, reviewer);
 			}
-			if (!reviewersForRemove.isEmpty()) {
-				for (String reviewer : reviewersForRemove) {
-					removeReviewer(server, permId, reviewer);
-				}
-			}
-		} catch (ValueNotYetInitialized e) {
-			throw new RemoteApiException(e);
 		}
 	}
 

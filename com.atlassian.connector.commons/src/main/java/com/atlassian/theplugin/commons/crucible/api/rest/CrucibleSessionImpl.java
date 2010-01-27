@@ -871,10 +871,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 				final Map<PermId, CrucibleFileInfo> reviewItemMap = Collections.singletonMap(reviewItem.getPermId(),
 						reviewItem);
 				for (Element element : elements) {
-
-					VersionedComment c = CrucibleRestXmlHelper.parseVersionedCommentNode(review, reviewItemMap,
+					final VersionedComment c = CrucibleRestXmlHelper.parseVersionedCommentNode(review, reviewItemMap,
                             getUsername(), element, shouldTrimWikiMarkers());
-					comments.add(c);
+					if (c != null) {
+						comments.add(c);
+					}
 				}
 			}
 			return comments;

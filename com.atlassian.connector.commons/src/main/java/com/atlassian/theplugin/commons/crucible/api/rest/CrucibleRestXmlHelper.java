@@ -54,6 +54,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.changes.Revision;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
+import com.atlassian.theplugin.commons.util.XmlUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.CDATA;
 import org.jdom.Document;
@@ -65,7 +66,6 @@ import org.joda.time.format.DateTimeFormatter;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -269,7 +269,9 @@ public final class CrucibleRestXmlHelper {
 				//ONLY COMMENTS NO FILES
 				VersionedComment c = parseVersionedCommentNode(review, files, myUsername, versionedElementData,
 						trimWikiMarkers);
+				if (c != null) {
 					comments.add(c);
+				}
 			}
 		}
 
@@ -590,6 +592,10 @@ public final class CrucibleRestXmlHelper {
 		return reviewItem;
 	}
 
+	/*
+	 * @return <code>false</code> if this comment should not be included in the Review, as the it's a draft from other people
+	 * the caller should not see
+	 */
 	private static boolean parseGeneralComment(Review review, String myUsername, GeneralComment commentBean,
 			Element reviewCommentNode, boolean trimWikiMarkers) {
 
@@ -616,7 +622,7 @@ public final class CrucibleRestXmlHelper {
 		return true;
 	}
 
-	@NotNull
+	@Nullable
 	private static VersionedComment parseVersionedComment(Review review, String myUsername, Element reviewCommentNode,
 			boolean trimWikiMarkers, Map<PermId, CrucibleFileInfo> crucibleFileInfos) throws ParseException {
 
@@ -632,7 +638,8 @@ public final class CrucibleRestXmlHelper {
 				final PermId permId = new PermId(id.getText());
 				final CrucibleFileInfo crucibleFileInfo = crucibleFileInfos.get(permId);
 				if (crucibleFileInfo == null) {
-					throw new ParseException("Cannot find reviewItemId [" + permId + "] in the review description", 0);
+					throw new ParseException("Cannot find reviewItemId [" + permId + "] in the review description "
+							+ "while parsing comment [" + XmlUtil.toPrettyFormatedString(reviewCommentNode), 0);
 				}
 
 				commentBean = new VersionedComment(review, crucibleFileInfo);
@@ -643,12 +650,13 @@ public final class CrucibleRestXmlHelper {
 		}
 
 		if (commentBean == null) {
-			throw new ParseException("Cannot parse comment - reviewItemId -> id not found", 0);
+			throw new ParseException("Cannot parse comment [" + XmlUtil.toPrettyFormatedString(reviewCommentNode)
+					+ "]: reviewItemId -> id not found", 0);
 
 		}
 
 		if (!parseComment(myUsername, commentBean, reviewCommentNode, trimWikiMarkers)) {
-			throw new ParseException("Cannot parse comment", 0);
+			return null;
 		}
 
 		List<Element> replies = getChildElements(reviewCommentNode, "replies");
@@ -671,6 +679,11 @@ public final class CrucibleRestXmlHelper {
 		return commentBean;
 	}
 
+	/*
+	 *
+	 * @return <code>false</code> if this comment should not be included in the Review, as the it's a draft from other people
+	 * the caller should not see
+	 */
 	private static boolean parseComment(String myUsername, Comment commentBean,
                                         Element reviewCommentNode, boolean trimWikiMarkers) {
 
@@ -816,41 +829,15 @@ public final class CrucibleRestXmlHelper {
 		return doc;
 	}
 
-	///CHECKSTYLE:OFF
-	@NotNull
-	public static VersionedComment parseVersionedCommentNodeWithHints(Review review, CrucibleFileInfo parentFileInfo,
-            String myUsername, Element reviewCommentNode, boolean fromLineInfo, int fromStartLine, int toStartLine,
-			boolean toLineInfo, int fromEndLine, int toEndLine, Map<String, IntRanges> lineRanges, boolean trimWikiMarkers)
-			throws ParseException {
-
-
-		VersionedComment result =
-				parseVersionedCommentNode(review, Collections.singletonMap(parentFileInfo.getPermId(), parentFileInfo),
-						myUsername, reviewCommentNode, trimWikiMarkers);
-        if (result.getLineRanges() == null && lineRanges != null) {
-            result.setLineRanges(lineRanges);
-        }
-
-		if (!result.isFromLineInfo() && fromLineInfo) {
-			result.setFromLineInfo(true);
-			result.setFromStartLine(fromStartLine);
-			result.setFromEndLine(fromEndLine);
-		}
-		if (!result.isToLineInfo() && toLineInfo) {
-			result.setToLineInfo(true);
-			result.setToStartLine(toStartLine);
-			result.setToEndLine(toEndLine);
-		}
-		return result;
-	}
-
-	///CHECKSTYLE:ON
-
+	@Nullable
 	public static VersionedComment parseVersionedCommentNode(Review review, Map<PermId, CrucibleFileInfo> crucibleFileInfos,
 			String myUsername, Element reviewCommentNode, boolean trimWikiMarkers) throws ParseException {
 
 		final VersionedComment comment =
 				parseVersionedComment(review, myUsername, reviewCommentNode, trimWikiMarkers, crucibleFileInfos);
+		if (comment == null) {
+			return null;
+		}
 
 		// if (reviewCommentNode.getChild("reviewItemId") != null) {
 		// PermId reviewItemId = new PermId(reviewCommentNode.getChild("reviewItemId").getChild("id").getText());

@@ -16,10 +16,11 @@
 package com.atlassian.theplugin.commons.util;
 
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-
 import java.io.IOException;
+import java.io.StringWriter;
 
 /**
  * @author Jacek Jaroczynski
@@ -36,4 +37,16 @@ public abstract class XmlUtil {
 			e.printStackTrace();
 		}
 	}
+
+	public static String toPrettyFormatedString(Element element) {
+		XMLOutputter o = new XMLOutputter(Format.getPrettyFormat());
+		StringWriter writer = new StringWriter();
+		try {
+			o.output(element, writer);
+		} catch (IOException e) {
+			return "[" + element.getName() + "] - string representation failed: " + e.getMessage();
+		}
+		return writer.toString();
+	}
+
 }

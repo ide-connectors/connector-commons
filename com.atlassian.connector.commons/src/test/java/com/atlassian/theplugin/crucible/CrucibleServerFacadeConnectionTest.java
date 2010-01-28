@@ -24,6 +24,7 @@ import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.CrucibleServerFacadeImpl;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleLoginException;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCacheImpl;
+import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
@@ -71,11 +72,11 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 		testedCrucibleServerFacade = null;
 	}
 
-	public void testFailedLoginGetAllReviews() throws Exception {
+	public void testFailedLoginGetReviewsForFilter() throws Exception {
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD, LoginCallback.ALWAYS_FAIL));
 
 		try {
-			testedCrucibleServerFacade.getAllReviews(crucibleServerCfg);
+			testedCrucibleServerFacade.getReviewsForFilter(crucibleServerCfg, PredefinedFilter.Open);
 			fail();
 		} catch (RemoteApiLoginFailedException e) {
 

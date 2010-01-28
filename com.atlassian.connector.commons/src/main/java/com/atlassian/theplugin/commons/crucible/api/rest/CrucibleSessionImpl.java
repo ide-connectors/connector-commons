@@ -21,6 +21,7 @@ import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.PathAndRevision;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
+import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
@@ -285,7 +286,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	private void updateMetricsMetadata(Review review) {
+	private void updateMetricsMetadata(BasicReview review) {
 		try {
 			getMetrics(review.getMetricsVersion());
 		} catch (RemoteApiException e) {
@@ -293,7 +294,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	public List<Review> getReviewsInStates(List<State> states) throws RemoteApiException {
+	public List<BasicReview> getReviewsInStates(List<State> states) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
@@ -320,14 +321,14 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
-			List<Review> reviews = new ArrayList<Review>();
+			List<BasicReview> reviews = new ArrayList<BasicReview>();
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
 					reviews.add(prepareDetailReview(element));
 				}
 			}
-			for (Review review : reviews) {
+			for (BasicReview review : reviews) {
 				updateMetricsMetadata(review);
 			}
 			return reviews;
@@ -340,11 +341,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	public List<Review> getAllReviews() throws RemoteApiException {
+	public List<BasicReview> getAllReviews() throws RemoteApiException {
 		return getReviewsInStates(null);
 	}
 
-	public List<Review> getReviewsForFilter(PredefinedFilter filter) throws RemoteApiException {
+	public List<BasicReview> getReviewsForFilter(PredefinedFilter filter) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
@@ -358,14 +359,14 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
-			List<Review> reviews = new ArrayList<Review>();
+			List<BasicReview> reviews = new ArrayList<BasicReview>();
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
 					reviews.add(prepareDetailReview(element));
 				}
 			}
-			for (Review review : reviews) {
+			for (BasicReview review : reviews) {
 				updateMetricsMetadata(review);
 			}
 			return reviews;
@@ -435,7 +436,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return false;
     }
 
-	public List<Review> getReviewsForCustomFilter(CustomFilter filter) throws RemoteApiException {
+	public List<BasicReview> getReviewsForCustomFilter(CustomFilter filter) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
@@ -452,14 +453,14 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
-			List<Review> reviews = new ArrayList<Review>();
+			List<BasicReview> reviews = new ArrayList<BasicReview>();
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
 					reviews.add(prepareDetailReview(element));
 				}
 			}
-			for (Review review : reviews) {
+			for (BasicReview review : reviews) {
 				updateMetricsMetadata(review);
 			}
 			return reviews;
@@ -802,10 +803,9 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			List<Element> elements = xpath.selectNodes(doc);
 			Set<CrucibleFileInfo> reviewItems = new HashSet<CrucibleFileInfo>();
 
-			Review changeSet = new Review(getBaseUrl());
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					CrucibleFileInfo fileInfo = CrucibleRestXmlHelper.parseReviewItemNode(changeSet, element);
+					CrucibleFileInfo fileInfo = CrucibleRestXmlHelper.parseReviewItemNode(element);
 					fillRepositoryData(fileInfo);
 					reviewItems.add(fileInfo);
 				}

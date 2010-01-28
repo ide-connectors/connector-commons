@@ -24,6 +24,7 @@ import com.atlassian.theplugin.commons.crucible.api.CrucibleLoginException;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.PathAndRevision;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
+import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
@@ -529,22 +530,13 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 		return session.getMetrics(version);
 	}
 
-	/**
-	 * @param server server object with Url, Login and Password to connect to
-	 * @return List of reviews (empty list in case there is no review)
-	 */
-	public List<Review> getAllReviews(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException {
-		CrucibleSession session = getSession(server);
-		return session.getAllReviews();
-	}
-
-	public List<Review> getReviewsForFilter(ConnectionCfg server, PredefinedFilter filter) throws RemoteApiException,
+	public List<BasicReview> getReviewsForFilter(ConnectionCfg server, PredefinedFilter filter) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getReviewsForFilter(filter);
 	}
 
-	public List<Review> getReviewsForCustomFilter(ConnectionCfg server, CustomFilter filter) throws RemoteApiException,
+	public List<BasicReview> getReviewsForCustomFilter(ConnectionCfg server, CustomFilter filter) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getReviewsForCustomFilter(filter);

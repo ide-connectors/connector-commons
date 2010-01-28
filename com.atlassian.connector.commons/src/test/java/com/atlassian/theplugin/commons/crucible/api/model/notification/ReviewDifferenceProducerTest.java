@@ -6,6 +6,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewTestUtil;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
 import com.atlassian.theplugin.commons.crucible.api.model.State;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
@@ -43,7 +44,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	final Reviewer reviewer4 = prepareReviewer("alice", "Alice", false);
 
-	private final Review review = new Review("myurl.com");
+	private final Review review = ReviewTestUtil.createReview("myurl.com");
 
 	private Review prepareReview() {
 		final Review res = new Review("http://bogus", "TEST", reviewer3, reviewer4);

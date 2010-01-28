@@ -15,8 +15,8 @@ import com.spartez.util.junit3.TestUtil;
 import junit.framework.TestCase;
 
 public class CommentTest extends TestCase {
-	private final Review r1 = new Review("http://localhost");
-	private final Review r2 = new Review("http://localhost");
+	private final Review r1 = ReviewTestUtil.createReview("http://localhost");
+	private final Review r2 = ReviewTestUtil.createReview("http://localhost");
 
 	public CommentTest() {
 		r1.setPermId(new PermId("r1"));

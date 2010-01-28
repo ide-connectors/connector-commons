@@ -29,14 +29,17 @@ import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.CrucibleServerFacadeImpl;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
+import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCacheImpl;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewTestUtil;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
 import com.atlassian.theplugin.commons.crucible.api.model.State;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
@@ -241,7 +244,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		Review review = prepareReviewData(VALID_LOGIN, "name", State.DRAFT, permId);
 
-		crucibleSessionMock.getAllReviews();
+		crucibleSessionMock.getReviewsForFilter(PredefinedFilter.Drafts);
 		EasyMock.expectLastCall().andReturn(Arrays.asList(review, review));
 
 //		crucibleSessionMock.isLoggedIn();
@@ -253,13 +256,13 @@ public class CrucibleServerFacadeTest extends TestCase {
 //		}
 
 		Review review2 = prepareReviewData(validLogin2, "name", State.DRAFT, permId);
-		crucibleSessionMock.getAllReviews();
+		crucibleSessionMock.getReviewsForFilter(PredefinedFilter.Drafts);
 		EasyMock.expectLastCall().andReturn(Arrays.asList(review2));
 
 		replay(crucibleSessionMock);
 
 		CrucibleServerCfg server = prepareServerBean();
-		List<Review> ret = facade.getAllReviews(getServerData(server));
+		List<BasicReview> ret = facade.getReviewsForFilter(getServerData(server), PredefinedFilter.Drafts);
 		assertEquals(2, ret.size());
 		assertEquals(permId.getId(), ret.get(0).getPermId().getId());
 		assertEquals("name", ret.get(0).getName());
@@ -274,7 +277,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		server.setUsername(validLogin2.getUsername());
 		server.setPassword(validPassword2);
-		ret = facade.getAllReviews(getServerData(server));
+		ret = facade.getReviewsForFilter(getServerData(server), PredefinedFilter.Drafts);
 		assertEquals(1, ret.size());
 		assertEquals(permId.getId(), ret.get(0).getPermId().getId());
 		assertEquals("name", ret.get(0).getName());
@@ -302,7 +305,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		crucibleSessionMock.createReview(EasyMock.isA(Review.class));
 		CrucibleServerCfg server = prepareServerBean();
-		Review response = new Review(server.getUrl());
+		Review response = ReviewTestUtil.createReview(server.getUrl());
 
 		EasyMock.expectLastCall().andReturn(response);
 
@@ -361,7 +364,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		crucibleSessionMock.createReviewFromPatch(EasyMock.isA(Review.class), EasyMock.eq("some patch"));
 		CrucibleServerCfg server = prepareServerBean();
-		Review response = new Review(server.getUrl());
+		Review response = ReviewTestUtil.createReview(server.getUrl());
 		EasyMock.expectLastCall().andReturn(response);
 
 		replay(crucibleSessionMock);
@@ -407,42 +410,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 		}
 	}
 
-	public void testGetAllReviews() throws ServerPasswordNotProvidedException, RemoteApiException {
-//		Disabled temporarily as to fix ACC-31
-//		crucibleSessionMock.isLoggedIn();
-//		EasyMock.expectLastCall().andReturn(false);
-//		try {
-//			crucibleSessionMock.login();
-//		} catch (RemoteApiLoginException e) {
-//			fail("recording mock failed for login");
-//		}
-
-		PermId permId = new PermId("permId");
-
-		Review review = prepareReviewData(VALID_LOGIN, "name", State.DRAFT, permId);
-
-		crucibleSessionMock.getAllReviews();
-		EasyMock.expectLastCall().andReturn(Arrays.asList(review, review));
-
-		replay(crucibleSessionMock);
-
-		CrucibleServerCfg server = prepareServerBean();
-		// test call
-		List<Review> ret = facade.getAllReviews(getServerData(server));
-		assertEquals(2, ret.size());
-		assertEquals(permId.getId(), ret.get(0).getPermId().getId());
-		assertEquals("name", ret.get(0).getName());
-		assertEquals(VALID_LOGIN, ret.get(0).getAuthor());
-		assertEquals(VALID_LOGIN, ret.get(0).getCreator());
-		assertEquals("Test description", ret.get(0).getDescription());
-		assertEquals(VALID_LOGIN, ret.get(0).getModerator());
-		assertEquals("TEST", ret.get(0).getProjectKey());
-		assertEquals(null, ret.get(0).getRepoName());
-		assertSame(State.DRAFT, ret.get(0).getState());
-		assertNull(ret.get(0).getParentReview());
-
-		EasyMock.verify(crucibleSessionMock);
-	}
 
 	public void testGetProjects() throws ServerPasswordNotProvidedException, RemoteApiException {
 //		Disabled temporarily as to fix ACC-31
@@ -780,18 +747,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 		return server;
 	}
 
-	public void _testGetAllReviewsHardcoded() throws ServerPasswordNotProvidedException {
-		//facade.setCrucibleSession(null);
-		final CrucibleServerCfg server = prepareCrucibleServerCfg();
-
-		try {
-			List<Review> list = facade.getAllReviews(getServerData(server));
-			assertNotNull(list);
-			assertTrue(list.size() > 0);
-		} catch (RemoteApiException e) {
-			fail(e.getMessage());
-		}
-	}
 
 	private ConnectionCfg getServerData(final ServerCfg serverCfg) {
 		return new ConnectionCfg(serverCfg.getServerId().getId(), serverCfg.getUrl(), serverCfg.getUsername(), serverCfg

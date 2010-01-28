@@ -16,6 +16,7 @@
 
 package com.atlassian.theplugin.commons.crucible.api;
 
+import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
@@ -94,13 +95,20 @@ public interface CrucibleSession {
 
 	void completeReview(PermId permId, boolean complete) throws RemoteApiException;
 
-	List<Review> getReviewsInStates(List<State> arg1) throws RemoteApiException;
+	/**
+	 *
+	 * @param states
+	 *            <code>null</code> for all reviews (in every state)
+	 * @return
+	 * @throws RemoteApiException
+	 */
+	List<BasicReview> getReviewsInStates(List<State> states) throws RemoteApiException;
 
-	List<Review> getAllReviews() throws RemoteApiException;
+	List<BasicReview> getAllReviews() throws RemoteApiException;
 
-	List<Review> getReviewsForFilter(PredefinedFilter filter) throws RemoteApiException;
+	List<BasicReview> getReviewsForFilter(PredefinedFilter filter) throws RemoteApiException;
 
-	List<Review> getReviewsForCustomFilter(CustomFilter filter) throws RemoteApiException;
+	List<BasicReview> getReviewsForCustomFilter(CustomFilter filter) throws RemoteApiException;
 
 	// this method is untested - don't use it
 	// List<Review> getAllReviewsForFile(String repoName, String path) throws RemoteApiException;

@@ -16,7 +16,7 @@ import junit.framework.TestCase;
 
 public class CrucibleFileInfoImplTest extends TestCase {
 
-	private final Review review = new Review("http://myurl.com");
+	private final Review review = ReviewTestUtil.createReview("http://myurl.com");
 
 	private CrucibleFileInfo prepareCrucibleFileInfo() {
 		PermId permId1 = new PermId("1");

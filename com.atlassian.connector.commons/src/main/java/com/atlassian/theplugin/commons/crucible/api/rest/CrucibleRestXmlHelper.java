@@ -169,15 +169,19 @@ public final class CrucibleRestXmlHelper {
         return null;
     }
 
-	private static void parseReview(Element reviewNode, Review review, boolean trimWikiMarkers) {
+	private static Review parseReview(final Element reviewNode, String serverUrl, boolean trimWikiMarkers) {
+		final String projectKey = getChildText(reviewNode, "projectKey");
+		final User author = parseUserNode(reviewNode.getChild("author"));
+
+		final User moderator = (reviewNode.getChild("moderator") != null)
+				? parseUserNode(reviewNode.getChild("moderator")) : null;
+
+		Review review = new Review(serverUrl, projectKey, author, moderator);
 		if (reviewNode.getChild("author") != null) {
-			review.setAuthor(parseUserNode(reviewNode.getChild("author")));
+			review.setAuthor(author);
 		}
 		if (reviewNode.getChild("creator") != null) {
 			review.setCreator(parseUserNode(reviewNode.getChild("creator")));
-		}
-		if (reviewNode.getChild("moderator") != null) {
-			review.setModerator(parseUserNode(reviewNode.getChild("moderator")));
 		}
 		review.setCreateDate(parseDateTime(getChildText(reviewNode, "createDate")));
 		review.setCloseDate(parseDateTime(getChildText(reviewNode, "closeDate")));
@@ -187,7 +191,7 @@ public final class CrucibleRestXmlHelper {
         }
         review.setDescription(soo);
 		review.setName(getChildText(reviewNode, "name"));
-		review.setProjectKey(getChildText(reviewNode, "projectKey"));
+		review.setProjectKey(projectKey);
 		review.setRepoName(getChildText(reviewNode, "repoName"));
 
 		String stateString = getChildText(reviewNode, "state");
@@ -207,18 +211,16 @@ public final class CrucibleRestXmlHelper {
 		} catch (NumberFormatException e) {
 			review.setMetricsVersion(-1);
 		}
+		return review;
 	}
 
 	public static Review parseReviewNode(String serverUrl, Element reviewNode, boolean trimWikiMarkers) {
-		Review review = new Review(serverUrl);
-		parseReview(reviewNode, review, trimWikiMarkers);
-		return review;
+		return parseReview(reviewNode, serverUrl, trimWikiMarkers);
 	}
 
 	public static Review parseDetailedReviewNode(String serverUrl, String myUsername,
 			Element reviewNode, boolean trimWikiMarkers) throws ParseException {
-		final Review review = new Review(serverUrl);
-		parseReview(reviewNode, review, trimWikiMarkers);
+		final Review review = parseReview(reviewNode, serverUrl, trimWikiMarkers);
 
 		List<Element> reviewersNode = getChildElements(reviewNode, "reviewers");
 		Set<Reviewer> reviewers = new HashSet<Reviewer>();
@@ -254,7 +256,7 @@ public final class CrucibleRestXmlHelper {
 			for (Element element : fileNode) {
 				List<Element> fileElements = getChildElements(element, "reviewItem");
 				for (Element file : fileElements) {
-					CrucibleFileInfo fileInfo = CrucibleRestXmlHelper.parseReviewItemNode(review, file);
+					CrucibleFileInfo fileInfo = CrucibleRestXmlHelper.parseReviewItemNode(file);
 					files.put(fileInfo.getPermId(), fileInfo);
 				}
 			}
@@ -514,7 +516,7 @@ public final class CrucibleRestXmlHelper {
 	}
 
 
-	public static CrucibleFileInfo parseReviewItemNode(final Review review, final Element reviewItemNode) {
+	public static CrucibleFileInfo parseReviewItemNode(final Element reviewItemNode) {
 		CrucibleFileInfo reviewItem = new CrucibleFileInfo(
 				new VersionedVirtualFile(
 						getChildText(reviewItemNode, "toPath"),

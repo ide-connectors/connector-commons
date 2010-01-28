@@ -27,6 +27,7 @@ import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
+import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
@@ -380,7 +381,7 @@ public class CrucibleSessionTest extends TestCase {
 			//expected
 		}
 		try {
-			crucibleSession.getAllReviews();
+			crucibleSession.getReviewsInStates(null);
 			fail();
 		} catch (IllegalStateException e) {
 			//expected
@@ -418,10 +419,10 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		List<Review> reviews = apiHandler.getAllReviews();
+		List<BasicReview> reviews = apiHandler.getReviewsInStates(null);
 		assertEquals(states.size(), reviews.size());
 		int i = 0;
-		for (Review review : reviews) {
+		for (BasicReview review : reviews) {
 			assertEquals(review.getState(), states.get(i++));
 		}
 		mockServer.verify();
@@ -434,7 +435,7 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		List<Review> reviews = apiHandler.getAllReviews();
+		List<BasicReview> reviews = apiHandler.getAllReviews();
 		assertEquals(states.size(), reviews.size());
 		assertTrue(reviews.isEmpty());
 		mockServer.verify();
@@ -447,7 +448,7 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		List<Review> reviews = apiHandler.getAllReviews();
+		List<BasicReview> reviews = apiHandler.getAllReviews();
 		assertEquals(states.size(), reviews.size());
 		assertTrue(reviews.isEmpty());
 		mockServer.verify();
@@ -464,7 +465,7 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		List<Review> reviews = apiHandler.getReviewsInStates(states);
+		List<BasicReview> reviews = apiHandler.getReviewsInStates(states);
 		assertEquals(states.size(), reviews.size());
 		assertTrue(!reviews.isEmpty());
 		mockServer.verify();
@@ -478,7 +479,7 @@ public class CrucibleSessionTest extends TestCase {
 
 		apiHandler.login();
 		List<State> req = Arrays.asList(State.CLOSED);
-		List<Review> reviews = apiHandler.getReviewsInStates(req);
+		List<BasicReview> reviews = apiHandler.getReviewsInStates(req);
 		assertTrue(reviews.isEmpty());
 		mockServer.verify();
 	}
@@ -495,7 +496,7 @@ public class CrucibleSessionTest extends TestCase {
 
 		apiHandler.login();
 		List<State> req = new ArrayList<State>();
-		List<Review> reviews = apiHandler.getReviewsInStates(req);
+		List<BasicReview> reviews = apiHandler.getReviewsInStates(req);
 		assertEquals(states.size(), reviews.size());
 		assertTrue(!reviews.isEmpty());
 		mockServer.verify();
@@ -838,11 +839,9 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	private Review createReviewRequest() {
-		Review review = new Review(mockBaseUrl);
-		review.setAuthor(new User("autor", ""));
+		Review review = new Review(mockBaseUrl, "PR", new User("author", ""), new User("moderator", ""));
 		review.setCreator(new User("creator", ""));
 		review.setDescription("description");
-		review.setModerator(new User("moderator", ""));
 		review.setName("name");
 		review.setProjectKey("PR");
 		return review;

@@ -21,6 +21,7 @@ import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewTestUtil;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
@@ -45,7 +46,7 @@ public class CrucibleServerFacadeImplTest extends TestCase {
 				return mock;
 			}
 		};
-		Review review = new Review(SERVER_DATA.getUrl());
+		Review review = ReviewTestUtil.createReview(SERVER_DATA.getUrl());
 		review.setPermId(new PermId("CR-123"));
 		review.setReviewers(MiscUtil.<Reviewer>buildHashSet());
 		final ArrayList<String> newReviewers = MiscUtil.buildArrayList("wseliga", "mwent");

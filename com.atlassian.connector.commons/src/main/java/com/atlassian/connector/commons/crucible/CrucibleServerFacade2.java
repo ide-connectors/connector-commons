@@ -15,6 +15,7 @@ import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.PathAndRevision;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
+import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
@@ -202,19 +203,19 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	void completeReview(ConnectionCfg server, PermId permId, boolean complete) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
-	/**
-	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
-	 *             {@link CrucibleSession} directly.
-	 */
-	@Deprecated
-	List<Review> getAllReviews(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
+	// /**
+	// * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	// * {@link CrucibleSession} directly.
+	// */
+	// @Deprecated
+	// List<BasicReview> getAllReviews(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	/**
 	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
 	 *             {@link CrucibleSession} directly.
 	 */
 	@Deprecated
-	List<Review> getReviewsForFilter(ConnectionCfg server, PredefinedFilter filter) throws RemoteApiException,
+	List<BasicReview> getReviewsForFilter(ConnectionCfg server, PredefinedFilter filter) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
 	/**
@@ -222,7 +223,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	 *             {@link CrucibleSession} directly.
 	 */
 	@Deprecated
-	List<Review> getReviewsForCustomFilter(ConnectionCfg server, CustomFilter filter) throws RemoteApiException,
+	List<BasicReview> getReviewsForCustomFilter(ConnectionCfg server, CustomFilter filter) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
 	/**

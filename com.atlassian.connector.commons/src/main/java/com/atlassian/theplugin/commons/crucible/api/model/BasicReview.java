@@ -13,12 +13,9 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,7 +28,6 @@ import java.util.Set;
  */
 public class BasicReview {
 	private Set<Reviewer> reviewers;
-	private List<Comment> generalComments;
 	private EnumSet<CrucibleAction> transitions = EnumSet.<CrucibleAction> noneOf(CrucibleAction.class);
 	private EnumSet<CrucibleAction> actions = EnumSet.<CrucibleAction> noneOf(CrucibleAction.class);
 	@NotNull
@@ -67,29 +63,6 @@ public class BasicReview {
 		this.reviewers = reviewers;
 	}
 
-	public void setGeneralComments(@NotNull List<Comment> generalComments) {
-		this.generalComments = generalComments;
-	}
-
-	/**
-	 * Removes comment from the model
-	 *
-	 * @param generalComment
-	 *            comment to be removed
-	 */
-	public void removeGeneralComment(final Comment generalComment) {
-		if (!generalComment.isReply()) {
-			generalComments.remove(generalComment);
-		} else {
-			for (Comment comment : generalComments) {
-				if (comment.getReplies().remove(generalComment)) {
-					return;
-				}
-			}
-		}
-	}
-
-
 	public void setTransitions(@NotNull Collection<CrucibleAction> transitions) {
 		// as EnumSet.copyOf does not work for empty collections we use such 2-phase approach
 		this.transitions = EnumSet.noneOf(CrucibleAction.class);
@@ -113,14 +86,6 @@ public class BasicReview {
 
 	public Set<Reviewer> getReviewers() {
 		return reviewers;
-	}
-
-	@NotNull
-	public List<Comment> getGeneralComments() {
-		if (generalComments == null) {
-			return Collections.emptyList();
-		}
-		return generalComments;
 	}
 
 	public EnumSet<CrucibleAction> getTransitions() {
@@ -283,170 +248,6 @@ public class BasicReview {
 
 	public void setSummary(String summary) {
 		this.summary = summary;
-	}
-
-	/**
-	 * @return total number of versioned comments including replies (for all files)
-	 */
-	public int getNumberOfVersionedComments() {
-		return 0;
-		// !!! @fixme wseliga refactoring
-		// for (CrucibleFileInfo file : getFiles()) {
-		// num += file.getNumberOfComments();
-		// }
-		// return num;
-	}
-
-	public int getNumberOfVersionedComments(final String userName) {
-		// !!! @fixme wseliga refactoring
-		int num = 0;
-		// for (CrucibleFileInfo file : getFiles()) {
-		// num += file.getNumberOfComments(userName);
-		// }
-		return num;
-	}
-
-	public int getNumberOfGeneralComments(final String userName) {
-		int num = 0;
-		for (Comment comment : getGeneralComments()) {
-			if (comment.getAuthor().getUsername().equals(userName)) {
-				++num;
-			}
-			for (Comment reply : comment.getReplies()) {
-				if (reply.getAuthor().getUsername().equals(userName)) {
-					++num;
-				}
-			}
-		}
-		return num;
-	}
-
-	public int getNumberOfUnreadComments() {
-		List<Comment> allComments = new ArrayList<Comment>();
-		allComments.addAll(getGeneralComments());
-		// !!! @fixme wseliga refactoring
-		// for (CrucibleFileInfo file : getFiles()) {
-		// allComments.addAll(file.getVersionedComments());
-		// }
-		int result = 0;
-
-		for (Comment comment : allComments) {
-			if (comment.getReadState() == Comment.ReadState.UNREAD
-					|| comment.getReadState() == Comment.ReadState.LEAVE_UNREAD) {
-				++result;
-			}
-			for (Comment reply : comment.getReplies()) {
-				if (reply.getReadState() == Comment.ReadState.UNREAD
-						|| reply.getReadState() == Comment.ReadState.LEAVE_UNREAD) {
-					++result;
-				}
-			}
-		}
-		return result;
-	}
-
-	public int getNumberOfVersionedCommentsDefects() {
-		int num = 0;
-		// !!! @fixme wseliga refactoring
-		// for (CrucibleFileInfo file : getFiles()) {
-		// num += file.getNumberOfCommentsDefects();
-		// }
-		return num;
-	}
-
-	public int getNumberOfVersionedCommentsDefects(final String userName) {
-		int num = 0;
-		// !!! @fixme wseliga refactoring
-		// for (CrucibleFileInfo file : getFiles()) {
-		// num += file.getNumberOfCommentsDefects(userName);
-		// }
-		return num;
-	}
-
-	public int getNumberOfVersionedCommentsDrafts() {
-		int num = 0;
-		// !!! @fixme wseliga refactoring
-		// for (CrucibleFileInfo file : getFiles()) {
-		// num += file.getNumberOfCommentsDrafts();
-		// }
-		return num;
-	}
-
-	public int getNumberOfVersionedCommentsDrafts(final String userName) {
-		int num = 0;
-		// !!! @fixme wseliga refactoring
-		// for (CrucibleFileInfo file : getFiles()) {
-		// num += file.getNumberOfCommentsDrafts(userName);
-		// }
-		return num;
-	}
-
-	public int getNumberOfGeneralCommentsDrafts() {
-		int num = 0;
-		for (Comment comment : getGeneralComments()) {
-			if (comment.isDraft()) {
-				++num;
-			}
-			for (Comment reply : comment.getReplies()) {
-				if (reply.isDraft()) {
-					++num;
-				}
-			}
-		}
-		return num;
-	}
-
-	public int getNumberOfGeneralCommentsDrafts(final String userName) {
-		int num = 0;
-		for (Comment comment : getGeneralComments()) {
-			if (comment.isDraft() && comment.getAuthor().getUsername().equals(userName)) {
-				++num;
-			}
-			for (Comment reply : comment.getReplies()) {
-				if (reply.isDraft() && reply.getAuthor().getUsername().equals(userName)) {
-					++num;
-				}
-			}
-		}
-		return num;
-	}
-
-	public int getNumberOfGeneralCommentsDefects() {
-		int num = 0;
-		for (Comment comment : getGeneralComments()) {
-			if (comment.isDefectRaised()) {
-				++num;
-			}
-			for (Comment reply : comment.getReplies()) {
-				if (reply.isDefectRaised()) {
-					++num;
-				}
-			}
-		}
-		return num;
-	}
-
-	public int getNumberOfGeneralCommentsDefects(final String userName) {
-		int num = 0;
-		for (Comment comment : getGeneralComments()) {
-			if (comment.isDefectRaised() && comment.getAuthor().getUsername().equals(userName)) {
-				++num;
-			}
-			for (Comment reply : comment.getReplies()) {
-				if (reply.isDefectRaised() && reply.getAuthor().getUsername().equals(userName)) {
-					++num;
-				}
-			}
-		}
-		return num;
-	}
-
-	public int getNumberOfGeneralComments() {
-		int num = getGeneralComments().size();
-		for (Comment comment : getGeneralComments()) {
-			num += comment.getReplies().size();
-		}
-		return num;
 	}
 
 }

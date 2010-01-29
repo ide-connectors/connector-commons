@@ -16,11 +16,11 @@
 
 package com.atlassian.theplugin.crucible.api.rest.cruciblemock;
 
+import static junit.framework.Assert.assertTrue;
+import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
-import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.State;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleRestXmlHelper;
-import static junit.framework.Assert.assertTrue;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -28,7 +28,6 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -51,11 +50,11 @@ public class CreateReviewCallback implements JettyMockServer.Callback {
         @SuppressWarnings("unchecked")
         List<Element> elements = xpath.selectNodes(req);
 
-		Review reqReview = CrucibleRestXmlHelper.parseReviewNode("http://bogus.server", elements.get(0), false);
+		BasicReview reqReview = CrucibleRestXmlHelper.parseBasicReview("http://bogus.server", elements.get(0), false);
 
-        Review reviewData = null;
+        BasicReview reviewData = null;
         if (elements != null && !elements.isEmpty()) {
-			reviewData = CrucibleRestXmlHelper.parseReviewNode("http://bogus.server", elements.iterator().next(), false);
+			reviewData = CrucibleRestXmlHelper.parseBasicReview("http://bogus.server", elements.iterator().next(), false);
 			reviewData.setState(State.DRAFT);
 			PermId permId = new PermId(PERM_ID);
 			reviewData.setPermId(permId);

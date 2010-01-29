@@ -306,8 +306,12 @@ public class CrucibleServerFacadeTest extends TestCase {
 		crucibleSessionMock.createReview(EasyMock.isA(Review.class));
 		CrucibleServerCfg server = prepareServerBean();
 		Review response = ReviewTestUtil.createReview(server.getUrl());
+		final PermId permId = new PermId("p1");
+		response.setPermId(permId);
 
 		EasyMock.expectLastCall().andReturn(response);
+		// actually for getReview a full review object would be normally returned, but for this test it doesn't matter
+		EasyMock.expect(crucibleSessionMock.getReview(permId)).andReturn(response);
 
 		replay(crucibleSessionMock);
 
@@ -365,7 +369,12 @@ public class CrucibleServerFacadeTest extends TestCase {
 		crucibleSessionMock.createReviewFromPatch(EasyMock.isA(Review.class), EasyMock.eq("some patch"));
 		CrucibleServerCfg server = prepareServerBean();
 		Review response = ReviewTestUtil.createReview(server.getUrl());
+		final PermId permId = new PermId("p1");
+		response.setPermId(permId);
 		EasyMock.expectLastCall().andReturn(response);
+
+		// actually for getReview a full review object would be normally returned, but for this test it doesn't matter
+		EasyMock.expect(crucibleSessionMock.getReview(permId)).andReturn(response);
 
 		replay(crucibleSessionMock);
 

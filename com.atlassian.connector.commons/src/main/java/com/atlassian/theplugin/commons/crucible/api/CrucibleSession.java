@@ -51,47 +51,61 @@ public interface CrucibleSession {
 
 	CrucibleVersionInfo getServerVersion() throws RemoteApiException;
 
-	Review createReview(Review review) throws RemoteApiException;
+	@Nullable
+	BasicReview createReview(Review review) throws RemoteApiException;
 
-	Review createReviewFromPatch(Review review, String patch) throws RemoteApiException;
+	@Nullable
+	BasicReview createReviewFromPatch(Review review, String patch) throws RemoteApiException;
 
-	Review createReviewFromRevision(Review review, List<String> revisions) throws RemoteApiException;
+	@Nullable
+	BasicReview createReviewFromRevision(Review review, List<String> revisions) throws RemoteApiException;
 
 	List<CrucibleAction> getAvailableActions(PermId permId) throws RemoteApiException;
 
 	List<CrucibleAction> getAvailableTransitions(PermId permId) throws RemoteApiException;
 
-	Review addRevisionsToReview(PermId permId, String repository, Collection<String> revisions) throws RemoteApiException;
+	@Nullable
+	BasicReview addRevisionsToReview(PermId permId, String repository, Collection<String> revisions) throws RemoteApiException;
 
-	Review addRevisionsToReviewItems(PermId permId, Collection<RevisionData> revisions)
+	BasicReview addRevisionsToReviewItems(PermId permId, Collection<RevisionData> revisions)
 			throws RemoteApiException;
 
-    Review addFileRevisionsToReview(PermId permId, String repository, List<PathAndRevision> revisions)
+	@Nullable
+	BasicReview addFileRevisionsToReview(PermId permId, String repository, List<PathAndRevision> revisions)
             throws RemoteApiException;
 
 	void addFileToReview(PermId permId, NewReviewItem newReviewItem) throws RemoteApiException;
 
-	Review addPatchToReview(PermId permId, String repository, String patch) throws RemoteApiException;
+	@Nullable
+	BasicReview addPatchToReview(PermId permId, String repository, String patch) throws RemoteApiException;
 
 	void addReviewers(PermId permId, Set<String> userNames) throws RemoteApiException;
 
 	void removeReviewer(PermId permId, String userNames) throws RemoteApiException;
 
-	Review approveReview(PermId permId) throws RemoteApiException;
+	@Nullable
+	BasicReview approveReview(PermId permId) throws RemoteApiException;
 
-	Review submitReview(PermId permId) throws RemoteApiException;
+	@Nullable
+	BasicReview submitReview(PermId permId) throws RemoteApiException;
 
-	Review abandonReview(PermId permId) throws RemoteApiException;
+	@Nullable
+	BasicReview abandonReview(PermId permId) throws RemoteApiException;
 
-	Review closeReview(PermId permId, String summary) throws RemoteApiException;
+	@Nullable
+	BasicReview closeReview(PermId permId, String summary) throws RemoteApiException;
 
-	Review recoverReview(PermId permId) throws RemoteApiException;
+	@Nullable
+	BasicReview recoverReview(PermId permId) throws RemoteApiException;
 
-	Review reopenReview(PermId permId) throws RemoteApiException;
+	@Nullable
+	BasicReview reopenReview(PermId permId) throws RemoteApiException;
 
-	Review rejectReview(PermId permId) throws RemoteApiException;
+	@Nullable
+	BasicReview rejectReview(PermId permId) throws RemoteApiException;
 
-	Review summarizeReview(PermId permId) throws RemoteApiException;
+	@Nullable
+	BasicReview summarizeReview(PermId permId) throws RemoteApiException;
 
 	void completeReview(PermId permId, boolean complete) throws RemoteApiException;
 
@@ -152,7 +166,8 @@ public interface CrucibleSession {
 
 //	CrucibleFileInfo addItemToReview(Review review, NewReviewItem item) throws RemoteApiException;
 
-	Review createReviewFromUpload(Review review, Collection<UploadItem> uploadItems) throws RemoteApiException;
+	@Nullable
+	BasicReview createReviewFromUpload(Review review, Collection<UploadItem> uploadItems) throws RemoteApiException;
 
 	byte[] getFileContent(String contentUrl) throws RemoteApiException;
 

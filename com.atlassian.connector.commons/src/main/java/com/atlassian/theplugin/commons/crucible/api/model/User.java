@@ -26,6 +26,7 @@ public class User implements Serializable {
     private static final int HASH_MAGIC = 31;
 
     protected String userName;
+	@Nullable
 	protected String displayName;
 	@Nullable
 	private String avatarUrl;

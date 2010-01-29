@@ -20,15 +20,49 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Full review information - including all comments (file and general ones)
+ *
+ * @author wseliga
+ */
 public class Review extends BasicReview {
 	private Set<CrucibleFileInfo> files;
+	private List<Comment> generalComments = Collections.emptyList();
 
 	public Review(@NotNull String serverUrl, @NotNull String projectKey, @NotNull User author, @Nullable User moderator) {
 		super(serverUrl, projectKey, author, moderator);
+	}
+
+	public void setGeneralComments(@NotNull List<Comment> generalComments) {
+		this.generalComments = generalComments;
+	}
+
+	@NotNull
+	public List<Comment> getGeneralComments() {
+		return generalComments;
+	}
+
+	/**
+	 * Removes comment from the model
+	 *
+	 * @param generalComment
+	 *            comment to be removed
+	 */
+	public void removeGeneralComment(final Comment generalComment) {
+		if (!generalComment.isReply()) {
+			generalComments.remove(generalComment);
+		} else {
+			for (Comment comment : generalComments) {
+				if (comment.getReplies().remove(generalComment)) {
+					return;
+				}
+			}
+		}
 	}
 
 	public void removeVersionedComment(final VersionedComment comment, final CrucibleFileInfo file) {
@@ -80,10 +114,77 @@ public class Review extends BasicReview {
 		this.files = files;
 	}
 
+	public int getNumberOfGeneralCommentsDrafts() {
+		int num = 0;
+		for (Comment comment : getGeneralComments()) {
+			if (comment.isDraft()) {
+				++num;
+			}
+			for (Comment reply : comment.getReplies()) {
+				if (reply.isDraft()) {
+					++num;
+				}
+			}
+		}
+		return num;
+	}
+
+	public int getNumberOfGeneralCommentsDrafts(final String userName) {
+		int num = 0;
+		for (Comment comment : getGeneralComments()) {
+			if (comment.isDraft() && comment.getAuthor().getUsername().equals(userName)) {
+				++num;
+			}
+			for (Comment reply : comment.getReplies()) {
+				if (reply.isDraft() && reply.getAuthor().getUsername().equals(userName)) {
+					++num;
+				}
+			}
+		}
+		return num;
+	}
+
+	public int getNumberOfGeneralCommentsDefects() {
+		int num = 0;
+		for (Comment comment : getGeneralComments()) {
+			if (comment.isDefectRaised()) {
+				++num;
+			}
+			for (Comment reply : comment.getReplies()) {
+				if (reply.isDefectRaised()) {
+					++num;
+				}
+			}
+		}
+		return num;
+	}
+
+	public int getNumberOfGeneralCommentsDefects(final String userName) {
+		int num = 0;
+		for (Comment comment : getGeneralComments()) {
+			if (comment.isDefectRaised() && comment.getAuthor().getUsername().equals(userName)) {
+				++num;
+			}
+			for (Comment reply : comment.getReplies()) {
+				if (reply.isDefectRaised() && reply.getAuthor().getUsername().equals(userName)) {
+					++num;
+				}
+			}
+		}
+		return num;
+	}
+
+	public int getNumberOfGeneralComments() {
+		int num = getGeneralComments().size();
+		for (Comment comment : getGeneralComments()) {
+			num += comment.getReplies().size();
+		}
+		return num;
+	}
+
 	/**
 	 * @return total number of versioned comments including replies (for all files)
 	 */
-	@Override
 	public int getNumberOfVersionedComments() {
 		int num = 0;
 		for (CrucibleFileInfo file : getFiles()) {
@@ -92,7 +193,6 @@ public class Review extends BasicReview {
 		return num;
 	}
 
-	@Override
 	public int getNumberOfVersionedComments(final String userName) {
 		int num = 0;
 		for (CrucibleFileInfo file : getFiles()) {
@@ -102,7 +202,6 @@ public class Review extends BasicReview {
 	}
 
 
-	@Override
 	public int getNumberOfUnreadComments() {
         List<Comment> allComments = new ArrayList<Comment>();
         allComments.addAll(getGeneralComments());
@@ -126,17 +225,51 @@ public class Review extends BasicReview {
         return result;
     }
 
-	/*
-	 * @Override public int getNumberOfVersionedCommentsDefects() { int num = 0; for (CrucibleFileInfo file : getFiles()) { num
-	 * += file.getNumberOfCommentsDefects(); } return num; }
-	 *
-	 * @Override public int getNumberOfVersionedCommentsDefects(final String userName) { int num = 0; for (CrucibleFileInfo file
-	 * : getFiles()) { num += file.getNumberOfCommentsDefects(userName); } return num; }
-	 *
-	 * @Override public int getNumberOfVersionedCommentsDrafts() { int num = 0; for (CrucibleFileInfo file : getFiles()) { num
-	 * += file.getNumberOfCommentsDrafts(); } return num; }
-	 *
-	 * @Override public int getNumberOfVersionedCommentsDrafts(final String userName) { int num = 0; for (CrucibleFileInfo file
-	 * : getFiles()) { num += file.getNumberOfCommentsDrafts(userName); } return num; }
-	 */
+	public int getNumberOfVersionedCommentsDefects() {
+		int num = 0;
+		for (CrucibleFileInfo file : getFiles()) {
+			num += file.getNumberOfCommentsDefects();
+		}
+		return num;
+	}
+
+	public int getNumberOfVersionedCommentsDefects(final String userName) {
+		int num = 0;
+		for (CrucibleFileInfo file : getFiles()) {
+			num += file.getNumberOfCommentsDefects(userName);
+		}
+		return num;
+	}
+
+	public int getNumberOfVersionedCommentsDrafts() {
+		int num = 0;
+		for (CrucibleFileInfo file : getFiles()) {
+			num += file.getNumberOfCommentsDrafts();
+		}
+		return num;
+	}
+
+	public int getNumberOfVersionedCommentsDrafts(final String userName) {
+		int num = 0;
+		for (CrucibleFileInfo file : getFiles()) {
+			num += file.getNumberOfCommentsDrafts(userName);
+		}
+		return num;
+	}
+
+	public int getNumberOfGeneralComments(final String userName) {
+		int num = 0;
+		for (Comment comment : getGeneralComments()) {
+			if (comment.getAuthor().getUsername().equals(userName)) {
+				++num;
+			}
+			for (Comment reply : comment.getReplies()) {
+				if (reply.getAuthor().getUsername().equals(userName)) {
+					++num;
+				}
+			}
+		}
+		return num;
+	}
+
 }

@@ -1,14 +1,12 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import junit.framework.TestCase;
 import static junitx.framework.Assert.assertNotEquals;
+import com.spartez.util.junit3.TestUtil;
+import junit.framework.TestCase;
 
 /**
- * Created by IntelliJ IDEA.
- * User: pniewiadomski
- * Date: 2009-07-24
- * Time: 09:26:45
- * To change this template use File | Settings | File Templates.
+ * @author Pawel Niewiadomski
+ * @author Wojciech Seliga
  */
 public class ReviewerTest extends TestCase {
 
@@ -25,9 +23,8 @@ public class ReviewerTest extends TestCase {
 		assertNotEquals(r2, r3);
 		assertNotEquals(r2.hashCode(), r3.hashCode());
 
-		assertEquals(r1, r2);
-		assertEquals(r2, r1);
-		assertEquals(r1.hashCode(), r2.hashCode());
+		TestUtil.assertNotEquals(r1, r2);
+		assertNotEquals(r1.hashCode(), r2.hashCode());
 
 		assertNotEquals(r1, r4);
 

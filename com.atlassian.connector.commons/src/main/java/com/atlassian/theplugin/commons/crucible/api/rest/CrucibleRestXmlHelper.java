@@ -22,6 +22,7 @@ import com.atlassian.connector.commons.misc.IntRangesParser;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.CrucibleVersion;
 import com.atlassian.theplugin.commons.crucible.api.PathAndRevision;
+import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CommitType;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
@@ -169,7 +170,26 @@ public final class CrucibleRestXmlHelper {
         return null;
     }
 
-	private static Review parseReview(final Element reviewNode, String serverUrl, boolean trimWikiMarkers) {
+	public static BasicReview parseBasicReview(String serverUrl, final Element reviewNode, boolean trimWikiMarkers) {
+		final String projectKey = getChildText(reviewNode, "projectKey");
+		final User author = parseUserNode(reviewNode.getChild("author"));
+		final User creator = parseUserNode(reviewNode.getChild("creator"));
+
+		final User moderator = (reviewNode.getChild("moderator") != null)
+				? parseUserNode(reviewNode.getChild("moderator")) : null;
+
+		BasicReview review = new BasicReview(serverUrl, projectKey, author, moderator);
+		review.setCreator(creator);
+		fillAlwaysPresentReviewData(review, reviewNode, serverUrl, trimWikiMarkers);
+		fillMoreDetailedReviewData(review, reviewNode, trimWikiMarkers);
+		// ***** GeneralComments ******
+		// they are returned, but at the moment we don't parse them, as anyway without file comments
+		// this information is incomplete, and one needs to fetch full Review object to get all relevant info
+		return review;
+	}
+
+	public static Review parseFullReview(String serverUrl, String myUsername, final Element reviewNode,
+				boolean trimWikiMarkers) throws ParseException {
 		final String projectKey = getChildText(reviewNode, "projectKey");
 		final User author = parseUserNode(reviewNode.getChild("author"));
 
@@ -177,62 +197,8 @@ public final class CrucibleRestXmlHelper {
 				? parseUserNode(reviewNode.getChild("moderator")) : null;
 
 		Review review = new Review(serverUrl, projectKey, author, moderator);
-		if (reviewNode.getChild("author") != null) {
-			review.setAuthor(author);
-		}
-		if (reviewNode.getChild("creator") != null) {
-			review.setCreator(parseUserNode(reviewNode.getChild("creator")));
-		}
-		review.setCreateDate(parseDateTime(getChildText(reviewNode, "createDate")));
-		review.setCloseDate(parseDateTime(getChildText(reviewNode, "closeDate")));
-        String soo = getChildText(reviewNode, "description");
-        if (trimWikiMarkers) {
-            soo = removeWikiMarkers(soo);
-        }
-        review.setDescription(soo);
-		review.setName(getChildText(reviewNode, "name"));
-		review.setProjectKey(projectKey);
-		review.setRepoName(getChildText(reviewNode, "repoName"));
-
-		String stateString = getChildText(reviewNode, "state");
-		if (!"".equals(stateString)) {
-			review.setState(State.fromValue(stateString));
-		}
-		review.setAllowReviewerToJoin(Boolean.parseBoolean(getChildText(reviewNode, "allowReviewersToJoin")));
-
-		if (reviewNode.getChild("permaId") != null) {
-			PermId permId = new PermId(reviewNode.getChild("permaId").getChild("id").getText());
-			review.setPermId(permId);
-		}
-		review.setSummary(getChildText(reviewNode, "summary"));
-
-		try {
-			review.setMetricsVersion(Integer.valueOf(getChildText(reviewNode, "metricsVersion")));
-		} catch (NumberFormatException e) {
-			review.setMetricsVersion(-1);
-		}
-		return review;
-	}
-
-	public static Review parseReviewNode(String serverUrl, Element reviewNode, boolean trimWikiMarkers) {
-		return parseReview(reviewNode, serverUrl, trimWikiMarkers);
-	}
-
-	public static Review parseDetailedReviewNode(String serverUrl, String myUsername,
-			Element reviewNode, boolean trimWikiMarkers) throws ParseException {
-		final Review review = parseReview(reviewNode, serverUrl, trimWikiMarkers);
-
-		List<Element> reviewersNode = getChildElements(reviewNode, "reviewers");
-		Set<Reviewer> reviewers = new HashSet<Reviewer>();
-		for (Element reviewer : reviewersNode) {
-			List<Element> reviewerNode = getChildElements(reviewer, "reviewer");
-			for (Element element : reviewerNode) {
-				reviewers.add(parseReviewerNode(element));
-			}
-		}
-		review.setReviewers(reviewers);
-
-//		List<CrucibleReviewItemInfo> reviewItems = new ArrayList<CrucibleReviewItemInfo>();
+		fillAlwaysPresentReviewData(review, reviewNode, serverUrl, trimWikiMarkers);
+		fillMoreDetailedReviewData(review, reviewNode, trimWikiMarkers);
 
 		// ***** GeneralComments ******
 		List<Element> generalCommentsNode = getChildElements(reviewNode, "generalComments");
@@ -268,7 +234,7 @@ public final class CrucibleRestXmlHelper {
 		for (Element element : versionedComments) {
 			List<Element> versionedCommentsData = getChildElements(element, "versionedLineCommentData");
 			for (Element versionedElementData : versionedCommentsData) {
-				//ONLY COMMENTS NO FILES
+				// ONLY COMMENTS NO FILES
 				VersionedComment c = parseVersionedCommentNode(review, files, myUsername, versionedElementData,
 						trimWikiMarkers);
 				if (c != null) {
@@ -277,8 +243,52 @@ public final class CrucibleRestXmlHelper {
 			}
 		}
 
-
 		review.setFilesAndVersionedComments(files.values(), comments);
+		return review;
+	}
+
+	private static void fillAlwaysPresentReviewData(BasicReview review, final Element reviewNode, String serverUrl,
+			boolean trimWikiMarkers) {
+		review.setCreateDate(parseDateTime(getChildText(reviewNode, "createDate")));
+		review.setCloseDate(parseDateTime(getChildText(reviewNode, "closeDate")));
+        String soo = getChildText(reviewNode, "description");
+        if (trimWikiMarkers) {
+            soo = removeWikiMarkers(soo);
+        }
+        review.setDescription(soo);
+		review.setName(getChildText(reviewNode, "name"));
+		review.setRepoName(getChildText(reviewNode, "repoName"));
+
+		String stateString = getChildText(reviewNode, "state");
+		if (!"".equals(stateString)) {
+			review.setState(State.fromValue(stateString));
+		}
+		review.setAllowReviewerToJoin(Boolean.parseBoolean(getChildText(reviewNode, "allowReviewersToJoin")));
+
+		if (reviewNode.getChild("permaId") != null) {
+			PermId permId = new PermId(reviewNode.getChild("permaId").getChild("id").getText());
+			review.setPermId(permId);
+		}
+		review.setSummary(getChildText(reviewNode, "summary"));
+
+		try {
+			review.setMetricsVersion(Integer.valueOf(getChildText(reviewNode, "metricsVersion")));
+		} catch (NumberFormatException e) {
+			review.setMetricsVersion(-1);
+		}
+	}
+
+	private static void fillMoreDetailedReviewData(BasicReview review, Element reviewNode, boolean trimWikiMarkers) {
+		List<Element> reviewersNode = getChildElements(reviewNode, "reviewers");
+		Set<Reviewer> reviewers = new HashSet<Reviewer>();
+		for (Element reviewer : reviewersNode) {
+			List<Element> reviewerNode = getChildElements(reviewer, "reviewer");
+			for (Element element : reviewerNode) {
+				reviewers.add(parseReviewerNode(element));
+			}
+		}
+		review.setReviewers(reviewers);
+
 
 		List<Element> transitionsNode = getChildElements(reviewNode, "transitions");
 		List<CrucibleAction> transitions = new ArrayList<CrucibleAction>();
@@ -305,8 +315,6 @@ public final class CrucibleRestXmlHelper {
 			}
 		}
 		review.setActions(actions);
-
-		return review;
 	}
 
 	public static Element addTag(Element root, String tagName, String tagValue) {
@@ -478,12 +486,12 @@ public final class CrucibleRestXmlHelper {
 		return doc;
 	}
 
-	public static Document prepareReviewNode(Review review) {
+	public static Document prepareReviewNode(BasicReview review) {
 		Element reviewData = prepareReviewNodeElement(review);
 		return new Document(reviewData);
 	}
 
-	private static Element prepareReviewNodeElement(Review review) {
+	private static Element prepareReviewNodeElement(BasicReview review) {
 		Element reviewData = new Element("reviewData");
 
 		Element authorElement = new Element("author");
@@ -796,7 +804,8 @@ public final class CrucibleRestXmlHelper {
 		getContent(commentNode).add(replies);
 	}
 
-	public static GeneralComment parseGeneralCommentNode(Review review, @Nullable Comment parentComment, String myUsername,
+	public static GeneralComment parseGeneralCommentNode(Review review, @Nullable Comment parentComment,
+			String myUsername,
                                                              Element reviewCommentNode, boolean trimWikiMarkers) {
 		GeneralComment reviewCommentBean = new GeneralComment(review, parentComment);
 		if (!parseGeneralComment(review, myUsername, reviewCommentBean, reviewCommentNode, trimWikiMarkers)) {

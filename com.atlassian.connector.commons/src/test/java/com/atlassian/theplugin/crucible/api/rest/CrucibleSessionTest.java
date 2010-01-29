@@ -29,9 +29,11 @@ import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
@@ -53,6 +55,7 @@ import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetReviewsCallback
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.MalformedResponseCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
+import com.spartez.util.junit3.TestUtil;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.mortbay.jetty.Server;
 import javax.servlet.http.HttpServletRequest;
@@ -62,6 +65,7 @@ import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import junit.framework.TestCase;
@@ -608,7 +612,7 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		Review response = apiHandler.createReview(review);
+		BasicReview response = apiHandler.createReview(review);
 		assertEquals(review.getAuthor(), response.getAuthor());
 		assertEquals(review.getCreator(), response.getCreator());
 		assertEquals(review.getDescription(), response.getDescription());
@@ -665,7 +669,7 @@ public class CrucibleSessionTest extends TestCase {
 
 		apiHandler.login();
 		Review review = createReviewRequest();
-		Review response = apiHandler.createReviewFromPatch(review, "patch text");
+		BasicReview response = apiHandler.createReviewFromPatch(review, "patch text");
 		assertEquals(review.getAuthor(), response.getAuthor());
 		assertEquals(review.getCreator(), response.getCreator());
 		assertEquals(review.getDescription(), response.getDescription());
@@ -685,7 +689,7 @@ public class CrucibleSessionTest extends TestCase {
 
 		apiHandler.login();
 		Review review = createReviewRequest();
-		Review response = apiHandler.createReviewFromPatch(review, null);
+		BasicReview response = apiHandler.createReviewFromPatch(review, null);
 		assertEquals(review.getAuthor(), response.getAuthor());
 		assertEquals(review.getCreator(), response.getCreator());
 		assertEquals(review.getDescription(), response.getDescription());
@@ -705,7 +709,7 @@ public class CrucibleSessionTest extends TestCase {
 
 		apiHandler.login();
 		Review review = createReviewRequest();
-		Review response = apiHandler.createReviewFromPatch(review, "");
+		BasicReview response = apiHandler.createReviewFromPatch(review, "");
 		assertEquals(review.getAuthor(), response.getAuthor());
 		assertEquals(review.getCreator(), response.getCreator());
 		assertEquals(review.getDescription(), response.getDescription());
@@ -979,6 +983,57 @@ public class CrucibleSessionTest extends TestCase {
 		assertEquals(82, vc2.getToEndLine());
 		assertEquals(new IntRanges(new IntRange(64, 65), new IntRange(79, 80)), vc2.getFromLineRanges());
 		assertEquals(new IntRanges(new IntRange(65, 66), new IntRange(80), new IntRange(82)), vc2.getToLineRanges());
+	}
+
+	private static class ResourceCallback implements JettyMockServer.Callback {
+		private final String resourcePath;
+
+		ResourceCallback(String resourcePath) {
+			this.resourcePath = resourcePath;
+		}
+
+		public void onExpectedRequest(String arg0, HttpServletRequest request, HttpServletResponse response)
+				throws Exception {
+			// assertTrue(request.getPathInfo().endsWith("/rest-service/repositories-v1/changes/PLE/"));
+			new CrucibleMockUtil().copyResource(response.getOutputStream(), resourcePath);
+			response.getOutputStream().flush();
+		}
+
+	}
+
+	public void testGetReviewsForFilter() throws RemoteApiException {
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/rest-service/reviews-v1/filter/open/details", new ResourceCallback(
+				"open-reviews-filter-results-cru-1.6.xml"));
+		CrucibleSession session = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
+		session.login();
+		final List<BasicReview> reviews = session.getReviewsForFilter(PredefinedFilter.Open);
+		mockServer.verify();
+		assertEquals(46, reviews.size());
+
+		BasicReview lastReview = reviews.get(reviews.size() - 1);
+
+		final User user = new User("wseliga", "Wojtek Seliga");
+		assertEquals(user, lastReview.getAuthor());
+		assertEquals(user, lastReview.getModerator());
+		assertEquals(user, lastReview.getCreator());
+		assertEquals("CR-ACC", lastReview.getProjectKey());
+		final Reviewer r1 = new Reviewer("mwent", "Marek Went", false);
+		final Reviewer r2 = new Reviewer("spingel", "Steffen Pingel", true);
+		final Reviewer r3 = new Reviewer("thomas.ehrnhoefer@tasktop.com", "Thomas Ehrnhoefer", true);
+		final Reviewer r4 = new Reviewer("sminto", "Shawn Minto", true);
+
+		TestUtil.assertHasOnlyElements(lastReview.getReviewers(), r1, r2, r3, r4);
+		assertFalse(lastReview.isAllowReviewerToJoin());
+		assertEquals(1, lastReview.getMetricsVersion());
+		assertEquals(State.REVIEW, lastReview.getState());
+		assertEquals("CR-ACC-1", lastReview.getPermId().getId());
+		assertEquals("ACC-27: Eclipse compile error in BambooSessionImpl - stupid mistake?", lastReview.getName());
+		assertTrue(lastReview.getDescription().startsWith("line 378: if (elements"));
+		assertEquals(EnumSet.<CrucibleAction> of(CrucibleAction.VIEW, CrucibleAction.RECOVER, CrucibleAction.SUBMIT,
+				CrucibleAction.ABANDON, CrucibleAction.MODIFY_FILES, CrucibleAction.APPROVE, CrucibleAction.REJECT,
+				CrucibleAction.COMMENT, CrucibleAction.CREATE, CrucibleAction.SUMMARIZE, CrucibleAction.CLOSE,
+				CrucibleAction.REOPEN), lastReview.getActions());
 	}
 
 	private Review getReview(final PermId permId, final String resource, int numRepos) throws RemoteApiException {

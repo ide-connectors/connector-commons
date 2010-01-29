@@ -16,13 +16,6 @@
 
 package com.atlassian.theplugin.crucible.api.rest.cruciblemock;
 
-import static junit.framework.Assert.fail;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import com.atlassian.theplugin.util.AbstractMockUtil;
 
 public final class CrucibleMockUtil extends AbstractMockUtil {
@@ -32,7 +25,8 @@ public final class CrucibleMockUtil extends AbstractMockUtil {
 	public CrucibleMockUtil() {
 	}
 
-    protected String getBase() {
+    @Override
+	protected String getBase() {
         return RESOURCE_BASE;
     }
 }

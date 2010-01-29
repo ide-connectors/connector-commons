@@ -325,7 +325,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					reviews.add(prepareDetailReview(element));
+					reviews.add(parseBasicReview(element));
 				}
 			}
 			for (BasicReview review : reviews) {
@@ -363,7 +363,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					reviews.add(prepareDetailReview(element));
+					reviews.add(parseBasicReview(element));
 				}
 			}
 			for (BasicReview review : reviews) {
@@ -457,7 +457,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					reviews.add(prepareDetailReview(element));
+					reviews.add(parseBasicReview(element));
 				}
 			}
 			for (BasicReview review : reviews) {
@@ -504,7 +504,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	// this method is completely untested - it will almost certainly fail. You were warned!
-	public List<Review> getAllReviewsForFile(String repoName, String path) throws RemoteApiException {
+	public List<BasicReview> getAllReviewsForFile(String repoName, String path) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
@@ -518,14 +518,14 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
-			List<Review> reviews = new ArrayList<Review>();
+			List<BasicReview> reviews = new ArrayList<BasicReview>();
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					reviews.add(prepareDetailReview(element));
+					reviews.add(parseBasicReview(element));
 				}
 			}
-			for (Review review : reviews) {
+			for (BasicReview review : reviews) {
 				updateMetricsMetadata(review);
 			}
 			return reviews;
@@ -554,7 +554,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					return prepareDetailReview(element);
+					return prepareFullDetailReview(element);
 				}
 			}
 			return null;
@@ -594,10 +594,18 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		}
 	}
 
-	private Review prepareDetailReview(Element element) throws RemoteApiException {
+	private BasicReview parseBasicReview(Element element) throws RemoteApiException {
+		// try {
+		return CrucibleRestXmlHelper.parseBasicReview(getBaseUrl(), element, shouldTrimWikiMarkers());
+		// } catch (ParseException e) {
+		// throw new RemoteApiException(e);
+		// }
+	}
+
+	private Review prepareFullDetailReview(Element element) throws RemoteApiException {
 		Review review;
 		try {
-			review = CrucibleRestXmlHelper.parseDetailedReviewNode(
+			review = CrucibleRestXmlHelper.parseFullReview(
 					getBaseUrl(), getUsername(), element, shouldTrimWikiMarkers());
 		} catch (ParseException e) {
 			throw new RemoteApiException(e);
@@ -1167,14 +1175,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         }
 	}
 
-	public Review createReview(Review review) throws RemoteApiException {
+	@Nullable
+	public BasicReview createReview(Review review) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
 		return createReviewFromPatch(review, null);
 	}
 
-	public Review createReviewFromPatch(Review review, String patch) throws RemoteApiException {
+	@Nullable
+	public BasicReview createReviewFromPatch(Review review, String patch) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
@@ -1188,8 +1198,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			List<Element> elements = xpath.selectNodes(doc);
 
 			if (elements != null && !elements.isEmpty()) {
-				return CrucibleRestXmlHelper.parseReviewNode(
-                        getBaseUrl(), elements.iterator().next(), shouldTrimWikiMarkers());
+				return parseBasicReview(elements.iterator().next());
 			}
 			return null;
 		} catch (IOException e) {
@@ -1201,11 +1210,12 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	public Review createReviewFromUpload(Review review, Collection<UploadItem> uploadItems) throws RemoteApiException {
+	@Nullable
+	public BasicReview createReviewFromUpload(Review review, Collection<UploadItem> uploadItems) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
-		Review newReview = createReviewFromPatch(review, null);
+		BasicReview newReview = createReviewFromPatch(review, null);
 
 		try {
 			String urlString = getBaseUrl() + REVIEW_SERVICE + "/" + newReview.getPermId().getId() + ADD_FILE;
@@ -1237,7 +1247,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		return newReview;
 	}
 
-	public Review createReviewFromRevision(Review review, List<String> revisions) throws RemoteApiException {
+	@Nullable
+	public BasicReview createReviewFromRevision(Review review, List<String> revisions) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
@@ -1253,8 +1264,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			List<Element> elements = xpath.selectNodes(doc);
 
 			if (elements != null && !elements.isEmpty()) {
-				return CrucibleRestXmlHelper.parseReviewNode(
-                        getBaseUrl(), elements.iterator().next(), shouldTrimWikiMarkers());
+				return parseBasicReview(elements.iterator().next());
 			}
 			return null;
 		} catch (IOException e) {
@@ -1341,13 +1351,15 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	public Review addRevisionsToReview(PermId permId, String repository, Collection<String> revisions)
+	@Nullable
+	public BasicReview addRevisionsToReview(PermId permId, String repository, Collection<String> revisions)
             throws RemoteApiException {
 
         return addChangesetRevisionsToReview(permId, repository, revisions);
     }
 
-    public Review addFileRevisionsToReview(PermId permId, String repository, List<PathAndRevision> revisions)
+	@Nullable
+	public BasicReview addFileRevisionsToReview(PermId permId, String repository, List<PathAndRevision> revisions)
             throws RemoteApiException {
 
         if (!isLoggedIn()) {
@@ -1369,8 +1381,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
             List<Element> elements = xpath.selectNodes(doc);
 
             if (elements != null && !elements.isEmpty()) {
-                return CrucibleRestXmlHelper.parseReviewNode(
-                        getBaseUrl(), elements.iterator().next(), shouldTrimWikiMarkers());
+				return parseBasicReview(elements.iterator().next());
             }
             return null;
         } catch (IOException e) {
@@ -1382,7 +1393,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
     }
 
-	private Review addChangesetRevisionsToReview(PermId permId, String repository, Collection<String> revisions)
+	@Nullable
+	private BasicReview addChangesetRevisionsToReview(PermId permId, String repository, Collection<String> revisions)
 			throws RemoteApiException {
 
 		if (!isLoggedIn()) {
@@ -1400,8 +1412,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			List<Element> elements = xpath.selectNodes(doc);
 
 			if (elements != null && !elements.isEmpty()) {
-				return CrucibleRestXmlHelper.parseReviewNode(
-                        getBaseUrl(), elements.iterator().next(), shouldTrimWikiMarkers());
+				return parseBasicReview(elements.iterator().next());
 			}
 			return null;
 		} catch (IOException e) {
@@ -1439,7 +1450,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		return;
 	}
 
-	public Review addPatchToReview(PermId permId, String repository, String patch) throws RemoteApiException {
+	@Nullable
+	public BasicReview addPatchToReview(PermId permId, String repository, String patch) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
@@ -1455,8 +1467,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			List<Element> elements = xpath.selectNodes(doc);
 
 			if (elements != null && !elements.isEmpty()) {
-				return CrucibleRestXmlHelper.parseReviewNode(
-                        getBaseUrl(), elements.iterator().next(), shouldTrimWikiMarkers());
+				return parseBasicReview(elements.iterator().next());
 			}
 			return null;
 		} catch (IOException e) {
@@ -1578,7 +1589,9 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         }
     }
 
-    private Review changeReviewState(PermId permId, String action) throws RemoteApiException {
+	// @todo wseliga it even returns less than BasicReview according to Cru API spec
+	@Nullable
+	private BasicReview changeReviewState(PermId permId, String action) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
@@ -1594,7 +1607,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					review = CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), element, shouldTrimWikiMarkers());
+					return parseBasicReview(element);
 				}
 			}
 			return review;
@@ -1624,35 +1637,43 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         }
 	}
 
-	public Review approveReview(PermId permId) throws RemoteApiException {
+	@Nullable
+	public BasicReview approveReview(PermId permId) throws RemoteApiException {
 		return changeReviewState(permId, APPROVE_ACTION);
 	}
 
-	public Review submitReview(PermId permId) throws RemoteApiException {
+	@Nullable
+	public BasicReview submitReview(PermId permId) throws RemoteApiException {
 		return changeReviewState(permId, SUBMIT_ACTION);
 	}
 
-	public Review abandonReview(PermId permId) throws RemoteApiException {
+	@Nullable
+	public BasicReview abandonReview(PermId permId) throws RemoteApiException {
 		return changeReviewState(permId, ABANDON_ACTION);
 	}
 
-	public Review summarizeReview(PermId permId) throws RemoteApiException {
+	@Nullable
+	public BasicReview summarizeReview(PermId permId) throws RemoteApiException {
 		return changeReviewState(permId, SUMMARIZE_ACTION);
 	}
 
-	public Review recoverReview(PermId permId) throws RemoteApiException {
+	@Nullable
+	public BasicReview recoverReview(PermId permId) throws RemoteApiException {
 		return changeReviewState(permId, RECOVER_ACTION);
 	}
 
-	public Review reopenReview(PermId permId) throws RemoteApiException {
+	@Nullable
+	public BasicReview reopenReview(PermId permId) throws RemoteApiException {
 		return changeReviewState(permId, REOPEN_ACTION);
 	}
 
-	public Review rejectReview(PermId permId) throws RemoteApiException {
+	@Nullable
+	public BasicReview rejectReview(PermId permId) throws RemoteApiException {
 		return changeReviewState(permId, REJECT_ACTION);
 	}
 
-	public Review closeReview(PermId permId, String summarizeMessage) throws RemoteApiException {
+	@Nullable
+	public BasicReview closeReview(PermId permId, String summarizeMessage) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
@@ -1672,14 +1693,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			XPath xpath = XPath.newInstance("reviewData");
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
-			Review review = null;
 
 			if (elements != null && !elements.isEmpty()) {
-				for (Element element : elements) {
-					review = CrucibleRestXmlHelper.parseReviewNode(getBaseUrl(), element, shouldTrimWikiMarkers());
-				}
+				return parseBasicReview(elements.get(0));
 			}
-			return review;
+			return null;
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
@@ -1763,7 +1781,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		return authToken != null;
 	}
 
-	public Review addRevisionsToReviewItems(PermId permId, Collection<RevisionData> revisions)
+	@Nullable
+	public BasicReview addRevisionsToReviewItems(PermId permId, Collection<RevisionData> revisions)
 			throws RemoteApiException {
 
 		if (!isLoggedIn()) {
@@ -1783,7 +1802,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					return prepareDetailReview(element);
+					return parseBasicReview(element);
 				}
 			}
 			return null;

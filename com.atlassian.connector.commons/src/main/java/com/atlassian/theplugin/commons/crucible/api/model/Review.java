@@ -31,7 +31,7 @@ import java.util.Set;
  * @author wseliga
  */
 public class Review extends BasicReview {
-	private Set<CrucibleFileInfo> files;
+	private Set<CrucibleFileInfo> files = Collections.emptySet();
 	private List<Comment> generalComments = Collections.emptyList();
 
 	public Review(@NotNull String serverUrl, @NotNull String projectKey, @NotNull User author, @Nullable User moderator) {
@@ -110,7 +110,7 @@ public class Review extends BasicReview {
 		return files;
 	}
 
-	public void setFiles(final Set<CrucibleFileInfo> files) {
+	public void setFiles(@NotNull final Set<CrucibleFileInfo> files) {
 		this.files = files;
 	}
 

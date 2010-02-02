@@ -17,11 +17,11 @@
 package com.atlassian.connector.cfg;
 
 import com.atlassian.theplugin.commons.ServerType;
-import com.atlassian.theplugin.commons.jira.JiraServerData;
 import com.atlassian.theplugin.commons.bamboo.BambooServerData;
 import com.atlassian.theplugin.commons.cfg.ConfigurationListener;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.jira.JiraServerData;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,7 +62,7 @@ public interface ProjectCfgManager {
 
 	Collection<ServerData> getAllServerss(final ServerType serverType);
 
-	ServerData getJiraServerr(ServerId serverId);
+	JiraServerData getJiraServerr(ServerId serverId);
 
 	Collection<BambooServerData> getAllEnabledBambooServerss();
 
@@ -71,7 +71,7 @@ public interface ProjectCfgManager {
 	@Nullable
 	ServerData getEnabledServerr(ServerId serverId);
 
-	ServerData getEnabledJiraServerr(ServerId serverId);
+	JiraServerData getEnabledJiraServerr(ServerId serverId);
 
 	ServerData getCrucibleServerr(ServerId serverId);
 

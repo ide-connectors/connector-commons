@@ -18,7 +18,6 @@ package com.atlassian.theplugin.commons.bamboo.api;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.BambooFileInfo;
-import com.atlassian.theplugin.commons.BambooFileInfoImpl;
 import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
 import com.atlassian.theplugin.commons.bamboo.BambooChangeSetImpl;
@@ -517,7 +516,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 					@SuppressWarnings("unchecked")
 					final List<Element> fileElements = filesPath.selectNodes(doc);
 					for (Element file : fileElements) {
-						BambooFileInfo fileInfo = new BambooFileInfoImpl(file.getAttributeValue("name"),
+						BambooFileInfo fileInfo = new BambooFileInfo(file.getAttributeValue("name"),
 								file.getAttributeValue("revision"));
 						cInfo.addCommitFile(fileInfo);
 					}

@@ -41,6 +41,9 @@ public class CrucibleFileInfo implements VersionedFileInfo {
 	private List<VersionedComment> versionedComments;
 	private static final int HASH_NUMBER = 31;
 
+	public CrucibleFileInfo() {
+	}
+
 	public CrucibleFileInfo(@Nullable VersionedVirtualFile fileDescriptor,
 			@Nullable VersionedVirtualFile oldFileDescriptor,
 			@NotNull PermId permId) {

@@ -15,7 +15,12 @@ import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import org.jetbrains.annotations.Nullable;
 
-public class ReviewModelUtil {
+public final class ReviewModelUtil {
+
+	private ReviewModelUtil() {
+
+	}
+
 	// VersionedComment -> Coment -> Comment -> ***
 	// GeneralComment -> Coment -> Comment -> ***
 	@Nullable

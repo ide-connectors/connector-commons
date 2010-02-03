@@ -45,9 +45,12 @@ public class CommentTest extends TestCase {
 	}
 
 	private GeneralComment createGeneralComment(Review review, Comment parentComment, String permId) {
-		GeneralComment gc1 = new GeneralComment(review, parentComment);
-		gc1.setPermId(new PermId(permId));
-		return gc1;
+		GeneralComment comment = new GeneralComment(review, parentComment);
+		if (parentComment != null) {
+			parentComment.addReply(comment);
+		}
+		comment.setPermId(new PermId(permId));
+		return comment;
 	}
 
 	public void testHasDraftParents() {
@@ -64,5 +67,22 @@ public class CommentTest extends TestCase {
 		assertFalse(gc3.hasDraftParents());
 		assertFalse(gc2.hasDraftParents());
 		assertFalse(gc1.hasDraftParents());
+	}
+
+	public void testRemoveReply() {
+		GeneralComment gc1 = createGeneralComment(r1, null, "gc1");
+		GeneralComment gc2 = createGeneralComment(r1, gc1, "gc1");
+		GeneralComment gc3 = createGeneralComment(r1, gc2, "gc3");
+
+		assertFalse(gc3.removeReply(null));
+
+		assertFalse(gc3.removeReply(gc2));
+		assertFalse(gc1.removeReply(gc3));
+
+		assertTrue(gc2.getReplies().contains(gc3));
+		assertTrue(gc2.removeReply(gc3));
+		assertFalse(gc2.getReplies().contains(gc3));
+		assertFalse(gc2.removeReply(gc3));
+
 	}
 }

@@ -303,15 +303,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	 *             {@link CrucibleSession} directly.
 	 */
 	@Deprecated
-	Comment addGeneralCommentReply(ConnectionCfg server, Comment reply)
-		throws RemoteApiException, ServerPasswordNotProvidedException;
-
-	/**
-	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
-	 *             {@link CrucibleSession} directly.
-	 */
-	@Deprecated
-	VersionedComment addVersionedCommentReply(ConnectionCfg server, Review review, PermId cId, VersionedComment comment)
+	Comment addReply(ConnectionCfg server, Comment reply)
 		throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	/**

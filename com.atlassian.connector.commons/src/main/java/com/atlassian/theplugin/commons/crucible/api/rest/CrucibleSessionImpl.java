@@ -1072,7 +1072,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	public Comment addGeneralCommentReply(Review review, Comment reply)
+	@Nullable
+	public Comment addReply(Review review, Comment reply)
 			throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
@@ -1085,7 +1086,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 		Document request = CrucibleRestXmlHelper.prepareGeneralComment(reply);
 
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + review.getPermId().getId() + COMMENTS + "/"
+		final PermId permId = review.getPermId();
+		if (permId == null) {
+			throw new RemoteApiException("Review must have permId defined");
+		}
+		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + COMMENTS + "/"
 				+ parentComment.getPermId().getId() + REPLIES;
 
 		try {
@@ -1116,47 +1121,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	public VersionedComment addVersionedCommentReply(Review review, PermId cId, VersionedComment comment)
-			throws RemoteApiException {
-		if (!isLoggedIn()) {
-            throwNotLoggedIn();
-        }
-
-		Document request = CrucibleRestXmlHelper.prepareGeneralComment(comment);
-
-		String requestUrl =
-				getBaseUrl() + REVIEW_SERVICE + "/" + review.getPermId().getId() + COMMENTS + "/" + cId.getId() + REPLIES;
-
-		try {
-			Document doc = retrievePostResponse(requestUrl, request);
-
-			XPath xpath = XPath.newInstance("generalCommentData"); // todo lguminski we should change it to reflect model
-			@SuppressWarnings("unchecked")
-			List<Element> elements = xpath.selectNodes(doc);
-
-			if (elements != null && !elements.isEmpty()) {
-				for (Element element : elements) {
-					final Map<PermId, CrucibleFileInfo> fileInfoMap = Collections.singletonMap(comment.getCrucibleFileInfo()
-							.getPermId(), comment.getCrucibleFileInfo());
-					VersionedComment reply = CrucibleRestXmlHelper.parseVersionedCommentNode(review,
-							fileInfoMap, getUsername(), element, shouldTrimWikiMarkers());
-					if (reply != null) {
-						reply.setReply(true);
-					}
-					return reply;
-				}
-			}
-			return null;
-		} catch (IOException e) {
-			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
-		} catch (JDOMException e) {
-            throwMalformedResponseReturned(e);
-		} catch (ParseException e) {
-			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
-		}
-
-        return null;
-	}
 
 	public void updateReply(PermId id, PermId cId, PermId rId, Comment comment) throws RemoteApiException {
 		if (!isLoggedIn()) {

@@ -103,7 +103,7 @@ public class VersionedComment extends Comment {
 
 	@Override
 	protected Comment createReplyBean(Comment reply) {
-		return new VersionedComment((VersionedComment) reply);
+		return new GeneralComment(reply);
 	}
 
 	public void setFromLineRanges(final IntRanges fromLineRanges) {

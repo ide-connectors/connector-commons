@@ -55,7 +55,7 @@ public abstract class Comment {
 
 	private boolean isReply = false;
 
-	private final Map<String, CustomField> customFields = new HashMap<String, CustomField>();;
+	private final Map<String, CustomField> customFields = new HashMap<String, CustomField>();
 	private static final int HASH_INT = 31;
 
 	private final Review review;
@@ -99,6 +99,7 @@ public abstract class Comment {
 
     protected abstract Comment createReplyBean(Comment reply);
 
+	@Nullable
 	public Comment getParentComment() {
 		return parentComment;
 	}
@@ -166,6 +167,15 @@ public abstract class Comment {
     public void addReply(Comment comment) {
         replies.add(comment);
     }
+
+	/**
+	 * Removes reply from this comment.
+	 * @param reply reply to remove
+	 * @return true if given reply was a reply to this comment and was removed, false otherwise
+	 */
+	public boolean removeReply(@Nullable Comment reply) {
+		return replies.remove(reply);
+	}
 
     public List<Comment> getReplies() {
         return replies;
@@ -266,7 +276,8 @@ public abstract class Comment {
 		if (permId != null ? !permId.equals(that.permId) : that.permId != null) {
 			return false;
 		}
-        if (readState != null ? !readState.equals(that.readState) : that.readState != null) {
+		//noinspection RedundantIfStatement
+		if (readState != null ? !readState.equals(that.readState) : that.readState != null) {
             return false;
         }
 
@@ -336,6 +347,7 @@ public abstract class Comment {
 	}
 
 	public boolean hasDraftParents() {
+		//noinspection SimplifiableIfStatement
 		if (parentComment == null) {
 			return false;
 		}

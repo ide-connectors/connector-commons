@@ -153,10 +153,8 @@ public interface CrucibleSession {
 
 	void publishComment(PermId reviewId, PermId commentId) throws RemoteApiException;
 
-	Comment addGeneralCommentReply(Review review, Comment reply) throws RemoteApiException;
-
-	VersionedComment addVersionedCommentReply(Review review, PermId cId, VersionedComment comment)
-			throws RemoteApiException;
+	@Nullable
+	Comment addReply(Review review, Comment reply) throws RemoteApiException;
 
 	void updateReply(PermId id, PermId cId, PermId rId, Comment comment) throws RemoteApiException;
 

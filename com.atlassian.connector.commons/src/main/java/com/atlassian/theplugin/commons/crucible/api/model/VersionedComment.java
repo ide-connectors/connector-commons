@@ -179,7 +179,7 @@ public class VersionedComment extends Comment {
 	public int hashCode() {
 		int result = super.hashCode();
 		result = HASH_INT * result + (lineRanges != null ? lineRanges.hashCode() : 0);
-		return super.hashCode();
+		return result;
 	}
 
 	@Override

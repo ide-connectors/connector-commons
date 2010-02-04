@@ -223,6 +223,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(2, notifications.size());
 		assertTrue(p.isShortEqual());
 		assertTrue(p.isFilesEqual());
+		assertEquals(2, p.getCommentChangesCount());
 		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(0).getType());
 		assertEquals(CrucibleNotificationType.NEW_COMMENT, notifications.get(1).getType());
 	}
@@ -915,7 +916,6 @@ public class ReviewDifferenceProducerTest extends TestCase {
 
 	/**
 	 * Both reviews are the same, except on has file with different revisions
-	 * @throws ValueNotYetInitialized
  	 */
 	public void testRevisionChanged() {
 		final Date dt = new Date();

@@ -11,7 +11,9 @@
 
 package com.atlassian.connector.commons.crucible.api.model;
 
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
+import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewTestUtil;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
@@ -21,7 +23,7 @@ public class ReviewModelUtilTest extends TestCase {
 	public void testGetParentVersionedComment() {
 		Review review = ReviewTestUtil.createReview("http://crucible.atlassian.com/cru/");
 		GeneralComment gc1 = new GeneralComment(review, null);
-		VersionedComment vc1 = new VersionedComment(review, null);
+		VersionedComment vc1 = new VersionedComment(review, new CrucibleFileInfo(null, null, new PermId("fileid")));
 		GeneralComment rc1 = new GeneralComment(review, gc1);
 		GeneralComment rc2 = new GeneralComment(review, rc1);
 

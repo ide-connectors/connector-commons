@@ -42,9 +42,9 @@ public class CrucibleRestXmlHelperTest extends TestCase {
             fail();
         }
 
+        doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_below_220.xml"));
+            elements = xpath.selectNodes(doc);        
         try {
-            doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_below_220.xml"));
-            elements = xpath.selectNodes(doc);
             fileInfo = CrucibleRestXmlHelper.parseReviewItemNode((elements.get(0)));
             assertEquals("CFR-32137", fileInfo.getPermId().getId());
         } catch (ParseException e) {

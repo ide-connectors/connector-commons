@@ -7,6 +7,8 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CrucibleMockUtil;
+import com.spartez.util.junit3.IAction;
+import com.spartez.util.junit3.TestUtil;
 import junit.framework.TestCase;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -26,10 +28,10 @@ import java.util.List;
 public class CrucibleRestXmlHelperTest extends TestCase {
 
     public void testParsePermId() throws JDOMException, IOException {
-         XPath xpath = XPath.newInstance("reviewItem");
+        XPath xpath = XPath.newInstance("reviewItem");
         final SAXBuilder builder = new SAXBuilder();
 
-		Document doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_220_M3.xml"));
+        Document doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_220_M3.xml"));
         List<Element> elements = xpath.selectNodes(doc);
         CrucibleFileInfo fileInfo = null;
 
@@ -41,42 +43,38 @@ public class CrucibleRestXmlHelperTest extends TestCase {
         }
 
         try {
-             doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_below_220.xml"));
+            doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_below_220.xml"));
             elements = xpath.selectNodes(doc);
-
             fileInfo = CrucibleRestXmlHelper.parseReviewItemNode((elements.get(0)));
             assertEquals("CFR-32137", fileInfo.getPermId().getId());
         } catch (ParseException e) {
             fail();
         }
 
+        doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_nopermId.xml"));
+        final List<Element> elements1 = xpath.selectNodes(doc);
+        TestUtil.assertThrows(ParseException.class, new IAction() {
+            public void run() throws Throwable {
+                CrucibleRestXmlHelper.parseReviewItemNode((elements1.get(0)));
+            }
+        });
 
-        try {
-            doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_nopermId.xml"));
-                 elements = xpath.selectNodes(doc);
-            fileInfo = CrucibleRestXmlHelper.parseReviewItemNode((elements.get(0)));
-            fail();
-        } catch( ParseException e){            
-
-        }
-
-
-    try {
-            doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_empty_permId.xml"));
-            elements = xpath.selectNodes(doc);
-            fileInfo = CrucibleRestXmlHelper.parseReviewItemNode((elements.get(0)));
-            fail();
-        } catch ( ParseException e) {
-
-        }        
+        doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_empty_permId.xml"));
+        final List<Element> elements2 = xpath.selectNodes(doc);
+        TestUtil.assertThrows(ParseException.class, new IAction() {
+            public void run() throws Throwable {
+                CrucibleRestXmlHelper.parseReviewItemNode((elements2.get(0)));
+            }
+        });
 
     }
+
     public void testParseProjectNode() throws JDOMException, IOException {
         XPath xpath = XPath.newInstance("projectData");
         final SAXBuilder builder = new SAXBuilder();
-		Document doc = builder.build(new CrucibleMockUtil().getResource("projectDataCrucible1_6.xml"));
-        
-		@SuppressWarnings("unchecked")
+        Document doc = builder.build(new CrucibleMockUtil().getResource("projectDataCrucible1_6.xml"));
+
+        @SuppressWarnings("unchecked")
         List<Element> elements = xpath.selectNodes(doc);
         CrucibleProject cp = CrucibleRestXmlHelper.parseProjectNode(elements.get(0));
 
@@ -91,65 +89,62 @@ public class CrucibleRestXmlHelperTest extends TestCase {
         assertEquals(5, cp.getAllowedReviewers().size());
 
 
-		doc = builder.build(new CrucibleMockUtil().getResource("reviewDetailsResponse-testLineRanges.xml"));
-		xpath = XPath.newInstance("detailedReviewData");
-		elements = xpath.selectNodes(doc);
+        doc = builder.build(new CrucibleMockUtil().getResource("reviewDetailsResponse-testLineRanges.xml"));
+        xpath = XPath.newInstance("detailedReviewData");
+        elements = xpath.selectNodes(doc);
 
-		Review review = null;
-		try {
-			review = CrucibleRestXmlHelper.parseFullReview("http://localhost", "pstefaniak", elements.get(0), false);
-		} catch (ParseException e) {
-			fail(); // check "reviewDetailsResponse-testLineRanges.xml" - should be valid .xml...
-		}
-		assertTrue(review != null);
+        Review review = null;
+        try {
+            review = CrucibleRestXmlHelper.parseFullReview("http://localhost", "pstefaniak", elements.get(0), false);
+        } catch (ParseException e) {
+            fail(); // check "reviewDetailsResponse-testLineRanges.xml" - should be valid .xml...
+        }
+        assertTrue(review != null);
 
-		Iterator<CrucibleFileInfo> it = review.getFiles().iterator();
-		List<VersionedComment> versionedComments = it.next().getVersionedComments();
+        Iterator<CrucibleFileInfo> it = review.getFiles().iterator();
+        List<VersionedComment> versionedComments = it.next().getVersionedComments();
 
-		VersionedComment comment = versionedComments.get(0);
-		assertEquals(comment.getMessage(), "this is yellow coment");
-		assertEquals(comment.getFromStartLine(), 0);
-		assertEquals(comment.getFromEndLine(), 0);
-		assertEquals(comment.getToStartLine(), 0);
-		assertEquals(comment.getToEndLine(), 0);
-		assertNull(comment.getToLineRanges());
-		assertNull(comment.getFromLineRanges());
-		assertNull(comment.getLineRanges());
+        VersionedComment comment = versionedComments.get(0);
+        assertEquals(comment.getMessage(), "this is yellow coment");
+        assertEquals(comment.getFromStartLine(), 0);
+        assertEquals(comment.getFromEndLine(), 0);
+        assertEquals(comment.getToStartLine(), 0);
+        assertEquals(comment.getToEndLine(), 0);
+        assertNull(comment.getToLineRanges());
+        assertNull(comment.getFromLineRanges());
+        assertNull(comment.getLineRanges());
 
-		comment = versionedComments.get(1);
-		assertEquals(comment.getMessage(), "this is green comment");
-		assertEquals(comment.getFromStartLine(), 0);
-		assertEquals(comment.getFromEndLine(), 0);
-		assertEquals(comment.getToStartLine(), 52);
-		assertEquals(comment.getToEndLine(), 52);
-		assertEquals(comment.getToLineRanges(), new IntRanges(new IntRange(52)));
-		assertNull(comment.getFromLineRanges());
-		assertEquals(comment.getLineRanges().get("51224"), new IntRanges(new IntRange(52)));
+        comment = versionedComments.get(1);
+        assertEquals(comment.getMessage(), "this is green comment");
+        assertEquals(comment.getFromStartLine(), 0);
+        assertEquals(comment.getFromEndLine(), 0);
+        assertEquals(comment.getToStartLine(), 52);
+        assertEquals(comment.getToEndLine(), 52);
+        assertEquals(comment.getToLineRanges(), new IntRanges(new IntRange(52)));
+        assertNull(comment.getFromLineRanges());
+        assertEquals(comment.getLineRanges().get("51224"), new IntRanges(new IntRange(52)));
 
-		comment = versionedComments.get(2);
-		assertEquals(comment.getMessage(), "this is red coment");
-		assertEquals(comment.getFromStartLine(), 0);
-		assertEquals(comment.getFromEndLine(), 0);
-		assertEquals(comment.getToStartLine(), 51);
-		assertEquals(comment.getToEndLine(), 51);
-		assertEquals(comment.getToLineRanges(), new IntRanges(new IntRange(51)));
-		assertNull(comment.getFromLineRanges());
-		assertEquals(comment.getLineRanges().get("38347"), new IntRanges(new IntRange(51)));
+        comment = versionedComments.get(2);
+        assertEquals(comment.getMessage(), "this is red coment");
+        assertEquals(comment.getFromStartLine(), 0);
+        assertEquals(comment.getFromEndLine(), 0);
+        assertEquals(comment.getToStartLine(), 51);
+        assertEquals(comment.getToEndLine(), 51);
+        assertEquals(comment.getToLineRanges(), new IntRanges(new IntRange(51)));
+        assertNull(comment.getFromLineRanges());
+        assertEquals(comment.getLineRanges().get("38347"), new IntRanges(new IntRange(51)));
 
-		comment = versionedComments.get(3);
-		assertEquals(comment.getMessage(), "this is blue comment (lines 49, 52, 53)");
-		assertEquals(comment.getFromStartLine(), 49);
-		assertEquals(comment.getFromEndLine(), 53);
-		assertEquals(comment.getToStartLine(), 49);
-		assertEquals(comment.getToEndLine(), 54);
-		assertEquals(comment.getToLineRanges(), new IntRanges(new IntRange(49), new IntRange(53,54)));
-		assertEquals(comment.getFromLineRanges(), new IntRanges(new IntRange(49), new IntRange(52,53)));
-		assertEquals(comment.getLineRanges().get("38347"), new IntRanges(new IntRange(49), new IntRange(52,53)));
-		assertEquals(comment.getLineRanges().get("51224"), new IntRanges(new IntRange(49), new IntRange(53,54)));
-
-
+        comment = versionedComments.get(3);
+        assertEquals(comment.getMessage(), "this is blue comment (lines 49, 52, 53)");
+        assertEquals(comment.getFromStartLine(), 49);
+        assertEquals(comment.getFromEndLine(), 53);
+        assertEquals(comment.getToStartLine(), 49);
+        assertEquals(comment.getToEndLine(), 54);
+        assertEquals(comment.getToLineRanges(), new IntRanges(new IntRange(49), new IntRange(53, 54)));
+        assertEquals(comment.getFromLineRanges(), new IntRanges(new IntRange(49), new IntRange(52, 53)));
+        assertEquals(comment.getLineRanges().get("38347"), new IntRanges(new IntRange(49), new IntRange(52, 53)));
+        assertEquals(comment.getLineRanges().get("51224"), new IntRanges(new IntRange(49), new IntRange(53, 54)));
 
 
-
-	}
+    }
 }

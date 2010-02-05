@@ -532,9 +532,9 @@ public final class CrucibleRestXmlHelper {
     private static PermId parsePermId(final Element permIdNode) throws ParseException {
         if (permIdNode != null) {
             final Element childId = permIdNode.getChild("id");
-            if (childId != null && childId.getText() != null && !childId.getText().isEmpty()) {
+            if (childId != null && childId.getText() != null && !(childId.getText().length() <= 0)) {
                 return new PermId(childId.getText());
-            } else if (permIdNode.getText() != null && !permIdNode.getText().isEmpty()) {
+            } else if (permIdNode.getText() != null && !(permIdNode.getText().length() <= 0)) {
                 return new PermId(permIdNode.getText());
             }
         }

@@ -24,6 +24,53 @@ import java.util.List;
  * @date Sep 17, 2009
  */
 public class CrucibleRestXmlHelperTest extends TestCase {
+
+    public void testParsePermId() throws JDOMException, IOException {
+         XPath xpath = XPath.newInstance("reviewItem");
+        final SAXBuilder builder = new SAXBuilder();
+
+		Document doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_220_M3.xml"));
+        List<Element> elements = xpath.selectNodes(doc);
+        CrucibleFileInfo fileInfo = null;
+
+        try {
+            fileInfo = CrucibleRestXmlHelper.parseReviewItemNode((elements.get(0)));
+            assertEquals("CFR-32137", fileInfo.getPermId().getId());
+        } catch (ParseException e) {
+            fail();
+        }
+
+        try {
+             doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_below_220.xml"));
+            elements = xpath.selectNodes(doc);
+
+            fileInfo = CrucibleRestXmlHelper.parseReviewItemNode((elements.get(0)));
+            assertEquals("CFR-32137", fileInfo.getPermId().getId());
+        } catch (ParseException e) {
+            fail();
+        }
+
+
+        try {
+            doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_nopermId.xml"));
+                 elements = xpath.selectNodes(doc);
+            fileInfo = CrucibleRestXmlHelper.parseReviewItemNode((elements.get(0)));
+            fail();
+        } catch( ParseException e){            
+
+        }
+
+
+    try {
+            doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_empty_permId.xml"));
+            elements = xpath.selectNodes(doc);
+            fileInfo = CrucibleRestXmlHelper.parseReviewItemNode((elements.get(0)));
+            fail();
+        } catch ( ParseException e) {
+
+        }        
+
+    }
     public void testParseProjectNode() throws JDOMException, IOException {
         XPath xpath = XPath.newInstance("projectData");
         final SAXBuilder builder = new SAXBuilder();

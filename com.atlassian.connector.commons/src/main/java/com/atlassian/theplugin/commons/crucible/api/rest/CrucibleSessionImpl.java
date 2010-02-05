@@ -65,6 +65,7 @@ import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -823,6 +824,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
             throwMalformedResponseReturned(e);
+        } catch (ParseException e) {
+            throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
         }
 
         return null;

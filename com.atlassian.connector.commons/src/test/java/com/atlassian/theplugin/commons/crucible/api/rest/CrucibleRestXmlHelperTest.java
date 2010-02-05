@@ -28,7 +28,7 @@ import java.util.List;
 public class CrucibleRestXmlHelperTest extends TestCase {
 
     public void testParsePermId() throws JDOMException, IOException {
-        XPath xpath = XPath.newInstance("reviewItem");
+        final XPath xpath = XPath.newInstance("reviewItem");
         final SAXBuilder builder = new SAXBuilder();
 
         Document doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_220_M3.xml"));
@@ -51,19 +51,19 @@ public class CrucibleRestXmlHelperTest extends TestCase {
             fail();
         }
 
-        doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_nopermId.xml"));
-        final List<Element> elements1 = xpath.selectNodes(doc);
         TestUtil.assertThrows(ParseException.class, new IAction() {
             public void run() throws Throwable {
-                CrucibleRestXmlHelper.parseReviewItemNode((elements1.get(0)));
+                Document doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_nopermId.xml"));
+                List<Element> elements = xpath.selectNodes(doc);
+                CrucibleRestXmlHelper.parseReviewItemNode((elements.get(0)));
             }
         });
 
-        doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_empty_permId.xml"));
-        final List<Element> elements2 = xpath.selectNodes(doc);
         TestUtil.assertThrows(ParseException.class, new IAction() {
             public void run() throws Throwable {
-                CrucibleRestXmlHelper.parseReviewItemNode((elements2.get(0)));
+                Document doc = builder.build(new CrucibleMockUtil().getResource("reviewItemNode_empty_permId.xml"));
+                List<Element> elements = xpath.selectNodes(doc);
+                CrucibleRestXmlHelper.parseReviewItemNode((elements.get(0)));
             }
         });
 

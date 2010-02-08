@@ -16,20 +16,22 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import org.jetbrains.annotations.NotNull;
+
 public class Reviewer extends User {
 	private final boolean completed;
 
-	public Reviewer(final String userName, final boolean completed) {
+	public Reviewer(@NotNull final String userName, final boolean completed) {
 		super(userName);
 		this.completed = completed;
 	}
 
-	public Reviewer(final String userName, final String displayName, final boolean completed) {
+	public Reviewer(@NotNull final String userName, final String displayName, final boolean completed) {
 		super(userName, displayName);
 		this.completed = completed;
 	}
 
-	public Reviewer(final String userName, final String displayName) {
+	public Reviewer(@NotNull final String userName, final String displayName) {
 		this(userName, displayName, false);
     }
 

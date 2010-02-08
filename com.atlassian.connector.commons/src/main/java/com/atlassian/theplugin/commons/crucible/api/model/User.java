@@ -16,6 +16,7 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.io.Serializable;
 
@@ -25,6 +26,7 @@ import java.io.Serializable;
 public class User implements Serializable {
     private static final int HASH_MAGIC = 31;
 
+	@NotNull
     protected String userName;
 	@Nullable
 	protected String displayName;
@@ -35,7 +37,7 @@ public class User implements Serializable {
         this.userName = userName;
     }
 
-    public User(String userName, String displayName) {
+	public User(@NotNull String userName, String displayName) {
         this.userName = userName;
         this.displayName = displayName;
     }
@@ -48,7 +50,8 @@ public class User implements Serializable {
 		return avatarUrl;
 	}
 
-    public String getUsername() {
+	@NotNull
+	public String getUsername() {
         return userName;
     }
 

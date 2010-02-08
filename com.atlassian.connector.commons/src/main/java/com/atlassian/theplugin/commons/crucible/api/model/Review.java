@@ -120,21 +120,24 @@ public class Review extends BasicReview {
 			if (comment.isDraft()) {
 				++num;
 			}
-			for (Comment reply : comment.getReplies()) {
-				if (reply.isDraft()) {
-					++num;
-				}
-			}
+			num += comment.getNumberOfDraftReplies();
 		}
 		return num;
 	}
 
+	/**
+	 * This method does not work for nested replies!
+	 * 
+	 * @deprecated Crucible does not serve any longer info about other users drafts in this form. It serves just the stats.
+	 */
+	@Deprecated
 	public int getNumberOfGeneralCommentsDrafts(final String userName) {
 		int num = 0;
 		for (Comment comment : getGeneralComments()) {
 			if (comment.isDraft() && comment.getAuthor().getUsername().equals(userName)) {
 				++num;
 			}
+			num += comment.getNumberOfDraftReplies();
 			for (Comment reply : comment.getReplies()) {
 				if (reply.isDraft() && reply.getAuthor().getUsername().equals(userName)) {
 					++num;
@@ -249,6 +252,12 @@ public class Review extends BasicReview {
 		return num;
 	}
 
+	/**
+	 * This method does not work for nested replies!
+	 * 
+	 * @deprecated Crucible does not serve any longer info about other users drafts in this form. It serves just the stats.
+	 */
+	@Deprecated
 	public int getNumberOfVersionedCommentsDrafts(final String userName) {
 		int num = 0;
 		for (CrucibleFileInfo file : getFiles()) {

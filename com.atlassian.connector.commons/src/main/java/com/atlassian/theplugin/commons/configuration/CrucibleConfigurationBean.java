@@ -25,9 +25,9 @@ public class CrucibleConfigurationBean {
     private static final int DEFAULT_REVIEW_CREATION_TIMEOUT = 5;
     private static final int MIN_REVIEW_CREATION_TIMEOUT = 1;
     private int reviewCreationTimeout = DEFAULT_REVIEW_CREATION_TIMEOUT;
-    public static final int DEFAULT_REVIEW_FILE_CACHE_SIZE = 100;
-    public static final int MIN_REVIEW_FILE_CACHE_SIZE = 50;
-    public static final int MAX_REVIEW_FILE_CACHE_SIZE = 1000;
+    public static final int DEFAULT_REVIEW_FILE_CACHE_SIZE = 10;
+    public static final int MIN_REVIEW_FILE_CACHE_SIZE = 10;
+    public static final int MAX_REVIEW_FILE_CACHE_SIZE = 128;
     private int reviewFileCacheSize = DEFAULT_REVIEW_FILE_CACHE_SIZE;
 
     public CrucibleConfigurationBean() {

@@ -47,6 +47,17 @@ public interface ProjectCfgManager {
 
 	String getFishEyeProjectPath();
 
+	/**
+	 * Finds server with specified url in collection of servers (exact String match).
+	 * It tries to find enabled server. If not found then tries to find disabled server.
+	 * If the above failed then it tries to compare host, port and path (skips protocol and query string)
+	 *
+	 * @param serverUrl url of server
+	 * @param servers   collection of servers
+	 * @return ServerData or null if not found
+	 */
+	ServerData findServer(final String serverUrl, final Collection<ServerData> servers);
+
 	@Deprecated
 	ServerCfg getServer(ServerId serverId);
 
@@ -95,4 +106,5 @@ public interface ProjectCfgManager {
 	Collection<ServerCfg> getAllEnabledServers(ServerType serverType);
 
     Collection<ServerData> getAllEnabledCrucibleServersContainingFisheye();
+
 }

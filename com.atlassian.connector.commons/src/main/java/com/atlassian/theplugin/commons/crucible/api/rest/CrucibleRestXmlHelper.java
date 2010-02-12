@@ -649,7 +649,8 @@ public final class CrucibleRestXmlHelper {
 
     @Nullable
     private static VersionedComment parseVersionedComment(Review review, String myUsername, Element reviewCommentNode,
-                                                          boolean trimWikiMarkers, Map<PermId, CrucibleFileInfo> crucibleFileInfos) throws ParseException {
+                                                          boolean trimWikiMarkers, Map<PermId,
+                    CrucibleFileInfo> crucibleFileInfos) throws ParseException {
 
         // read following xml
         // <reviewItemId>
@@ -856,8 +857,10 @@ public final class CrucibleRestXmlHelper {
     }
 
     @Nullable
-    public static VersionedComment parseVersionedCommentNode(Review review, Map<PermId, CrucibleFileInfo> crucibleFileInfos,
-                                                             String myUsername, Element reviewCommentNode, boolean trimWikiMarkers) throws ParseException {
+    public static VersionedComment parseVersionedCommentNode(Review review, Map<PermId,
+                                                             CrucibleFileInfo> crucibleFileInfos,
+                                                             String myUsername, Element reviewCommentNode,
+                                                             boolean trimWikiMarkers) throws ParseException {
 
         final VersionedComment comment =
                 parseVersionedComment(review, myUsername, reviewCommentNode, trimWikiMarkers, crucibleFileInfos);

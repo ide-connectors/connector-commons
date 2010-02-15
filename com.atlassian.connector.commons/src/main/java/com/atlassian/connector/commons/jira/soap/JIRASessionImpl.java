@@ -68,6 +68,7 @@ import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.util.HttpConfigurableAdapter;
 import com.atlassian.theplugin.commons.util.Logger;
 import org.apache.axis.AxisProperties;
+import org.apache.commons.codec.binary.Base64;
 import org.xml.sax.SAXException;
 
 import javax.xml.rpc.ServiceException;
@@ -376,6 +377,24 @@ public class JIRASessionImpl implements JIRASession {
             throw new RemoteApiException(e.toString(), e);
         }
     }
+
+	public void addAttachment(String issueKey, String name, byte[] content) throws RemoteApiException {
+		try {
+			Base64 base64 = new Base64();
+			byte[] bytes = base64.encode(content);
+			String encoded = new String(bytes);
+
+			String[] names = new String[] {name};
+//			byte[][] contentsByte = new byte[][] {content};
+			String[] encodedContents = new String[] {encoded};
+
+//			service.addAttachmentsToIssue(token, issueKey, names, contentsByte);
+			service.addBase64EncodedAttachmentsToIssue(token, issueKey, names, encodedContents);
+
+		} catch (RemoteException e) {
+			throw new RemoteApiException(e.toString(), e);
+		}
+	}
 
     public List<JIRAProject> getProjects() throws RemoteApiException {
         try {

@@ -47,6 +47,8 @@ public interface JIRASession {
 
 	void addComment(String issueKey, String comment) throws RemoteApiException;
 
+	void addAttachment(String issueKey, String name, byte[] content) throws RemoteApiException;
+
 	JIRAIssue createIssue(JIRAIssue issue) throws RemoteApiException;
 
 	JIRAIssue getIssueDetails(JIRAIssue issue) throws RemoteApiException;

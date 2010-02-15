@@ -251,6 +251,17 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
 		}
 	}
 
+	public void addAttachment(HttpConnectionCfg httpConnectionCfg, String issueKey, String name, byte[] content)
+			throws JIRAException {
+		try {
+			JIRASession soap = getSoapSession(httpConnectionCfg);
+			soap.addAttachment(issueKey, name, content);
+		} catch (RemoteApiException e) {
+			soapSessions.remove(getSoapSessionKey(httpConnectionCfg));
+			throw new JIRAException(e.getMessage(), e);
+		}
+	}
+
 	public JIRAIssue createIssue(HttpConnectionCfg httpConnectionCfg, JIRAIssue issue) throws JIRAException {
 		try {
 			JIRASession soap = getSoapSession(httpConnectionCfg);

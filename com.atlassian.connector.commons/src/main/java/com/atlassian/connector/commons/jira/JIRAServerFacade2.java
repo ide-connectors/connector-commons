@@ -87,6 +87,8 @@ public interface JIRAServerFacade2 extends ProductServerFacade {
 
 	void addComment(HttpConnectionCfg httpConnectionCfg, String issueKey, String comment) throws JIRAException;
 
+	void addAttachment(HttpConnectionCfg httpConnectionCfg, String issueKey, String name, byte[] content) throws JIRAException;
+
 	JIRAIssue createIssue(HttpConnectionCfg httpConnectionCfg, JIRAIssue issue) throws JIRAException;
 
 	JIRAIssue getIssue(HttpConnectionCfg httpConnectionCfg, String key) throws JIRAException;

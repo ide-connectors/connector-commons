@@ -378,23 +378,23 @@ public class JIRASessionImpl implements JIRASession {
         }
     }
 
-	public void addAttachment(String issueKey, String name, byte[] content) throws RemoteApiException {
-		try {
-			Base64 base64 = new Base64();
-			byte[] bytes = base64.encode(content);
-			String encoded = new String(bytes);
+    public void addAttachment(String issueKey, String name, byte[] content) throws RemoteApiException {
+        try {
+            Base64 base64 = new Base64();
+            byte[] bytes = base64.encode(content);
+            String encoded = new String(bytes);
 
-			String[] names = new String[] {name};
+            String[] names = new String[]{name};
 //			byte[][] contentsByte = new byte[][] {content};
-			String[] encodedContents = new String[] {encoded};
+            String[] encodedContents = new String[]{encoded};
 
 //			service.addAttachmentsToIssue(token, issueKey, names, contentsByte);
-			service.addBase64EncodedAttachmentsToIssue(token, issueKey, names, encodedContents);
+            service.addBase64EncodedAttachmentsToIssue(token, issueKey, names, encodedContents);
 
-		} catch (RemoteException e) {
-			throw new RemoteApiException(e.toString(), e);
-		}
-	}
+        } catch (RemoteException e) {
+            throw new RemoteApiException(e.toString(), e);
+        }
+    }
 
     public List<JIRAProject> getProjects() throws RemoteApiException {
         try {
@@ -579,6 +579,19 @@ public class JIRASessionImpl implements JIRASession {
             throw new RemoteApiException(e.toString(), e);
         }
     }
+
+    public void setReporter(JIRAIssue issue, String reporter) throws RemoteApiException {
+        RemoteFieldValue v = new RemoteFieldValue();
+        RemoteFieldValue[] vTable = {v};
+        v.setId("reporter");
+        v.setValues(new String[]{reporter});
+        try {
+            service.updateIssue(token, issue.getKey(), vTable);
+        } catch (RemoteException e) {
+            throw new RemoteApiException(e.toString(), e);
+        }
+    }
+
 
     public List<JIRAAction> getAvailableActions(JIRAIssue issue) throws RemoteApiException {
         try {

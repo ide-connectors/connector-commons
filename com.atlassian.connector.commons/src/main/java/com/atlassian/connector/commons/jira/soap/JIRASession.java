@@ -90,4 +90,6 @@ public interface JIRASession {
 	boolean isLoggedIn();
 
     Collection<JIRAAttachment> getIssueAttachements(JIRAIssue issue) throws RemoteApiException;
+
+    void setReporter(JIRAIssue issue, String reporter) throws RemoteApiException;
 }

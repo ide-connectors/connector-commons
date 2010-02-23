@@ -108,4 +108,6 @@ public interface JIRAServerFacade2 extends ProductServerFacade {
 
     Collection<JIRAAttachment> getIssueAttachements(HttpConnectionCfg httpConnectionCfg, JIRAIssue issue)
             throws JIRAException;
+
+    void setReporter(HttpConnectionCfg httpConnectionCfg, JIRAIssue issue, String reporter) throws JIRAException;
 }

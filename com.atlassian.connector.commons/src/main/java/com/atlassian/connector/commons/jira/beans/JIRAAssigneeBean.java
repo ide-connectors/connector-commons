@@ -27,7 +27,7 @@ public class JIRAAssigneeBean extends JIRAUserBean {
 	}
 
 	public JIRAAssigneeBean(String name, String value) {
-		super((long)-1, name, value);
+		super((long) -1, name, value);
 	}
 	public JIRAAssigneeBean(Map<String, String> map) {
 		super(map);

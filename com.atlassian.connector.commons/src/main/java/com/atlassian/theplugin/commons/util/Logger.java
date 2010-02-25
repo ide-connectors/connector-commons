@@ -17,11 +17,8 @@
 package com.atlassian.theplugin.commons.util;
 
 /**
- * Created by IntelliJ IDEA.
- * User: Jacek
- * Date: 2008-05-02
- * Time: 12:24:36
- * To change this template use File | Settings | File Templates.
+ * @author Jacek
+ * @date 2008-05-02
  */
 public interface Logger {
 	boolean isDebugEnabled();

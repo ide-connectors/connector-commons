@@ -16,6 +16,7 @@
 
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
+import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
 import com.atlassian.connector.commons.misc.IntRanges;
 import com.atlassian.connector.commons.misc.IntRangesParser;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
@@ -63,7 +64,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,8 +73,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
 
 public final class CrucibleRestXmlHelper {
     private static final String CDATA_END = "]]>";
@@ -899,6 +897,18 @@ public final class CrucibleRestXmlHelper {
         Element child = reviewCommentNode.getChild("lineRanges");
         if (child != null) {
             parseAndFillLineRanges(comment, child);
+		} else {
+			CrucibleFileInfo fileInfo = comment.getCrucibleFileInfo();
+			Map<String, IntRanges> ranges = MiscUtil.buildHashMap();
+			if (fileInfo.getFileDescriptor() != null && comment.getToLineRanges() != null) {
+				ranges.put(fileInfo.getFileDescriptor().getRevision(), comment.getToLineRanges());
+			}
+			if (fileInfo.getOldFileDescriptor() != null && comment.getFromLineRanges() != null) {
+				ranges.put(fileInfo.getOldFileDescriptor().getRevision(), comment.getFromLineRanges());
+			}
+			if (ranges.size() > 0) {
+				comment.setLineRanges(ranges);
+			}
         }
         return comment;
     }

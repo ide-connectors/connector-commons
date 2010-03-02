@@ -161,7 +161,11 @@ public abstract class Comment {
 	}
 
     public void setReplies(List<Comment> replies) {
-        this.replies = replies;
+		if (replies == null) {
+			this.replies = new ArrayList<Comment>();
+		} else {
+        	this.replies = replies;
+		}
     }
 
     public void addReply(Comment comment) {
@@ -302,9 +306,6 @@ public abstract class Comment {
 	}
 
 	public int getNumReplies() {
-		if (replies == null) {
-			return 0;
-		}
 		int res = replies.size();
 		for (Comment reply : replies) {
 			res += reply.getNumReplies();
@@ -313,10 +314,6 @@ public abstract class Comment {
 	}
 
 	public int getNumberOfUnreadReplies() {
-		if (replies == null) {
-			return 0;
-		}
-
 		int counter = 0;
 		for (Comment reply : replies) {
 			if (reply.isEffectivelyUnread()) {
@@ -328,10 +325,6 @@ public abstract class Comment {
 	}
 
 	public int getNumberOfDraftReplies() {
-		if (replies == null) {
-			return 0;
-		}
-
 		int counter = 0;
 		for (Comment reply : replies) {
 			if (reply.isDraft()) {

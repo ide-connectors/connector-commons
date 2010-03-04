@@ -32,7 +32,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
 import com.atlassian.theplugin.commons.crucible.api.model.RevisionData;
 import com.atlassian.theplugin.commons.crucible.api.model.State;
-import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.crucible.api.model.changes.Changes;
@@ -137,7 +136,7 @@ public interface CrucibleSession {
 
 	List<Repository> getRepositories() throws RemoteApiException;
 
-	SvnRepository getRepository(String repoName) throws RemoteApiException;
+	Repository getRepository(String repoName) throws RemoteApiException;
 
 	Set<CrucibleFileInfo> getFiles(PermId id) throws RemoteApiException;
 

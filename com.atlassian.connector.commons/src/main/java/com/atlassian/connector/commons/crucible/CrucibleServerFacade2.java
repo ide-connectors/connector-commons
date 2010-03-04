@@ -28,7 +28,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
-import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
@@ -340,7 +339,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	 *             {@link CrucibleSession} directly.
 	 */
 	@Deprecated
-	SvnRepository getRepository(ConnectionCfg server, String repoName) throws RemoteApiException,
+	Repository getRepository(ConnectionCfg server, String repoName) throws RemoteApiException,
 		ServerPasswordNotProvidedException;
 
 	/**

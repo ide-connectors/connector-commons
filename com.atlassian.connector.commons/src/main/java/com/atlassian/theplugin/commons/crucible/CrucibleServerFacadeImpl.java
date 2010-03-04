@@ -39,7 +39,6 @@ import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
-import com.atlassian.theplugin.commons.crucible.api.model.SvnRepository;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
@@ -511,7 +510,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 		return session.getRepositories();
 	}
 
-	public SvnRepository getRepository(ConnectionCfg server, String repoName) throws RemoteApiException,
+	public Repository getRepository(ConnectionCfg server, String repoName) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getRepository(repoName);

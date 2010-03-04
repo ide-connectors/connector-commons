@@ -65,7 +65,6 @@ import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -174,7 +173,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	private String authToken;
 
-	private final Map<String, SvnRepository> repositories = new HashMap<String, SvnRepository>();
+	private final Map<String, Repository> repositories = new HashMap<String, Repository>();
 
 	private final Map<String, List<CustomFieldDef>> metricsDefinitions = new HashMap<String, List<CustomFieldDef>>();
 
@@ -578,12 +577,12 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		String[] repoNameTokens = repoName.split(":");
 
 		if (!repositories.containsKey(repoName)) {
-			SvnRepository repository = getRepository(repoNameTokens.length > 1 ? repoNameTokens[1] : repoNameTokens[0]);
+			Repository repository = getRepository(repoNameTokens.length > 1 ? repoNameTokens[1] : repoNameTokens[0]);
 			repositories.put(repoName, repository);
 		}
-		SvnRepository repository = repositories.get(repoName);
-		if (repository != null) {
-			String repoPath = repository.getUrl() + "/" + repository.getPath() + "/";
+		Repository repository = repositories.get(repoName);
+		if (repository != null && repository instanceof SvnRepository) {
+			String repoPath = ((SvnRepository) repository).getUrl() + "/" + ((SvnRepository) repository).getPath() + "/";
 			VersionedVirtualFile oldDescriptor = fileInfo.getOldFileDescriptor();
 			if (!oldDescriptor.getUrl().equals("")) {
 				oldDescriptor.setRepoUrl(repoPath);
@@ -596,11 +595,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	private BasicReview parseBasicReview(Element element) throws RemoteApiException {
-		// try {
 		return CrucibleRestXmlHelper.parseBasicReview(getBaseUrl(), element, shouldTrimWikiMarkers());
-		// } catch (ParseException e) {
-		// throw new RemoteApiException(e);
-		// }
 	}
 
 	private Review prepareFullDetailReview(Element element) throws RemoteApiException {
@@ -766,7 +761,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
 	}
 
-	public SvnRepository getRepository(String repoName) throws RemoteApiException {
+	public Repository getRepository(String repoName) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
@@ -791,6 +786,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 					} catch (JDOMException e) {
                         throwMalformedResponseReturned(e);
                     }
+				} else {
+					return repository;
 				}
 			}
 		}

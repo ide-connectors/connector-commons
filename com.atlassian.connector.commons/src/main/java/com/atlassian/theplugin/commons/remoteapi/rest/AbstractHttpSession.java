@@ -44,7 +44,6 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -59,8 +58,6 @@ import java.util.WeakHashMap;
  * immutable then this may be the cause of races
  */
 public abstract class AbstractHttpSession {
-	protected HttpClient client;
-
 	@NotNull
 	private final HttpSessionCallback callback;
 
@@ -185,12 +182,11 @@ public abstract class AbstractHttpSession {
 		UrlUtil.validateUrl(urlString);
 		setUrl(urlString);
 		synchronized (clientLock) {
-			if (client == null) {
-				try {
-					client = callback.getHttpClient(server);
-				} catch (HttpProxySettingsException e) {
-					throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
-                }
+			HttpClient client;
+			try {
+				client = callback.getHttpClient(server);
+			} catch (HttpProxySettingsException e) {
+				throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
 			}
 
 			GetMethod method;
@@ -237,12 +233,11 @@ public abstract class AbstractHttpSession {
 		UrlUtil.validateUrl(urlString);
 		setUrl(urlString);
 		synchronized (clientLock) {
-			if (client == null) {
-				try {
-					client = callback.getHttpClient(server);
-				} catch (HttpProxySettingsException e) {
-					throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
-				}
+			HttpClient client;
+			try {
+				client = callback.getHttpClient(server);
+			} catch (HttpProxySettingsException e) {
+				throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
 			}
 
 			GetMethod method;
@@ -350,12 +345,11 @@ public abstract class AbstractHttpSession {
 		}
 		Document doc = null;
 		synchronized (clientLock) {
-			if (client == null) {
-				try {
-					client = callback.getHttpClient(server);
-				} catch (HttpProxySettingsException e) {
-					throw new RemoteApiException("Connection error. Please set up HTTP Proxy settings", e);
-				}
+			HttpClient client;
+			try {
+				client = callback.getHttpClient(server);
+			} catch (HttpProxySettingsException e) {
+				throw new RemoteApiException("Connection error. Please set up HTTP Proxy settings", e);
 			}
 
 			PostMethod method = new PostMethod(urlString);
@@ -430,13 +424,12 @@ public abstract class AbstractHttpSession {
 		Document doc = null;
 
 		synchronized (clientLock) {
-			if (client == null) {
-				try {
-					client = callback.getHttpClient(server);
-				} catch (HttpProxySettingsException e) {
-					throw new RemoteApiException("Connection error to [" + urlString
-							+ "]. Please set up HTTP Proxy settings", e);
-				}
+			HttpClient client;
+			try {
+				client = callback.getHttpClient(server);
+			} catch (HttpProxySettingsException e) {
+				throw new RemoteApiException("Connection error to [" + urlString
+						+ "]. Please set up HTTP Proxy settings", e);
 			}
 
 			PostMethod method = new PostMethod(urlString);
@@ -542,12 +535,11 @@ public abstract class AbstractHttpSession {
 
 		Document doc = null;
 		synchronized (clientLock) {
-			if (client == null) {
-				try {
-					client = callback.getHttpClient(server);
-				} catch (HttpProxySettingsException e) {
-					throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
-				}
+			HttpClient client;
+			try {
+				client = callback.getHttpClient(server);
+			} catch (HttpProxySettingsException e) {
+				throw createIOException("Connection error. Please set up HTTP Proxy settings", e);
 			}
 
 			DeleteMethod method = new DeleteMethod(urlString);

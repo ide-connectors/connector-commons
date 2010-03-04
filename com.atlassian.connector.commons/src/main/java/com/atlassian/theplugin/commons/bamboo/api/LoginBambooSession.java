@@ -132,7 +132,6 @@ public class LoginBambooSession extends AbstractHttpSession implements ProductSe
 		}
 
 		authToken = null;
-		client = null;
 	}
 
 	public boolean isLoggedIn() {

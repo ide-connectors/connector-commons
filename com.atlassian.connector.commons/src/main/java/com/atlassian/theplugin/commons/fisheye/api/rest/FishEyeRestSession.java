@@ -178,7 +178,6 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 
 		authToken = null;
 		loggedIn = false;
-		client = null;
 	}
 
 	public boolean isLoggedIn() {

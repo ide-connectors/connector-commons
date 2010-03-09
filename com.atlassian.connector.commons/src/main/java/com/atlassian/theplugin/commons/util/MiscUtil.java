@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class MiscUtil {
@@ -61,12 +62,24 @@ public final class MiscUtil {
 		return new LinkedHashSet<T>(Arrays.asList(elements));
 	}
 
+	public static <T> TreeSet<T> buildTreeSet(T... elements) {
+		return new TreeSet<T>(Arrays.asList(elements));
+	}
+
 	public static <T> Set<T> buildLinkedHashSet() {
 		return new LinkedHashSet<T>();
 	}
 
+	public static <T> TreeSet<T> buildTreeSet() {
+		return new TreeSet<T>();
+	}
+
 	public static <T> Set<T> buildHashSet(Collection<T> elements) {
 		return new HashSet<T>(elements);
+	}
+
+	public static <T> TreeSet<T> buildTreeSet(Collection<T> elements) {
+		return new TreeSet<T>(elements);
 	}
 
     public static <T> ArrayList<T> buildArrayList() {

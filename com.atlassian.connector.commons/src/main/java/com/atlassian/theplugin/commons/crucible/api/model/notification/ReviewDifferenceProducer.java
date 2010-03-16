@@ -243,11 +243,19 @@ public class ReviewDifferenceProducer {
 			for (CrucibleFileInfo fileInfo : aNewReview.getFiles()) {
 				allNewComments = getAllCommentsRecursively(fileInfo.getVersionedComments());
 				for (Comment comment : allNewComments) {
+					// PL-2047:
+					if (comment == null) {
+						continue;
+					}
 					Comment existing = null;
 					for (CrucibleFileInfo oldFile : anOldReview.getFiles()) {
 						if (oldFile.getPermId().equals(fileInfo.getPermId())) {
 							allOldComments = getAllCommentsRecursively(oldFile.getVersionedComments());
 							for (Comment oldComment : allOldComments) {
+								// PL-2047: //pstefaniak - I've got no idea why NPE could be thrown here :(
+								if (comment.getPermId() == null || oldComment == null || oldComment.getPermId() == null) {
+									continue;
+								}
 								if (comment.getPermId().getId().equals(oldComment.getPermId().getId())) {
 									existing = oldComment;
 									break;

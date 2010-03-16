@@ -308,8 +308,7 @@ public class ReviewDifferenceProducer {
 
 	private void checkAndNotifyReadUnreadStateChange(Review aNewReview, Comment comment, Comment existing) {
         if (existing.getReadState() != comment.getReadState()) {
-            notifications.add(new CommentReadUnreadStateChangedNotification(
-                    aNewReview, comment.getReadState(), comment.getAuthor(), comment.isDraft()));
+			notifications.add(new CommentReadUnreadStateChangedNotification(aNewReview, comment));
         }
     }
 

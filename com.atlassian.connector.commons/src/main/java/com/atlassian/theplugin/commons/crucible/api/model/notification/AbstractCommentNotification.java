@@ -1,24 +1,19 @@
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
+import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
-import com.atlassian.theplugin.commons.crucible.api.model.User;
 
 public abstract class AbstractCommentNotification extends AbstractReviewNotification {
-	private final User author;
-	private final boolean draft;
+	private final Comment comment;
 
-	public AbstractCommentNotification(final Review review, final User author, final boolean isDraft) {
+	public AbstractCommentNotification(final Review review, final Comment comment) {
 		super(review);
 
-		this.author = author;
-		this.draft = isDraft;
+		this.comment = comment;
 	}
 
-	public User getAuthor() {
-		return author;
+	public Comment getComment() {
+		return comment;
 	}
 
-	public boolean isDraft() {
-		return draft;
-	}
 }

@@ -5,7 +5,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.Review;
 
 public class UpdatedCommentNotification extends AbstractUpdatedCommentNotification {
 	public UpdatedCommentNotification(final Review review, final Comment comment, final boolean wasDraft) {
-		super(review, comment.getAuthor(), comment.isDraft(), wasDraft);
+		super(review, comment, wasDraft);
 	}
 
 	@Override
@@ -15,6 +15,6 @@ public class UpdatedCommentNotification extends AbstractUpdatedCommentNotificati
 
 	@Override
 	public String getPresentationMessage() {
-		return "Comment updated by " + getAuthor().getDisplayName();
+		return "Comment updated by " + getComment().getAuthor().getDisplayName();
 	}
 }

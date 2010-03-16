@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 public class NewCommentNotification extends AbstractCommentNotification {
 
 	public NewCommentNotification(@NotNull final Review review, @NotNull final Comment comment) {
-		super(review, comment.getAuthor(), comment.isDraft());
+		super(review, comment);
 	}
 
 	@Override
@@ -33,6 +33,6 @@ public class NewCommentNotification extends AbstractCommentNotification {
 
 	@Override
 	public String getPresentationMessage() {
-		return "New comment added by " + getAuthor().getDisplayName();
+		return "New comment added by " + getComment().getAuthor().getDisplayName();
 	}
 }

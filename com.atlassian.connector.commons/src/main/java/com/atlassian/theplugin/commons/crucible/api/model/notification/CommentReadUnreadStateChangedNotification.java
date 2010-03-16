@@ -1,8 +1,7 @@
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
-import com.atlassian.theplugin.commons.crucible.api.model.Review;
-import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
+import com.atlassian.theplugin.commons.crucible.api.model.Review;
 
 /**
  * User: kalamon
@@ -10,20 +9,18 @@ import com.atlassian.theplugin.commons.crucible.api.model.Comment;
  * Time: 11:24:31 AM
  */
 public class CommentReadUnreadStateChangedNotification extends AbstractCommentNotification {
-    private Comment.ReadState state;
 
-    public CommentReadUnreadStateChangedNotification(final Review review,
-                                                     final Comment.ReadState state, 
-                                                     final User author, final boolean isDraft) {
-        super(review, author, isDraft);
-        this.state = state;
+	public CommentReadUnreadStateChangedNotification(final Review review, final Comment comment) {
+		super(review, comment);
     }
 
-    public CrucibleNotificationType getType() {
+    @Override
+	public CrucibleNotificationType getType() {
         return CrucibleNotificationType.COMMENT_READ_UNREAD_STATE_CHANGED;
     }
 
-    public String getPresentationMessage() {
-        return "Comment state changed to " + state;
+    @Override
+	public String getPresentationMessage() {
+		return "Comment state changed to " + getComment().getReadState();
     }
 }

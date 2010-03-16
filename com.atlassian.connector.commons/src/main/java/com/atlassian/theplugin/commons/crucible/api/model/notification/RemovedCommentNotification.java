@@ -6,7 +6,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.Review;
 public class RemovedCommentNotification extends AbstractCommentNotification {
 
 	public RemovedCommentNotification(final Review review, final Comment comment) {
-		super(review, comment.getAuthor(), comment.isDraft());
+		super(review, comment);
 	}
 
 	@Override
@@ -16,6 +16,6 @@ public class RemovedCommentNotification extends AbstractCommentNotification {
 
 	@Override
 	public String getPresentationMessage() {
-		return "Comment removed by " + getAuthor().getDisplayName();
+		return "Comment removed by " + getComment().getAuthor().getDisplayName();
 	}
 }

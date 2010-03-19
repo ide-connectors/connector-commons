@@ -255,8 +255,12 @@ public abstract class AbstractHttpSession {
 				method.addRequestHeader("If-Modified-Since", cacheRecord.getLastModified());
 				method.addRequestHeader("If-None-Match", cacheRecord.getEtag());
 			}
+
+			method.addRequestHeader("Accept", "application/xml;q=0.9,*/*");
+
 			try {
-				method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
+				// method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
+				method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 				method.getParams().setSoTimeout(client.getParams().getSoTimeout());
 				callback.configureHttpMethod(this, method);
 

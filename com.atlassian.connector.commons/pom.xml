@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.atlassian.connector</groupId>
 	<artifactId>atlassian-connector-commons</artifactId>
@@ -13,9 +14,10 @@
 		<url>http://atlassian.com/</url>
 	</organization>
 	<scm>
-		<connection>scm:svn:https://studio.atlassian.com/svn/ACC/tags/atlassian-connector-commons-4.0.0-m1</connection>
-		<developerConnection>scm:svn:https://studio.atlassian.com/svn/ACC/tags/atlassian-connector-commons-4.0.0-m1</developerConnection>
-		<url>https://studio.atlassian.com/svn/ACC/tags/atlassian-connector-commons-4.0.0-m1</url>
+		<connection>scm:svn:https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.commons</connection>
+		<developerConnection>scm:svn:https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.commons
+		</developerConnection>
+		<url>https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.commons</url>
 	</scm>
 	<issueManagement>
 		<system>Jira</system>
@@ -52,13 +54,13 @@
 		</plugins>
 	</build>
 	<dependencies>
-        <dependency>
+		<dependency>
 			<groupId>org.ddsteps</groupId>
 			<artifactId>ddsteps-httpserver-mock</artifactId>
 			<version>1.0-m1</version>
 			<scope>test</scope>
 		</dependency>
-	        <dependency>
+		<dependency>
 			<groupId>axis</groupId>
 			<artifactId>axis</artifactId>
 			<version>1.4</version>
@@ -101,7 +103,7 @@
 		  </dependency>
   -->
 
-        
+
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
@@ -116,23 +118,23 @@
 			<version>7.0</version>
 			<classifier>7590</classifier>
 		</dependency>
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty</artifactId>
-            <version>7.0.0.pre5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty</artifactId>
-            <version>6.1.5</version>
-        </dependency>
+		<dependency>
+			<groupId>org.mortbay.jetty</groupId>
+			<artifactId>jetty</artifactId>
+			<version>7.0.0.pre5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mortbay.jetty</groupId>
+			<artifactId>jetty</artifactId>
+			<version>6.1.5</version>
+		</dependency>
 
-    </dependencies>
- <repositories>
-         <repository>
-                 <id>atlassian-public-repository</id>
-                 <url>https://maven.atlassian.com/public</url>
-         </repository>
- </repositories>
+	</dependencies>
+	<repositories>
+		<repository>
+			<id>atlassian-public-repository</id>
+			<url>https://maven.atlassian.com/public</url>
+		</repository>
+	</repositories>
 
 </project>

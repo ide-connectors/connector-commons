@@ -198,7 +198,8 @@ public abstract class AbstractHttpSession {
 			}
 
 			try {
-				method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
+				// method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
+				method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 				method.getParams().setSoTimeout(client.getParams().getSoTimeout());
 				callback.configureHttpMethod(this, method);
 				client.executeMethod(method);
@@ -359,7 +360,8 @@ public abstract class AbstractHttpSession {
 			PostMethod method = new PostMethod(urlString);
 
 			try {
-				method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
+				// method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
+				method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 				method.getParams().setSoTimeout(client.getParams().getSoTimeout());
 
 				callback.configureHttpMethod(this, method);
@@ -549,7 +551,8 @@ public abstract class AbstractHttpSession {
 			DeleteMethod method = new DeleteMethod(urlString);
 
 			try {
-				method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
+				// method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
+				method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 				method.getParams().setSoTimeout(client.getParams().getSoTimeout());
 				callback.configureHttpMethod(this, method);
 

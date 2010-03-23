@@ -236,12 +236,12 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         }
     }
 
-    public void addComment(ConnectionCfg ConnectionCfg, String issueKey, String comment) throws JIRAException {
+    public void addComment(ConnectionCfg connectionCfg, String issueKey, String comment) throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             soap.addComment(issueKey, comment);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }

@@ -73,14 +73,21 @@ public class JiraServerCfg extends ServerCfg {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         JiraServerCfg that = (JiraServerCfg) o;
 
-        if (dontUseBasicAuth != that.dontUseBasicAuth) return false;
-        if (basicHttpUser != null ? !basicHttpUser.equals(that.basicHttpUser) : that.basicHttpUser != null)
+        if (dontUseBasicAuth != that.dontUseBasicAuth) {
             return false;
+        }
+        if (basicHttpUser != null ? !basicHttpUser.equals(that.basicHttpUser) : that.basicHttpUser != null) {
+            return false;
+        }
 
         return true;
     }

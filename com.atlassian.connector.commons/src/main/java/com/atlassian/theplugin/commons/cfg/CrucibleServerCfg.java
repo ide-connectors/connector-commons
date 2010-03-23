@@ -68,7 +68,6 @@ public class CrucibleServerCfg extends ServerCfg {
                 public boolean isDontUseBasicAuth() {
                     return false;
                 }
-
                 public UserCfg getBasicHttpUser() {
                     return null;  
                 }

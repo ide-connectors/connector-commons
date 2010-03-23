@@ -33,8 +33,10 @@ public class ServerData extends ConnectionCfg {
     public ServerData(Builder builder) {
         super(builder.server != null ? builder.server.getServerId().getId() : "",
                 builder.server != null ? builder.server.getUrl() : "",
-                builder.useDefaultUser ? builder.defaultUser.getUsername() : builder.server != null ? builder.server.getUsername() : "",
-                builder.useDefaultUser ? builder.defaultUser.getPassword() : builder.server != null ? builder.server.getPassword() : "");
+                builder.useDefaultUser ? builder.defaultUser.getUsername() : 
+                        (builder.server != null ? builder.server.getUsername() : ""),
+                builder.useDefaultUser ? builder.defaultUser.getPassword() :
+                        (builder.server != null ? builder.server.getPassword() : ""));
         this.server = builder.server;
         this.basicUser = builder.basicUser;
         this.useProxy = builder.useProxyUser;
@@ -64,16 +66,16 @@ public class ServerData extends ConnectionCfg {
             return server;
         }
 
-        public void basicUser(UserCfg basicUser) {
-            this.basicUser = basicUser;
+        public void basicUser(UserCfg basicUsr) {
+            this.basicUser = basicUsr;
         }
 
-        public void defaultUser(UserCfg defaultUser) {
-            this.defaultUser = defaultUser;
+        public void defaultUser(UserCfg defaultUsr) {
+            this.defaultUser = defaultUsr;
         }
 
-        public void proxyUser(UserCfg proxyUser) {
-            this.proxyUser = proxyUser;
+        public void proxyUser(UserCfg proxyUsr) {
+            this.proxyUser = proxyUsr;
         }
 
         public void useDefaultUser(boolean useDefault) {

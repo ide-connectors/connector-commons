@@ -163,7 +163,8 @@ public class JIRASessionImpl implements JIRASession {
 
     }
 
-    public JIRASessionImpl(Logger logger, ConnectionCfg connectionCfg, AxisSessionCallback callback) throws ServiceException, MalformedURLException {
+    public JIRASessionImpl(Logger logger, ConnectionCfg connectionCfg, AxisSessionCallback callback)
+            throws ServiceException, MalformedURLException {
         this.logger = logger;
         this.callback = callback;
         URL portAddress = new URL(connectionCfg.getUrl() + "/rpc/soap/jirasoapservice-v2");

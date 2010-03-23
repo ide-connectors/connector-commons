@@ -33,10 +33,10 @@ public class ServerData extends ConnectionCfg {
     public ServerData(Builder builder) {
         super(builder.server != null ? builder.server.getServerId().getId() : "",
                 builder.server != null ? builder.server.getUrl() : "",
-                builder.useDefaultUser ? builder.defaultUser.getUsername() : 
-                        (builder.server != null ? builder.server.getUsername() : ""),
-                builder.useDefaultUser ? builder.defaultUser.getPassword() :
-                        (builder.server != null ? builder.server.getPassword() : ""));
+                builder.useDefaultUser ? builder.defaultUser.getUsername()
+                        : (builder.server != null ? builder.server.getUsername() : ""),
+                builder.useDefaultUser ? builder.defaultUser.getPassword()
+                        : (builder.server != null ? builder.server.getPassword() : ""));
         this.server = builder.server;
         this.basicUser = builder.basicUser;
         this.useProxy = builder.useProxyUser;

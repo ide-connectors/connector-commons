@@ -246,56 +246,56 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         }
     }
 
-    public void addAttachment(ConnectionCfg ConnectionCfg, String issueKey, String name, byte[] content)
+    public void addAttachment(ConnectionCfg connectionCfg, String issueKey, String name, byte[] content)
             throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             soap.addAttachment(issueKey, name, content);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
 
-    public JIRAIssue createIssue(ConnectionCfg ConnectionCfg, JIRAIssue issue) throws JIRAException {
+    public JIRAIssue createIssue(ConnectionCfg connectionCfg, JIRAIssue issue) throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             JIRAIssue i = soap.createIssue(issue);
-            return getIssue(ConnectionCfg, i.getKey());
+            return getIssue(connectionCfg, i.getKey());
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
 
-    public void logWork(ConnectionCfg ConnectionCfg, JIRAIssue issue, String timeSpent, Calendar startDate,
+    public void logWork(ConnectionCfg connectionCfg, JIRAIssue issue, String timeSpent, Calendar startDate,
                         String comment, boolean updateEstimate, String newEstimate)
             throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             soap.logWork(issue, timeSpent, startDate, comment, updateEstimate, newEstimate);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
 
-    public List<JIRAComponentBean> getComponents(ConnectionCfg ConnectionCfg, String projectKey) throws JIRAException {
+    public List<JIRAComponentBean> getComponents(ConnectionCfg connectionCfg, String projectKey) throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             return soap.getComponents(projectKey);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
 
-    public List<JIRAVersionBean> getVersions(ConnectionCfg ConnectionCfg, String projectKey) throws JIRAException {
+    public List<JIRAVersionBean> getVersions(ConnectionCfg connectionCfg, String projectKey) throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             return soap.getVersions(projectKey);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             if (e == null) {
                 logger.warn("PL-1710: e is null");
             } else if (e.getMessage() == null) {
@@ -308,131 +308,131 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         }
     }
 
-    public List<JIRAPriorityBean> getPriorities(ConnectionCfg ConnectionCfg) throws JIRAException {
+    public List<JIRAPriorityBean> getPriorities(ConnectionCfg connectionCfg) throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             return soap.getPriorities();
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
 
-    public List<JIRAResolutionBean> getResolutions(ConnectionCfg ConnectionCfg) throws JIRAException {
+    public List<JIRAResolutionBean> getResolutions(ConnectionCfg connectionCfg) throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             return soap.getResolutions();
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
 
-    public List<JIRAQueryFragment> getSavedFilters(ConnectionCfg ConnectionCfg) throws JIRAException {
+    public List<JIRAQueryFragment> getSavedFilters(ConnectionCfg connectionCfg) throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             return soap.getSavedFilters();
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
 
-    public List<JIRAAction> getAvailableActions(ConnectionCfg ConnectionCfg, JIRAIssue issue) throws JIRAException {
+    public List<JIRAAction> getAvailableActions(ConnectionCfg connectionCfg, JIRAIssue issue) throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             return soap.getAvailableActions(issue);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
 
-    public List<JIRAActionField> getFieldsForAction(ConnectionCfg ConnectionCfg, JIRAIssue issue, JIRAAction action)
+    public List<JIRAActionField> getFieldsForAction(ConnectionCfg connectionCfg, JIRAIssue issue, JIRAAction action)
             throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             return soap.getFieldsForAction(issue, action);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
 
-    public void setAssignee(ConnectionCfg ConnectionCfg, JIRAIssue issue, String assignee) throws JIRAException {
+    public void setAssignee(ConnectionCfg connectionCfg, JIRAIssue issue, String assignee) throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             soap.setAssignee(issue, assignee);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
 
-    public void setReporter(ConnectionCfg ConnectionCfg, JIRAIssue issue, String reporter) throws JIRAException {
+    public void setReporter(ConnectionCfg connectionCfg, JIRAIssue issue, String reporter) throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             soap.setReporter(issue, reporter);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
 
-    public List<JIRAComment> getComments(ConnectionCfg ConnectionCfg, JIRAIssue issue) throws JIRAException {
+    public List<JIRAComment> getComments(ConnectionCfg connectionCfg, JIRAIssue issue) throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             return soap.getComments(issue);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
 
-    public Collection<JIRAAttachment> getIssueAttachements(ConnectionCfg ConnectionCfg, JIRAIssue issue)
+    public Collection<JIRAAttachment> getIssueAttachements(ConnectionCfg connectionCfg, JIRAIssue issue)
             throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             return soap.getIssueAttachements(issue);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
 
-    public void progressWorkflowAction(ConnectionCfg ConnectionCfg, JIRAIssue issue, JIRAAction action)
+    public void progressWorkflowAction(ConnectionCfg connectionCfg, JIRAIssue issue, JIRAAction action)
             throws JIRAException {
-        progressWorkflowAction(ConnectionCfg, issue, action, null);
+        progressWorkflowAction(connectionCfg, issue, action, null);
     }
 
-    public void progressWorkflowAction(ConnectionCfg ConnectionCfg, JIRAIssue issue,
+    public void progressWorkflowAction(ConnectionCfg connectionCfg, JIRAIssue issue,
                                        JIRAAction action, List<JIRAActionField> fields) throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             soap.progressWorkflowAction(issue, action, fields);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
 
-    public JIRAIssue getIssueDetails(ConnectionCfg ConnectionCfg, JIRAIssue issue) throws JIRAException {
+    public JIRAIssue getIssueDetails(ConnectionCfg connectionCfg, JIRAIssue issue) throws JIRAException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             return soap.getIssueDetails(issue);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
 
-    public JIRAUserBean getUser(ConnectionCfg ConnectionCfg, String loginName)
+    public JIRAUserBean getUser(ConnectionCfg connectionCfg, String loginName)
             throws JIRAException, JiraUserNotFoundException {
         try {
-            JIRASession soap = getSoapSession(ConnectionCfg);
+            JIRASession soap = getSoapSession(connectionCfg);
             return soap.getUser(loginName);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(ConnectionCfg));
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }

@@ -86,8 +86,8 @@ public final class JiraQueryUrl {
             return this;
         }
 
-        public Builder password(String password) {
-            this.password = password;
+        public Builder password(String passw) {
+            this.password = passw;
             return this;
         }
 
@@ -201,9 +201,9 @@ public final class JiraQueryUrl {
 
 
     private static String appendAuthentication(boolean firstItem, String userName, String password) {
-        if (userName != null) {
-            //return (firstItem ? "?" : "&") + "os_username=" + password + ;
-        }
+//        if (userName != null) {
+//            //return (firstItem ? "?" : "&") + "os_username=" + password + ;
+//        }
         return "";
     }
 

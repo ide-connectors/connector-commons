@@ -1,10 +1,8 @@
 package com.atlassian.theplugin.commons.jira;
 
-import com.atlassian.connector.commons.api.HttpConnectionCfg;
 import com.atlassian.theplugin.commons.cfg.Server;
 import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * User: kalamon
@@ -12,23 +10,38 @@ import org.jetbrains.annotations.NotNull;
  * Time: 3:52:44 PM
  */
 public class JiraServerData extends ServerData {
-    private boolean dontUseBasicAuth;
 
-    public JiraServerData(Server server, String userName, String password, boolean dontUseBasicAuth) {
-        super(server, userName, password);
-        this.dontUseBasicAuth = dontUseBasicAuth;
+    public JiraServerData(Server server) {
+        super(server);        
     }
 
-    public JiraServerData(@NotNull Server server, @NotNull UserCfg defaultCredentials, boolean dontUseBasicAuth) {
-        super(server, defaultCredentials);
-        this.dontUseBasicAuth = dontUseBasicAuth;
+    public JiraServerData(Builder builder) {
+        this(builder.getServer());
+        builder.getServer();
     }
 
-    public boolean isDontUseBasicAuth() {
-        return dontUseBasicAuth;
+    public JiraServerData(Server server, UserCfg defaultUser) {
+        super(server, defaultUser); 
     }
 
-    public HttpConnectionCfg toHttpConnectionCfg() {
-        return new HttpConnectionCfg(getServerId().toString(), getUrl(), getUsername(), getPassword(), !dontUseBasicAuth);
+    public static class Builder extends ServerData.Builder {
+
+        public Builder(Server server) {
+            super(server);
+        }
+
+        @Override
+        public JiraServerData build() {
+            return new JiraServerData(this);
+        }
+
+        @Override
+        protected Server getServer() {
+            return super.getServer();
+        }
+
     }
+
+
+    
 }

@@ -16,7 +16,7 @@
 
 package com.atlassian.connector.commons.jira.soap;
 
-import com.atlassian.connector.commons.api.HttpConnectionCfg;
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.jira.JIRAAction;
 import com.atlassian.connector.commons.jira.JIRAActionBean;
 import com.atlassian.connector.commons.jira.JIRAActionField;
@@ -85,12 +85,13 @@ public class JIRASessionImpl implements JIRASession {
 
     private String token;
     private final JiraSoapService service;
-    private final HttpConnectionCfg httpConnectionCfg;
+    private final ConnectionCfg httpConnectionCfg;
 
     public static final int ONE_DAY_AGO = -24;
 
     private boolean loggedIn;
     private final Logger logger;
+    private final AxisSessionCallback callback;
 
     //
     // AxisProperties are shit - if you try to set nonexistent property to null, NPE is thrown. Moreover, sometimes
@@ -162,15 +163,21 @@ public class JIRASessionImpl implements JIRASession {
 
     }
 
-    public JIRASessionImpl(Logger logger, HttpConnectionCfg httpConnectionCfg) throws ServiceException, MalformedURLException {
+    public JIRASessionImpl(Logger logger, ConnectionCfg connectionCfg, AxisSessionCallback callback) throws ServiceException, MalformedURLException {
         this.logger = logger;
-        URL portAddress = new URL(httpConnectionCfg.getUrl() + "/rpc/soap/jirasoapservice-v2");
+        this.callback = callback;
+        URL portAddress = new URL(connectionCfg.getUrl() + "/rpc/soap/jirasoapservice-v2");
         JiraSoapServiceServiceLocator loc = new JiraSoapServiceServiceLocator();
         AbstractHttpSession.setUrl(portAddress); // dirty hack
         service = loc.getJirasoapserviceV2(portAddress);
+        // to use Basic HTTP Authentication:
+        if (this.callback != null) {
+            this.callback.configureRemoteService(service, connectionCfg);
+        }
+ 
         setProxy();
 
-        this.httpConnectionCfg = httpConnectionCfg;
+        this.httpConnectionCfg = connectionCfg;
     }
 
     public void login(String userName, String password) throws RemoteApiException {

@@ -18,7 +18,6 @@ package com.atlassian.theplugin.commons.bamboo;
 
 import com.atlassian.connector.commons.api.BambooServerFacade2;
 import com.atlassian.connector.commons.api.ConnectionCfg;
-import com.atlassian.connector.commons.api.HttpConnectionCfg;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.bamboo.api.AutoRenewBambooSession;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
@@ -34,6 +33,7 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.Logger;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -138,9 +138,6 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 	 *             on failed login
 	 * @see RemoteApiLoginFailedException
 	 */
-	public void testServerConnection(HttpConnectionCfg httpConnectionCfg) throws RemoteApiException {
-        testServerConnection(httpConnectionCfg.toConnectionCfg());
-	}
 
     public void testServerConnection(ConnectionCfg httpConnectionCfg) throws RemoteApiException {
 		ProductSession apiHandler = bambooSessionFactory.createLoginSession(httpConnectionCfg, callback);

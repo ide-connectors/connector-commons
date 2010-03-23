@@ -20,6 +20,7 @@ import com.atlassian.theplugin.commons.ServerType;
 public class JiraServerCfg extends ServerCfg {
     private static final int HASHCODE_MAGIC = 31;
     private boolean dontUseBasicAuth;
+    private UserCfg basicHttpUser;
 
     public JiraServerCfg(final String name, final ServerIdImpl serverId, boolean dontUseBasicAuth) {
 		super(true, name, serverId);
@@ -29,6 +30,7 @@ public class JiraServerCfg extends ServerCfg {
 	public JiraServerCfg(final JiraServerCfg other) {
 		super(other);
         this.dontUseBasicAuth = other.dontUseBasicAuth;
+        this.basicHttpUser = other.basicHttpUser;
 	}
 
 	public JiraServerCfg(boolean enabled, String name, ServerIdImpl serverId, boolean dontUseBasicAuth) {
@@ -55,33 +57,39 @@ public class JiraServerCfg extends ServerCfg {
         return dontUseBasicAuth;
     }
 
+    
     public void setDontUseBasicAuth(boolean dontUseBasicAuth) {
         this.dontUseBasicAuth = dontUseBasicAuth;
     }
 
+    public void setBasicHttpUser(UserCfg userCfg) {
+        this.basicHttpUser = userCfg;
+    }
+
+    public UserCfg getBasicHttpUser() {
+        return basicHttpUser;
+    }
+
     @Override
-    public boolean equals(final Object o) {
-        if (!super.equals(o)) {
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        JiraServerCfg that = (JiraServerCfg) o;
+
+        if (dontUseBasicAuth != that.dontUseBasicAuth) return false;
+        if (basicHttpUser != null ? !basicHttpUser.equals(that.basicHttpUser) : that.basicHttpUser != null)
             return false;
-        }
 
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof JiraServerCfg)) {
-            return false;
-        }
-
-        final JiraServerCfg that = (JiraServerCfg) o;
-
-        return dontUseBasicAuth == that.dontUseBasicAuth;
+        return true;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = HASHCODE_MAGIC * result + (dontUseBasicAuth ? 1 : 0);
+        result = 31 * result + (dontUseBasicAuth ? 1 : 0);
+        result = 31 * result + (basicHttpUser != null ? basicHttpUser.hashCode() : 0);
         return result;
     }
-
 }

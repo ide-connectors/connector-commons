@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.atlassian.theplugin.commons.remoteapi;
+package com.atlassian.connector.commons.jira.soap;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
-import com.atlassian.theplugin.commons.ServerType;
 
-public interface ProductServerFacade {
-    void testServerConnection(ConnectionCfg httpConnectionCfg) throws RemoteApiException;
-	ServerType getServerType();
+/**
+ * @autrhor pmaruszak
+ * @date Mar 23, 2010
+ */
+public interface AxisSessionCallback {
+    void configureRemoteService(java.rmi.Remote remote, ConnectionCfg connectionCfg);
 }

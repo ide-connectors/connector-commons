@@ -76,6 +76,7 @@ public final class CachedIconLoader {
 	public static void loadIcon(String urlString) {
 		if (urlString != null && !icons.containsKey(urlString)) {
 			try {
+
 				URL url = new URL(urlString);
 				Icon i = new ImageIcon(url);
 				icons.put(urlString, i);

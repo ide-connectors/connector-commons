@@ -37,4 +37,8 @@ public interface Server {
 	String getPassword();
 
 	ServerType getServerType();
+
+    boolean isDontUseBasicAuth();
+
+    UserCfg getBasicHttpUser();
 }

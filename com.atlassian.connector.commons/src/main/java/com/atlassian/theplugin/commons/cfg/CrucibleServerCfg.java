@@ -64,7 +64,15 @@ public class CrucibleServerCfg extends ServerCfg {
 				public ServerType getServerType() {
 					return ServerType.FISHEYE_SERVER;
 				}
-			};
+
+                public boolean isDontUseBasicAuth() {
+                    return false;
+                }
+
+                public UserCfg getBasicHttpUser() {
+                    return null;  
+                }
+            };
 		}
 		return fishEyeView;
 	}
@@ -83,7 +91,15 @@ public class CrucibleServerCfg extends ServerCfg {
 		return ServerType.CRUCIBLE_SERVER;
 	}
 
-	@Override
+    public boolean isDontUseBasicAuth() {
+        return false;
+    }
+
+    public UserCfg getBasicHttpUser() {
+        return null;  
+    }
+
+    @Override
 	public boolean equals(final Object o) {
 		if (!super.equals(o)) {
 			return false;

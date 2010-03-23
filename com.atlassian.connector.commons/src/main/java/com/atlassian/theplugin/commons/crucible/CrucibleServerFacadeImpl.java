@@ -17,7 +17,6 @@
 package com.atlassian.theplugin.commons.crucible;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
-import com.atlassian.connector.commons.api.HttpConnectionCfg;
 import com.atlassian.connector.commons.crucible.CrucibleServerFacade2;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleLoginException;
@@ -51,6 +50,7 @@ import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -169,16 +169,6 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	// ConnectionCfg serverData = new ConnectionCfg("unknown", new ServerId(), userName, password, url);
 //		testServerConnection(serverData);
 //	}
-
-	/**
-	 * @param httpConnectionCfg The configuration for the server that we want to test the connection for
-	 * @throws com.atlassian.theplugin.commons.crucible.api.CrucibleException
-	 *                            if Crucible version is not supported
-	 * @throws RemoteApiException if it's not possible to authenticate user on specified server
-	 */
-	public void testServerConnection(HttpConnectionCfg httpConnectionCfg) throws RemoteApiException {
-	    testServerConnection(httpConnectionCfg.toConnectionCfg());
-	}
 
     public void testServerConnection(ConnectionCfg connectionCfg) throws RemoteApiException {
 		final CrucibleSession session = new CrucibleSessionImpl(connectionCfg, callback, logger);

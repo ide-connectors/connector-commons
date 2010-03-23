@@ -36,7 +36,15 @@ public class FishEyeServerCfg extends ServerCfg implements FishEyeServer {
 		return ServerType.FISHEYE_SERVER;
 	}
 
-	@Override
+    public boolean isDontUseBasicAuth() {
+        return false;
+    }
+
+    public UserCfg getBasicHttpUser() {
+        return null;  
+    }
+
+    @Override
 	public FishEyeServerCfg getClone() {
 		return new FishEyeServerCfg(this);
 	}

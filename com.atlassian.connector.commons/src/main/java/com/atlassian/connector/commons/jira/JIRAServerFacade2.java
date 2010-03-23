@@ -16,7 +16,7 @@
 
 package com.atlassian.connector.commons.jira;
 
-import com.atlassian.connector.commons.api.HttpConnectionCfg;
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.jira.beans.JIRAAttachment;
 import com.atlassian.connector.commons.jira.beans.JIRAComment;
 import com.atlassian.connector.commons.jira.beans.JIRAComponentBean;
@@ -36,78 +36,78 @@ import java.util.List;
 
 public interface JIRAServerFacade2 extends ProductServerFacade {    
 
-    List<JIRAIssue> getIssues(HttpConnectionCfg httpConnectionCfg, String queryString, String sort,
+    List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, String queryString, String sort,
                               String sortOrder, int start, int size) throws JIRAException;
 
-	List<JIRAIssue> getIssues(HttpConnectionCfg httpConnectionCfg, List<JIRAQueryFragment> query,
+	List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, List<JIRAQueryFragment> query,
 			String sort,
 			String sortOrder,
 			int start,
 			int size) throws JIRAException;
 
-	List<JIRAIssue> getSavedFilterIssues(HttpConnectionCfg httpConnectionCfg,
+	List<JIRAIssue> getSavedFilterIssues(ConnectionCfg httpConnectionCfg,
 			List<JIRAQueryFragment> query,
 			String sort,
 			String sortOrder,
 			int start,
 			int size) throws JIRAException;
 
-	List<JIRAProject> getProjects(HttpConnectionCfg httpConnectionCfg) throws JIRAException;
+	List<JIRAProject> getProjects(ConnectionCfg httpConnectionCfg) throws JIRAException;
 
-	List<JIRAConstant> getStatuses(HttpConnectionCfg httpConnectionCfg) throws JIRAException;
+	List<JIRAConstant> getStatuses(ConnectionCfg httpConnectionCfg) throws JIRAException;
 
-	List<JIRAConstant> getIssueTypes(HttpConnectionCfg httpConnectionCfg) throws JIRAException;
+	List<JIRAConstant> getIssueTypes(ConnectionCfg httpConnectionCfg) throws JIRAException;
 
-	List<JIRAConstant> getIssueTypesForProject(HttpConnectionCfg httpConnectionCfg, String project) throws JIRAException;
+	List<JIRAConstant> getIssueTypesForProject(ConnectionCfg httpConnectionCfg, String project) throws JIRAException;
 
-	List<JIRAConstant> getSubtaskIssueTypes(HttpConnectionCfg httpConnectionCfg) throws JIRAException;
+	List<JIRAConstant> getSubtaskIssueTypes(ConnectionCfg httpConnectionCfg) throws JIRAException;
 
-	List<JIRAConstant> getSubtaskIssueTypesForProject(HttpConnectionCfg httpConnectionCfg, String project) throws JIRAException;
+	List<JIRAConstant> getSubtaskIssueTypesForProject(ConnectionCfg httpConnectionCfg, String project) throws JIRAException;
 
-	List<JIRAQueryFragment> getSavedFilters(HttpConnectionCfg httpConnectionCfg) throws JIRAException;
+	List<JIRAQueryFragment> getSavedFilters(ConnectionCfg httpConnectionCfg) throws JIRAException;
 
-	List<JIRAComponentBean> getComponents(HttpConnectionCfg httpConnectionCfg, String projectKey) throws JIRAException;
+	List<JIRAComponentBean> getComponents(ConnectionCfg httpConnectionCfg, String projectKey) throws JIRAException;
 
-	List<JIRAVersionBean> getVersions(HttpConnectionCfg httpConnectionCfg, String projectKey) throws JIRAException;
+	List<JIRAVersionBean> getVersions(ConnectionCfg httpConnectionCfg, String projectKey) throws JIRAException;
 
-	List<JIRAPriorityBean> getPriorities(HttpConnectionCfg httpConnectionCfg) throws JIRAException;
+	List<JIRAPriorityBean> getPriorities(ConnectionCfg httpConnectionCfg) throws JIRAException;
 
-	List<JIRAResolutionBean> getResolutions(HttpConnectionCfg httpConnectionCfg) throws JIRAException;
+	List<JIRAResolutionBean> getResolutions(ConnectionCfg httpConnectionCfg) throws JIRAException;
 
-	List<JIRAAction> getAvailableActions(HttpConnectionCfg httpConnectionCfg, JIRAIssue issue) throws JIRAException;
+	List<JIRAAction> getAvailableActions(ConnectionCfg httpConnectionCfg, JIRAIssue issue) throws JIRAException;
 
-	List<JIRAActionField> getFieldsForAction(HttpConnectionCfg httpConnectionCfg, JIRAIssue issue, JIRAAction action)
+	List<JIRAActionField> getFieldsForAction(ConnectionCfg httpConnectionCfg, JIRAIssue issue, JIRAAction action)
             throws JIRAException;
 
-	void progressWorkflowAction(HttpConnectionCfg httpConnectionCfg, JIRAIssue issue, JIRAAction action)
+	void progressWorkflowAction(ConnectionCfg httpConnectionCfg, JIRAIssue issue, JIRAAction action)
             throws JIRAException;
 
-	void progressWorkflowAction(HttpConnectionCfg httpConnectionCfg, JIRAIssue issue,
+	void progressWorkflowAction(ConnectionCfg httpConnectionCfg, JIRAIssue issue,
 			JIRAAction action, List<JIRAActionField> fields) throws JIRAException;
 
-	void addComment(HttpConnectionCfg httpConnectionCfg, String issueKey, String comment) throws JIRAException;
+	void addComment(ConnectionCfg httpConnectionCfg, String issueKey, String comment) throws JIRAException;
 
-	void addAttachment(HttpConnectionCfg httpConnectionCfg, String issueKey, String name, byte[] content) throws JIRAException;
+	void addAttachment(ConnectionCfg httpConnectionCfg, String issueKey, String name, byte[] content) throws JIRAException;
 
-	JIRAIssue createIssue(HttpConnectionCfg httpConnectionCfg, JIRAIssue issue) throws JIRAException;
+	JIRAIssue createIssue(ConnectionCfg httpConnectionCfg, JIRAIssue issue) throws JIRAException;
 
-	JIRAIssue getIssue(HttpConnectionCfg httpConnectionCfg, String key) throws JIRAException;
+	JIRAIssue getIssue(ConnectionCfg httpConnectionCfg, String key) throws JIRAException;
 
-	JIRAIssue getIssueDetails(HttpConnectionCfg httpConnectionCfg, JIRAIssue issue) throws JIRAException;
+	JIRAIssue getIssueDetails(ConnectionCfg httpConnectionCfg, JIRAIssue issue) throws JIRAException;
 
-	void logWork(HttpConnectionCfg httpConnectionCfg, JIRAIssue issue, String timeSpent, Calendar startDate,
+	void logWork(ConnectionCfg httpConnectionCfg, JIRAIssue issue, String timeSpent, Calendar startDate,
 			String comment, boolean updateEstimate, String newEstimate)
 			throws JIRAException;
 
-	void setAssignee(HttpConnectionCfg httpConnectionCfg, JIRAIssue issue, String assignee) throws JIRAException;
+	void setAssignee(ConnectionCfg httpConnectionCfg, JIRAIssue issue, String assignee) throws JIRAException;
 
-	JIRAUserBean getUser(HttpConnectionCfg httpConnectionCfg, String loginName)
+	JIRAUserBean getUser(ConnectionCfg httpConnectionCfg, String loginName)
             throws JIRAException, JiraUserNotFoundException;
 
-	List<JIRAComment> getComments(HttpConnectionCfg httpConnectionCfg, JIRAIssue issue) throws JIRAException;
+	List<JIRAComment> getComments(ConnectionCfg httpConnectionCfg, JIRAIssue issue) throws JIRAException;
 
-    Collection<JIRAAttachment> getIssueAttachements(HttpConnectionCfg httpConnectionCfg, JIRAIssue issue)
+    Collection<JIRAAttachment> getIssueAttachements(ConnectionCfg httpConnectionCfg, JIRAIssue issue)
             throws JIRAException;
 
-    void setReporter(HttpConnectionCfg httpConnectionCfg, JIRAIssue issue, String reporter) throws JIRAException;
+    void setReporter(ConnectionCfg httpConnectionCfg, JIRAIssue issue, String reporter) throws JIRAException;
 }

@@ -1,7 +1,6 @@
 package com.atlassian.theplugin.commons.fisheye;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
-import com.atlassian.connector.commons.api.HttpConnectionCfg;
 import com.atlassian.connector.commons.fisheye.FishEyeServerFacade2;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
@@ -10,6 +9,7 @@ import com.atlassian.theplugin.commons.fisheye.api.rest.FishEyeRestSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
+
 import java.util.Collection;
 
 /**
@@ -22,11 +22,7 @@ public class FishEyeServerFacadeImpl implements FishEyeServerFacade2 {
 	public FishEyeServerFacadeImpl(HttpSessionCallback callback) {
 		this.callback = callback;
 	}
-
-	public void testServerConnection(HttpConnectionCfg serverCfg) throws RemoteApiException {
-		testServerConnection(serverCfg.toConnectionCfg());
-	}
-
+	
 	public void testServerConnection(ConnectionCfg serverCfg) throws RemoteApiException {
 		FishEyeSession fishEyeSession = getSession(serverCfg);
 		fishEyeSession.login(serverCfg.getUsername(), serverCfg.getPassword().toCharArray());

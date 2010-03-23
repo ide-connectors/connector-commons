@@ -19,6 +19,7 @@ package com.atlassian.connector.commons.remoteapi;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
+import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
@@ -87,7 +88,15 @@ public class AbstractHttpSessionTest extends TestCase {
 				return null;
 			}
 
-			public boolean isEnabled() {
+            public boolean isDontUseBasicAuth() {
+                return false;
+            }
+
+            public UserCfg getBasicHttpUser() {
+                return null;  
+            }
+
+            public boolean isEnabled() {
 				return true;
 			}
 

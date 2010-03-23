@@ -60,7 +60,15 @@ public class BambooServerCfg extends ServerCfg {
 		return ServerType.BAMBOO_SERVER;
 	}
 
-	public boolean isUseFavourites() {
+    public boolean isDontUseBasicAuth() {
+        return false;
+    }
+
+    public UserCfg getBasicHttpUser() {
+        return null;  
+    }
+
+    public boolean isUseFavourites() {
 		return isUseFavourites;
 	}
 

@@ -21,16 +21,42 @@ import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 
 /**
  * @author Jacek Jaroczynski
  */
 public class BambooServerData extends ServerData {
-	public BambooServerData(@NotNull Server server, @NotNull UserCfg defaultCredentials) {
-		super(server, defaultCredentials);
+	public BambooServerData(@NotNull Server server) {
+		super(server);
 	}
 
+    public BambooServerData(Builder builder) {
+        super(builder.getServer());
+
+    }
+
+    public BambooServerData(Server server, UserCfg defaultUser) {
+        super(server, defaultUser);  
+    }
+
+    public static class Builder extends ServerData.Builder {
+
+        public Builder(Server server) {
+            super(server);
+        }
+
+        @Override
+        public BambooServerData build() {
+            return new BambooServerData(this);
+        }
+
+        @Override
+        protected Server getServer() {
+            return super.getServer();
+        }
+    }
 	public Collection<SubscribedPlan> getPlans() {
 		return getServer().getPlans();
 	}

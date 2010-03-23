@@ -1,23 +1,27 @@
 package com.atlassian.theplugin.commons.fisheye;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
-import com.atlassian.connector.commons.api.HttpConnectionCfg;
 import com.atlassian.connector.commons.fisheye.FishEyeServerFacade2;
 import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
+import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
+import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.fisheye.api.FishEyeSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.crucible.api.rest.CharArrayEquals;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
 
 import java.util.Arrays;
 import java.util.Collection;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
 
 /**
  * User: pmaruszak
@@ -92,7 +96,12 @@ public class FishEyeServerFacadeTest extends TestCase {
 	public void testConnectionTestInvalidUrlIncludesPassword() throws Exception {
 		try {
 			FishEyeServerFacade2 facade = new FishEyeServerFacadeImpl(new TestHttpSessionCallbackImpl());
-			facade.testServerConnection(new HttpConnectionCfg("id", "http://invalid url", USER_NAME, PASSWORD, false));
+            FishEyeServerCfg fishCfg = new FishEyeServerCfg(true, "fes", new ServerIdImpl());
+            fishCfg.setUrl("http://invalid url");
+            ServerData.Builder builder = new ServerData.Builder(fishCfg);
+            builder.defaultUser(new UserCfg(USER_NAME, PASSWORD));
+            builder.useDefaultUser(false);
+			facade.testServerConnection(builder.build());
 			fail("Should throw RemoteApiLoginException");
 		} catch (RemoteApiException e) {
 			assertFalse("Message should not include users's password", e.getMessage().contains(PASSWORD));

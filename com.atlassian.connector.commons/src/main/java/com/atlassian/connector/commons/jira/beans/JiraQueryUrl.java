@@ -38,7 +38,7 @@ public final class JiraQueryUrl {
     private int start = NOT_INITIALIZED;
     private int max = NOT_INITIALIZED;
     private String userName = null;
-
+    private String password;
 
     public static class Builder {
         private List<JIRAQueryFragment> queryFragments = null;
@@ -48,6 +48,8 @@ public final class JiraQueryUrl {
         private int max = -1;
         private String userName = null;
         private String serverUrl;
+        private String password;
+
 
         public Builder serverUrl(String server) {
             this.serverUrl = server;
@@ -81,6 +83,11 @@ public final class JiraQueryUrl {
 
         public Builder userName(String username) {
             this.userName = username;
+            return this;
+        }
+
+        public Builder password(String password) {
+            this.password = password;
             return this;
         }
 
@@ -183,7 +190,7 @@ public final class JiraQueryUrl {
         }
 
         if (userName != null) {
-            sb.append(appendAuthentication(false, userName));
+            sb.append(appendAuthentication(false, userName, password));
         }
 
         if (sb.length() > 0) {
@@ -193,9 +200,9 @@ public final class JiraQueryUrl {
     }
 
 
-    private static String appendAuthentication(boolean firstItem, String userName) {
+    private static String appendAuthentication(boolean firstItem, String userName, String password) {
         if (userName != null) {
-            return (firstItem ? "?" : "&") + "os_authType=basic";
+            //return (firstItem ? "?" : "&") + "os_username=" + password + ;
         }
         return "";
     }
@@ -208,5 +215,6 @@ public final class JiraQueryUrl {
         this.max = builder.max;
         this.userName = builder.userName;
         this.serverUrl = builder.serverUrl;
+        this.password = builder.password;
     }
 }

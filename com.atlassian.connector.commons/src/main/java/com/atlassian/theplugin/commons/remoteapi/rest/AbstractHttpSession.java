@@ -444,6 +444,7 @@ public abstract class AbstractHttpSession {
 				//create new post method, and set parameters
 
 				method.getParams().setBooleanParameter(HttpMethodParams.USE_EXPECT_CONTINUE, true);
+				method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 
 				//Create the multi-part request
 				method.setRequestEntity(new MultipartRequestEntity(parts, method.getParams()));

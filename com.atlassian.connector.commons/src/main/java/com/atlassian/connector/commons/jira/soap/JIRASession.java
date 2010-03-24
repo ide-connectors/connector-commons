@@ -81,7 +81,7 @@ public interface JIRASession {
 
 	void progressWorkflowAction(JIRAIssue issue, JIRAAction action, List<JIRAActionField> fields) throws RemoteApiException;
 
-	void setAssignee(JIRAIssue issue, String assignee) throws RemoteApiException;
+	void setField(JIRAIssue issue, String fieldId, String value) throws RemoteApiException;
 
 	JIRAUserBean getUser(String loginName) throws RemoteApiException, JiraUserNotFoundException;
 
@@ -89,7 +89,5 @@ public interface JIRASession {
 
 	boolean isLoggedIn();
 
-    Collection<JIRAAttachment> getIssueAttachements(JIRAIssue issue) throws RemoteApiException;
-
-    void setReporter(JIRAIssue issue, String reporter) throws RemoteApiException;
+	Collection<JIRAAttachment> getIssueAttachements(JIRAIssue issue) throws RemoteApiException;
 }

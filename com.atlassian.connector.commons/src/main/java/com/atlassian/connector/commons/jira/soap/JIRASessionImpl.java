@@ -576,30 +576,17 @@ public class JIRASessionImpl implements JIRASession {
 
     }
 
-    public void setAssignee(JIRAIssue issue, String assignee) throws RemoteApiException {
-        RemoteFieldValue v = new RemoteFieldValue();
-        RemoteFieldValue[] vTable = {v};
-        v.setId("assignee");
-        v.setValues(new String[]{assignee});
-        try {
-            service.updateIssue(token, issue.getKey(), vTable);
-        } catch (RemoteException e) {
-            throw new RemoteApiException(e.toString(), e);
-        }
-    }
-
-    public void setReporter(JIRAIssue issue, String reporter) throws RemoteApiException {
-        RemoteFieldValue v = new RemoteFieldValue();
-        RemoteFieldValue[] vTable = {v};
-        v.setId("reporter");
-        v.setValues(new String[]{reporter});
-        try {
-            service.updateIssue(token, issue.getKey(), vTable);
-        } catch (RemoteException e) {
-            throw new RemoteApiException(e.toString(), e);
-        }
-    }
-
+	public void setField(JIRAIssue issue, String fieldId, String value) throws RemoteApiException {
+		RemoteFieldValue v = new RemoteFieldValue();
+		RemoteFieldValue[] vTable = {v};
+		v.setId(fieldId);
+		v.setValues(new String[]{value});
+		try {
+			service.updateIssue(token, issue.getKey(), vTable);
+		} catch (RemoteException e) {
+			throw new RemoteApiException(e.toString(), e);
+		}
+	}
 
     public List<JIRAAction> getAvailableActions(JIRAIssue issue) throws RemoteApiException {
         try {

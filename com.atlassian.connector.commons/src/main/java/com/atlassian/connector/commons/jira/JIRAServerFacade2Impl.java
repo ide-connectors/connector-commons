@@ -359,20 +359,11 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         }
     }
 
-    public void setAssignee(ConnectionCfg connectionCfg, JIRAIssue issue, String assignee) throws JIRAException {
+    public void setField(ConnectionCfg connectionCfg, JIRAIssue issue, String fieldId, String value)
+			throws JIRAException {
         try {
             JIRASession soap = getSoapSession(connectionCfg);
-            soap.setAssignee(issue, assignee);
-        } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
-            throw new JIRAException(e.getMessage(), e);
-        }
-    }
-
-    public void setReporter(ConnectionCfg connectionCfg, JIRAIssue issue, String reporter) throws JIRAException {
-        try {
-            JIRASession soap = getSoapSession(connectionCfg);
-            soap.setReporter(issue, reporter);
+            soap.setField(issue, fieldId, value);
         } catch (RemoteApiException e) {
             soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);

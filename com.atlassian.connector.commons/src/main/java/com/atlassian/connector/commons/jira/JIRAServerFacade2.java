@@ -99,7 +99,7 @@ public interface JIRAServerFacade2 extends ProductServerFacade {
 			String comment, boolean updateEstimate, String newEstimate)
 			throws JIRAException;
 
-	void setAssignee(ConnectionCfg httpConnectionCfg, JIRAIssue issue, String assignee) throws JIRAException;
+	void setField(ConnectionCfg httpConnectionCfg, JIRAIssue issue, String fieldId, String value) throws JIRAException;
 
 	JIRAUserBean getUser(ConnectionCfg httpConnectionCfg, String loginName)
             throws JIRAException, JiraUserNotFoundException;
@@ -108,6 +108,4 @@ public interface JIRAServerFacade2 extends ProductServerFacade {
 
     Collection<JIRAAttachment> getIssueAttachements(ConnectionCfg httpConnectionCfg, JIRAIssue issue)
             throws JIRAException;
-
-    void setReporter(ConnectionCfg httpConnectionCfg, JIRAIssue issue, String reporter) throws JIRAException;
 }

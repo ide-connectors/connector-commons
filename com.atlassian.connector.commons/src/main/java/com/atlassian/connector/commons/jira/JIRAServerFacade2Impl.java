@@ -370,6 +370,28 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         }
     }
 
+	public void setField(ConnectionCfg connectionCfg, JIRAIssue issue, String fieldId, String[] values)
+			throws JIRAException {
+		try {
+			JIRASession soap = getSoapSession(connectionCfg);
+			soap.setField(issue, fieldId, values);
+		} catch (RemoteApiException e) {
+			soapSessions.remove(getSoapSessionKey(connectionCfg));
+			throw new JIRAException(e.getMessage(), e);
+		}
+	}
+
+	public void setFields(ConnectionCfg connectionCfg, JIRAIssue issue, List<JIRAActionField> fields) throws JIRAException {
+		try {
+			JIRASession soap = getSoapSession(connectionCfg);
+			soap.setFields(issue, fields);
+		} catch (RemoteApiException e) {
+			soapSessions.remove(getSoapSessionKey(connectionCfg));
+			throw new JIRAException(e.getMessage(), e);
+		}
+	}
+
+
     public List<JIRAComment> getComments(ConnectionCfg connectionCfg, JIRAIssue issue) throws JIRAException {
         try {
             JIRASession soap = getSoapSession(connectionCfg);

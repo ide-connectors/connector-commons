@@ -19,11 +19,11 @@ import java.awt.*;
 
 public abstract class UiTaskAdapter implements UiTask {
 
-	private final String actionMame;
+	private final String actionName;
 	private final Component component;
 
-	public UiTaskAdapter(final String actionMame, final Component component) {
-		this.actionMame = actionMame;
+	public UiTaskAdapter(final String actionName, final Component component) {
+		this.actionName = actionName;
 		this.component = component;
 	}
 
@@ -34,7 +34,7 @@ public abstract class UiTaskAdapter implements UiTask {
 	}
 
 	public String getLastAction() {
-		return actionMame;
+		return actionName;
 	}
 
 	public Component getComponent() {

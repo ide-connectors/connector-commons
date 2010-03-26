@@ -83,6 +83,10 @@ public interface JIRASession {
 
 	void setField(JIRAIssue issue, String fieldId, String value) throws RemoteApiException;
 
+	void setField(JIRAIssue issue, String fieldId, String[] values) throws RemoteApiException;
+
+	void setFields(JIRAIssue issue, List<JIRAActionField> fields) throws RemoteApiException;
+
 	JIRAUserBean getUser(String loginName) throws RemoteApiException, JiraUserNotFoundException;
 
 	List<JIRAComment> getComments(JIRAIssue issue) throws RemoteApiException;

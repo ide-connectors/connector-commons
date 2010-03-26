@@ -101,6 +101,10 @@ public interface JIRAServerFacade2 extends ProductServerFacade {
 
 	void setField(ConnectionCfg httpConnectionCfg, JIRAIssue issue, String fieldId, String value) throws JIRAException;
 
+	void setField(ConnectionCfg httpConnectionCfg, JIRAIssue issue, String fieldId, String[] values) throws JIRAException;
+
+	void setFields(ConnectionCfg httpConnectionCfg, JIRAIssue issue, List<JIRAActionField> fields) throws JIRAException;
+
 	JIRAUserBean getUser(ConnectionCfg httpConnectionCfg, String loginName)
             throws JIRAException, JiraUserNotFoundException;
 

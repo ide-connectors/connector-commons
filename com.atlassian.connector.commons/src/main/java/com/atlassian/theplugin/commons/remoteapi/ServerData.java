@@ -115,7 +115,6 @@ public class ServerData extends ConnectionCfg {
 
     }
 
-
     protected Server getServer() {
         return server;
     }
@@ -139,7 +138,6 @@ public class ServerData extends ConnectionCfg {
     public String getName() {
         return server.getName();
     }
-
 
     public boolean isEnabled() {
         return server.isEnabled();

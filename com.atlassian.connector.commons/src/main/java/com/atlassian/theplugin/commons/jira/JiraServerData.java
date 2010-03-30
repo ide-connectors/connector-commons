@@ -12,12 +12,7 @@ import com.atlassian.theplugin.commons.remoteapi.ServerData;
 public class JiraServerData extends ServerData {
 
     public JiraServerData(Server server) {
-        super(server);        
-    }
-
-    public JiraServerData(Builder builder) {
-        this(builder.getServer());
-        builder.getServer();
+        super(server);
     }
 
     public JiraServerData(Server server, UserCfg defaultUser) {
@@ -32,16 +27,9 @@ public class JiraServerData extends ServerData {
 
         @Override
         public JiraServerData build() {
-            return new JiraServerData(this);
-        }
-
-        @Override
-        protected Server getServer() {
-            return super.getServer();
+            return new JiraServerData(super.getServer(), defaultUser);
         }
 
     }
 
-
-    
 }

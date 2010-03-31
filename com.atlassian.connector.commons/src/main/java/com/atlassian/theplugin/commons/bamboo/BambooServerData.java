@@ -44,7 +44,7 @@ public class BambooServerData extends ServerData {
 
         @Override
         public BambooServerData build() {
-            return new BambooServerData(super.getServer(), defaultUser);
+            return new BambooServerData(super.getServer(), useDefaultUser ? defaultUser : null);
         }
 
         @Override

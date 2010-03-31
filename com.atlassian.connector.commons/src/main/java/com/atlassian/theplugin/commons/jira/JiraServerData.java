@@ -27,9 +27,7 @@ public class JiraServerData extends ServerData {
 
         @Override
         public JiraServerData build() {
-            return new JiraServerData(super.getServer(), defaultUser);
+           	return new JiraServerData(super.getServer(), useDefaultUser ? defaultUser : null);
         }
-
     }
-
 }

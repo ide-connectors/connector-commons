@@ -12,6 +12,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.State;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.util.MiscUtil;
+import org.joda.time.DateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -730,7 +731,7 @@ public class ReviewDifferenceProducerTest extends TestCase {
 	}
 
 	public void testReviewersChanges() {
-		// test same review - fiels and versioned comments not empty
+		// test same review - fields and versioned comments not empty
 		Date commentDate = new Date();
 		Review review = prepareReview1(State.REVIEW, commentDate);
 		Review review1 = prepareReview1(State.REVIEW, commentDate);
@@ -869,6 +870,28 @@ public class ReviewDifferenceProducerTest extends TestCase {
 				r2.setProjectKey(s2);
 			}
 		});
+	}
+
+	public void testDueDateChanged() {
+		Review review1 = prepareReview();
+		Review review2 = prepareReview();
+		review1.setDueDate(new DateTime());
+		ReviewDifferenceProducer rdp = new ReviewDifferenceProducer(review1, review2);
+		List<CrucibleNotification> diff = rdp.getDiff();
+		assertEquals(1, diff.size());
+		assertEquals(CrucibleNotificationType.DUE_DATE_CHANGED, diff.get(0).getType());
+
+		review2.setDueDate(review1.getDueDate().minusDays(1));
+		rdp = new ReviewDifferenceProducer(review1, review2);
+		diff = rdp.getDiff();
+		assertEquals(1, diff.size());
+		assertEquals(CrucibleNotificationType.DUE_DATE_CHANGED, diff.get(0).getType());
+
+		review2.setDueDate(review1.getDueDate());
+		rdp = new ReviewDifferenceProducer(review1, review2);
+		diff = rdp.getDiff();
+		assertEquals(0, diff.size());
+
 	}
 
 	private static class Pair<T, E> {

@@ -40,4 +40,5 @@ public enum CrucibleNotificationType {
 	SUMMARY_CHANGED,
 	PROJECT_CHANGED,
 	REVIEWERS_CHANGED,
+	DUE_DATE_CHANGED,
 }

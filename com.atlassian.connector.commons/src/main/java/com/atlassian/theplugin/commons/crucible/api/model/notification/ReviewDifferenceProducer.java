@@ -75,6 +75,11 @@ public class ReviewDifferenceProducer {
 					"Project has been changed"));
 		}
 
+		if (isModified(oldReview.getDueDate(), newReview.getDueDate())) {
+			notifications.add(new BasisReviewDetailsChangedNotification(newReview, CrucibleNotificationType.DUE_DATE_CHANGED,
+					"Due date has been changed"));
+		}
+
 		processReviewers();
 
 		shortEqual = isShortContentEqual();

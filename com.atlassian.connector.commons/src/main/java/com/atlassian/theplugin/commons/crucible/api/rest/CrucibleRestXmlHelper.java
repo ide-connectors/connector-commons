@@ -62,6 +62,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import java.text.ParseException;
@@ -91,6 +92,15 @@ public final class CrucibleRestXmlHelper {
         }
         return "";
     }
+
+	@Nullable
+	public static String getChildTextOrNull(Element node, String childName) {
+		final Element child = node.getChild(childName);
+		if (child != null) {
+			return child.getText();
+		}
+		return null;
+	}
 
     @SuppressWarnings("unchecked")
     public static List<Element> getChildElements(Element node, String childName) {
@@ -170,7 +180,8 @@ public final class CrucibleRestXmlHelper {
         return null;
     }
 
-    public static BasicReview parseBasicReview(String serverUrl, final Element reviewNode, boolean trimWikiMarkers) {
+	public static BasicReview parseBasicReview(String serverUrl, final Element reviewNode, boolean trimWikiMarkers)
+			throws ParseException {
         final String projectKey = getChildText(reviewNode, "projectKey");
         final User author = parseUserNode(reviewNode.getChild("author"));
         final User creator = parseUserNode(reviewNode.getChild("creator"));
@@ -251,7 +262,7 @@ public final class CrucibleRestXmlHelper {
     }
 
     private static void fillAlwaysPresentReviewData(BasicReview review, final Element reviewNode, String serverUrl,
-                                                    boolean trimWikiMarkers) {
+													boolean trimWikiMarkers) throws ParseException {
         review.setCreateDate(parseDateTime(getChildText(reviewNode, "createDate")));
         review.setCloseDate(parseDateTime(getChildText(reviewNode, "closeDate")));
         String soo = getChildText(reviewNode, "description");
@@ -266,7 +277,11 @@ public final class CrucibleRestXmlHelper {
         if (!"".equals(stateString)) {
             review.setState(State.fromValue(stateString));
         }
-        review.setAllowReviewerToJoin(Boolean.parseBoolean(getChildText(reviewNode, "allowReviewersToJoin")));
+
+		final String dueDateStr = getChildTextOrNull(reviewNode, "dueDate");
+		if (dueDateStr != null) {
+			review.setDueDate(parseJodaDateTime(dueDateStr));
+		}
 
         if (reviewNode.getChild("permaId") != null) {
             PermId permId = new PermId(reviewNode.getChild("permaId").getChild("id").getText());
@@ -1017,6 +1032,16 @@ public final class CrucibleRestXmlHelper {
         } else {
             return null;
         }
+    }
+
+	private static DateTime parseJodaDateTime(String date) throws ParseException {
+		try {
+			return COMMENT_TIME_FORMAT.parseDateTime(date);
+		} catch (IllegalArgumentException e) {
+			throw new ParseException("Invalid date string encountered [" + date + "]", 0);
+		} catch (RuntimeException e) {
+			throw new ParseException("Cannot convert string [" + date + "] to date", 0);
+		}
     }
 
     public static CrucibleVersionInfo parseVersionNode(Element element) {

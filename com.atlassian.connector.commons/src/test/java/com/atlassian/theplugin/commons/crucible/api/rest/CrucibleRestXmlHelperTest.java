@@ -2,6 +2,7 @@ package com.atlassian.theplugin.commons.crucible.api.rest;
 
 import com.atlassian.connector.commons.misc.IntRange;
 import com.atlassian.connector.commons.misc.IntRanges;
+import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
@@ -9,17 +10,18 @@ import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CrucibleMockUtil;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
-import junit.framework.TestCase;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
-
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Iterator;
 import java.util.List;
+import junit.framework.TestCase;
 
 /**
  * @author pmaruszak
@@ -147,4 +149,35 @@ public class CrucibleRestXmlHelperTest extends TestCase {
 
 
     }
+
+	private static final String TEST_URL = "http://localhost";
+
+	public void testParseReviewDataWithDueDate() throws JDOMException, IOException, ParseException {
+		final Document doc = loadDocument("reviewDataWithDueDate.xml");
+		final BasicReview review = CrucibleRestXmlHelper.parseBasicReview(TEST_URL, doc.getRootElement(), false);
+		final DateTime expected = new DateTime(2010, 03, 21, 13, 29, 35, 289, DateTimeZone.forOffsetHours(1));
+		assertTrue(expected.isEqual(review.getDueDate()));
+	}
+
+	public void testParseReviewDataWithoutDueDate() throws JDOMException, IOException, ParseException {
+		final Document doc = loadDocument("reviewDataWithoutDueDate.xml");
+		final BasicReview review = CrucibleRestXmlHelper.parseBasicReview(TEST_URL, doc.getRootElement(), false);
+		assertNull(review.getDueDate());
+	}
+
+	public void testParseReviewDataWithoutCorruptedDueDate() throws JDOMException, IOException, ParseException {
+		final Document doc = loadDocument("reviewDataWithCorruptedDueDate.xml");
+		TestUtil.assertThrows(ParseException.class, new IAction() {
+			public void run() throws Throwable {
+				CrucibleRestXmlHelper.parseBasicReview(TEST_URL, doc.getRootElement(), false);
+			}
+		});
+	}
+
+	private Document loadDocument(String resourceName) throws JDOMException, IOException {
+		final SAXBuilder builder = new SAXBuilder();
+		final Document doc = builder.build(new CrucibleMockUtil().getResource(resourceName));
+		return doc;
+	}
+
 }

@@ -595,7 +595,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	private BasicReview parseBasicReview(Element element) throws RemoteApiException {
-		return CrucibleRestXmlHelper.parseBasicReview(getBaseUrl(), element, shouldTrimWikiMarkers());
+		try {
+			return CrucibleRestXmlHelper.parseBasicReview(getBaseUrl(), element, shouldTrimWikiMarkers());
+		} catch (ParseException e) {
+			throw new RemoteApiException(e);
+		}
 	}
 
 	private Review prepareFullDetailReview(Element element) throws RemoteApiException {

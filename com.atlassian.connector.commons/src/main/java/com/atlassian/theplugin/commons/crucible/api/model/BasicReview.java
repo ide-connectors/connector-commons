@@ -13,6 +13,7 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joda.time.DateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
@@ -49,6 +50,8 @@ public class BasicReview {
 	private int metricsVersion;
 	private Date createDate;
 	private Date closeDate;
+	@Nullable
+	private DateTime dueDate;
 	private String summary;
 	private final String serverUrl;
 
@@ -248,6 +251,14 @@ public class BasicReview {
 
 	public void setSummary(String summary) {
 		this.summary = summary;
+	}
+
+	public void setDueDate(DateTime dueDate) {
+		this.dueDate = dueDate;
+	}
+
+	public DateTime getDueDate() {
+		return dueDate;
 	}
 
 }

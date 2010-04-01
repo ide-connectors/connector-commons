@@ -15,6 +15,10 @@ public class JiraServerData extends ServerData {
         super(server);
     }
 
+    public JiraServerData(Builder builder) {
+        super(builder);
+    }
+
     public JiraServerData(Server server, UserCfg defaultUser) {
         super(server, defaultUser); 
     }
@@ -27,7 +31,7 @@ public class JiraServerData extends ServerData {
 
         @Override
         public JiraServerData build() {
-           	return new JiraServerData(super.getServer(), useDefaultUser ? defaultUser : null);
+            return new JiraServerData(this);
         }
     }
 }

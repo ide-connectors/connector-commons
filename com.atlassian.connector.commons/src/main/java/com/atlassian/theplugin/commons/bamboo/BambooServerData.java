@@ -32,6 +32,11 @@ public class BambooServerData extends ServerData {
 		super(server);
 	}
 
+    public BambooServerData(Builder builder) {
+        super(builder);
+
+    }
+
     public BambooServerData(Server server, UserCfg defaultUser) {
         super(server, defaultUser);  
     }
@@ -44,7 +49,7 @@ public class BambooServerData extends ServerData {
 
         @Override
         public BambooServerData build() {
-            return new BambooServerData(super.getServer(), useDefaultUser ? defaultUser : null);
+            return new BambooServerData(this);
         }
 
         @Override

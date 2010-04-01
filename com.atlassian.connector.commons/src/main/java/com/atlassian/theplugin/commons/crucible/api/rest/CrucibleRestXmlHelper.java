@@ -277,6 +277,7 @@ public final class CrucibleRestXmlHelper {
         if (!"".equals(stateString)) {
             review.setState(State.fromValue(stateString));
         }
+		review.setAllowReviewerToJoin(Boolean.parseBoolean(getChildText(reviewNode, "allowReviewersToJoin")));
 
 		final String dueDateStr = getChildTextOrNull(reviewNode, "dueDate");
 		if (dueDateStr != null) {

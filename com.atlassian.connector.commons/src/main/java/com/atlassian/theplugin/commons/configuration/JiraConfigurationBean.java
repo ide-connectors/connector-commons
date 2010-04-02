@@ -21,6 +21,7 @@ public class JiraConfigurationBean {
 	private static final int JIRA_DEFAULT_ISSUE_PAGE_SIZE = 25;
 
 	private int pageSize = JIRA_DEFAULT_ISSUE_PAGE_SIZE;
+    private boolean synchronizeWithIntelliJTasks = true;
 
 	private static final int HASHCODE_MAGIC = 31;
 
@@ -29,6 +30,7 @@ public class JiraConfigurationBean {
 
 	public JiraConfigurationBean(JiraConfigurationBean cfg) {
 		this.pageSize = cfg.getPageSize();
+        this.synchronizeWithIntelliJTasks = cfg.synchronizeWithIntelliJTasks;
 	}
 
 	public int getPageSize() {
@@ -39,27 +41,38 @@ public class JiraConfigurationBean {
 		this.pageSize = pageSize;
 	}
 
-	public boolean equals(final Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (!(o instanceof JiraConfigurationBean)) {
-			return false;
-		}
 
-		final JiraConfigurationBean that = (JiraConfigurationBean) o;
+    public boolean isSynchronizeWithIntelliJTasks() {
+        return synchronizeWithIntelliJTasks;
+    }
 
-		if (pageSize != that.pageSize) {
-			return false;
-		}
+    public void setSynchronizeWithIntelliJTasks(boolean synchronizeWithIntelliJTasks) {
+        this.synchronizeWithIntelliJTasks = synchronizeWithIntelliJTasks;
+    }
 
-		return true;
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-	public int hashCode() {
-		int result;
-		result = pageSize;
-		result = HASHCODE_MAGIC * result;
-		return result;
-	}
+        JiraConfigurationBean that = (JiraConfigurationBean) o;
+
+        if (pageSize != that.pageSize) {
+            return false;
+        }
+        if (synchronizeWithIntelliJTasks != that.synchronizeWithIntelliJTasks) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = pageSize;
+        result = 31 * result + (synchronizeWithIntelliJTasks ? 1 : 0);
+        return result;
+    }
 }

@@ -21,7 +21,7 @@ public class JiraConfigurationBean {
 	private static final int JIRA_DEFAULT_ISSUE_PAGE_SIZE = 25;
 
 	private int pageSize = JIRA_DEFAULT_ISSUE_PAGE_SIZE;
-    private boolean synchronizeWithIntelliJTasks = true;
+    private boolean synchronizeWithIntelliJTasks = false;
 
 	private static final int HASHCODE_MAGIC = 31;
 

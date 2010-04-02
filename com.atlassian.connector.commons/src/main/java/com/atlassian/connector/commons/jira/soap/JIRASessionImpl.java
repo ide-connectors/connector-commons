@@ -86,12 +86,8 @@ public class JIRASessionImpl implements JIRASession {
     private String token;
     private final JiraSoapService service;
     private final ConnectionCfg httpConnectionCfg;
-
-    public static final int ONE_DAY_AGO = -24;
-
     private boolean loggedIn;
     private final Logger logger;
-    private final AxisSessionCallback callback;
 
     //
     // AxisProperties are shit - if you try to set nonexistent property to null, NPE is thrown. Moreover, sometimes
@@ -166,14 +162,13 @@ public class JIRASessionImpl implements JIRASession {
     public JIRASessionImpl(Logger logger, ConnectionCfg connectionCfg, AxisSessionCallback callback)
             throws ServiceException, MalformedURLException {
         this.logger = logger;
-        this.callback = callback;
         URL portAddress = new URL(connectionCfg.getUrl() + "/rpc/soap/jirasoapservice-v2");
         JiraSoapServiceServiceLocator loc = new JiraSoapServiceServiceLocator();
         AbstractHttpSession.setUrl(portAddress); // dirty hack
         service = loc.getJirasoapserviceV2(portAddress);
         // to use Basic HTTP Authentication:
-        if (this.callback != null) {
-            this.callback.configureRemoteService(service, connectionCfg);
+        if (callback != null) {
+            callback.configureRemoteService(service, connectionCfg);
         }
  
         setProxy();
@@ -387,20 +382,15 @@ public class JIRASessionImpl implements JIRASession {
     }
 
     public void addAttachment(String issueKey, String name, byte[] content) throws RemoteApiException {
-        try {
-            Base64 base64 = new Base64();
-            byte[] bytes = base64.encode(content);
-            String encoded = new String(bytes);
-
-            String[] names = new String[]{name};
-//			byte[][] contentsByte = new byte[][] {content};
-            String[] encodedContents = new String[]{encoded};
-
-//			service.addAttachmentsToIssue(token, issueKey, names, contentsByte);
-            service.addBase64EncodedAttachmentsToIssue(token, issueKey, names, encodedContents);
-
-        } catch (RemoteException e) {
-            throw new RemoteApiException(e.toString(), e);
+		String[] encodedContents = new String[]{new String(new Base64().encode(content))};
+		String[] names = new String[]{name};
+		try {
+			service.addBase64EncodedAttachmentsToIssue(token, issueKey, names, encodedContents);
+		} catch (RemoteException e) {
+			if (e.toString().startsWith("java.lang.OutOfMemoryError")) {
+				throw new RemoteApiException("Attachment size is too large, try uploading directly from web browser", e);
+			}
+			throw new RemoteApiException(e.toString(), e);
         }
     }
 

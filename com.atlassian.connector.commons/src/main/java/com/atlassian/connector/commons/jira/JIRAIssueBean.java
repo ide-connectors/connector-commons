@@ -28,6 +28,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -64,6 +65,7 @@ public class JIRAIssueBean implements JIRAIssue {
 
 	private List<String> subTaskList;
 	private boolean thisIsASubTask;
+    private Map<String, Map<String, List<String>>> issueLinks;
 	private String parentIssueKey;
 	private String originalEstimate;
 	private String remainingEstimate;
@@ -110,6 +112,7 @@ public class JIRAIssueBean implements JIRAIssue {
         this.components = issue.getComponents();
         this.subTaskList = issue.getSubTaskKeys();
         this.thisIsASubTask = issue.isSubTask();
+        this.issueLinks = issue.getIssueLinks();
         this.parentIssueKey = issue.getParentIssueKey();
         this.originalEstimate = issue.getOriginalEstimate();
         this.remainingEstimate = issue.getRemainingEstimate();
@@ -174,6 +177,32 @@ public class JIRAIssueBean implements JIRAIssue {
 			}
 		}
 
+        Element issueLinksElement = e.getChild("issuelinks");
+        if (issueLinksElement != null) {
+            issueLinks = new HashMap<String, Map<String, List<String>>>();
+            for (Object issueLinkTypeObj : issueLinksElement.getChildren("issuelinktype")) {
+                Element issueLinkType = (Element) issueLinkTypeObj;
+                String linkName = getTextSafely(issueLinkType, "name");
+                Map<String, List<String>> map = new HashMap<String, List<String>>();
+                for (String direction : new String[]{"outwardlinks", "inwardlinks"} ) {
+                    Element outwardLinks = issueLinkType.getChild(direction);
+                    if (outwardLinks != null) {
+                        String description = outwardLinks.getAttributeValue("description");
+                        List<String> issueLinkList = new ArrayList<String>();
+                        map.put(description, issueLinkList);
+                        for (Object issueLinkObj : outwardLinks.getChildren("issuelink")) {
+                            Element issueLink = (Element) issueLinkObj;
+                            String issueKey = getTextSafely(issueLink, "issuekey");
+                            if (issueKey != null) {
+//                                System.out.println(linkName + ":" + description + ":" + issueKey);
+                                issueLinkList.add(issueKey);
+                            }
+                        }
+                        issueLinks.put(linkName, map);
+                    }
+                }
+            }
+        }
 		this.originalEstimate = getTextSafely(e, "timeoriginalestimate");
 		this.remainingEstimate = getTextSafely(e, "timeestimate");
 		this.timeSpent = getTextSafely(e, "timespent");
@@ -322,6 +351,10 @@ public class JIRAIssueBean implements JIRAIssue {
 	public boolean isSubTask() {
 		return thisIsASubTask;
 	}
+
+    public Map<String, Map<String, List<String>>> getIssueLinks() {
+        return issueLinks;
+    }
 
 	public String getParentIssueKey() {
 		return parentIssueKey;

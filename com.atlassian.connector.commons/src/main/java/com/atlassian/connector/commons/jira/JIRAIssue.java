@@ -22,6 +22,7 @@ import com.atlassian.connector.commons.jira.beans.JIRAPriorityBean;
 import com.atlassian.connector.commons.jira.beans.JIRASecurityLevelBean;
 
 import java.util.List;
+import java.util.Map;
 
 public interface JIRAIssue {
 	String getServerUrl();
@@ -79,6 +80,8 @@ public interface JIRAIssue {
 	String getParentIssueKey();
 
 	List<String> getSubTaskKeys();
+
+    Map<String, Map<String, List<String>>> getIssueLinks();
 
 	long getPriorityId();
 

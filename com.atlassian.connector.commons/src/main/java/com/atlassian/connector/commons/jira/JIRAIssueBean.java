@@ -184,12 +184,12 @@ public class JIRAIssueBean implements JIRAIssue {
                 Element issueLinkType = (Element) issueLinkTypeObj;
                 String linkName = getTextSafely(issueLinkType, "name");
                 Map<String, List<String>> map = new HashMap<String, List<String>>();
-                for (String direction : new String[]{"outwardlinks", "inwardlinks"} ) {
+                for (String direction : new String[]{"outwardlinks", "inwardlinks"}) {
                     Element outwardLinks = issueLinkType.getChild(direction);
                     if (outwardLinks != null) {
-                        String description = outwardLinks.getAttributeValue("description");
+                        String linkDescription = outwardLinks.getAttributeValue("description");
                         List<String> issueLinkList = new ArrayList<String>();
-                        map.put(description, issueLinkList);
+                        map.put(linkDescription, issueLinkList);
                         for (Object issueLinkObj : outwardLinks.getChildren("issuelink")) {
                             Element issueLink = (Element) issueLinkObj;
                             String issueKey = getTextSafely(issueLink, "issuekey");

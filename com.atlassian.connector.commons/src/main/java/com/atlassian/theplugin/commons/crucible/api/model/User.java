@@ -23,13 +23,16 @@ import java.io.Serializable;
 /**
  * User abstraction.
  */
+@SuppressWarnings("serial")
 public class User implements Serializable {
     private static final int HASH_MAGIC = 31;
 
 	@NotNull
     protected String userName;
+
 	@Nullable
 	protected String displayName;
+
 	@Nullable
 	private String avatarUrl;
 
@@ -37,15 +40,17 @@ public class User implements Serializable {
         this.userName = userName;
     }
 
-	public User(@NotNull String userName, String displayName) {
-        this.userName = userName;
-        this.displayName = displayName;
+	public User(@NotNull String userName, @Nullable String displayName) {
+		this(userName, displayName, null);
     }
 
-	public void setAvatarUrl(String avatarUrl) {
+	public User(@NotNull String userName, @Nullable String displayName, @Nullable String avatarUrl) {
+		this.userName = userName;
+		this.displayName = displayName;
 		this.avatarUrl = avatarUrl;
 	}
 
+	@Nullable
 	public String getAvatarUrl() {
 		return avatarUrl;
 	}
@@ -55,6 +60,7 @@ public class User implements Serializable {
         return userName;
     }
 
+	@Nullable
     public String getDisplayName() {
 		if (displayName == null) {
 			return userName;

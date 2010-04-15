@@ -141,7 +141,7 @@ public final class CrucibleRestXmlHelper {
             return new User(repoNode.getText(), repoNode.getText());
         } else {
             return new User(getChildText(repoNode, "userName"),
-                    getChildText(repoNode, "displayName"));
+					getChildText(repoNode, "displayName"), getChildText(repoNode, "avatarUrl"));
         }
     }
 

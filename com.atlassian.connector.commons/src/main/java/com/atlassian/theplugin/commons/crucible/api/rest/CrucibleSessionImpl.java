@@ -51,6 +51,7 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredExceptio
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.Logger;
+import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.ProductVersionUtil;
 import com.atlassian.theplugin.commons.util.StringUtil;
 import org.apache.commons.httpclient.Header;
@@ -1277,7 +1278,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					actions.add(CrucibleRestXmlHelper.parseActionNode(element));
+					try {
+						actions.add(CrucibleRestXmlHelper.parseActionNode(element));
+					} catch (IllegalArgumentException e) {
+						LoggerImpl.getInstance().warn(e);
+					}
 				}
 			}
 			return actions;
@@ -1306,7 +1311,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					transitions.add(CrucibleRestXmlHelper.parseActionNode(element));
+					try {
+						transitions.add(CrucibleRestXmlHelper.parseActionNode(element));
+					} catch (IllegalArgumentException e) {
+						LoggerImpl.getInstance().warn(e);
+					}
 				}
 			}
 			return transitions;

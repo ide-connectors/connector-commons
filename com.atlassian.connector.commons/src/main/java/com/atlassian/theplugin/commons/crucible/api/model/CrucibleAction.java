@@ -31,10 +31,13 @@ public enum CrucibleAction {
     UNCOMPLETE("Uncomplete review", "action:uncompleteReview"),
     COMMENT("Comment", "action:commentOnReview"),
     MODIFY_FILES("Modify files", "action:modifyReviewFiles"),
-    DELETE("Delete review", "action:deleteReview");
+	DELETE("Delete review", "action:deleteReview"),
+	REOPEN_SNIPPET("Reopen snippet", "action:reopenSnippet"),
+	CLOSE_SNIPPET("Close snippet", "action:closeSnippet"),
+    CREATE_SNIPPET("Create snippet", "action:createSnippet");
 
     private final String displayName;
-	
+
     private final String actionName;
 
     CrucibleAction(String dName, String aName) {

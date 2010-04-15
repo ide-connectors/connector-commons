@@ -145,6 +145,14 @@ public final class CrucibleRestXmlHelper {
         }
     }
 
+	/**
+	 *
+	 * @param element
+	 * @return action
+	 * @throws IllegalArgumentException
+	 *             if action is invalid
+	 */
+	@NotNull
     public static CrucibleAction parseActionNode(Element element) {
         return CrucibleAction.fromValue(getChildText(element, "name"));
     }
@@ -314,7 +322,11 @@ public final class CrucibleRestXmlHelper {
         for (Element transition : transitionsNode) {
             List<Element> trans = getChildElements(transition, "transitionData");
             for (Element element : trans) {
-                transitions.add(parseActionNode(element));
+				try {
+					transitions.add(parseActionNode(element));
+				} catch (IllegalArgumentException e) {
+					LoggerImpl.getInstance().warn(e);
+				}
             }
         }
         review.setTransitions(transitions);
@@ -330,7 +342,11 @@ public final class CrucibleRestXmlHelper {
 //					actions.add(parseActionNode);
 //				}
 
-                actions.add(parseActionNode(element));
+				try {
+					actions.add(parseActionNode(element));
+				} catch (IllegalArgumentException e) {
+					LoggerImpl.getInstance().warn(e);
+				}
             }
         }
         review.setActions(actions);

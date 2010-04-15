@@ -3,6 +3,7 @@ package com.atlassian.theplugin.commons.crucible.api.rest;
 import com.atlassian.connector.commons.misc.IntRange;
 import com.atlassian.connector.commons.misc.IntRanges;
 import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
+import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
@@ -19,6 +20,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import junit.framework.TestCase;
@@ -178,6 +180,42 @@ public class CrucibleRestXmlHelperTest extends TestCase {
 		final SAXBuilder builder = new SAXBuilder();
 		final Document doc = builder.build(new CrucibleMockUtil().getResource(resourceName));
 		return doc;
+	}
+
+	public void testParseReviewDataWithUnkownAction() throws JDOMException, IOException, ParseException {
+		final Document doc = loadDocument("reviewDataWithUnknownAction.xml");
+		try {
+			final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "pniewiadomski", doc.getRootElement(),
+				false);
+			assertEquals(12, review.getActions().size());
+			EnumSet<CrucibleAction> a = review.getActions();
+			// assertTrue(a.contains(CrucibleAction.CREATE));
+			assertTrue(a.contains(CrucibleAction.CLOSE));
+			assertTrue(a.contains(CrucibleAction.SUMMARIZE));
+			assertTrue(a.contains(CrucibleAction.COMPLETE));
+			assertTrue(a.contains(CrucibleAction.VIEW));
+			assertTrue(a.contains(CrucibleAction.MODIFY_FILES));
+			assertTrue(a.contains(CrucibleAction.COMMENT));
+			assertTrue(a.contains(CrucibleAction.UNCOMPLETE));
+			assertTrue(a.contains(CrucibleAction.RECOVER));
+			assertTrue(a.contains(CrucibleAction.REOPEN));
+			assertTrue(a.contains(CrucibleAction.CREATE_SNIPPET));
+			assertTrue(a.contains(CrucibleAction.REOPEN_SNIPPET));
+			assertTrue(a.contains(CrucibleAction.CLOSE_SNIPPET));
+		} catch (IllegalArgumentException e) {
+			fail("Should not throw this excaption outside");
+		}
+	}
+
+	public void testParseReviewDataWithAvatars() throws JDOMException, IOException, ParseException {
+		final Document doc = loadDocument("reviewDataWithAvatars.xml");
+		final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "pniewiadomski", doc.getRootElement(),
+				false);
+		assertNotNull(review);
+		assertNotNull(review.getAuthor());
+		assertEquals(
+				"https://secure.gravatar.com/avatar/4ba9395f438bc01f336c48adedd24532?s=48&d=https%3A//extranet.atlassian.com/crucible/avatar/j_doe%3Fs%3D48",
+				review.getAuthor().getAvatarUrl());
 	}
 
 }

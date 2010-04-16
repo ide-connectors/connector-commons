@@ -70,6 +70,23 @@ public class JiraServerCfg extends ServerCfg {
         return basicHttpUser;
     }
 
+
+    @Override
+    public PrivateServerCfgInfo createPrivateProjectConfiguration() {
+		return new PrivateServerCfgInfo(getServerId(), isEnabled(), isUseDefaultCredentials(),
+				getUsername(), isPasswordStored() ? getPassword() : null,
+                !dontUseBasicAuth, basicHttpUser.getUsername(), basicHttpUser.getPassword());
+
+    }
+
+    @Override
+    public void mergePrivateConfiguration(PrivateServerCfgInfo psci) {
+        super.mergePrivateConfiguration(psci);    //To change body of overridden methods use File | Settings | File Templates.
+        setDontUseBasicAuth(!psci.isUseDefaultCredentials());
+        setBasicHttpUser(new UserCfg(psci.getBasicUsername(), psci.getBasicPassword()));
+
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

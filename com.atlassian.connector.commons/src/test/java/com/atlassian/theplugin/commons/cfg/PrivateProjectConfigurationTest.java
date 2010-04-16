@@ -20,8 +20,10 @@ import junit.framework.TestCase;
 public class PrivateProjectConfigurationTest extends TestCase {
 	public void testGetPrivateServerCfgInfo() {
 		PrivateProjectConfiguration ppc = new PrivateProjectConfiguration();
-		final PrivateServerCfgInfo serverCfgInfo1 = new PrivateServerCfgInfo(new ServerIdImpl(), true, false, "abf", "pass1");
-		final PrivateServerCfgInfo serverCfgInfo2 = new PrivateServerCfgInfo(new ServerIdImpl(), true, false, "abf2", "pass1");
+		final PrivateServerCfgInfo serverCfgInfo1 =
+                new PrivateServerCfgInfo(new ServerIdImpl(), true, false, "abf", "pass1", false, "", "");
+		final PrivateServerCfgInfo serverCfgInfo2 =
+                new PrivateServerCfgInfo(new ServerIdImpl(), true, false, "abf2", "pass1", false, "", "");
 		ppc.add(serverCfgInfo1);
 		ppc.add(serverCfgInfo2);
 		assertEquals(serverCfgInfo1, ppc.getPrivateServerCfgInfo(serverCfgInfo1.getServerId()));

@@ -185,7 +185,7 @@ public class BambooServerCfg extends ServerCfg {
 	@Override
 	public PrivateServerCfgInfo createPrivateProjectConfiguration() {
 		return new PrivateBambooServerCfgInfo(getServerId(), isEnabled(), isUseDefaultCredentials(),
-				getUsername(), isPasswordStored() ? getPassword() : null, getTimezoneOffset());
+				getUsername(), isPasswordStored() ? getPassword() : null, getTimezoneOffset(), false, "", "");
 	}
 
 	@Override

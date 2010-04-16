@@ -15,7 +15,17 @@
  */
 package com.atlassian.theplugin.commons.cfg.xstream;
 
-import com.atlassian.theplugin.commons.cfg.*;
+import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
+import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;
+import com.atlassian.theplugin.commons.cfg.JiraServerCfg;
+import com.atlassian.theplugin.commons.cfg.PrivateBambooServerCfgInfo;
+import com.atlassian.theplugin.commons.cfg.PrivateProjectConfiguration;
+import com.atlassian.theplugin.commons.cfg.PrivateServerCfgInfo;
+import com.atlassian.theplugin.commons.cfg.ProjectConfiguration;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
+import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -48,6 +58,9 @@ public final class JDomXStreamUtil {
 		xStream.omitField(ServerCfg.class, "isPasswordStored");
 		xStream.omitField(ServerCfg.class, "useDefaultCredentials");
 
+        xStream.omitField(JiraServerCfg.class, "dontUseBasicAuth");
+        xStream.omitField(JiraServerCfg.class, "basicHttpUser");
+
 		xStream.omitField(BambooServerCfg.class, "timezoneOffset");
 		xStream.omitField(CrucibleServerCfg.class, "fishEyeView");
 		xStream.aliasField("server-id", ServerCfg.class, "serverId");
@@ -70,7 +83,13 @@ public final class JDomXStreamUtil {
 		xStream.aliasField("enabled", PrivateServerCfgInfo.class, "isEnabled");
 		xStream.aliasField("timezone-offset", PrivateBambooServerCfgInfo.class, "timezoneOffset");
 		xStream.aliasField("used-default-credentials", PrivateServerCfgInfo.class, "useDefaultCredentials");
+        xStream.aliasField("basic-password", PrivateServerCfgInfo.class, "basicPassword");
+        xStream.aliasField("basic-username", PrivateServerCfgInfo.class, "basicUsername");
+        xStream.aliasField("use-http-basic", PrivateServerCfgInfo.class, "useHttpBasic");
+
 		xStream.registerLocalConverter(PrivateServerCfgInfo.class, "password", new EncodedStringConverter());
+        xStream.registerLocalConverter(PrivateServerCfgInfo.class, "basicPassword", new EncodedStringConverter());
+
 
 		xStream.alias("private-project-cfg", PrivateProjectConfiguration.class);
 		xStream.aliasField("private-server-cfgs", PrivateProjectConfiguration.class, "privateServerCfgInfos");

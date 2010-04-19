@@ -166,6 +166,8 @@ public interface CrucibleSession {
 	@Nullable
 	BasicReview createReviewFromUpload(Review review, Collection<UploadItem> uploadItems) throws RemoteApiException;
 
+	byte[] getFileContent(String contentUrl, boolean ignoreBase) throws RemoteApiException;
+
 	byte[] getFileContent(String contentUrl) throws RemoteApiException;
 
 	boolean checkContentUrlAvailable();

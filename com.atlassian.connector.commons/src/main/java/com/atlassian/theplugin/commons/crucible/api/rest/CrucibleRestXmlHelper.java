@@ -170,7 +170,8 @@ public final class CrucibleRestXmlHelper {
             return new Reviewer(
                     getChildText(reviewerNode, "userName"),
                     getChildText(reviewerNode, "displayName"),
-                    Boolean.parseBoolean(getChildText(reviewerNode, "completed")));
+                    Boolean.parseBoolean(getChildText(reviewerNode, "completed")),
+					getChildText(reviewerNode, "avatarUrl"));
         }
     }
 

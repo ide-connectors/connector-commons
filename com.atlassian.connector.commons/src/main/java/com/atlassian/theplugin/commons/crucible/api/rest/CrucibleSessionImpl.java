@@ -1246,15 +1246,19 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	public byte[] getFileContent(String contentUrl) throws RemoteApiException {
+		return getFileContent(contentUrl, false);
+	}
+
+	public byte[] getFileContent(String contentUrl, boolean ignoreBase) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
 
 		if (StringUtils.isBlank(contentUrl)) {
-			throw new RemoteApiException(getBaseUrl() + ": Content not accessible");
+			throw new RemoteApiException("Content URL is blank");
 		}
 
-		final String requestUrl = getBaseUrl() + contentUrl;
+		final String requestUrl = ignoreBase ? contentUrl : getBaseUrl() + contentUrl;
 		try {
 			return doConditionalGet(requestUrl);
 		} catch (IOException e) {

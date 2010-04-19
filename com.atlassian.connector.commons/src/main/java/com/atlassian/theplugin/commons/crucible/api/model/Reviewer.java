@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.crucible.api.model;
 
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("serial")
 public class Reviewer extends User {
 	private final boolean completed;
 
@@ -27,7 +28,11 @@ public class Reviewer extends User {
 	}
 
 	public Reviewer(@NotNull final String userName, final String displayName, final boolean completed) {
-		super(userName, displayName);
+		this(userName, displayName, completed, null);
+	}
+
+	public Reviewer(@NotNull final String userName, final String displayName, final boolean completed, final String avatarUrl) {
+		super(userName, displayName, avatarUrl);
 		this.completed = completed;
 	}
 

@@ -21,6 +21,7 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.List;
 
 /**
  * @author Jacek Jaroczynski
@@ -47,6 +48,11 @@ public abstract class XmlUtil {
 			return "[" + element.getName() + "] - string representation failed: " + e.getMessage();
 		}
 		return writer.toString();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<Element> getChildElements(Element node, String childName) {
+		return node.getChildren(childName);
 	}
 
 }

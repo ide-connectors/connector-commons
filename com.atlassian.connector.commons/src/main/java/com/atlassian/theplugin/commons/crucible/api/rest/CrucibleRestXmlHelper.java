@@ -17,6 +17,7 @@
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
 import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
+import static com.atlassian.theplugin.commons.util.XmlUtil.getChildElements;
 import com.atlassian.connector.commons.misc.IntRanges;
 import com.atlassian.connector.commons.misc.IntRangesParser;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
@@ -101,11 +102,6 @@ public final class CrucibleRestXmlHelper {
 		}
 		return null;
 	}
-
-    @SuppressWarnings("unchecked")
-    public static List<Element> getChildElements(Element node, String childName) {
-        return node.getChildren(childName);
-    }
 
     public static CrucibleProject parseProjectNode(Element projectNode) {
         return new CrucibleProject(

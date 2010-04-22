@@ -106,4 +106,7 @@ public interface BambooSession extends ProductSession {
 
 	@NotNull
 	BambooPlan getPlanDetails(@NotNull String planKey) throws RemoteApiException;
+
+	@NotNull
+	BuildDetails getBuildResultDetailsMoreRestish(@NotNull String planKey, int buildNumber) throws RemoteApiException;
 }

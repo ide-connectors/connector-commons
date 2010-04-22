@@ -40,6 +40,7 @@ import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.Logger;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.UrlUtil;
+import com.atlassian.theplugin.commons.util.XmlUtil;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -51,6 +52,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -579,6 +581,146 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		} catch (IOException e) {
 			throw new RemoteApiException(e.getMessage(), e);
 		}
+	}
+
+	@NotNull
+	public BuildDetails getBuildResultDetailsMoreRestish(@NotNull String planKey, int buildNumber) throws RemoteApiException {
+
+		// int bambooBuild = getBamboBuildNumber();
+		// if (bambooBuild < BAMBOO_23_BUILD_NUMBER) {
+		// throw new RemoteApiBadServerVersionException("Bamboo version 2.3 or newer required");
+		// }
+		final String buildResultUrl = getBaseUrl() + GET_BUILD_BY_NUMBER_ACTION + "/" + UrlUtil.encodeUrl(planKey)
+				+ "/" + buildNumber + "?auth=" + UrlUtil.encodeUrl(authToken)
+				+ "&expand=testResults.failed.testResult.errors";
+		// expand=testResults.successful.testResult&
+
+		try {
+			BuildDetailsInfo build = new BuildDetailsInfo();
+			Document doc = retrieveGetResponse(buildResultUrl);
+			String exception = getExceptionMessages(doc);
+			if (null != exception) {
+				throw new RemoteApiException(exception);
+			}
+
+			// @SuppressWarnings("unchecked")
+			// final List<Element> responseElements = XPath.newInstance("/response").selectNodes(doc);
+			// for (Element element : responseElements) {
+			// String vcsRevisionKey = element.getAttributeValue("vcsRevisionKey");
+			// if (vcsRevisionKey != null) {
+			// build.setVcsRevisionKey(vcsRevisionKey);
+			// }
+			// }
+			//
+			// @SuppressWarnings("unchecked")
+			// final List<Element> commitElements = XPath.newInstance("/response/commits/commit").selectNodes(doc);
+			// if (!commitElements.isEmpty()) {
+			// int i = 1;
+			// for (Element element : commitElements) {
+			// BambooChangeSetImpl cInfo = new BambooChangeSetImpl();
+			// cInfo.setAuthor(element.getAttributeValue("author"));
+			// cInfo.setCommitDate(parseCommitTime(element.getAttributeValue("date")));
+			// cInfo.setComment(getChildText(element, "comment"));
+			//
+			// String path = "/response/commits/commit[" + i++ + "]/files/file";
+			// XPath filesPath = XPath.newInstance(path);
+			// @SuppressWarnings("unchecked")
+			// final List<Element> fileElements = filesPath.selectNodes(doc);
+			// for (Element file : fileElements) {
+			// BambooFileInfo fileInfo = new BambooFileInfo(file.getAttributeValue("name"),
+			// file.getAttributeValue("revision"));
+			// cInfo.addCommitFile(fileInfo);
+			// }
+			// build.addCommitInfo(cInfo);
+			// }
+			// }
+
+			// <testResults fixedTests="0" existingFailed="2" newFailed="0"
+			// failed="2" successful="200"
+			// expand="successful,failed,newFailed,existingFailed,fixed">
+			// <successful size="200" max-result="200" start-index="0" />
+			// <failed expand="testResult" size="2" max-result="2"
+			// start-index="0">
+			// <testResult status="failed" methodName="testFindResourceForPath"
+			// className="com.atlassian.connector.eclipse.team.ui.TeamUiUtilsTests"
+			// expand="errors">
+			// <duration>7</duration>
+			// <durationInSeconds>0</durationInSeconds>
+			// <errors size="1" max-result="1" start-index="0">
+			// <error>
+			// <message>java.lang.NoClassDefFoundError:
+			// org/eclipse/mylyn/java/tests/TestJavaProject
+			// at
+			// com.atlassian.connector.eclipse.team.ui.TeamUiUtilsTests.cleanupWorkspace(TeamUiUtilsTests.java:102)
+
+			@SuppressWarnings("unchecked")
+			final List<Element> testResElements = XPath.newInstance("/build/testResults/failed/testResult")
+					.selectNodes(doc);
+			for (Element element : testResElements) {
+				TestDetailsInfo tInfo = new TestDetailsInfo();
+				tInfo.setTestClassName(element.getAttributeValue("className"));
+				tInfo.setTestMethodName(element.getAttributeValue("methodName"));
+				try {
+					tInfo.setTestResult(parseTestResult(element.getAttributeValue("status")));
+				} catch (ParseException e1) {
+					loger.warn("Cannot parse test result element:\n" + XmlUtil.toPrettyFormatedString(element), e1);
+					continue;
+				}
+				tInfo.setTestDuration(parseDuration(element.getChild("duration")));
+
+				StringBuilder errorBuilder = new StringBuilder();
+				XPath errorPath = XPath.newInstance("/errors/error");
+				@SuppressWarnings("unchecked")
+				final List<Element> errorElements = errorPath.selectNodes(element);
+				for (Element error : errorElements) {
+					final String errorEntry = element.getChildText("message");
+					if (errorEntry != null) {
+						errorBuilder.append(errorEntry).append('\n');
+					}
+				}
+				tInfo.setTestErrors(errorBuilder.toString());
+
+				switch (tInfo.getTestResult()) {
+				case TEST_FAILED:
+					build.addFailedTest(tInfo);
+					break;
+				case TEST_SUCCEED:
+					build.addSuccessfulTest(tInfo);
+					break;
+				}
+			}
+
+			return build;
+		} catch (JDOMException e) {
+			throw new RemoteApiException("Server returned malformed response", e);
+		} catch (IOException e) {
+			throw new RemoteApiException(e.getMessage(), e);
+		} catch (ParseException e) {
+			throw new RemoteApiException("Server returned malformed response", e);
+		}
+	}
+
+	private double parseDuration(Element durationElement) throws ParseException {
+		if (durationElement == null) {
+			throw new ParseException("null duration element", 0);
+		}
+
+		final String durationStr = durationElement.getText();
+
+		try {
+			return Double.valueOf(durationStr);
+		} catch (NumberFormatException e) {
+			throw new ParseException("Cannot parse duration element as floating point number [" + durationStr + "]", 0);
+		}
+	}
+
+	private TestResult parseTestResult(String attributeValue) throws ParseException {
+		if ("failed".equals(attributeValue)) {
+			return TestResult.TEST_FAILED;
+		} else if ("successful".equals(attributeValue)) {
+			return TestResult.TEST_SUCCEED;
+		}
+		throw new ParseException("Invalid test result [" + attributeValue + "]", 0);
 	}
 
 	/**

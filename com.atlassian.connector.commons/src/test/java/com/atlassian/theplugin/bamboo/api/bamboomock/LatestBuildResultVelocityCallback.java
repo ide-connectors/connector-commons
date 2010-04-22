@@ -27,13 +27,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStreamWriter;
 import java.util.Properties;
 
-public class LatestBuildResultVelocityBallback implements JettyMockServer.Callback {
+public class LatestBuildResultVelocityCallback implements JettyMockServer.Callback {
 
 	private final String buildKey;
 
 	private final int buildNumber;
 
-	public LatestBuildResultVelocityBallback(final String buildKey, int buildNumber) {
+	public LatestBuildResultVelocityCallback(final String buildKey, int buildNumber) {
 		this.buildKey = buildKey;
 		this.buildNumber = buildNumber;
 	}

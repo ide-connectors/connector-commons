@@ -32,6 +32,7 @@ import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
+import com.atlassian.theplugin.commons.util.XmlUtil;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -326,7 +327,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 		String branch = changesetElement.getAttributeValue("branch");
 		List<FileRevisionKey> keys = MiscUtil.buildArrayList();
 
-		for (Element element : CrucibleRestXmlHelper.getChildElements(changesetElement, "fileRevisionKey")) {
+		for (Element element : XmlUtil.getChildElements(changesetElement, "fileRevisionKey")) {
 			keys.add(parseFileRevisionKey(element));
 		}
 

@@ -30,7 +30,6 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredExceptio
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.Logger;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -241,5 +240,9 @@ public class AutoRenewBambooSession implements BambooSession {
 			delegate.login(userName, password);
 			return delegate.getSubscribedPlansResults(plans, isUseFavourities, timezoneOffset);
 		}
+	}
+
+	public BuildDetails getBuildResultDetailsMoreRestish(String planKey, int buildNumber) throws RemoteApiException {
+		return delegate.getBuildResultDetailsMoreRestish(planKey, buildNumber);
 	}
 }

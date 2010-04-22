@@ -27,8 +27,9 @@ import com.atlassian.theplugin.bamboo.api.bamboomock.BuildForPlanAndNumberCallba
 import com.atlassian.theplugin.bamboo.api.bamboomock.ErrorMessageCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.ExecuteBuildCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.GenericResourceCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultVelocityBallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultVelocityCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LatestPlanCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LogoutCallback;
@@ -859,9 +860,9 @@ public class BambooSessionTest extends AbstractSessionTest {
 	public void testEnabledStatus() throws RemoteApiException {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
-		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultVelocityBallback("PO-TP", 123));
+		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultVelocityCallback("PO-TP", 123));
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
-		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultVelocityBallback("PT-TOP", 45));
+		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultVelocityCallback("PT-TOP", 45));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		BambooSession session = createBambooSession(mockBaseUrl);
@@ -971,6 +972,25 @@ public class BambooSessionTest extends AbstractSessionTest {
 		} catch(RemoteApiException e) {
 			assertEquals("Malformed server reply: no 'plan' element", e.getMessage());
 		}
+
+		session.logout();
+
+		mockServer.verify();
+	}
+
+	public void testGetBuildTestResultForBamboo2x6() throws RemoteApiException {
+		String expectedUri = "/rest/api/latest/build/ECL-TST/1635";// ?expand=testResults.successful.testResult";
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		GenericResourceCallback callback = new GenericResourceCallback(
+				"/mock/bamboo/2_6/api/rest/buildDetailsWithExpandedTestResults.xml", expectedUri);
+		mockServer.expect(expectedUri, callback);
+		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
+		BambooSession session = createBambooSession(mockBaseUrl);
+		session.login(USER_NAME, PASSWORD.toCharArray());
+		final BuildDetails buildDetails = session.getBuildResultDetailsMoreRestish("ECL-TST", 1635);
+		assertEquals(2, buildDetails.getFailedTestDetails().size());
+		// TODO wseliga when Bamboo 2.6 M6 is available - finish this test (expand=all will be available)
+		// assertEquals(200, buildDetails.getSuccessfulTestDetails().size());
 
 		session.logout();
 

@@ -3,6 +3,9 @@
 		<server-id>241d662c-e744-4690-a5f8-6e127c0bc84f</server-id>
 		<enabled>true</enabled>
 		<username>mytestuser2</username>
+		<use-http-basic>false</use-http-basic>
+		<basic-username />
+		<basic-password />
 		<used-default-credentials>false</used-default-credentials>
 		<timezone-offset>1</timezone-offset>
 	</private-bamboo-server-cfg>

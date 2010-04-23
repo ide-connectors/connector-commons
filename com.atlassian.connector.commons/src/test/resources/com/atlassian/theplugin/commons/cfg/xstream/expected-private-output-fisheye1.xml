@@ -4,6 +4,7 @@
 		<enabled>true</enabled>
 		<username>user1</username>
 		<password>cGFzc3dvcmQyMw==</password>
+		<use-http-basic>false</use-http-basic>
 		<used-default-credentials>false</used-default-credentials>
 	</private-server-cfg>
 </single-server-private-cfg>

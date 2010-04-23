@@ -4,6 +4,9 @@
 		<enabled>true</enabled>
 		<username>mytestuser</username>
 		<password>bXlwYXNzd29yZDE=</password>
+		<use-http-basic>false</use-http-basic>
+		<basic-username />
+		<basic-password />
 		<used-default-credentials>false</used-default-credentials>
 		<timezone-offset>0</timezone-offset>
 	</private-bamboo-server-cfg>

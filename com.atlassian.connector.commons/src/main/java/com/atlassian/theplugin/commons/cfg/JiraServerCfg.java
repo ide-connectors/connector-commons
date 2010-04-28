@@ -75,7 +75,9 @@ public class JiraServerCfg extends ServerCfg {
     public PrivateServerCfgInfo createPrivateProjectConfiguration() {
 		return new PrivateServerCfgInfo(getServerId(), isEnabled(), isUseDefaultCredentials(),
 				getUsername(), isPasswordStored() ? getPassword() : null,
-                !dontUseBasicAuth, basicHttpUser.getUsername(), basicHttpUser.getPassword());
+                !dontUseBasicAuth,
+                basicHttpUser != null ? basicHttpUser.getUsername() : "",
+                basicHttpUser != null ? basicHttpUser.getPassword() : "");
 
     }
 

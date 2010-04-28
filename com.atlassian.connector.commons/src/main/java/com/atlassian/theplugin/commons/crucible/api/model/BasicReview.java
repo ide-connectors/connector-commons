@@ -54,12 +54,19 @@ public class BasicReview {
 	private DateTime dueDate;
 	private String summary;
 	private final String serverUrl;
+	private final ReviewType type;
 
-	public BasicReview(@NotNull String serverUrl, @NotNull String projectKey, @NotNull User author, @Nullable User moderator) {
+	public BasicReview(@NotNull ReviewType type, @NotNull String serverUrl, @NotNull String projectKey, @NotNull User author,
+			@Nullable User moderator) {
+		this.type = type;
 		this.serverUrl = serverUrl;
 		this.projectKey = projectKey;
 		this.author = author;
 		this.moderator = moderator;
+	}
+
+	public ReviewType getType() {
+		return type;
 	}
 
 	public void setReviewers(Set<Reviewer> reviewers) {

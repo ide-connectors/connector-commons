@@ -34,8 +34,14 @@ public class Review extends BasicReview {
 	private Set<CrucibleFileInfo> files = Collections.emptySet();
 	private List<Comment> generalComments = Collections.emptyList();
 
-	public Review(@NotNull String serverUrl, @NotNull String projectKey, @NotNull User author, @Nullable User moderator) {
-		super(serverUrl, projectKey, author, moderator);
+	public Review(@NotNull String serverUrl, @NotNull String projectKey, @NotNull User author,
+			@Nullable User moderator) {
+		this(ReviewType.REVIEW, serverUrl, projectKey, author, moderator);
+	}
+
+	public Review(@NotNull ReviewType type, @NotNull String serverUrl, @NotNull String projectKey, @NotNull User author,
+			@Nullable User moderator) {
+		super(type, serverUrl, projectKey, author, moderator);
 	}
 
 	public void setGeneralComments(@NotNull List<Comment> generalComments) {
@@ -127,7 +133,7 @@ public class Review extends BasicReview {
 
 	/**
 	 * This method does not work for nested replies!
-	 * 
+	 *
 	 * @deprecated Crucible does not serve any longer info about other users drafts in this form. It serves just the stats.
 	 */
 	@Deprecated
@@ -254,7 +260,7 @@ public class Review extends BasicReview {
 
 	/**
 	 * This method does not work for nested replies!
-	 * 
+	 *
 	 * @deprecated Crucible does not serve any longer info about other users drafts in this form. It serves just the stats.
 	 */
 	@Deprecated

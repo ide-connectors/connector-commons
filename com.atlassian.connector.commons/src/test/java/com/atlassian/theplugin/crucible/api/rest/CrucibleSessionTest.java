@@ -36,6 +36,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewType;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
 import com.atlassian.theplugin.commons.crucible.api.model.State;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
@@ -948,6 +949,7 @@ public class CrucibleSessionTest extends TestCase {
 
 		final Review review = getReview(permId, "reviewDetailsResponse.xml", 1);
 		assertNotNull(review);
+		assertEquals(ReviewType.REVIEW, review.getType());
 		assertFalse(review.isAllowReviewerToJoin());
 		assertEquals(permId, review.getPermId());
 		assertEquals("TST", review.getProjectKey());

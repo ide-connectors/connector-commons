@@ -43,6 +43,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.RepositoryType;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewType;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
 import com.atlassian.theplugin.commons.crucible.api.model.RevisionData;
 import com.atlassian.theplugin.commons.crucible.api.model.State;
@@ -190,11 +191,12 @@ public final class CrucibleRestXmlHelper {
         final String projectKey = getChildText(reviewNode, "projectKey");
         final User author = parseUserNode(reviewNode.getChild("author"));
         final User creator = parseUserNode(reviewNode.getChild("creator"));
+		final ReviewType reviewType = parseReviewType(reviewNode.getChildText("type"));
 
         final User moderator = (reviewNode.getChild("moderator") != null)
                 ? parseUserNode(reviewNode.getChild("moderator")) : null;
 
-        BasicReview review = new BasicReview(serverUrl, projectKey, author, moderator);
+		BasicReview review = new BasicReview(reviewType, serverUrl, projectKey, author, moderator);
         review.setCreator(creator);
         fillAlwaysPresentReviewData(review, reviewNode, serverUrl, trimWikiMarkers);
         fillMoreDetailedReviewData(review, reviewNode, trimWikiMarkers);
@@ -204,7 +206,7 @@ public final class CrucibleRestXmlHelper {
         return review;
     }
 
-    public static Review parseFullReview(String serverUrl, String myUsername, final Element reviewNode,
+	public static Review parseFullReview(String serverUrl, String myUsername, final Element reviewNode,
                                          boolean trimWikiMarkers) throws ParseException {
         final String projectKey = getChildText(reviewNode, "projectKey");
         final User author = parseUserNode(reviewNode.getChild("author"));
@@ -214,7 +216,9 @@ public final class CrucibleRestXmlHelper {
 
         final User creator = (reviewNode.getChild("creator") != null)
                 ? parseUserNode(reviewNode.getChild("creator")) : null;
-        Review review = new Review(serverUrl, projectKey, author, moderator);
+		final ReviewType reviewType = parseReviewType(reviewNode.getChildText("type"));
+
+		Review review = new Review(reviewType, serverUrl, projectKey, author, moderator);
         review.setCreator(creator);
         fillAlwaysPresentReviewData(review, reviewNode, serverUrl, trimWikiMarkers);
         fillMoreDetailedReviewData(review, reviewNode, trimWikiMarkers);
@@ -1057,6 +1061,15 @@ public final class CrucibleRestXmlHelper {
 			throw new ParseException("Cannot convert string [" + date + "] to date", 0);
 		}
     }
+
+	private static ReviewType parseReviewType(String reviewType) throws ParseException {
+		if (reviewType == null /* for old Crucible versions */|| "REVIEW".equals(reviewType)) {
+			return ReviewType.REVIEW;
+		} else if ("SNIPPET".equals(reviewType)) {
+			return ReviewType.SNIPPET;
+		}
+		throw new ParseException("Unknown review type [" + reviewType + "]", 0);
+	}
 
     public static CrucibleVersionInfo parseVersionNode(Element element) {
         return new CrucibleVersionInfo(getChildText(element, "releaseNumber"), getChildText(element, "buildDate"));

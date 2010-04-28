@@ -7,6 +7,8 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
+import com.atlassian.theplugin.commons.crucible.api.model.ReviewType;
+import com.atlassian.theplugin.commons.crucible.api.model.State;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CrucibleMockUtil;
 import com.spartez.util.junit3.IAction;
@@ -174,6 +176,30 @@ public class CrucibleRestXmlHelperTest extends TestCase {
 				CrucibleRestXmlHelper.parseBasicReview(TEST_URL, doc.getRootElement(), false);
 			}
 		});
+	}
+
+	public void testParseOpenSnippet() throws ParseException, JDOMException, IOException {
+		final Document doc = loadDocument("open-snippet-details.xml");
+		final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "wseliga", doc.getRootElement(),
+				false);
+		assertEquals(State.OPEN_SNIPPET, review.getState());
+		assertEquals(ReviewType.SNIPPET, review.getType());
+	}
+
+	public void testParseClosedSnippet() throws ParseException, JDOMException, IOException {
+		final Document doc = loadDocument("closed-snippet-details.xml");
+		final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "wseliga", doc.getRootElement(),
+				false);
+		assertEquals(State.CLOSED_SNIPPET, review.getState());
+		assertEquals(ReviewType.SNIPPET, review.getType());
+	}
+
+	public void testParseRegularReviewType() throws ParseException, JDOMException, IOException {
+		final Document doc = loadDocument("reviewDetailsResponse-withReviewType.xml");
+		final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "wseliga", doc.getRootElement(),
+				false);
+		assertEquals(State.DRAFT, review.getState());
+		assertEquals(ReviewType.REVIEW, review.getType());
 	}
 
 	private Document loadDocument(String resourceName) throws JDOMException, IOException {

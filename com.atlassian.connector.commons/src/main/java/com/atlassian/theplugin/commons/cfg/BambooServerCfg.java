@@ -61,7 +61,7 @@ public class BambooServerCfg extends ServerCfg {
 	}
 
     public boolean isDontUseBasicAuth() {
-        return false;
+        return true;
     }
 
     public UserCfg getBasicHttpUser() {
@@ -198,5 +198,6 @@ public class BambooServerCfg extends ServerCfg {
 				// Whisky Tango Foxtrot?
 			}
 		}
+
 	}
 }

@@ -18,7 +18,11 @@ package com.atlassian.theplugin.commons.configuration;
 
 import com.atlassian.theplugin.commons.util.Version;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -249,7 +253,7 @@ public class GeneralConfigurationBean {
         if (rejectedUpgrade != null ? !rejectedUpgrade.equals(that.rejectedUpgrade) : that.rejectedUpgrade != null) {
             return false;
         }
-        if (!certs.equals(that.certs)) {
+        if (certs!= null && !certs.equals(that.certs)) {
             return false;
         }
         if (!statsCountersMap.equals(that.statsCountersMap)) {

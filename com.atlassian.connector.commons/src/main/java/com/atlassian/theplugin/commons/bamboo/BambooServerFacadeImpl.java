@@ -104,7 +104,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 		BambooSession session;
 		try {
 			session = getSession(bambooServerData);
-			if (session != null && session.getBamboBuildNumber() >= 1600) {
+			if (session != null && session.getBamboBuildNumber() >= 1600 && session.getBamboBuildNumber() <= 1602) {
 				return true;
 			}
 

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.atlassian.connector</groupId>
 	<artifactId>atlassian-connector-commons</artifactId>
-	<version>4.0.0-m2</version>
+	<version>4.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<inceptionYear>2008</inceptionYear>
 	<name>Library of common classes</name>
@@ -13,9 +13,9 @@
 		<url>http://atlassian.com/</url>
 	</organization>
 	<scm>
-		<connection>scm:svn:https://studio.atlassian.com/svn/ACC/tags/atlassian-connector-commons-4.0.0-m2</connection>
-		<developerConnection>scm:svn:https://studio.atlassian.com/svn/ACC/tags/atlassian-connector-commons-4.0.0-m2</developerConnection>
-		<url>https://studio.atlassian.com/svn/ACC/tags/atlassian-connector-commons-4.0.0-m2</url>
+		<connection>scm:svn:https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.commons</connection>
+		<developerConnection>scm:svn:https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.commons</developerConnection>
+		<url>https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.commons</url>
 	</scm>
 	<issueManagement>
 		<system>Jira</system>

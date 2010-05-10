@@ -107,6 +107,6 @@ public class StringUtilTest extends TestCase {
 		assertEquals("xyz", StringUtil.getFirstLine("xyz\n"));
 
 		// TODO jj remove test fail
-		fail("test fail");
+		test
 	}
 }

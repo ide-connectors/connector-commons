@@ -17,11 +17,10 @@ package com.atlassian.theplugin.commons.util;
 
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
-import junit.framework.TestCase;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import junit.framework.TestCase;
 
 /**
  * StringUtil Tester.
@@ -52,7 +51,7 @@ public class StringUtilTest extends TestCase {
 	}
 
 	public void testEmptyString() {
-		final String encoded = StringUtil.encode(""); 
+		final String encoded = StringUtil.encode("");
 		assertEquals("", StringUtil.decode(encoded));
 	}
 
@@ -106,5 +105,8 @@ public class StringUtilTest extends TestCase {
 		assertEquals("abc", StringUtil.getFirstLine("abc\nfdsdf\n\n"));
 		assertEquals("xyz", StringUtil.getFirstLine("xyz"));
 		assertEquals("xyz", StringUtil.getFirstLine("xyz\n"));
+
+		// TODO jj remove test fail
+		fail("test fail");
 	}
 }

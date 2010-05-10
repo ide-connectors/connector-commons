@@ -51,7 +51,7 @@ public class StringUtilTest extends TestCase {
 	}
 
 	public void testEmptyString() {
-		final String encoded = StringUtil.encode("");
+		final String encoded = StringUtil.encode(""); 
 		assertEquals("", StringUtil.decode(encoded));
 	}
 
@@ -105,8 +105,5 @@ public class StringUtilTest extends TestCase {
 		assertEquals("abc", StringUtil.getFirstLine("abc\nfdsdf\n\n"));
 		assertEquals("xyz", StringUtil.getFirstLine("xyz"));
 		assertEquals("xyz", StringUtil.getFirstLine("xyz\n"));
-
-		// TODO jj remove test fail
-		test
 	}
 }

@@ -44,6 +44,7 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -448,7 +449,8 @@ public abstract class AbstractHttpSession {
 
 				// Create the multi-part request
 				method.setRequestEntity(new MultipartRequestEntity(parts, method.getParams()));
-
+                callback.configureHttpMethod(this, method);
+                
 				client.executeMethod(method);
 				final int httpStatus = method.getStatusCode();
 				if (httpStatus == HttpStatus.SC_NO_CONTENT) {

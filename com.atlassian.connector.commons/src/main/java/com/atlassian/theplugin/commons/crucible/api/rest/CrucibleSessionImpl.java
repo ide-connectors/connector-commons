@@ -66,7 +66,6 @@ import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -710,10 +709,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         }
 
 		String requestUrl = getBaseUrl() + PROJECTS_SERVICE;
-
-		if (getServerVersion().isVersion2OrGreater()) {
-			requestUrl += PROJECTS_EXPAND_ALLOWED_REVIEWERS;
-		}
 
 		try {
 			Document doc = retrieveGetResponse(requestUrl);

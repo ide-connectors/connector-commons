@@ -20,6 +20,7 @@ import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.BambooFileInfo;
 import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
+import com.atlassian.theplugin.commons.bamboo.BambooChangeSet;
 import com.atlassian.theplugin.commons.bamboo.BambooChangeSetImpl;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
@@ -39,6 +40,7 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.Logger;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
+import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import com.atlassian.theplugin.commons.util.XmlUtil;
 import org.jdom.Document;
@@ -109,6 +111,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 	private static final int BAMBOO_23_BUILD_NUMBER = 1308;
     private static final int BAMBOO_1401_BUILD_NUMBER = 1401;
+	private static final int BAMBOO_2_6_BUILD_NUMBER = 1839;
 
 	private static final String CANNOT_PARSE_BUILD_TIME = "Cannot parse buildTime.";
     private static final String INVALID_SERVER_RESPONSE = "Invalid server response";
@@ -482,7 +485,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	}
 
 	@NotNull
-	public BuildDetails getBuildResultDetails(@NotNull String planKey, int buildNumber) throws RemoteApiException {
+	private BuildDetails getBuildResultDetailsOld(@NotNull String planKey, int buildNumber) throws RemoteApiException {
 		final String buildResultUrl = getBaseUrl() + GET_BUILD_DETAILS_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
 				+ "&buildKey=" + UrlUtil.encodeUrl(planKey) + "&buildNumber=" + buildNumber;
 
@@ -583,17 +586,38 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		}
 	}
 
-	@NotNull
-	public BuildDetails getBuildResultDetailsMoreRestish(@NotNull String planKey, int buildNumber) throws RemoteApiException {
+	/**
+	 * includes cached build number (version) of Bamboo given session connects too Currently we do not support clearing it, so
+	 * the restart will be required to use new API - this limitation is something we can definitely live with
+	 */
+	private Integer serverBuildNumber;
 
-		// int bambooBuild = getBamboBuildNumber();
-		// if (bambooBuild < BAMBOO_23_BUILD_NUMBER) {
-		// throw new RemoteApiBadServerVersionException("Bamboo version 2.3 or newer required");
-		// }
+	private int getServerBuildNumber() throws RemoteApiException {
+		if (serverBuildNumber != null) {
+			return serverBuildNumber.intValue();
+		}
+		// I am not afraid of races here, they are not harmful
+		serverBuildNumber = getBamboBuildNumber();
+		return serverBuildNumber;
+	}
+
+	public BuildDetails getBuildResultDetails(@NotNull String planKey, int buildNumber) throws RemoteApiException {
+		// as we are phasing out BambooServerFacade and BambooServerFacade2,
+		// but still make life of the clients using this lib easy, we make this decision here which API to use
+
+		if (getServerBuildNumber() >= BAMBOO_2_6_BUILD_NUMBER) {
+			return getBuildResultDetailsMoreRestish(planKey, buildNumber);
+		} else {
+			return getBuildResultDetailsOld(planKey, buildNumber);
+		}
+	}
+
+	@NotNull
+	BuildDetails getBuildResultDetailsMoreRestish(@NotNull String planKey, int buildNumber) throws RemoteApiException {
+
 		final String buildResultUrl = getBaseUrl() + GET_BUILD_BY_NUMBER_ACTION + "/" + UrlUtil.encodeUrl(planKey)
 				+ "/" + buildNumber + "?auth=" + UrlUtil.encodeUrl(authToken)
-				+ "&expand=testResults.failed.testResult.errors";
-		// expand=testResults.successful.testResult&
+				+ "&expand=testResults.all.testResult.errors&expand=changes.change.files";
 
 		try {
 			BuildDetailsInfo build = new BuildDetailsInfo();
@@ -603,58 +627,8 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 				throw new RemoteApiException(exception);
 			}
 
-			// @SuppressWarnings("unchecked")
-			// final List<Element> responseElements = XPath.newInstance("/response").selectNodes(doc);
-			// for (Element element : responseElements) {
-			// String vcsRevisionKey = element.getAttributeValue("vcsRevisionKey");
-			// if (vcsRevisionKey != null) {
-			// build.setVcsRevisionKey(vcsRevisionKey);
-			// }
-			// }
-			//
-			// @SuppressWarnings("unchecked")
-			// final List<Element> commitElements = XPath.newInstance("/response/commits/commit").selectNodes(doc);
-			// if (!commitElements.isEmpty()) {
-			// int i = 1;
-			// for (Element element : commitElements) {
-			// BambooChangeSetImpl cInfo = new BambooChangeSetImpl();
-			// cInfo.setAuthor(element.getAttributeValue("author"));
-			// cInfo.setCommitDate(parseCommitTime(element.getAttributeValue("date")));
-			// cInfo.setComment(getChildText(element, "comment"));
-			//
-			// String path = "/response/commits/commit[" + i++ + "]/files/file";
-			// XPath filesPath = XPath.newInstance(path);
-			// @SuppressWarnings("unchecked")
-			// final List<Element> fileElements = filesPath.selectNodes(doc);
-			// for (Element file : fileElements) {
-			// BambooFileInfo fileInfo = new BambooFileInfo(file.getAttributeValue("name"),
-			// file.getAttributeValue("revision"));
-			// cInfo.addCommitFile(fileInfo);
-			// }
-			// build.addCommitInfo(cInfo);
-			// }
-			// }
-
-			// <testResults fixedTests="0" existingFailed="2" newFailed="0"
-			// failed="2" successful="200"
-			// expand="successful,failed,newFailed,existingFailed,fixed">
-			// <successful size="200" max-result="200" start-index="0" />
-			// <failed expand="testResult" size="2" max-result="2"
-			// start-index="0">
-			// <testResult status="failed" methodName="testFindResourceForPath"
-			// className="com.atlassian.connector.eclipse.team.ui.TeamUiUtilsTests"
-			// expand="errors">
-			// <duration>7</duration>
-			// <durationInSeconds>0</durationInSeconds>
-			// <errors size="1" max-result="1" start-index="0">
-			// <error>
-			// <message>java.lang.NoClassDefFoundError:
-			// org/eclipse/mylyn/java/tests/TestJavaProject
-			// at
-			// com.atlassian.connector.eclipse.team.ui.TeamUiUtilsTests.cleanupWorkspace(TeamUiUtilsTests.java:102)
-
 			@SuppressWarnings("unchecked")
-			final List<Element> testResElements = XPath.newInstance("/build/testResults/failed/testResult")
+			final List<Element> testResElements = XPath.newInstance("/build/testResults/all/testResult")
 					.selectNodes(doc);
 			for (Element element : testResElements) {
 				TestDetailsInfo tInfo = new TestDetailsInfo();
@@ -669,11 +643,11 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 				tInfo.setTestDuration(parseDuration(element.getChild("duration")));
 
 				StringBuilder errorBuilder = new StringBuilder();
-				XPath errorPath = XPath.newInstance("/errors/error");
+				XPath errorPath = XPath.newInstance("errors/error");
 				@SuppressWarnings("unchecked")
 				final List<Element> errorElements = errorPath.selectNodes(element);
-				for (Element error : errorElements) {
-					final String errorEntry = element.getChildText("message");
+				for (Element errorElement : errorElements) {
+					final String errorEntry = errorElement.getChildText("message");
 					if (errorEntry != null) {
 						errorBuilder.append(errorEntry).append('\n');
 					}
@@ -689,7 +663,10 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 					break;
 				}
 			}
-
+			final Element changesElement = doc.getRootElement().getChild("changes");
+			if (changesElement != null) {
+				build.setCommitInfo(parseChangeSets(changesElement));
+			}
 			return build;
 		} catch (JDOMException e) {
 			throw new RemoteApiException("Server returned malformed response", e);
@@ -700,6 +677,33 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		}
 	}
 
+	List<BambooChangeSet> parseChangeSets(Element changesElement) throws RemoteApiException {
+		List<BambooChangeSet> changeSets = MiscUtil.buildArrayList();
+		final List<Element> changeElements = XmlUtil.getChildElements(changesElement, "change");
+		for (Element changeElement : changeElements) {
+			BambooChangeSetImpl cInfo = new BambooChangeSetImpl();
+			cInfo.setAuthor(changeElement.getAttributeValue("author"));
+			final String dateStr = changeElement.getChildText("date");
+			if (dateStr == null) {
+				throw new RemoteApiException("change element does not have mandatory date element");
+			}
+			cInfo.setCommitDate(parseNewApiBuildTime(dateStr));
+			cInfo.setComment(getChildText(changeElement, "comment"));
+			final Element filesElement = changeElement.getChild("files");
+			if (filesElement != null) {
+				final List<Element> fileElements = XmlUtil.getChildElements(filesElement, "file");
+				for (Element fileElement : fileElements) {
+					BambooFileInfo fileInfo = new BambooFileInfo(getChildText(fileElement, "name").trim(),
+							getChildText(fileElement, "revision").trim());
+					cInfo.addCommitFile(fileInfo);
+
+				}
+			}
+			changeSets.add(cInfo);
+		}
+		return changeSets;
+	}
+
 	private double parseDuration(Element durationElement) throws ParseException {
 		if (durationElement == null) {
 			throw new ParseException("null duration element", 0);
@@ -708,7 +712,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		final String durationStr = durationElement.getText();
 
 		try {
-			return Double.valueOf(durationStr);
+			return Double.valueOf(durationStr) / 1000;
 		} catch (NumberFormatException e) {
 			throw new ParseException("Cannot parse duration element as floating point number [" + durationStr + "]", 0);
 		}
@@ -960,12 +964,20 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		}
 	}
 
-	private Date parseCommitTime(String date) {
-		return commitDateFormat.parseDateTime(date).toDate();
+	private Date parseCommitTime(String date) throws RemoteApiException {
+		try {
+			return commitDateFormat.parseDateTime(date).toDate();
+		} catch (IllegalArgumentException e) {
+			throw new RemoteApiException("Cannot parse date/time string [" + date + "]", e);
+		}
 	}
 
-	private Date parseNewApiBuildTime(String dateTime) {
+	private Date parseNewApiBuildTime(String dateTime) throws RemoteApiException {
+		try {
 		return newApiDateFormat.parseDateTime(dateTime).toDate();
+		} catch (IllegalArgumentException e) {
+			throw new RemoteApiException("Cannot parse date/time string [" + dateTime + "]", e);
+		}
 	}
 
 	private String getChildText(Element node, String childName) {

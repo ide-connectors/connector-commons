@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @author Jacek Jaroczynski
  */
-public abstract class XmlUtil {
+public final class XmlUtil {
 	private XmlUtil() {
 	}
 

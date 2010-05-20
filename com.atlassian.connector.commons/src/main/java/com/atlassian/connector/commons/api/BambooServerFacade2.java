@@ -16,6 +16,7 @@ import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
 import com.atlassian.theplugin.commons.bamboo.BuildIssue;
+import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
 import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
@@ -29,6 +30,12 @@ import java.util.Collection;
  * com.atlassian.theplugin.commons.bamboo.api.BambooSession should ultimately replacy it.
  */
 public interface BambooServerFacade2 extends ProductServerFacade {
+
+	/**
+	 * This method is to make migration to BambooSession (used directly) easier
+	 */
+	BambooSession getSession(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
+
 	Collection<BambooProject> getProjectList(ConnectionCfg bambooServer) throws ServerPasswordNotProvidedException,
 		RemoteApiException;
 

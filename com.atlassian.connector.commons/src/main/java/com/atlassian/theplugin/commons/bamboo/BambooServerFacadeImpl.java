@@ -33,7 +33,6 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.Logger;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -114,8 +113,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 		return false;
 	}
 
-	// package scope for test purposes
-	synchronized BambooSession getSession(ConnectionCfg server) throws RemoteApiException {
+	public synchronized BambooSession getSession(ConnectionCfg server) throws RemoteApiException {
 		// @todo old server will stay on map - remove them !!!
 		String key = server.getUsername() + server.getUrl() + server.getPassword() + server.getId();
 		BambooSession session = sessions.get(key);

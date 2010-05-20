@@ -242,7 +242,4 @@ public class AutoRenewBambooSession implements BambooSession {
 		}
 	}
 
-	public BuildDetails getBuildResultDetailsMoreRestish(String planKey, int buildNumber) throws RemoteApiException {
-		return delegate.getBuildResultDetailsMoreRestish(planKey, buildNumber);
-	}
 }

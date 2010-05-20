@@ -35,6 +35,7 @@ import java.util.List;
  */
 public interface BambooSession extends ProductSession {
 
+
 	int getBamboBuildNumber() throws RemoteApiException;
 
 	@NotNull
@@ -106,7 +107,4 @@ public interface BambooSession extends ProductSession {
 
 	@NotNull
 	BambooPlan getPlanDetails(@NotNull String planKey) throws RemoteApiException;
-
-	@NotNull
-	BuildDetails getBuildResultDetailsMoreRestish(@NotNull String planKey, int buildNumber) throws RemoteApiException;
 }

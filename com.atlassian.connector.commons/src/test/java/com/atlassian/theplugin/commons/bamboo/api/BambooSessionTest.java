@@ -37,11 +37,14 @@ import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.ProjectListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.RecentCompletedBuildResultsCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.Util;
+import com.atlassian.theplugin.commons.BambooFileInfo;
 import com.atlassian.theplugin.commons.bamboo.BambooBuild;
+import com.atlassian.theplugin.commons.bamboo.BambooChangeSet;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
 import com.atlassian.theplugin.commons.bamboo.BuildStatus;
+import com.atlassian.theplugin.commons.bamboo.TestDetails;
 import com.atlassian.theplugin.commons.bamboo.TestResult;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
@@ -53,6 +56,7 @@ import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.ISODateTimeFormat;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -361,6 +365,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildDetailsFor1CommitFailedSuccessTests() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action",
+				new BamboBuildNumberCalback("/mock/bamboo/2_3/api/rest/bambooBuildNumberResponse.xml"));
 		mockServer.expect("/api/rest/getBuildResultsDetails.action",
 				new BuildDetailsResultCallback("buildResult-1Commit-FailedTests-SuccessfulTests.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
@@ -413,6 +419,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildDetailsFor1CommitFailedTests() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action",
+				new BamboBuildNumberCalback("/mock/bamboo/2_3/api/rest/bambooBuildNumberResponse.xml"));
 		mockServer.expect("/api/rest/getBuildResultsDetails.action",
 				new BuildDetailsResultCallback("buildResult-1Commit-FailedTests.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
@@ -456,6 +464,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildDetailsFor1CommitSuccessTests() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action",
+				new BamboBuildNumberCalback("/mock/bamboo/2_3/api/rest/bambooBuildNumberResponse.xml"));
 		mockServer.expect("/api/rest/getBuildResultsDetails.action",
 				new BuildDetailsResultCallback("buildResult-1Commit-SuccessfulTests.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
@@ -499,6 +509,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildDetailsFor3CommitFailedSuccessTests() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action",
+				new BamboBuildNumberCalback("/mock/bamboo/2_3/api/rest/bambooBuildNumberResponse.xml"));
 		mockServer.expect("/api/rest/getBuildResultsDetails.action",
 				new BuildDetailsResultCallback("buildResult-3Commit-FailedTests-SuccessfulTests.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
@@ -565,6 +577,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildDetailsForNoCommitFailedSuccessTests() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action",
+				new BamboBuildNumberCalback("/mock/bamboo/2_3/api/rest/bambooBuildNumberResponse.xml"));
 		mockServer.expect("/api/rest/getBuildResultsDetails.action",
 				new BuildDetailsResultCallback("buildResult-NoCommit-FailedTests-SuccessfulTests.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
@@ -608,6 +622,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildDetailsForNonExistingBuild() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action",
+				new BamboBuildNumberCalback("/mock/bamboo/2_3/api/rest/bambooBuildNumberResponse.xml"));
 		mockServer.expect("/api/rest/getBuildResultsDetails.action",
 				new BuildDetailsResultCallback("buildNotExistsResponse.xml", "200"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
@@ -627,6 +643,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildDetailsMalformedResponse() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action",
+				new BamboBuildNumberCalback("/mock/bamboo/2_3/api/rest/bambooBuildNumberResponse.xml"));
 		mockServer.expect("/api/rest/getBuildResultsDetails.action",
 				new BuildDetailsResultCallback("malformedBuildResult.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
@@ -646,8 +664,10 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildDetailsEmptyResponse() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer
-				.expect("/api/rest/getBuildResultsDetails.action", new BuildDetailsResultCallback("emptyResponse.xml", "100"));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action",
+				new BamboBuildNumberCalback("/mock/bamboo/2_3/api/rest/bambooBuildNumberResponse.xml"));
+		mockServer.expect("/api/rest/getBuildResultsDetails.action",
+				new BuildDetailsResultCallback("emptyResponse.xml", "100"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		BambooSession apiHandler = createBambooSession(mockBaseUrl);
@@ -918,7 +938,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		}
 	}
 
-	public static BambooSession createBambooSession(@Nullable String url) throws RemoteApiMalformedUrlException {
+	public static BambooSessionImpl createBambooSession(@Nullable String url) throws RemoteApiMalformedUrlException {
 		return new BambooSessionImpl(new ConnectionCfg("", url, "", ""), new TestHttpSessionCallbackImpl(), LoggerImpl
 				.getInstance());
 	}
@@ -978,6 +998,17 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.verify();
 	}
 
+	@Nullable
+	private TestDetails findTestDetails(Collection<TestDetails> testDetails, String testName, String className) {
+		for (TestDetails details : testDetails) {
+			if (details.getTestMethodName().equals(testName)
+					&& details.getTestClassName().equals(className)) {
+				return details;
+			}
+		}
+		return null;
+	}
+
 	public void testGetBuildTestResultForBamboo2x6() throws RemoteApiException {
 		String expectedUri = "/rest/api/latest/build/ECL-TST/1635";// ?expand=testResults.successful.testResult";
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
@@ -985,13 +1016,61 @@ public class BambooSessionTest extends AbstractSessionTest {
 				"/mock/bamboo/2_6/api/rest/buildDetailsWithExpandedTestResults.xml", expectedUri);
 		mockServer.expect(expectedUri, callback);
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
-		BambooSession session = createBambooSession(mockBaseUrl);
+		BambooSessionImpl session = createBambooSession(mockBaseUrl);
 		session.login(USER_NAME, PASSWORD.toCharArray());
 		final BuildDetails buildDetails = session.getBuildResultDetailsMoreRestish("ECL-TST", 1635);
-		assertEquals(2, buildDetails.getFailedTestDetails().size());
-		// TODO wseliga when Bamboo 2.6 M6 is available - finish this test (expand=all will be available)
-		// assertEquals(200, buildDetails.getSuccessfulTestDetails().size());
+		assertEquals(4, buildDetails.getFailedTestDetails().size());
+		assertEquals(207, buildDetails.getSuccessfulTestDetails().size());
+		assertEquals(4, buildDetails.getCommitInfo().size());
 
+		{
+			final BambooChangeSet cs1 = buildDetails.getCommitInfo().get(0);
+			assertEquals("pniewiadomski", cs1.getAuthor());
+			assertEquals(ISODateTimeFormat.dateTimeParser().parseDateTime("2010-05-20T05:44:20.543-05:00").toDate(),
+					cs1.getCommitDate());
+			assertEquals(4, cs1.getFiles().size());
+			final BambooFileInfo file1 = cs1.getFiles().get(0);
+			assertEquals("/PLE/trunk/com.atlassian.connector.eclipse.releng/bamboo.properties",
+					file1.getFileDescriptor().getUrl());
+			assertEquals("60323", file1.getFileDescriptor().getRevision());
+
+			final BambooFileInfo file4 = cs1.getFiles().get(3);
+			assertEquals("/PLE/trunk/com.atlassian.connector.eclipse.releng/bamboo-release.properties",
+					file4.getFileDescriptor().getUrl());
+			assertEquals("60323", file4.getFileDescriptor().getRevision());
+		}
+
+		{
+			final BambooChangeSet cs4 = buildDetails.getCommitInfo().get(3);
+			assertEquals("NONE: switching to e3.5", cs4.getComment());
+			assertEquals("pniewiadomski", cs4.getAuthor());
+			assertEquals(ISODateTimeFormat.dateTimeParser().parseDateTime("2010-05-20T06:08:26.969-05:00").toDate(),
+					cs4.getCommitDate());
+			assertEquals(1, cs4.getFiles().size());
+			final BambooFileInfo file1 = cs4.getFiles().get(0);
+			assertEquals("/PLE/trunk/com.atlassian.connector.eclipse.releng/maps/mylyn_e3.5.map",
+					file1.getFileDescriptor().getUrl());
+			assertEquals("60326", file1.getFileDescriptor().getRevision());
+		}
+
+		final TestDetails test1 = findTestDetails(buildDetails.getSuccessfulTestDetails(), "testChangeCredentials",
+				"com.atlassian.connector.eclipse.jira.tests.core.JiraClientFactoryTest");
+		assertNotNull(test1);
+		assertEquals(0.494, test1.getTestDuration(), 0.001);
+		assertEquals("", test1.getErrors());
+		assertEquals(TestResult.TEST_SUCCEED, test1.getTestResult());
+
+		final TestDetails test2 = findTestDetails(buildDetails.getFailedTestDetails(), "testAttachFile",
+		"com.atlassian.connector.eclipse.jira.tests.core.JiraTaskAttachmentHandlerTest");
+		assertNotNull(test2);
+		assertEquals(0.947, test2.getTestDuration(), 0.001);
+		assertTrue(test2.getErrors().startsWith("org.eclipse.core.runtime.CoreException:\n"));
+		assertTrue(test2.getErrors().contains(
+				"com.atlassian.connector.eclipse.internal."
+						+ "jira.core.JiraTaskAttachmentHandler.postContent(JiraTaskAttachmentHandler.java:109)"));
+		assertTrue(test2.getErrors().trim().endsWith("at org.eclipse.core.launcher.Main.main(Main.java:34)"));
+
+		assertEquals(TestResult.TEST_FAILED, test2.getTestResult());
 		session.logout();
 
 		mockServer.verify();

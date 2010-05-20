@@ -105,11 +105,17 @@ public final class CrucibleRestXmlHelper {
 	}
 
     public static CrucibleProject parseProjectNode(Element projectNode) {
+    	String defaultDuration = getChildText(projectNode, "defaultDuration");
         return new CrucibleProject(
                 getChildText(projectNode, "id"),
                 getChildText(projectNode, "key"),
                 getChildText(projectNode, "name"),
-                parseUserNames(projectNode.getChild("allowedReviewers")));
+				parseUserNames(projectNode.getChild("allowedReviewers")),
+				parseUserNames(projectNode.getChild("defaultReviewers")),
+				getChildText(projectNode, "defaultRepositoryName"),
+				Boolean.parseBoolean(getChildText(projectNode, "allowReviewersToJoin")),
+				!StringUtils.isEmpty(defaultDuration) ? Integer.parseInt(defaultDuration) : null,
+				Boolean.parseBoolean(getChildText(projectNode, "moderatorEnabled")));
     }
 
     public static Repository parseRepositoryNode(Element repoNode) {

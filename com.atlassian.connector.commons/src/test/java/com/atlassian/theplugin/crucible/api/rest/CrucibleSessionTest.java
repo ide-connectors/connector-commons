@@ -743,10 +743,7 @@ public class CrucibleSessionTest extends TestCase {
 	public void testGetProjectsCrucible1_6() throws Exception {
 		int size = 4;
 
-		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-
         mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-        mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(size, false));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
@@ -764,36 +761,55 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
     public void testGetProjectsCrucible2_0() throws Exception {
-            int size = 4;
+		int size = 4;
 
-            mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(size, true));
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
-        mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-        mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
-            mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(size, true));
-            CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
-
-            apiHandler.login();
-            List<CrucibleProject> project = apiHandler.getProjects();
-            assertEquals(size, project.size());
-            for (int i = 0; i < size; i++) {
-                String id = Integer.toString(i);
-                assertEquals(id, project.get(i).getId());
-                assertEquals("ProjectName" + id, project.get(i).getName());
-                assertEquals("CR" + id, project.get(i).getKey());
-                assertEquals(2, project.get(i).getAllowedReviewers().size());
-            }
-            mockServer.verify();
+        apiHandler.login();
+		List<CrucibleProject> project = apiHandler.getProjects();
+		assertEquals(size, project.size());
+		for (int i = 0; i < size; i++) {
+			String id = Integer.toString(i);
+			assertEquals(id, project.get(i).getId());
+			assertEquals("ProjectName" + id, project.get(i).getName());
+			assertEquals("CR" + id, project.get(i).getKey());
+			assertEquals(2, project.get(i).getAllowedReviewers().size());
         }
+		mockServer.verify();
+	}
 
+	public void testGetProjects2_0() throws Exception {
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/rest-service/projects-v1", new ResourceCallback(
+				"projects2_0.xml"));
+
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
+
+		apiHandler.login();
+		List<CrucibleProject> projects = apiHandler.getProjects();
+		assertEquals(98, projects.size());
+
+		CrucibleProject project = projects.get(12);
+		assertEquals("CR-UI", project.getKey());
+		assertFalse(project.isJoiningAllowed());
+		assertTrue(project.isModeratorEnabled());
+		assertEquals(0, project.getAllowedReviewers().size());
+		assertEquals(0, project.getDefaultReviewers().size());
+		assertEquals("UI", project.getDefaultRepository());
+
+		project = projects.get(3);
+		assertEquals("CR-JST", project.getKey());
+		assertEquals(5, project.getDefaultReviewers().size());
+
+		mockServer.verify();
+	}
 
 	public void testGetProjectsEmpty() throws Exception {
 		int size = 0;
 
-		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-
         mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-        mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(size, false));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
@@ -996,7 +1012,6 @@ public class CrucibleSessionTest extends TestCase {
 
 		public void onExpectedRequest(String arg0, HttpServletRequest request, HttpServletResponse response)
 				throws Exception {
-			// assertTrue(request.getPathInfo().endsWith("/rest-service/repositories-v1/changes/PLE/"));
 			new CrucibleMockUtil().copyResource(response.getOutputStream(), resourcePath);
 			response.getOutputStream().flush();
 		}

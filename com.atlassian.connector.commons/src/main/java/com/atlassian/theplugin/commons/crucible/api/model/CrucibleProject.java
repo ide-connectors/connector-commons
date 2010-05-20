@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2008 Atlassian
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,50 +16,71 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.io.Serializable;
 import java.util.Collection;
 
-//
-//* @parm allowedReviewers is != null for Cru 2.0 or greater
-//*
+@SuppressWarnings("serial")
 public class CrucibleProject implements Serializable {
 	private final String id;
 	private final String key;
 	private final String name;
 
     private final Collection<String> allowedReviewers;
+	private final Collection<String> defaultReviewers;
+	private final String defaultRepository;
+	private final boolean joiningAllowed;
+	private final Integer defaultDuration;
+	private final boolean moderatorEnabled;
+
     private static final int HASH_INT = 31;
 
-	public CrucibleProject(String id, String key, String name) {
+	public CrucibleProject(@NotNull String id, @NotNull String key, @NotNull String name) {
 		this(id, key, name, null);
 	}
 
-	public CrucibleProject(String id, String key, String name, Collection<String> allowedReviewers) {
+	public CrucibleProject(@NotNull String id, @NotNull String key, @NotNull String name,
+			@Nullable Collection<String> allowedReviewers) {
+		this(id, key, name, allowedReviewers, null, null, true, null, true);
+    }
+
+	public CrucibleProject(@NotNull String id, @NotNull String key, @NotNull String name,
+			@Nullable Collection<String> allowedReviewers,
+			@Nullable Collection<String> defaultReviewers,
+			@Nullable String defaultRepository, boolean allowJoin, Integer defaultDuration, boolean moderatorEnabled) {
 		this.id = id;
 		this.key = key;
 		this.name = name;
-        this.allowedReviewers = allowedReviewers;
-    }
+		this.allowedReviewers = allowedReviewers;
+		this.defaultReviewers = defaultReviewers;
+		this.defaultRepository = defaultRepository;
+		this.joiningAllowed = allowJoin;
+		this.defaultDuration = defaultDuration;
+		this.moderatorEnabled = moderatorEnabled;
+	}
 
     @Nullable
     public Collection<String> getAllowedReviewers() {
         return allowedReviewers;
     }
 
+	@NotNull
     public String getId() {
 		return id;
 	}
 
+	@NotNull
 	public String getKey() {
 		return key;
 	}
 
+	@NotNull
 	public String getName() {
 		return name;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -83,6 +104,7 @@ public class CrucibleProject implements Serializable {
 		return true;
 	}
 
+	@Override
 	public int hashCode() {
 		int result;
 		result = (id != null ? id.hashCode() : 0);
@@ -90,5 +112,25 @@ public class CrucibleProject implements Serializable {
 		result = HASH_INT * result + (name != null ? name.hashCode() : 0);
         result = HASH_INT * result + (allowedReviewers != null ? allowedReviewers.hashCode() : 0);
 		return result;
+	}
+
+	public Collection<String> getDefaultReviewers() {
+		return defaultReviewers;
+	}
+
+	public String getDefaultRepository() {
+		return defaultRepository;
+	}
+
+	public boolean isJoiningAllowed() {
+		return joiningAllowed;
+	}
+
+	public Integer getDefaultDuration() {
+		return defaultDuration;
+	}
+
+	public boolean isModeratorEnabled() {
+		return moderatorEnabled;
 	}
 }

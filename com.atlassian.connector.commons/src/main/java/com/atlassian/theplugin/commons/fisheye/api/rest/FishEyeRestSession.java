@@ -42,6 +42,7 @@ import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
@@ -96,7 +97,11 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 	protected void preprocessResult(final Document doc) throws JDOMException, RemoteApiSessionExpiredException {
 	}
 
-	/**
+    @Override
+    protected void preprocessMethodResult(HttpMethod method) {        
+    }
+
+    /**
 	 * Login method - use empty both username and password for anonymous access (see PL-931)
 	 *
 	 * @param name

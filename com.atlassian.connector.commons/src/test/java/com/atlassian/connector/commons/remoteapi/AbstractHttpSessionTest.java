@@ -158,7 +158,11 @@ public class AbstractHttpSessionTest extends TestCase {
 
 		}
 
-	}
+        @Override
+        protected void preprocessMethodResult(HttpMethod method) {            
+        }
+
+    }
 
 	private ConnectionCfg getServerData(final com.atlassian.theplugin.commons.cfg.Server serverCfg) {
 		return new ConnectionCfg(serverCfg.getServerId().getId(), serverCfg.getUrl(), serverCfg.getUsername(), serverCfg

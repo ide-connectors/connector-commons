@@ -29,6 +29,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -148,7 +149,11 @@ public class LoginBambooSession extends AbstractHttpSession implements ProductSe
 		}
 	}
 
-	protected static String getExceptionMessages(Document doc) throws JDOMException {
+    @Override
+    protected void preprocessMethodResult(HttpMethod method) {        
+    }
+
+    protected static String getExceptionMessages(Document doc) throws JDOMException {
 		XPath xpath = XPath.newInstance("/errors/error");
 		@SuppressWarnings("unchecked")
 		List<Element> elements = xpath.selectNodes(doc);

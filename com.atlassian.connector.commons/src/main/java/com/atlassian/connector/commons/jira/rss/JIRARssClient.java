@@ -29,6 +29,7 @@ import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
 import com.atlassian.connector.commons.jira.cache.CacheConstants;
 import com.atlassian.connector.commons.jira.cache.CachedIconLoader;
 import com.atlassian.theplugin.commons.cfg.UserCfg;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
@@ -38,6 +39,7 @@ import com.atlassian.theplugin.commons.util.StringUtil;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.auth.AuthenticationException;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -53,6 +55,8 @@ import static com.atlassian.theplugin.commons.util.UrlUtil.encodeUrl;
 public class JIRARssClient extends AbstractHttpSession {
 
     private final ConnectionCfg httpConnectionCfg;
+    private Header setCookieHeaders[];
+    private boolean login = false;
 
     public JIRARssClient(final ConnectionCfg httpConnectionCfg, final HttpSessionCallback callback)
             throws RemoteApiMalformedUrlException {
@@ -64,6 +68,21 @@ public class JIRARssClient extends AbstractHttpSession {
     protected void adjustHttpHeader(HttpMethod method) {
         if (httpConnectionCfg instanceof ServerData && ((ServerData) httpConnectionCfg).isUseBasicUser()) {
             method.addRequestHeader(new Header("Authorization", getAuthBasicHeaderValue()));
+
+        }
+
+        if (login) {
+            if (httpConnectionCfg != null && method instanceof PostMethod) {
+                ((PostMethod) method).addParameter("os_username", httpConnectionCfg.getUsername());
+                ((PostMethod) method).addParameter("os_password", httpConnectionCfg.getPassword());
+                login = false;
+            }
+        }
+        if (setCookieHeaders != null) {
+            for (Header setCookieHeader : setCookieHeaders) {
+                method.addRequestHeader(setCookieHeader);
+            }
+
         }
     }
 
@@ -71,11 +90,18 @@ public class JIRARssClient extends AbstractHttpSession {
     protected void preprocessResult(Document doc) throws JDOMException, RemoteApiSessionExpiredException {
     }
 
+    @Override
+    protected void preprocessMethodResult(HttpMethod method) {
+        if (method != null) {
+            setCookieHeaders = method.getResponseHeaders("Set-Cookie");
+        }
+    }
+
     private String getAuthBasicHeaderValue() {
         UserCfg basicUser = ((ServerData) httpConnectionCfg).getBasicUser();
 
         if (basicUser != null && basicUser.getUsername() != null && basicUser.getPassword() != null) {
-            return "Basic " +  StringUtil.encode(basicUser.getUsername() + ":" + basicUser.getPassword());
+            return "Basic " + StringUtil.encode(basicUser.getUsername() + ":" + basicUser.getPassword());
         }
 
         return "";
@@ -94,7 +120,6 @@ public class JIRARssClient extends AbstractHttpSession {
         url.append("&sorter/order=").append(sortOrder);
         url.append("&pager/start=").append(start);
         url.append("&tempMax=").append(max);
-        url.append(appendAuthentication(false));
 
         try {
             Document doc = retrieveGetResponse(url.toString());
@@ -139,7 +164,7 @@ public class JIRARssClient extends AbstractHttpSession {
     public List<JIRAIssue> getAssignedIssues(String assignee) throws JIRAException {
         String url = getBaseUrl() + "/sr/jira.issueviews:searchrequest-xml"
                 + "/temp/SearchRequest.xml?resolution=-1&assignee=" + encodeUrl(assignee)
-                + "&sorter/field=updated&sorter/order=DESC&tempMax=100" + appendAuthentication(false);
+                + "&sorter/field=updated&sorter/order=DESC&tempMax=100";
 
         try {
             Document doc = retrieveGetResponse(url);
@@ -180,8 +205,6 @@ public class JIRARssClient extends AbstractHttpSession {
         url.append("&pager/start=").append(start);
         url.append("&tempMax=").append(max);
 
-        url.append(appendAuthentication(false));
-
         try {
             Document doc = retrieveGetResponse(url.toString());
             Element root = doc.getRootElement();
@@ -204,8 +227,6 @@ public class JIRARssClient extends AbstractHttpSession {
 
         StringBuffer url = new StringBuffer(getBaseUrl() + "/si/jira.issueviews:issue-xml/");
         url.append(issueKey).append('/').append(issueKey).append(".xml");
-
-        url.append(appendAuthentication(true));
 
         try {
             Document doc = retrieveGetResponse(url.toString());
@@ -240,15 +261,19 @@ public class JIRARssClient extends AbstractHttpSession {
         return result;
     }
 
-    private String appendAuthentication(boolean firstItem) {
-        final String username = getUsername();
 
-        if (username != null) {
-            return (firstItem ? "?" : "&")
-                    + "os_username=" + encodeUrl(username)
-                    + "&os_password=" + encodeUrl(getPassword());
+    public void login() throws JIRAException{
+        try {
+            login = true;
+            super.retrievePostResponse(httpConnectionCfg.getUrl() + "/login.jsp", "", false);
+        } catch (JDOMException e) {
+            throw new JIRAException(e.getMessage());
+        } catch (RemoteApiException e) {
+            throw new JIRAException(e.getMessage());
         }
-        return "";
     }
 
+    public boolean isLoggedIn() {
+        return setCookieHeaders != null && setCookieHeaders.length > 0;
+    }
 }

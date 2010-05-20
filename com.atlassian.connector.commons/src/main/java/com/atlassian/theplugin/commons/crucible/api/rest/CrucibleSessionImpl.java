@@ -66,6 +66,7 @@ import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -1730,7 +1731,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	}
 
-	private String getAuthHeaderValue() {
+    @Override
+    protected void preprocessMethodResult(HttpMethod method) {        
+    }
+
+    private String getAuthHeaderValue() {
 		return "Basic " + StringUtil.encode(getUsername() + ":" + getPassword());
 	}
 

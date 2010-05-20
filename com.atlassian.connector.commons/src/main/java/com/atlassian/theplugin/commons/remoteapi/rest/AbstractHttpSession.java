@@ -60,7 +60,7 @@ import java.util.WeakHashMap;
  */
 public abstract class AbstractHttpSession {
 	@NotNull
-	private final HttpSessionCallback callback;
+	protected final HttpSessionCallback callback;
 
 	@NotNull
 	private final ConnectionCfg server;
@@ -366,7 +366,7 @@ public abstract class AbstractHttpSession {
 				method.getParams().setSoTimeout(client.getParams().getSoTimeout());
 
 				callback.configureHttpMethod(this, method);
-
+                
 				if (request != null && !"".equals(request)) {
 					method.setRequestEntity(new StringRequestEntity(request, "application/xml", "UTF-8"));
 				}
@@ -409,6 +409,7 @@ public abstract class AbstractHttpSession {
 				throw new RemoteApiException(IOException.class.getSimpleName() + " encountered while posting data to ["
 						+ urlString + "]: " + e.getMessage(), e);
 			} finally {
+                preprocessMethodResult(method);
 				method.releaseConnection();
 			}
 		}
@@ -488,6 +489,7 @@ public abstract class AbstractHttpSession {
 				throw new RemoteApiException(IOException.class.getSimpleName() + " encountered while posting data to ["
 						+ urlString + "]: " + e.getMessage(), e);
 			} finally {
+                preprocessMethodResult(method);
 				method.releaseConnection();
 			}
 		}
@@ -601,6 +603,8 @@ public abstract class AbstractHttpSession {
 	protected abstract void adjustHttpHeader(HttpMethod method);
 
 	protected abstract void preprocessResult(Document doc) throws JDOMException, RemoteApiSessionExpiredException;
+
+    protected abstract void preprocessMethodResult(HttpMethod method);
 
 	public static String getServerNameFromUrl(String urlString) {
 		int pos = urlString.indexOf("://");

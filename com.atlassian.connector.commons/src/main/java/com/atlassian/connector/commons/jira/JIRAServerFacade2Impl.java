@@ -29,6 +29,7 @@ import com.atlassian.connector.commons.jira.beans.JIRAUserBean;
 import com.atlassian.connector.commons.jira.beans.JIRAVersionBean;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
 import com.atlassian.connector.commons.jira.rss.JIRARssClient;
+import com.atlassian.connector.commons.jira.rss.JiraRssAutoRenewClient;
 import com.atlassian.connector.commons.jira.soap.AxisSessionCallback;
 import com.atlassian.connector.commons.jira.soap.JIRASession;
 import com.atlassian.connector.commons.jira.soap.JIRASessionImpl;
@@ -52,7 +53,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
     private final AxisSessionCallback axisCallback;
     private static Logger logger;
 
-    private final Map<String, JIRARssClient> rssSessions = new WeakHashMap<String, JIRARssClient>();
+    private final Map<String, JiraRssAutoRenewClient> rssSessions = new WeakHashMap<String, JiraRssAutoRenewClient>();
     private final Map<String, JIRASession> soapSessions = new WeakHashMap<String, JIRASession>();
 
     private String getSoapSessionKey(ConnectionCfg httpConnectionCfg) {
@@ -85,12 +86,12 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         return session;
     }
 
-    private synchronized JIRARssClient getRssSession(ConnectionCfg server) throws RemoteApiException {
+    private synchronized JiraRssAutoRenewClient getRssSession(ConnectionCfg server) throws RemoteApiException {
         // @todo old server will stay on map - remove them !!!
         String key = server.getUsername() + server.getUrl() + server.getPassword();
-        JIRARssClient session = rssSessions.get(key);
+        JiraRssAutoRenewClient session = rssSessions.get(key);
         if (session == null) {
-            session = new JIRARssClient(server, callback);
+            session = new JiraRssAutoRenewClient(new JIRARssClient(server, callback));
             rssSessions.put(key, session);
         }
         return session;
@@ -120,7 +121,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
 
     public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, String queryString, String sort,
                                      String sortOrder, int start, int size) throws JIRAException {
-        JIRARssClient rss;
+        JiraRssAutoRenewClient rss;
         try {
             rss = getRssSession(httpConnectionCfg);
         } catch (RemoteApiException e) {
@@ -135,7 +136,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
                                      String sortOrder,
                                      int start,
                                      int size) throws JIRAException {
-        JIRARssClient rss;
+        JiraRssAutoRenewClient rss;
         try {
             rss = getRssSession(httpConnectionCfg);
         } catch (RemoteApiException e) {
@@ -150,7 +151,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
                                                 String sortOrder,
                                                 int start,
                                                 int size) throws JIRAException {
-        JIRARssClient rss;
+        JiraRssAutoRenewClient rss;
         try {
             rss = getRssSession(httpConnectionCfg);
         } catch (RemoteApiException e) {
@@ -164,7 +165,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
     }
 
     public JIRAIssue getIssue(ConnectionCfg httpConnectionCfg, String key) throws JIRAException {
-        JIRARssClient rss;
+        JiraRssAutoRenewClient rss;
         try {
             rss = getRssSession(httpConnectionCfg);
         } catch (RemoteApiException e) {

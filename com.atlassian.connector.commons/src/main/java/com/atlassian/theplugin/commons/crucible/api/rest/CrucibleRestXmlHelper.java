@@ -40,7 +40,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.FileType;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
-import com.atlassian.theplugin.commons.crucible.api.model.Project;
+import com.atlassian.theplugin.commons.crucible.api.model.ExtendedCrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.RepositoryType;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
@@ -118,9 +118,9 @@ public final class CrucibleRestXmlHelper {
 				Boolean.parseBoolean(getChildText(projectNode, "moderatorEnabled")));
 	}
 
-	public static Project parseProjectNode(Element projectNode) {
+	public static ExtendedCrucibleProject parseProjectNode(Element projectNode) {
 		String defaultDuration = getChildText(projectNode, "defaultDuration");
-		return new Project(
+		return new ExtendedCrucibleProject(
 				getChildText(projectNode, "id"),
 				getChildText(projectNode, "key"),
 				getChildText(projectNode, "name"),

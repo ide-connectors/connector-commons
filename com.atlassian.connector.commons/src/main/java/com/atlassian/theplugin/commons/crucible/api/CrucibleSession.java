@@ -27,7 +27,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.Project;
+import com.atlassian.theplugin.commons.crucible.api.model.ExtendedCrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
@@ -135,7 +135,7 @@ public interface CrucibleSession {
 
 	List<BasicProject> getProjects() throws RemoteApiException;
 
-	Project getProject(String key) throws RemoteApiException;
+	ExtendedCrucibleProject getProject(String key) throws RemoteApiException;
 
 	List<Repository> getRepositories() throws RemoteApiException;
 

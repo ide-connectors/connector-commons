@@ -37,7 +37,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCacheImpl;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.Project;
+import com.atlassian.theplugin.commons.crucible.api.model.ExtendedCrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewTestUtil;
@@ -719,7 +719,7 @@ public class CrucibleServerFacadeTest extends TestCase {
         usersNames.add("Ala");
         usersNames.add("Zosia");
 
-		return new Project(Integer.toString(i),
+		return new ExtendedCrucibleProject(Integer.toString(i),
                 "CR" + Integer.toString(i), "Name" + Integer.toString(i), usersNames);
 	}
 

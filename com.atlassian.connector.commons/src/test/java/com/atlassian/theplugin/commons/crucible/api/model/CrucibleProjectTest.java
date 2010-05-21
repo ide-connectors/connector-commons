@@ -12,11 +12,11 @@ public class CrucibleProjectTest extends TestCase {
         usersNames.add("Ala");
         usersNames.add("Zosia");
 
-		BasicProject p1 = new Project(null, null, null, null);
-		BasicProject p2 = new Project("1", "2", "3", usersNames);
-		BasicProject p3 = new Project("2", "X", "3", usersNames);
-		BasicProject p4 = new Project("2", "X", "3", usersNames);
-		BasicProject p5 = new Project("1", "2", "X", usersNames);
+		BasicProject p1 = new ExtendedCrucibleProject(null, null, null, null);
+		BasicProject p2 = new ExtendedCrucibleProject("1", "2", "3", usersNames);
+		BasicProject p3 = new ExtendedCrucibleProject("2", "X", "3", usersNames);
+		BasicProject p4 = new ExtendedCrucibleProject("2", "X", "3", usersNames);
+		BasicProject p5 = new ExtendedCrucibleProject("1", "2", "X", usersNames);
 
 		//noinspection ObjectEqualsNull
 		assertFalse(p1.equals(null));

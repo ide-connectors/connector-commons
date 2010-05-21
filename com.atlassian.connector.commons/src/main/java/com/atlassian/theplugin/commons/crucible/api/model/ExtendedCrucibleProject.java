@@ -21,19 +21,19 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 
 @SuppressWarnings("serial")
-public class Project extends BasicProject {
+public class ExtendedCrucibleProject extends BasicProject {
     private final Collection<String> allowedReviewers;
 
-	public Project(@NotNull String id, @NotNull String key, @NotNull String name) {
+	public ExtendedCrucibleProject(@NotNull String id, @NotNull String key, @NotNull String name) {
 		this(id, key, name, null);
 	}
 
-	public Project(@NotNull String id, @NotNull String key, @NotNull String name,
+	public ExtendedCrucibleProject(@NotNull String id, @NotNull String key, @NotNull String name,
 			@Nullable Collection<String> allowedReviewers) {
 		this(id, key, name, allowedReviewers, null, null, true, null, true);
     }
 
-	public Project(@NotNull String id, @NotNull String key, @NotNull String name,
+	public ExtendedCrucibleProject(@NotNull String id, @NotNull String key, @NotNull String name,
 			@Nullable Collection<String> allowedReviewers,
 			@Nullable Collection<String> defaultReviewers,
 			@Nullable String defaultRepository, boolean allowJoin, Integer defaultDuration, boolean moderatorEnabled) {

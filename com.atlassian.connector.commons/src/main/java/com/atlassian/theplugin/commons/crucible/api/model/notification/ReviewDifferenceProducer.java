@@ -150,7 +150,7 @@ public class ReviewDifferenceProducer {
 
 	private boolean stateChanged() {
 		if (!MiscUtil.isEqual(oldReview.getState(), newReview.getState())) {
-			notifications.add(new ReviewStateChangedNotification(oldReview, newReview.getState()));
+			notifications.add(new ReviewStateChangedNotification(newReview, oldReview.getState()));
 			return true;
 		}
 		return false;

@@ -265,7 +265,7 @@ public class JIRARssClient extends AbstractHttpSession {
     public void login() throws JIRAException{
         try {
             login = true;
-            super.retrievePostResponse(httpConnectionCfg.getUrl() + "/login.jsp", "", false);
+            super.retrievePostResponse(httpConnectionCfg.getUrl() + "/secure/Dashboard.jspa", "", false);
         } catch (JDOMException e) {
             throw new JIRAException(e.getMessage());
         } catch (RemoteApiException e) {

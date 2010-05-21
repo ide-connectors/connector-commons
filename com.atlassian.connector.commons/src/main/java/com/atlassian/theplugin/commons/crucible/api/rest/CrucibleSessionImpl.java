@@ -168,7 +168,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
     private static final String MARK_ALL_READ = "/markAllAsRead";
 
-    private static final String PROJECTS_EXPAND_ALLOWED_REVIEWERS = "?expand=projectData.allowedReviewers";
+	private static final String PROJECT_EXPAND_ALLOWED_REVIEWERS = "?expand=allowedReviewers";
 
 	private static final String CHANGES = "/changes/";
 
@@ -731,6 +731,41 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         }
 
         return null;
+	}
+
+	/**
+	 * Retrieves project details from server ommiting cache
+	 *
+	 * @return list of Crucible projects
+	 * @throws RemoteApiException
+	 *             thrown in case of connection problems
+	 */
+	public CrucibleProject getProject(String key) throws RemoteApiException {
+		if (!isLoggedIn()) {
+			throwNotLoggedIn();
+		}
+
+		String requestUrl = getBaseUrl() + PROJECTS_SERVICE + "/" + key + PROJECT_EXPAND_ALLOWED_REVIEWERS;
+
+		try {
+			Document doc = retrieveGetResponse(requestUrl);
+
+			XPath xpath = XPath.newInstance("/projectData");
+			@SuppressWarnings("unchecked")
+			List<Element> elements = xpath.selectNodes(doc);
+
+			if (elements != null && !elements.isEmpty()) {
+				for (Element element : elements) {
+					return CrucibleRestXmlHelper.parseProjectNode(element);
+				}
+			}
+		} catch (IOException e) {
+			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+		} catch (JDOMException e) {
+			throwMalformedResponseReturned(e);
+		}
+
+		return null;
 	}
 
 	public List<Repository> getRepositories() throws RemoteApiException {
@@ -1727,7 +1762,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
     @Override
-    protected void preprocessMethodResult(HttpMethod method) {        
+    protected void preprocessMethodResult(HttpMethod method) {
     }
 
     private String getAuthHeaderValue() {

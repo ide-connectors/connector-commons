@@ -110,7 +110,7 @@ public class CrucibleProject implements Serializable {
 		result = (id != null ? id.hashCode() : 0);
 		result = HASH_INT * result + (key != null ? key.hashCode() : 0);
 		result = HASH_INT * result + (name != null ? name.hashCode() : 0);
-        result = HASH_INT * result + (allowedReviewers != null ? allowedReviewers.hashCode() : 0);
+		// result = HASH_INT * result + (allowedReviewers != null ? allowedReviewers.hashCode() : 0);
 		return result;
 	}
 

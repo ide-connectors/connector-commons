@@ -806,6 +806,26 @@ public class CrucibleSessionTest extends TestCase {
 		mockServer.verify();
 	}
 
+	public void testGetProjectCrDemo() throws Exception {
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/rest-service/projects-v1/CR-DEMO", new ResourceCallback(
+				"project-CR-DEMO.xml"));
+
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
+
+		apiHandler.login();
+		CrucibleProject project = apiHandler.getProject("CR-DEMO");
+		assertNotNull(project);
+
+		assertEquals("CR-DEMO", project.getKey());
+		assertFalse(project.isJoiningAllowed());
+		assertTrue(project.isModeratorEnabled());
+		assertEquals(1, project.getAllowedReviewers().size());
+		assertEquals(0, project.getDefaultReviewers().size());
+
+		mockServer.verify();
+	}
+
 	public void testGetProjectsEmpty() throws Exception {
 		int size = 0;
 

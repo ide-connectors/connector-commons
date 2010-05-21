@@ -134,6 +134,8 @@ public interface CrucibleSession {
 
 	List<CrucibleProject> getProjects() throws RemoteApiException;
 
+	CrucibleProject getProject(String key) throws RemoteApiException;
+
 	List<Repository> getRepositories() throws RemoteApiException;
 
 	Repository getRepository(String repoName) throws RemoteApiException;

@@ -31,6 +31,6 @@ public class ReviewStateChangedNotification extends AbstractReviewNotification {
 
 	@Override
 	public String getPresentationMessage() {
-		return "Review changed state to " + review.getState().value();
+		return "Review changed state to " + review.getState().getDisplayName();
 	}
 }

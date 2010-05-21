@@ -711,7 +711,9 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(2, notifications.size());
 		assertFalse(p.isShortEqual());
 		assertTrue(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.REVIEW_STATE_CHANGED, notifications.get(0).getType());
+		CrucibleNotification n1 = notifications.get(0);
+		assertEquals(CrucibleNotificationType.REVIEW_STATE_CHANGED, n1.getType());
+		assertTrue(n1.getPresentationMessage().contains(State.REVIEW.getDisplayName()));
 
 		review = prepareReview1(State.REVIEW, commentDate);
 		review1 = prepareReview1(State.REVIEW, commentDate);
@@ -727,7 +729,9 @@ public class ReviewDifferenceProducerTest extends TestCase {
 		assertEquals(2, notifications.size());
 		assertFalse(p.isShortEqual());
 		assertTrue(p.isFilesEqual());
-		assertEquals(CrucibleNotificationType.REVIEW_STATE_CHANGED, notifications.get(0).getType());
+		n1 = notifications.get(0);
+		assertEquals(CrucibleNotificationType.REVIEW_STATE_CHANGED, n1.getType());
+		assertTrue(n1.getPresentationMessage().contains(State.CLOSED.getDisplayName()));
 	}
 
 	public void testReviewersChanges() {

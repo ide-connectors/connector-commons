@@ -21,11 +21,11 @@ import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
 import com.atlassian.theplugin.commons.crucible.api.PathAndRevision;
 import com.atlassian.theplugin.commons.crucible.api.UploadItem;
+import com.atlassian.theplugin.commons.crucible.api.model.BasicProject;
 import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
@@ -33,6 +33,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.Project;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
@@ -697,13 +698,13 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	/**
-	 * Retrieves projects directly from server ommiting cache
+	 * Retrieves projects directly from server
 	 *
 	 * @return list of Crucible projects
 	 * @throws RemoteApiException
 	 *             thrown in case of connection problems
 	 */
-	public List<CrucibleProject> getProjects() throws RemoteApiException {
+	public List<BasicProject> getProjects() throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
@@ -716,11 +717,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			XPath xpath = XPath.newInstance("/projects/projectData");
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
-			List<CrucibleProject> projects = new ArrayList<CrucibleProject>();
+			List<BasicProject> projects = new ArrayList<BasicProject>();
 
 			if (elements != null && !elements.isEmpty()) {
 				for (Element element : elements) {
-					projects.add(CrucibleRestXmlHelper.parseProjectNode(element));
+					projects.add(CrucibleRestXmlHelper.parseBasicProjectNode(element));
 				}
 			}
 			return projects;
@@ -734,13 +735,13 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	/**
-	 * Retrieves project details from server ommiting cache
-	 *
+	 * Retrieves project details from server
+	 * 
 	 * @return list of Crucible projects
 	 * @throws RemoteApiException
 	 *             thrown in case of connection problems
 	 */
-	public CrucibleProject getProject(String key) throws RemoteApiException {
+	public Project getProject(String key) throws RemoteApiException {
 		if (!isLoggedIn()) {
 			throwNotLoggedIn();
 		}

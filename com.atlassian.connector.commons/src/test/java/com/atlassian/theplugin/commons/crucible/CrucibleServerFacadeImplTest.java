@@ -18,7 +18,7 @@ package com.atlassian.theplugin.commons.crucible;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.BasicProject;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewTestUtil;
@@ -84,9 +84,9 @@ public class CrucibleServerFacadeImplTest extends TestCase {
 				return mock;
 			}
 		};
-		final CrucibleProject PR_1 = new CrucibleProject("myid1", "PR1", "Project1");
-		final CrucibleProject PR_2 = new CrucibleProject("myid2", "PR2", "Project2");
-		final CrucibleProject PR_3 = new CrucibleProject("myid3", "PR3", "Project3");
+		final BasicProject PR_1 = new BasicProject("myid1", "PR1", "Project1");
+		final BasicProject PR_2 = new BasicProject("myid2", "PR2", "Project2");
+		final BasicProject PR_3 = new BasicProject("myid3", "PR3", "Project3");
 		EasyMock.expect(mock.getProjects()).andReturn(MiscUtil.buildArrayList(PR_1, PR_2));
 		EasyMock.expect(mock.getProjects()).andReturn(MiscUtil.buildArrayList(PR_1, PR_2, PR_3));
 		EasyMock.expect(mock.getProjects()).andReturn(MiscUtil.buildArrayList(PR_3));

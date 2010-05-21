@@ -23,12 +23,12 @@ import com.atlassian.connector.commons.misc.IntRangesParser;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.CrucibleVersion;
 import com.atlassian.theplugin.commons.crucible.api.PathAndRevision;
+import com.atlassian.theplugin.commons.crucible.api.model.BasicProject;
 import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CommitType;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomField;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldBean;
@@ -40,6 +40,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.FileType;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
+import com.atlassian.theplugin.commons.crucible.api.model.Project;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.RepositoryType;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
@@ -104,12 +105,25 @@ public final class CrucibleRestXmlHelper {
 		return null;
 	}
 
-    public static CrucibleProject parseProjectNode(Element projectNode) {
+	public static BasicProject parseBasicProjectNode(Element projectNode) {
     	String defaultDuration = getChildText(projectNode, "defaultDuration");
-        return new CrucibleProject(
+        return new BasicProject(
                 getChildText(projectNode, "id"),
                 getChildText(projectNode, "key"),
                 getChildText(projectNode, "name"),
+				parseUserNames(projectNode.getChild("defaultReviewers")),
+				getChildText(projectNode, "defaultRepositoryName"),
+				Boolean.parseBoolean(getChildText(projectNode, "allowReviewersToJoin")),
+				!StringUtils.isEmpty(defaultDuration) ? Integer.parseInt(defaultDuration) : null,
+				Boolean.parseBoolean(getChildText(projectNode, "moderatorEnabled")));
+	}
+
+	public static Project parseProjectNode(Element projectNode) {
+		String defaultDuration = getChildText(projectNode, "defaultDuration");
+		return new Project(
+				getChildText(projectNode, "id"),
+				getChildText(projectNode, "key"),
+				getChildText(projectNode, "name"),
 				parseUserNames(projectNode.getChild("allowedReviewers")),
 				parseUserNames(projectNode.getChild("defaultReviewers")),
 				getChildText(projectNode, "defaultRepositoryName"),

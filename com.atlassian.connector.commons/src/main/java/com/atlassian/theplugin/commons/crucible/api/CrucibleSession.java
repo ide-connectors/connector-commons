@@ -16,17 +16,18 @@
 
 package com.atlassian.theplugin.commons.crucible.api;
 
+import com.atlassian.theplugin.commons.crucible.api.model.BasicProject;
 import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.Project;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
@@ -132,9 +133,9 @@ public interface CrucibleSession {
 
 	List<User> getUsers() throws RemoteApiException;
 
-	List<CrucibleProject> getProjects() throws RemoteApiException;
+	List<BasicProject> getProjects() throws RemoteApiException;
 
-	CrucibleProject getProject(String key) throws RemoteApiException;
+	Project getProject(String key) throws RemoteApiException;
 
 	List<Repository> getRepositories() throws RemoteApiException;
 

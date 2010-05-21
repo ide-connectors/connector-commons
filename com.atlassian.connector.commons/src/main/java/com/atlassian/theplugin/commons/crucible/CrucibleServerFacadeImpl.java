@@ -26,7 +26,7 @@ import com.atlassian.theplugin.commons.crucible.api.UploadItem;
 import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.BasicProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCache;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
@@ -131,10 +131,10 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 
     /* @todo optimize to get single project instead loading all from crucible 2.0 only
     https://extranet.atlassian.com/crucible/rest-service/projects-v1/CR?expand=allowedReviewers */
-	public CrucibleProject getProject(@NotNull final ConnectionCfg server, @NotNull final String projectKey)
+	public BasicProject getProject(@NotNull final ConnectionCfg server, @NotNull final String projectKey)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
-		final List<CrucibleProject> projects = getProjects(server);
-		for (CrucibleProject project : projects) {
+		final List<BasicProject> projects = getProjects(server);
+		for (BasicProject project : projects) {
 			if (project.getKey().equals(projectKey)) {
 				return project;
 			}
@@ -478,7 +478,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	 * @throws ServerPasswordNotProvidedException
 	 *
 	 */
-	public List<CrucibleProject> getProjects(ConnectionCfg server) throws RemoteApiException,
+	public List<BasicProject> getProjects(ConnectionCfg server) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return session.getProjects();

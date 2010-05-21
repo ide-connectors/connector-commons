@@ -29,14 +29,15 @@ import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.CrucibleServerFacadeImpl;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
+import com.atlassian.theplugin.commons.crucible.api.model.BasicProject;
 import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCacheImpl;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.Project;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewTestUtil;
@@ -436,7 +437,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		CrucibleServerCfg server = prepareServerBean();
 		// test call
-		List<CrucibleProject> ret = facade.getProjects(getServerData(server));
+		List<BasicProject> ret = facade.getProjects(getServerData(server));
 		assertEquals(2, ret.size());
 		for (int i = 0; i < 2; i++) {
 			String id = Integer.toString(i);
@@ -713,12 +714,12 @@ public class CrucibleServerFacadeTest extends TestCase {
 		return server;
 	}
 
-	private CrucibleProject prepareProjectData(final int i) {
+	private BasicProject prepareProjectData(final int i) {
         Collection<String> usersNames = new ArrayList<String>();
         usersNames.add("Ala");
         usersNames.add("Zosia");
 
-		return new CrucibleProject(Integer.toString(i),
+		return new Project(Integer.toString(i),
                 "CR" + Integer.toString(i), "Name" + Integer.toString(i), usersNames);
 	}
 

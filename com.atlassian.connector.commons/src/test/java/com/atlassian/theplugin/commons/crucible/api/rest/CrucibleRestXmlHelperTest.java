@@ -5,7 +5,7 @@ import com.atlassian.connector.commons.misc.IntRanges;
 import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.Project;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewType;
 import com.atlassian.theplugin.commons.crucible.api.model.State;
@@ -82,7 +82,7 @@ public class CrucibleRestXmlHelperTest extends TestCase {
 
         @SuppressWarnings("unchecked")
         List<Element> elements = xpath.selectNodes(doc);
-        CrucibleProject cp = CrucibleRestXmlHelper.parseProjectNode(elements.get(0));
+		Project cp = CrucibleRestXmlHelper.parseProjectNode(elements.get(0));
 
         assertEquals(cp.getAllowedReviewers(), null);
 

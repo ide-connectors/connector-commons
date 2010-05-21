@@ -22,12 +22,11 @@ import java.io.Serializable;
 import java.util.Collection;
 
 @SuppressWarnings("serial")
-public class CrucibleProject implements Serializable {
+public class BasicProject implements Serializable {
 	private final String id;
 	private final String key;
 	private final String name;
 
-    private final Collection<String> allowedReviewers;
 	private final Collection<String> defaultReviewers;
 	private final String defaultRepository;
 	private final boolean joiningAllowed;
@@ -36,34 +35,22 @@ public class CrucibleProject implements Serializable {
 
     private static final int HASH_INT = 31;
 
-	public CrucibleProject(@NotNull String id, @NotNull String key, @NotNull String name) {
-		this(id, key, name, null);
+	public BasicProject(@NotNull String id, @NotNull String key, @NotNull String name) {
+		this(id, key, name, null, null, true, null, true);
 	}
 
-	public CrucibleProject(@NotNull String id, @NotNull String key, @NotNull String name,
-			@Nullable Collection<String> allowedReviewers) {
-		this(id, key, name, allowedReviewers, null, null, true, null, true);
-    }
-
-	public CrucibleProject(@NotNull String id, @NotNull String key, @NotNull String name,
-			@Nullable Collection<String> allowedReviewers,
+	public BasicProject(@NotNull String id, @NotNull String key, @NotNull String name,
 			@Nullable Collection<String> defaultReviewers,
 			@Nullable String defaultRepository, boolean allowJoin, Integer defaultDuration, boolean moderatorEnabled) {
 		this.id = id;
 		this.key = key;
 		this.name = name;
-		this.allowedReviewers = allowedReviewers;
 		this.defaultReviewers = defaultReviewers;
 		this.defaultRepository = defaultRepository;
 		this.joiningAllowed = allowJoin;
 		this.defaultDuration = defaultDuration;
 		this.moderatorEnabled = moderatorEnabled;
 	}
-
-    @Nullable
-    public Collection<String> getAllowedReviewers() {
-        return allowedReviewers;
-    }
 
 	@NotNull
     public String getId() {
@@ -89,7 +76,7 @@ public class CrucibleProject implements Serializable {
 			return false;
 		}
 
-		CrucibleProject that = (CrucibleProject) o;
+		BasicProject that = (BasicProject) o;
 
 		if (id != null ? !id.equals(that.id) : that.id != null) {
 			return false;
@@ -110,7 +97,6 @@ public class CrucibleProject implements Serializable {
 		result = (id != null ? id.hashCode() : 0);
 		result = HASH_INT * result + (key != null ? key.hashCode() : 0);
 		result = HASH_INT * result + (name != null ? name.hashCode() : 0);
-		// result = HASH_INT * result + (allowedReviewers != null ? allowedReviewers.hashCode() : 0);
 		return result;
 	}
 

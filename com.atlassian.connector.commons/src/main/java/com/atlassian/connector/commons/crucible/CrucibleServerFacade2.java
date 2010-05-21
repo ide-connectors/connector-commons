@@ -18,7 +18,7 @@ import com.atlassian.theplugin.commons.crucible.api.UploadItem;
 import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
+import com.atlassian.theplugin.commons.crucible.api.model.BasicProject;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
@@ -325,7 +325,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	 *             {@link CrucibleSession} directly.
 	 */
 	@Deprecated
-	List<CrucibleProject> getProjects(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
+	List<BasicProject> getProjects(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	/**
 	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use

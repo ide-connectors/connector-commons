@@ -1,10 +1,9 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-import junit.framework.TestCase;
 import static junitx.framework.Assert.assertNotEquals;
-
 import java.util.ArrayList;
 import java.util.Collection;
+import junit.framework.TestCase;
 
 public class CrucibleProjectTest extends TestCase {
 
@@ -13,11 +12,11 @@ public class CrucibleProjectTest extends TestCase {
         usersNames.add("Ala");
         usersNames.add("Zosia");
 
-		CrucibleProject p1 = new CrucibleProject(null, null, null, null);
-		CrucibleProject p2 = new CrucibleProject("1", "2", "3", usersNames);
-		CrucibleProject p3 = new CrucibleProject("2", "X", "3", usersNames);
-		CrucibleProject p4 = new CrucibleProject("2", "X", "3", usersNames);
-		CrucibleProject p5 = new CrucibleProject("1", "2", "X", usersNames);
+		BasicProject p1 = new Project(null, null, null, null);
+		BasicProject p2 = new Project("1", "2", "3", usersNames);
+		BasicProject p3 = new Project("2", "X", "3", usersNames);
+		BasicProject p4 = new Project("2", "X", "3", usersNames);
+		BasicProject p5 = new Project("1", "2", "X", usersNames);
 
 		//noinspection ObjectEqualsNull
 		assertFalse(p1.equals(null));

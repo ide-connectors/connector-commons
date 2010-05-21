@@ -27,13 +27,14 @@ import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
 import com.atlassian.theplugin.commons.configuration.PluginConfigurationBean;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
+import com.atlassian.theplugin.commons.crucible.api.model.BasicProject;
 import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
-import com.atlassian.theplugin.commons.crucible.api.model.CrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.Project;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewType;
@@ -748,14 +749,13 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		List<CrucibleProject> project = apiHandler.getProjects();
+		List<BasicProject> project = apiHandler.getProjects();
 		assertEquals(size, project.size());
 		for (int i = 0; i < size; i++) {
 			String id = Integer.toString(i);
 			assertEquals(id, project.get(i).getId());
 			assertEquals("ProjectName" + id, project.get(i).getName());
 			assertEquals("CR" + id, project.get(i).getKey());
-            assertEquals(null, project.get(i).getAllowedReviewers());
 		}
 		mockServer.verify();
 	}
@@ -768,14 +768,13 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
         apiHandler.login();
-		List<CrucibleProject> project = apiHandler.getProjects();
+		List<BasicProject> project = apiHandler.getProjects();
 		assertEquals(size, project.size());
 		for (int i = 0; i < size; i++) {
 			String id = Integer.toString(i);
 			assertEquals(id, project.get(i).getId());
 			assertEquals("ProjectName" + id, project.get(i).getName());
 			assertEquals("CR" + id, project.get(i).getKey());
-			assertEquals(2, project.get(i).getAllowedReviewers().size());
         }
 		mockServer.verify();
 	}
@@ -788,14 +787,13 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		List<CrucibleProject> projects = apiHandler.getProjects();
+		List<BasicProject> projects = apiHandler.getProjects();
 		assertEquals(98, projects.size());
 
-		CrucibleProject project = projects.get(12);
+		BasicProject project = projects.get(12);
 		assertEquals("CR-UI", project.getKey());
 		assertFalse(project.isJoiningAllowed());
 		assertTrue(project.isModeratorEnabled());
-		assertEquals(0, project.getAllowedReviewers().size());
 		assertEquals(0, project.getDefaultReviewers().size());
 		assertEquals("UI", project.getDefaultRepository());
 
@@ -814,7 +812,7 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		CrucibleProject project = apiHandler.getProject("CR-DEMO");
+		Project project = apiHandler.getProject("CR-DEMO");
 		assertNotNull(project);
 
 		assertEquals("CR-DEMO", project.getKey());
@@ -834,14 +832,13 @@ public class CrucibleSessionTest extends TestCase {
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
 		apiHandler.login();
-		List<CrucibleProject> project = apiHandler.getProjects();
+		List<BasicProject> project = apiHandler.getProjects();
 		assertEquals(size, project.size());
 		for (int i = 0; i < size; i++) {
 			String id = Integer.toString(i);
 			assertEquals(id, project.get(i).getId());
 			assertEquals("ProjectName" + id, project.get(i).getName());
 			assertEquals("CR" + id, project.get(i).getKey());
-            assertEquals(null, project.get(i).getAllowedReviewers());
 		}
 		mockServer.verify();
 	}

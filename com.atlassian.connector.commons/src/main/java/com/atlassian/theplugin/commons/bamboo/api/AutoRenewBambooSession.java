@@ -116,17 +116,7 @@ public class AutoRenewBambooSession implements BambooSession {
 		}
 	}
 
-	// @NotNull
-	// public BambooBuild getLatestBuildForPlan(@NotNull String planKey, final int timezoneOffset) throws RemoteApiException {
-	// try {
-	// return delegate.getLatestBuildForPlan(planKey, timezoneOffset);
-	// } catch (RemoteApiSessionExpiredException e) {
-	// delegate.login(userName, password);
-	// return delegate.getLatestBuildForPlan(planKey, timezoneOffset);
-	// }
-	// }
-
-	public boolean isLoggedIn() {
+	public boolean isLoggedIn() throws RemoteApiLoginException {
 		return delegate.isLoggedIn();
 	}
 

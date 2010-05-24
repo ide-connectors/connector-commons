@@ -29,11 +29,11 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.ExtendedCrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.ExtendedCrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
@@ -203,6 +203,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	public void login() throws RemoteApiLoginException {
 		loginCalled = true;
+	}
+
+	public void login(String name, char[] aPassword) throws RemoteApiLoginException {
+		login();
 	}
 
 	private void realLogin() throws RemoteApiLoginException {
@@ -736,7 +740,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	/**
 	 * Retrieves project details from server
-	 * 
+	 *
 	 * @return list of Crucible projects
 	 * @throws RemoteApiException
 	 *             thrown in case of connection problems

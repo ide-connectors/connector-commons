@@ -36,6 +36,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.State;
 import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.crucible.api.model.changes.Changes;
+import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import org.jetbrains.annotations.NotNull;
@@ -44,7 +45,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public interface CrucibleSession {
+public interface CrucibleSession extends ProductSession {
 	void login() throws RemoteApiLoginException;
 
 	void logout();

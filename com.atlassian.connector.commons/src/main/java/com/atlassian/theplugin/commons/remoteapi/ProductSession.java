@@ -23,5 +23,5 @@ public interface ProductSession {
 
 	void logout();
 
-	boolean isLoggedIn();	
+	boolean isLoggedIn() throws RemoteApiLoginException;
 }

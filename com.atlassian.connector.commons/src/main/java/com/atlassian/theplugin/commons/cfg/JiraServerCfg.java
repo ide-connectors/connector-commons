@@ -84,7 +84,7 @@ public class JiraServerCfg extends ServerCfg {
     @Override
     public void mergePrivateConfiguration(PrivateServerCfgInfo psci) {
         super.mergePrivateConfiguration(psci);    //To change body of overridden methods use File | Settings | File Templates.
-        setDontUseBasicAuth(!psci.isUseDefaultCredentials());
+        setDontUseBasicAuth(!psci.isUseHttpBasic());
         setBasicHttpUser(new UserCfg(psci.getBasicUsername(), psci.getBasicPassword()));
 
     }

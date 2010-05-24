@@ -1604,12 +1604,12 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	// @todo wseliga it even returns less than BasicReview according to Cru API spec
 	@Nullable
-	private BasicReview changeReviewState(PermId permId, String action) throws RemoteApiException {
+	public BasicReview changeReviewState(PermId permId, CrucibleAction action) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
 
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + TRANSITION_ACTION + action;
+		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + TRANSITION_ACTION + action.actionName();
 		try {
 			Document doc = retrievePostResponse(requestUrl, "", true);
 
@@ -1648,41 +1648,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (JDOMException e) {
             throwMalformedResponseReturned(e);
         }
-	}
-
-	@Nullable
-	public BasicReview approveReview(PermId permId) throws RemoteApiException {
-		return changeReviewState(permId, APPROVE_ACTION);
-	}
-
-	@Nullable
-	public BasicReview submitReview(PermId permId) throws RemoteApiException {
-		return changeReviewState(permId, SUBMIT_ACTION);
-	}
-
-	@Nullable
-	public BasicReview abandonReview(PermId permId) throws RemoteApiException {
-		return changeReviewState(permId, ABANDON_ACTION);
-	}
-
-	@Nullable
-	public BasicReview summarizeReview(PermId permId) throws RemoteApiException {
-		return changeReviewState(permId, SUMMARIZE_ACTION);
-	}
-
-	@Nullable
-	public BasicReview recoverReview(PermId permId) throws RemoteApiException {
-		return changeReviewState(permId, RECOVER_ACTION);
-	}
-
-	@Nullable
-	public BasicReview reopenReview(PermId permId) throws RemoteApiException {
-		return changeReviewState(permId, REOPEN_ACTION);
-	}
-
-	@Nullable
-	public BasicReview rejectReview(PermId permId) throws RemoteApiException {
-		return changeReviewState(permId, REJECT_ACTION);
 	}
 
 	@Nullable

@@ -59,7 +59,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -555,12 +554,12 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public EnumSet<CrucibleAction> getTransitions() {
+			public Set<CrucibleAction> getTransitions() {
 				return null;
 			}
 
 			@Override
-			public EnumSet<CrucibleAction> getActions() {
+			public Set<CrucibleAction> getActions() {
 				return null;
 			}
 
@@ -689,12 +688,12 @@ public class CrucibleServerFacadeTest extends TestCase {
 			}
 
 			@Override
-			public EnumSet<CrucibleAction> getTransitions() {
+			public Set<CrucibleAction> getTransitions() {
 				return null;
 			}
 
 			@Override
-			public EnumSet<CrucibleAction> getActions() {
+			public Set<CrucibleAction> getActions() {
 				return null;
 			}
 

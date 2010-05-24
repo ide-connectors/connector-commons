@@ -47,6 +47,7 @@ import com.atlassian.theplugin.commons.crucible.api.rest.CrucibleSessionImpl;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
+import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CreateReviewCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CrucibleMockUtil;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetMetricsCallback;
@@ -67,7 +68,6 @@ import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import junit.framework.TestCase;
@@ -1064,7 +1064,7 @@ public class CrucibleSessionTest extends TestCase {
 		assertEquals("CR-ACC-1", lastReview.getPermId().getId());
 		assertEquals("ACC-27: Eclipse compile error in BambooSessionImpl - stupid mistake?", lastReview.getName());
 		assertTrue(lastReview.getDescription().startsWith("line 378: if (elements"));
-		assertEquals(EnumSet.<CrucibleAction> of(CrucibleAction.VIEW, CrucibleAction.RECOVER, CrucibleAction.SUBMIT,
+		assertEquals(MiscUtil.buildHashSet(CrucibleAction.VIEW, CrucibleAction.RECOVER, CrucibleAction.SUBMIT,
 				CrucibleAction.ABANDON, CrucibleAction.MODIFY_FILES, CrucibleAction.APPROVE, CrucibleAction.REJECT,
 				CrucibleAction.COMMENT, CrucibleAction.CREATE, CrucibleAction.SUMMARIZE, CrucibleAction.CLOSE,
 				CrucibleAction.REOPEN), lastReview.getActions());

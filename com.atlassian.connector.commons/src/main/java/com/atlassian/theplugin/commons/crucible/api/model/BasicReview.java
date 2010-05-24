@@ -11,12 +11,12 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
+import com.atlassian.theplugin.commons.util.MiscUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import java.util.Collection;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.Set;
 
 /**
@@ -29,8 +29,8 @@ import java.util.Set;
  */
 public class BasicReview {
 	private Set<Reviewer> reviewers;
-	private EnumSet<CrucibleAction> transitions = EnumSet.<CrucibleAction> noneOf(CrucibleAction.class);
-	private EnumSet<CrucibleAction> actions = EnumSet.<CrucibleAction> noneOf(CrucibleAction.class);
+	private Set<CrucibleAction> transitions = MiscUtil.buildHashSet();
+	private Set<CrucibleAction> actions = MiscUtil.buildHashSet();
 	@NotNull
 	private User author;
 	private User creator;
@@ -74,15 +74,11 @@ public class BasicReview {
 	}
 
 	public void setTransitions(@NotNull Collection<CrucibleAction> transitions) {
-		// as EnumSet.copyOf does not work for empty collections we use such 2-phase approach
-		this.transitions = EnumSet.noneOf(CrucibleAction.class);
-		this.transitions.addAll(transitions);
+		this.transitions = MiscUtil.buildHashSet(transitions);
 	}
 
 	public void setActions(@NotNull Set<CrucibleAction> actions) {
-		// as EnumSet.copyOf does not work for empty collections we use such 2-phase approach
-		this.actions = EnumSet.noneOf(CrucibleAction.class);
-		this.actions.addAll(actions);
+		this.actions = MiscUtil.buildHashSet(actions);
 	}
 
 	public void setAuthor(@NotNull final User author) {
@@ -98,12 +94,12 @@ public class BasicReview {
 		return reviewers;
 	}
 
-	public EnumSet<CrucibleAction> getTransitions() {
+	public Set<CrucibleAction> getTransitions() {
 		return transitions;
 	}
 
 	@NotNull
-	public EnumSet<CrucibleAction> getActions() {
+	public Set<CrucibleAction> getActions() {
 		return actions;
 	}
 

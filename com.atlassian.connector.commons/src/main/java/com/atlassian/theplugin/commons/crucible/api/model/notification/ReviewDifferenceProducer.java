@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -139,8 +138,8 @@ public class ReviewDifferenceProducer {
 	}
 
 	private boolean areTransitionsEqual() {
-		EnumSet<CrucibleAction> l = oldReview.getTransitions();
-		EnumSet<CrucibleAction> r = newReview.getTransitions();
+		Set<CrucibleAction> l = oldReview.getTransitions();
+		Set<CrucibleAction> r = newReview.getTransitions();
 		return areObjectsEqual(l, r);
 	}
 

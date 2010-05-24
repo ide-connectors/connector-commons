@@ -22,9 +22,9 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import junit.framework.TestCase;
 
 /**
@@ -214,7 +214,7 @@ public class CrucibleRestXmlHelperTest extends TestCase {
 			final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "pniewiadomski", doc.getRootElement(),
 				false);
 			assertEquals(12, review.getActions().size());
-			EnumSet<CrucibleAction> a = review.getActions();
+			Set<CrucibleAction> a = review.getActions();
 			// assertTrue(a.contains(CrucibleAction.CREATE));
 			assertTrue(a.contains(CrucibleAction.CLOSE));
 			assertTrue(a.contains(CrucibleAction.SUMMARIZE));

@@ -24,10 +24,10 @@ import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleVersionInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.ExtendedCrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.ExtendedCrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
@@ -83,29 +83,10 @@ public interface CrucibleSession {
 
 	void removeReviewer(PermId permId, String userNames) throws RemoteApiException;
 
-	@Nullable
-	BasicReview approveReview(PermId permId) throws RemoteApiException;
-
-	@Nullable
-	BasicReview submitReview(PermId permId) throws RemoteApiException;
-
-	@Nullable
-	BasicReview abandonReview(PermId permId) throws RemoteApiException;
+	BasicReview changeReviewState(PermId permId, CrucibleAction action) throws RemoteApiException;
 
 	@Nullable
 	BasicReview closeReview(PermId permId, String summary) throws RemoteApiException;
-
-	@Nullable
-	BasicReview recoverReview(PermId permId) throws RemoteApiException;
-
-	@Nullable
-	BasicReview reopenReview(PermId permId) throws RemoteApiException;
-
-	@Nullable
-	BasicReview rejectReview(PermId permId) throws RemoteApiException;
-
-	@Nullable
-	BasicReview summarizeReview(PermId permId) throws RemoteApiException;
 
 	void completeReview(PermId permId, boolean complete) throws RemoteApiException;
 

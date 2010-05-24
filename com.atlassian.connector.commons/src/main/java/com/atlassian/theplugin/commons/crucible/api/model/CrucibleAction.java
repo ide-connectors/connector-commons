@@ -16,25 +16,30 @@
 
 package com.atlassian.theplugin.commons.crucible.api.model;
 
-public enum CrucibleAction {
-    VIEW("View review", "action:viewReview"),
-    CREATE("Create review", "action:createReview"),
-    ABANDON("Abandon review", "action:abandonReview"),
-    SUBMIT("Submit review", "action:submitReview"),
-    APPROVE("Approve review", "action:approveReview"),
-    REJECT("Reject review", "action:rejectReview"),
-    SUMMARIZE("Summarize review", "action:summarizeReview"),
-    CLOSE("Close review", "action:closeReview"),
-    REOPEN("Reopen review", "action:reopenReview"),
-    RECOVER("Recover review", "action:recoverReview"),
-    COMPLETE("Complete review", "action:completeReview"),
-    UNCOMPLETE("Uncomplete review", "action:uncompleteReview"),
-    COMMENT("Comment", "action:commentOnReview"),
-    MODIFY_FILES("Modify files", "action:modifyReviewFiles"),
-	DELETE("Delete review", "action:deleteReview"),
-	REOPEN_SNIPPET("Reopen snippet", "action:reopenSnippet"),
-	CLOSE_SNIPPET("Close snippet", "action:closeSnippet"),
-    CREATE_SNIPPET("Create snippet", "action:createSnippet");
+import com.atlassian.theplugin.commons.util.MiscUtil;
+import java.util.Map;
+
+public final class CrucibleAction {
+	private static Map<String, CrucibleAction> nameMap = MiscUtil.buildHashMap();
+
+	public static final CrucibleAction VIEW = new CrucibleAction("View review", "action:viewReview");
+	public static final CrucibleAction CREATE = new CrucibleAction("Create review", "action:createReview");
+	public static final CrucibleAction ABANDON = new CrucibleAction("Abandon review", "action:abandonReview");
+	public static final CrucibleAction SUBMIT = new CrucibleAction("Submit review", "action:submitReview");
+	public static final CrucibleAction APPROVE = new CrucibleAction("Approve review", "action:approveReview");
+	public static final CrucibleAction REJECT = new CrucibleAction("Reject review", "action:rejectReview");
+	public static final CrucibleAction SUMMARIZE = new CrucibleAction("Summarize review", "action:summarizeReview");
+	public static final CrucibleAction CLOSE = new CrucibleAction("Close review", "action:closeReview");
+	public static final CrucibleAction REOPEN = new CrucibleAction("Reopen review", "action:reopenReview");
+	public static final CrucibleAction RECOVER = new CrucibleAction("Recover review", "action:recoverReview");
+	public static final CrucibleAction COMPLETE = new CrucibleAction("Complete review", "action:completeReview");
+	public static final CrucibleAction UNCOMPLETE = new CrucibleAction("Uncomplete review", "action:uncompleteReview");
+	public static final CrucibleAction COMMENT = new CrucibleAction("Comment", "action:commentOnReview");
+	public static final CrucibleAction MODIFY_FILES = new CrucibleAction("Modify files", "action:modifyReviewFiles");
+	public static final CrucibleAction DELETE = new CrucibleAction("Delete review", "action:deleteReview");
+	public static final CrucibleAction REOPEN_SNIPPET = new CrucibleAction("Reopen snippet", "action:reopenSnippet");
+	public static final CrucibleAction CLOSE_SNIPPET = new CrucibleAction("Close snippet", "action:closeSnippet");
+	public static final CrucibleAction CREATE_SNIPPET = new CrucibleAction("Create snippet", "action:createSnippet");
 
     private final String displayName;
 
@@ -43,6 +48,7 @@ public enum CrucibleAction {
     CrucibleAction(String dName, String aName) {
         displayName = dName;
         actionName = aName;
+		nameMap.put(aName, this);
     }
 
 	public String displayName() {
@@ -54,11 +60,10 @@ public enum CrucibleAction {
     }
 
     public static CrucibleAction fromValue(String v) {
-        for (CrucibleAction c : CrucibleAction.values()) {
-            if (c.actionName.equals(v)) {
-                return c;
-            }
-        }
+		final CrucibleAction crucibleAction = nameMap.get(v);
+		if (crucibleAction != null) {
+			return crucibleAction;
+		}
         throw new IllegalArgumentException(v);
     }
 

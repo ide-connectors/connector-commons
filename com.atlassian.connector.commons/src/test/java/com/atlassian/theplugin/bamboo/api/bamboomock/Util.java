@@ -16,19 +16,18 @@
 
 package com.atlassian.theplugin.bamboo.api.bamboomock;
 
+import static junit.framework.Assert.assertEquals;
 import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildStatus;
 import com.atlassian.theplugin.commons.util.ResourceUtil;
-import junit.framework.Assert;
-import static junit.framework.Assert.assertEquals;
 import org.apache.commons.httpclient.HttpStatus;
-
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import junit.framework.Assert;
 
 public abstract class Util {
 
@@ -98,8 +97,8 @@ public abstract class Util {
 				+ HttpStatus.getStatusText(HttpStatus.SC_BAD_REQUEST) + ")"));
 	}
 
-	private static final String[][] expectedProjects = {{"PO", "ExtendedCrucibleProject One"}, {"PT", "ExtendedCrucibleProject Two"},
-			{"PEMPTY", "ExtendedCrucibleProject Three - Empty"}};
+	private static final String[][] expectedProjects = { { "PO", "Project One" }, { "PT", "Project Two" },
+			{ "PEMPTY", "Project Three - Empty" } };
 
 	public static void verifyProjectListResult(Collection<BambooProject> projects) {
 		Assert.assertEquals(expectedProjects.length, projects.size());
@@ -112,9 +111,9 @@ public abstract class Util {
 		}
 	}
 
-	private static final String[][] expectedPlans = {{"PO-FP", "First ExtendedCrucibleProject - First Plan", "true"},
-			{"PO-SECPLAN", "First ExtendedCrucibleProject - Second Plan", "true"}, {"PO-TP", "First ExtendedCrucibleProject - Third Plan", "true"},
-			{"PT-TOP", "Second ExtendedCrucibleProject - The Only Plan", "false"}};
+	private static final String[][] expectedPlans = { { "PO-FP", "First Project - First Plan", "true" },
+			{ "PO-SECPLAN", "First Project - Second Plan", "true" }, { "PO-TP", "First Project - Third Plan", "true" },
+			{ "PT-TOP", "Second Project - The Only Plan", "false" } };
 
 	public static void verifyPlanListResult(Collection<BambooPlan> plans) {
 		assertEquals(expectedPlans.length, plans.size());
@@ -127,8 +126,8 @@ public abstract class Util {
 		}
 	}
 
-	private static final String[][] expectedFavouritePlans = {{"PO-FP", "First ExtendedCrucibleProject - First Plan"},
-			{"PT-TOP", "Second ExtendedCrucibleProject - The Only Plan"}};
+	private static final String[][] expectedFavouritePlans = { { "PO-FP", "First Project - First Plan" },
+			{ "PT-TOP", "Second Project - The Only Plan" } };
 
 	public static void verifyFavouriteListResult(Collection<String> plans) {
 		assertEquals(expectedFavouritePlans.length, plans.size());
@@ -139,9 +138,9 @@ public abstract class Util {
 		}
 	}
 
-	private static final String[][] expectedPlansWithFavourites = {{"PO-FP", "First ExtendedCrucibleProject - First Plan", "true"},
-			{"PO-SECPLAN", "First ExtendedCrucibleProject - Second Plan", "false"},
-			{"PO-TP", "First ExtendedCrucibleProject - Third Plan", "false"}, {"PT-TOP", "Second ExtendedCrucibleProject - The Only Plan", "true"}};
+	private static final String[][] expectedPlansWithFavourites = { { "PO-FP", "First Project - First Plan", "true" },
+			{ "PO-SECPLAN", "First Project - Second Plan", "false" },
+			{ "PO-TP", "First Project - Third Plan", "false" }, { "PT-TOP", "Second Project - The Only Plan", "true" } };
 
 	public static void verifyPlanListWithFavouritesResult(Collection<BambooPlan> plans) {
 		assertEquals(expectedPlansWithFavourites.length, plans.size());

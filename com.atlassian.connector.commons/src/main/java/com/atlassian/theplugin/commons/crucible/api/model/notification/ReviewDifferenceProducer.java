@@ -71,7 +71,7 @@ public class ReviewDifferenceProducer {
 
 		if (isModified(oldReview.getProjectKey(), newReview.getProjectKey())) {
 			notifications.add(new BasisReviewDetailsChangedNotification(newReview, CrucibleNotificationType.PROJECT_CHANGED,
-					"ExtendedCrucibleProject has been changed"));
+					"Project has been changed"));
 		}
 
 		if (isModified(oldReview.getDueDate(), newReview.getDueDate())) {

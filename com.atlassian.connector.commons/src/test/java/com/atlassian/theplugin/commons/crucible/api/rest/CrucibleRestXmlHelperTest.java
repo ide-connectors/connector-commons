@@ -10,6 +10,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewType;
 import com.atlassian.theplugin.commons.crucible.api.model.State;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
+import com.atlassian.theplugin.commons.util.XmlUtil;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CrucibleMockUtil;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
@@ -24,7 +25,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import junit.framework.TestCase;
 
 /**
@@ -208,29 +208,30 @@ public class CrucibleRestXmlHelperTest extends TestCase {
 		return doc;
 	}
 
-	public void testParseReviewDataWithUnkownAction() throws JDOMException, IOException, ParseException {
+	public void testParseReviewDataWithUnkownAndIncompleteAction() throws JDOMException, IOException, ParseException {
 		final Document doc = loadDocument("reviewDataWithUnknownAction.xml");
 		try {
 			final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "pniewiadomski", doc.getRootElement(),
 				false);
-			assertEquals(12, review.getActions().size());
-			Set<CrucibleAction> a = review.getActions();
 			// assertTrue(a.contains(CrucibleAction.CREATE));
-			assertTrue(a.contains(CrucibleAction.CLOSE));
-			assertTrue(a.contains(CrucibleAction.SUMMARIZE));
-			assertTrue(a.contains(CrucibleAction.COMPLETE));
-			assertTrue(a.contains(CrucibleAction.VIEW));
-			assertTrue(a.contains(CrucibleAction.MODIFY_FILES));
-			assertTrue(a.contains(CrucibleAction.COMMENT));
-			assertTrue(a.contains(CrucibleAction.UNCOMPLETE));
-			assertTrue(a.contains(CrucibleAction.RECOVER));
-			assertTrue(a.contains(CrucibleAction.REOPEN));
-			assertTrue(a.contains(CrucibleAction.CREATE_SNIPPET));
-			assertTrue(a.contains(CrucibleAction.REOPEN_SNIPPET));
-			assertTrue(a.contains(CrucibleAction.CLOSE_SNIPPET));
+			TestUtil.assertHasOnlyElements(review.getActions(), CrucibleAction.CLOSE,
+					CrucibleAction.SUMMARIZE, CrucibleAction.COMPLETE,
+					CrucibleAction.VIEW, CrucibleAction.MODIFY_FILES, CrucibleAction.COMMENT,
+					CrucibleAction.UNCOMPLETE, CrucibleAction.RECOVER, CrucibleAction.REOPEN,
+					CrucibleAction.CREATE_SNIPPET, CrucibleAction.REOPEN_SNIPPET, CrucibleAction.CLOSE_SNIPPET);
 		} catch (IllegalArgumentException e) {
 			fail("Should not throw this excaption outside");
 		}
+	}
+
+	public void testParseActionsWithUnknownAction() throws JDOMException, IOException {
+		final Document doc = loadDocument("actions-with-some-new-action.xml");
+		final List<Element> actionElements = XmlUtil.getChildElements(doc.getRootElement(), "actionData");
+		final List<CrucibleAction> actions = CrucibleRestXmlHelper.parseActions(actionElements);
+		TestUtil.assertHasOnlyElements(actions, CrucibleAction.REJECT, CrucibleAction.APPROVE,
+				CrucibleAction.VIEW, CrucibleAction.CREATE, CrucibleAction.REOPEN, CrucibleAction.COMMENT,
+				new CrucibleAction("My strange action", "action:myStrangeAction"));
+
 	}
 
 	public void testParseReviewDataWithAvatars() throws JDOMException, IOException, ParseException {

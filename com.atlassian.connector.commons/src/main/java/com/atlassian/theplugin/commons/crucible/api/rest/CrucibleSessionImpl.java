@@ -16,6 +16,7 @@
 
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
+import static com.atlassian.theplugin.commons.crucible.api.rest.CrucibleRestXmlHelper.parseActions;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
@@ -52,7 +53,6 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredExceptio
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.Logger;
-import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.ProductVersionUtil;
 import com.atlassian.theplugin.commons.util.StringUtil;
 import org.apache.commons.httpclient.Header;
@@ -1314,18 +1314,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			XPath xpath = XPath.newInstance("/actions/actionData");
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
-			List<CrucibleAction> actions = new ArrayList<CrucibleAction>();
-
-			if (elements != null && !elements.isEmpty()) {
-				for (Element element : elements) {
-					try {
-						actions.add(CrucibleRestXmlHelper.parseActionNode(element));
-					} catch (IllegalArgumentException e) {
-						LoggerImpl.getInstance().warn(e);
-					}
-				}
-			}
-			return actions;
+			return parseActions(elements);
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
@@ -1347,18 +1336,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			XPath xpath = XPath.newInstance("/transitions/actionData");
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);
-			List<CrucibleAction> transitions = new ArrayList<CrucibleAction>();
-
-			if (elements != null && !elements.isEmpty()) {
-				for (Element element : elements) {
-					try {
-						transitions.add(CrucibleRestXmlHelper.parseActionNode(element));
-					} catch (IllegalArgumentException e) {
-						LoggerImpl.getInstance().warn(e);
-					}
-				}
-			}
-			return transitions;
+			return parseActions(elements);
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
@@ -1613,7 +1591,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
             throwNotLoggedIn();
         }
 
-		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + TRANSITION_ACTION + action.actionName();
+		String requestUrl = getBaseUrl() + REVIEW_SERVICE + "/" + permId.getId() + TRANSITION_ACTION + action.getId();
 		try {
 			Document doc = retrievePostResponse(requestUrl, "", true);
 

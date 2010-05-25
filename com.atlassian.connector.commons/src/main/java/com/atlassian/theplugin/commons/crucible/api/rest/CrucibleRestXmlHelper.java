@@ -36,11 +36,11 @@ import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDefBean;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldValue;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldValueType;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
+import com.atlassian.theplugin.commons.crucible.api.model.ExtendedCrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.FileType;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
-import com.atlassian.theplugin.commons.crucible.api.model.ExtendedCrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.RepositoryType;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
@@ -166,12 +166,23 @@ public final class CrucibleRestXmlHelper {
 	 *
 	 * @param element
 	 * @return action
-	 * @throws IllegalArgumentException
-	 *             if action is invalid
+	 * @throws ParseException
 	 */
 	@NotNull
-    public static CrucibleAction parseActionNode(Element element) {
-        return CrucibleAction.fromValue(getChildText(element, "name"));
+	public static CrucibleAction parseActionNode(Element element) throws ParseException {
+		final String name = element.getChildText("name");
+		if (name == null) {
+			throw new ParseException("Cannot parse action node - missing [name] element", 0);
+		}
+		try {
+			return CrucibleAction.fromValue(name);
+		} catch (IllegalArgumentException e) {
+			final String displayName = element.getChildText("displayName");
+			if (displayName != null) {
+				return new CrucibleAction(displayName, name);
+			}
+			throw new ParseException("Cannot parse action node " + XmlUtil.toPrettyFormatedString(element), 0);
+		}
     }
 
     public static Reviewer parseReviewerNode(Element reviewerNode) {
@@ -326,6 +337,21 @@ public final class CrucibleRestXmlHelper {
         }
     }
 
+	public static List<CrucibleAction> parseActions(List<Element> elements) {
+		List<CrucibleAction> res = new ArrayList<CrucibleAction>();
+
+		if (elements != null && !elements.isEmpty()) {
+			for (Element element : elements) {
+				try {
+					res.add(CrucibleRestXmlHelper.parseActionNode(element));
+				} catch (ParseException e) {
+					LoggerImpl.getInstance().warn(e);
+				}
+			}
+		}
+		return res;
+	}
+
     private static void fillMoreDetailedReviewData(BasicReview review, Element reviewNode, boolean trimWikiMarkers) {
         List<Element> reviewersNode = getChildElements(reviewNode, "reviewers");
         Set<Reviewer> reviewers = new HashSet<Reviewer>();
@@ -337,39 +363,28 @@ public final class CrucibleRestXmlHelper {
         }
         review.setReviewers(reviewers);
 
+		final List<CrucibleAction> transitions = new ArrayList<CrucibleAction>();
+		final Element transitionsNode = reviewNode.getChild("transitions");
+		if (transitionsNode != null) {
+			List<Element> transDataNodes = getChildElements(transitionsNode, "transitionData");
+			transitions.addAll(parseActions(transDataNodes));
+		}
 
-        List<Element> transitionsNode = getChildElements(reviewNode, "transitions");
-        List<CrucibleAction> transitions = new ArrayList<CrucibleAction>();
-        for (Element transition : transitionsNode) {
-            List<Element> trans = getChildElements(transition, "transitionData");
-            for (Element element : trans) {
-				try {
-					transitions.add(parseActionNode(element));
-				} catch (IllegalArgumentException e) {
-					LoggerImpl.getInstance().warn(e);
-				}
-            }
-        }
         review.setTransitions(transitions);
 
-        List<Element> actionsNode = getChildElements(reviewNode, "actions");
-        Set<CrucibleAction> actions = new HashSet<CrucibleAction>();
-        for (Element action : actionsNode) {
-            List<Element> act = getChildElements(action, "actionData");
-            for (Element element : act) {
-// @todo wseliga: this code is probably need instead of the current line. Need to revisit it one day
-//				final CrucibleAction parseActionNode = parseActionNode(element);
-//				if (!(review.getState() == State.CLOSED && parseActionNode == CrucibleAction.MODIFY_FILES)) {
-//					actions.add(parseActionNode);
-//				}
+        final Set<CrucibleAction> actions = new HashSet<CrucibleAction>();
+		final Element actionsNode = reviewNode.getChild("actions");
+		if (actionsNode != null) {
+			List<Element> actionDataNodes = getChildElements(actionsNode, "actionData");
+			actions.addAll(parseActions(actionDataNodes));
+		}
 
-				try {
-					actions.add(parseActionNode(element));
-				} catch (IllegalArgumentException e) {
-					LoggerImpl.getInstance().warn(e);
-				}
-            }
-        }
+		// @todo wseliga: this code is probably need instead of the current line. Need to revisit it one day
+		// final CrucibleAction parseActionNode = parseActionNode(element);
+		// if (!(review.getState() == State.CLOSED && parseActionNode == CrucibleAction.MODIFY_FILES)) {
+		// actions.add(parseActionNode);
+		// }
+
         review.setActions(actions);
     }
 

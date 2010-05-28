@@ -16,6 +16,7 @@
 package com.atlassian.theplugin.commons.bamboo.api;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.theplugin.commons.remoteapi.CaptchaRequiredException;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
@@ -29,7 +30,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -103,6 +103,9 @@ public class LoginBambooSession extends AbstractHttpSession implements ProductSe
 		} catch (UnknownHostException e) {
 			throw new RemoteApiLoginException("Unknown host: " + e.getMessage(), e);
 		} catch (IOException e) {
+			if (e.getCause() != null && e.getCause().getMessage().contains("maximum")) {
+				throw new CaptchaRequiredException(e);
+			}
 			throw new RemoteApiLoginException(e.getMessage(), e);
 		} catch (JDOMException e) {
 			throw new RemoteApiLoginException("Server returned malformed response", e);
@@ -150,7 +153,7 @@ public class LoginBambooSession extends AbstractHttpSession implements ProductSe
 	}
 
     @Override
-    protected void preprocessMethodResult(HttpMethod method) {        
+    protected void preprocessMethodResult(HttpMethod method) {
     }
 
     protected static String getExceptionMessages(Document doc) throws JDOMException {

@@ -45,6 +45,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.User;
 import com.atlassian.theplugin.commons.crucible.api.model.VersionedComment;
 import com.atlassian.theplugin.commons.crucible.api.model.changes.Changes;
 import com.atlassian.theplugin.commons.exception.IncorrectVersionException;
+import com.atlassian.theplugin.commons.remoteapi.CaptchaRequiredException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
@@ -245,6 +246,9 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		} catch (UnknownHostException e) {
 			throw new RemoteApiLoginException("Unknown host: " + e.getMessage(), e);
 		} catch (IOException e) {
+			if (e.getCause() != null && e.getCause().getMessage().contains("maximum")) {
+				throw new CaptchaRequiredException(e);
+			}
 			throw new RemoteApiLoginException(getBaseUrl() + ":" + e.getMessage(), e);
 		} catch (JDOMException e) {
 			throw new RemoteApiLoginException("Server:" + getBaseUrl() + " returned malformed response", e);

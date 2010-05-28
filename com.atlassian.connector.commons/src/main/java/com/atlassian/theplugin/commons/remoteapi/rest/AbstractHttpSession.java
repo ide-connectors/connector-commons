@@ -44,7 +44,6 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -271,18 +270,12 @@ public abstract class AbstractHttpSession {
 				if (method.getStatusCode() == HttpStatus.SC_NOT_MODIFIED && cacheRecord != null) {
 //					System.out.println("Cache record valid, using cached value: " + new String(cacheRecord.getDocument()));
 					return cacheRecord.getDocument();
-				} else if (method.getStatusCode() == HttpStatus.SC_BAD_REQUEST) {
+				} else if (method.getStatusCode() != HttpStatus.SC_OK) {
 					final String errorDescription = "HTTP " + method.getStatusCode() + " ("
 							+ HttpStatus.getStatusText(method.getStatusCode()) + ")";
 					LoggerImpl.getInstance().info(errorDescription + "\n" + method.getStatusText());
 
 					throw createIOException(errorDescription, new Exception(method.getResponseBodyAsString()));
-				} else if (method.getStatusCode() != HttpStatus.SC_OK) {
-					final String errorDescription = "HTTP " + method.getStatusCode() + " ("
-							+ HttpStatus.getStatusText(method.getStatusCode()) + ")";
-					LoggerImpl.getInstance().info(errorDescription +  "\n" + method.getStatusText());
-
-					throw new IOException(errorDescription);
 				} else {
 					final byte[] result = method.getResponseBody();
 					final String lastModified = method.getResponseHeader("Last-Modified") == null ? null
@@ -366,7 +359,7 @@ public abstract class AbstractHttpSession {
 				method.getParams().setSoTimeout(client.getParams().getSoTimeout());
 
 				callback.configureHttpMethod(this, method);
-                
+
 				if (request != null && !"".equals(request)) {
 					method.setRequestEntity(new StringRequestEntity(request, "application/xml", "UTF-8"));
 				}
@@ -451,7 +444,7 @@ public abstract class AbstractHttpSession {
 				// Create the multi-part request
 				method.setRequestEntity(new MultipartRequestEntity(parts, method.getParams()));
                 callback.configureHttpMethod(this, method);
-                
+
 				client.executeMethod(method);
 				final int httpStatus = method.getStatusCode();
 				if (httpStatus == HttpStatus.SC_NO_CONTENT) {

@@ -36,8 +36,10 @@ import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,6 +53,8 @@ import java.net.UnknownHostException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 
 import static java.lang.System.getProperty;
@@ -114,12 +118,33 @@ public class EasySSLProtocolSocketFactory implements SecureProtocolSocketFactory
     }
 
     private SSLContext createEasySSLContext() {
+
+        KeyManagerFactory kmf = null;
+
+        try {
+            final KeyStore keyStore = getKeyStore();
+            if (keyStore != null) {
+                kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                final String p = getProperty("javax.net.ssl.keyStorePassword");
+                kmf.init(keyStore, p != null ? p.toCharArray() : "".toCharArray());
+                TrustManagerFactory tmf =
+                        TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                tmf.init(keyStore);
+            }
+            //the exception is not important
+        } catch (KeyStoreException e) {
+        } catch (NoSuchAlgorithmException e) {
+        } catch (UnrecoverableKeyException e) {
+        }
+
+
         try {
             SSLContext context = SSLContext.getInstance("SSL");
+
             context.init(
-                    null,
+                    kmf != null ? kmf.getKeyManagers() : null,
                     new TrustManager[]{getTrustManager()},
-                    null);
+                    kmf != null ? new SecureRandom() : null);
             return context;
         } catch (Exception e) {
             //logger.error(e.getMessage(), e);
@@ -128,12 +153,13 @@ public class EasySSLProtocolSocketFactory implements SecureProtocolSocketFactory
     }
 
     public static KeyStore getKeyStore() {
-        KeyStore ksPkcs12 = getKeyJKSStore(getProperty("javax.net.ssl.keyStore"), getProperty("javax.net.ssl.keyStorePassword"));
+        KeyStore keyJKSStore = getKeyJKSStore(getProperty("javax.net.ssl.keyStore"), getProperty("javax.net.ssl.keyStorePassword"));
         KeyStore trust = getKeyJKSStore(getProperty("javax.net.ssl.trustStore"), getProperty("javax.net.ssl.trustStorePassword"));
 
-        if (ksPkcs12 == null) {
+        if (keyJKSStore == null) {
             try {
-                ksPkcs12 = KeyStore.getInstance("JKS");
+                keyJKSStore = KeyStore.getInstance("JKS");
+
             } catch (KeyStoreException e) {
                 return null;
             }
@@ -141,32 +167,31 @@ public class EasySSLProtocolSocketFactory implements SecureProtocolSocketFactory
 
         if (trust != null) {
             try {
-                while(trust.aliases().hasMoreElements()) {
+                while (trust.aliases().hasMoreElements()) {
                     String alias = trust.aliases().nextElement();
-                    ksPkcs12.setCertificateEntry(alias, trust.getCertificate(alias));
+                    keyJKSStore.setCertificateEntry(alias, trust.getCertificate(alias));
                     trust.deleteEntry(alias);
                 }
             } catch (KeyStoreException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
-            
+
         }
-        return ksPkcs12;
+        return keyJKSStore;
     }
 
 
-    private static KeyStore  getKeyJKSStore(String keyStoreFileName, String keyStorePassword) {
-    KeyStore ksPkcs12 = null;
+    private static KeyStore getKeyJKSStore(String keyStoreFileName, String keyStorePassword) {
+        KeyStore jKeyStore = null;
         try {
 
 
             if (keyStorePassword != null && keyStorePassword.length() > 0
                     && keyStoreFileName != null && keyStoreFileName.length() > 0) {
-
-                ksPkcs12 = KeyStore.getInstance("JKS");
+                jKeyStore = KeyStore.getInstance("JKS");
                 File file = new File(keyStoreFileName);
                 FileInputStream inStream = new FileInputStream(file);
-                ksPkcs12.load(inStream, keyStorePassword.toCharArray());
+                jKeyStore.load(inStream, keyStorePassword.toCharArray());
+
             }
         } catch (KeyStoreException e) {
         } catch (FileNotFoundException e) {
@@ -175,10 +200,11 @@ public class EasySSLProtocolSocketFactory implements SecureProtocolSocketFactory
         } catch (IOException e) {
         }
 
-        return ksPkcs12;
+        return jKeyStore;
     }
+
     protected X509TrustManager getTrustManager() throws NoSuchAlgorithmException, KeyStoreException {
-		return new EasyX509TrustManager(null);
+        return new EasyX509TrustManager(getKeyStore());
     }
 
     private SSLContext getSSLContext() {
@@ -218,9 +244,7 @@ public class EasySSLProtocolSocketFactory implements SecureProtocolSocketFactory
      * @param host   the host name/IP
      * @param port   the port on the host
      * @param params {@link HttpConnectionParams Http connection parameters}
-     *
      * @return Socket a new socket
-     *
      * @throws IOException          if an I/O error occurs while creating the socket
      * @throws UnknownHostException if the IP address of the host cannot be
      *                              determined
@@ -240,6 +264,7 @@ public class EasySSLProtocolSocketFactory implements SecureProtocolSocketFactory
         if (timeout == 0) {
             return socketfactory.createSocket(host, port, localAddress, localPort);
         } else {
+
             Socket socket = socketfactory.createSocket();
             SocketAddress localaddr = new InetSocketAddress(localAddress, localPort);
             SocketAddress remoteaddr = new InetSocketAddress(host, port);

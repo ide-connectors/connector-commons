@@ -53,12 +53,12 @@ public class ConnectorTrustManager implements X509TrustManager {
 	}
 
 
-    public ConnectorTrustManager(GeneralConfigurationBean configuration,  CertMessageDialog certMessageDialog)  throws NoSuchAlgorithmException, KeyStoreException {
+    public ConnectorTrustManager(GeneralConfigurationBean configuration,  CertMessageDialog certMessageDialog, KeyStore keyStore)  throws NoSuchAlgorithmException, KeyStoreException {
 		this.configuration = configuration;
         this.certMessageDialog = certMessageDialog;
 
         TrustManagerFactory factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-		factory.init((KeyStore) null);
+        factory.init(keyStore);
 		TrustManager[] trustmanagers = factory.getTrustManagers();
 
 		//looking for a X509TrustManager instance

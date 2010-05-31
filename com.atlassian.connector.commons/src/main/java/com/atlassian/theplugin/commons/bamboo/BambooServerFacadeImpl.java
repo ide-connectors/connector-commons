@@ -20,6 +20,7 @@ import com.atlassian.connector.commons.api.BambooServerFacade2;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.bamboo.api.AutoRenewBambooSession;
+import com.atlassian.theplugin.commons.bamboo.api.BambooServerVersionNumberConstants;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSession;
 import com.atlassian.theplugin.commons.bamboo.api.BambooSessionImpl;
 import com.atlassian.theplugin.commons.bamboo.api.LoginBambooSession;
@@ -43,7 +44,7 @@ import java.util.WeakHashMap;
  * Class used for communication wiht Bamboo Server.
  *
  * @author sginter + others Date: Jan 15, 2008
- * @deprecated this class is evil. You should use directly BambooSession(Impl) instead of this
+ * @deprecated this class is evil (e.g. due to leaking sessions). You should use directly BambooSession(Impl) instead of this
  */
 @Deprecated
 public final class BambooServerFacadeImpl implements BambooServerFacade2 {
@@ -67,50 +68,6 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 
 	public ServerType getServerType() {
 		return ServerType.BAMBOO_SERVER;
-	}
-
-	public boolean isBamboo2(final ConnectionCfg serverData) {
-		BambooSession session;
-		try {
-			session = getSession(serverData);
-			if (session != null && session.getBamboBuildNumber() > 0) {
-				return true;
-			}
-
-		} catch (RemoteApiException e) {
-			//not important == false
-		}
-		return false;
-	}
-
-	public boolean isBamboo2M9(final ConnectionCfg bambooServerData) {
-		{
-			BambooSession session;
-			try {
-				session = getSession(bambooServerData);
-				if (session != null && session.getBamboBuildNumber() >= 1313) {
-					return true;
-				}
-
-			} catch (RemoteApiException e) {
-				//not important == false
-			}
-			return false;
-		}
-	}
-
-	public boolean isBamboo24(final ConnectionCfg bambooServerData) {
-		BambooSession session;
-		try {
-			session = getSession(bambooServerData);
-			if (session != null && session.getBamboBuildNumber() >= 1600 && session.getBamboBuildNumber() <= 1602) {
-				return true;
-			}
-
-		} catch (RemoteApiException e) {
-			// not important == false
-		}
-		return false;
 	}
 
 	public synchronized BambooSession getSession(ConnectionCfg server) throws RemoteApiException {
@@ -192,7 +149,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 	 *             when login failed
 	 * @see com.atlassian.theplugin.commons.bamboo.api.BambooSessionImpl#login(String, char[])
 	 */
-	public Collection<BambooBuild> getSubscribedPlansResults(ConnectionCfg bambooServer,
+	Collection<BambooBuild> getSubscribedPlansResultsOld(ConnectionCfg bambooServer,
 			final Collection<SubscribedPlan> plans, boolean isUseFavourities, int timezoneOffset)
 			throws ServerPasswordNotProvidedException, RemoteApiException {
 
@@ -231,6 +188,17 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 		return api.getSubscribedPlansResults(plans, isUseFavourities, timezoneOffset);
 	}
 
+	public Collection<BambooBuild> getSubscribedPlansResults(ConnectionCfg connectionCfg,
+			final Collection<SubscribedPlan> plans, boolean isUseFavourities, int timezoneOffset)
+			throws ServerPasswordNotProvidedException, RemoteApiException {
+		final BambooSession session = getSession(connectionCfg);
+		if (session.getBamboBuildNumber() >= BambooServerVersionNumberConstants.BAMBOO_1401_BUILD_NUMBER) {
+			return getSubscribedPlansResultsNew(connectionCfg, plans, isUseFavourities, timezoneOffset);
+		} else {
+			return getSubscribedPlansResultsOld(connectionCfg, plans, isUseFavourities, timezoneOffset);
+		}
+	}
+
 	/**
 	 * This is the new version of {@link #getSubscribedPlansResults(ConnectionCfg, java.util.Collection, boolean, int)} It
 	 * returns info about 'building' or 'in queue' state.
@@ -250,7 +218,7 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 	 *             when we cannot log in
 	 * @see com.atlassian.theplugin.commons.bamboo.api.BambooSessionImpl#login(String, char[])
 	 */
-	public Collection<BambooBuild> getSubscribedPlansResultsNew(ConnectionCfg bambooServer,
+	Collection<BambooBuild> getSubscribedPlansResultsNew(ConnectionCfg bambooServer,
 			final Collection<SubscribedPlan> plans, boolean isUseFavourities, int timezoneOffset)
 			throws ServerPasswordNotProvidedException, RemoteApiLoginException {
 		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();

@@ -21,7 +21,6 @@ import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedException;
 import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 
@@ -34,7 +33,7 @@ public interface BambooServerFacade2 extends ProductServerFacade {
 	/**
 	 * This method is to make migration to BambooSession (used directly) easier
 	 */
-	BambooSession getSession(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
+	BambooSession getSession(ConnectionCfg server) throws RemoteApiException;
 
 	Collection<BambooProject> getProjectList(ConnectionCfg bambooServer) throws ServerPasswordNotProvidedException,
 		RemoteApiException;
@@ -102,15 +101,6 @@ public interface BambooServerFacade2 extends ProductServerFacade {
 
 	BambooBuild getBuildForPlanAndNumber(ConnectionCfg bambooServer, @NotNull String planKey, final int buildNumber,
 			final int timezoneOffset) throws ServerPasswordNotProvidedException, RemoteApiException;
-
-	boolean isBamboo2(ConnectionCfg serverData);
-
-	boolean isBamboo2M9(final ConnectionCfg bambooServerData);
-
-	boolean isBamboo24(final ConnectionCfg bambooServerData);
-
-	Collection<BambooBuild> getSubscribedPlansResultsNew(ConnectionCfg bambooServer, Collection<SubscribedPlan> plans,
-			boolean isUseFavourities, int timezoneOffset) throws ServerPasswordNotProvidedException, RemoteApiLoginException;
 
     Collection<BuildIssue> getIssuesForBuild(ConnectionCfg bambooServer, @NotNull String planKey, int buildNumber)
             throws ServerPasswordNotProvidedException, RemoteApiException;

@@ -35,7 +35,6 @@ import java.util.List;
  */
 public interface BambooSession extends ProductSession {
 
-
 	int getBamboBuildNumber() throws RemoteApiException;
 
 	@NotNull

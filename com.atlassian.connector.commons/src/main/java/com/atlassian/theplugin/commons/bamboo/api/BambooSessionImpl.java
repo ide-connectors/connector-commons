@@ -110,7 +110,6 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	private final ConnectionCfg serverData;
 
 	private static final int BAMBOO_23_BUILD_NUMBER = 1308;
-    private static final int BAMBOO_1401_BUILD_NUMBER = 1401;
 	private static final int BAMBOO_2_6_BUILD_NUMBER = 1839;
 
 	private static final String CANNOT_PARSE_BUILD_TIME = "Cannot parse buildTime.";
@@ -132,7 +131,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	}
 
 
-	public int getBamboBuildNumber() throws RemoteApiException {
+	private int getBamboBuildNumberImpl() throws RemoteApiException {
 		String queryUrl = getBaseUrl() + GET_BAMBOO_BUILD_NUMBER_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
 
 		try {
@@ -592,12 +591,18 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	 */
 	private Integer serverBuildNumber;
 
-	private int getServerBuildNumber() throws RemoteApiException {
+	/**
+	 * Returns possible cached version information (build/compilation number) of the server
+	 *
+	 * @return
+	 * @throws RemoteApiException
+	 */
+	public int getBamboBuildNumber() throws RemoteApiException {
 		if (serverBuildNumber != null) {
 			return serverBuildNumber.intValue();
 		}
 		// I am not afraid of races here, they are not harmful
-		serverBuildNumber = getBamboBuildNumber();
+		serverBuildNumber = getBamboBuildNumberImpl();
 		return serverBuildNumber;
 	}
 
@@ -605,7 +610,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		// as we are phasing out BambooServerFacade and BambooServerFacade2,
 		// but still make life of the clients using this lib easy, we make this decision here which API to use
 
-		if (getServerBuildNumber() >= BAMBOO_2_6_BUILD_NUMBER) {
+		if (getBamboBuildNumber() >= BAMBOO_2_6_BUILD_NUMBER) {
 			return getBuildResultDetailsMoreRestish(planKey, buildNumber);
 		} else {
 			return getBuildResultDetailsOld(planKey, buildNumber);
@@ -1008,8 +1013,8 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	}
 
     public Collection<BuildIssue> getIssuesForBuild(@NotNull String planKey, int buildNumber) throws RemoteApiException {
-        int bambooBuild = getBamboBuildNumber();
-        if (bambooBuild < BAMBOO_1401_BUILD_NUMBER) {
+		int bambooBuild = getBamboBuildNumber();
+		if (bambooBuild < BambooServerVersionNumberConstants.BAMBOO_1401_BUILD_NUMBER) {
             throw new RemoteApiBadServerVersionException("Bamboo build 1401 or newer required");
         }
 

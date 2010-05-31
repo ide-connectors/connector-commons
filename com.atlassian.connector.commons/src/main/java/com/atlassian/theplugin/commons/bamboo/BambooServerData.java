@@ -21,7 +21,6 @@ import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Collection;
 
 /**
@@ -38,7 +37,7 @@ public class BambooServerData extends ServerData {
     }
 
     public BambooServerData(Server server, UserCfg defaultUser) {
-        super(server, defaultUser);  
+        super(server, defaultUser);
     }
 
     public static class Builder extends ServerData.Builder {
@@ -72,14 +71,6 @@ public class BambooServerData extends ServerData {
 	public boolean isBamboo2() {
 		return getServer().isBamboo2();
 	}
-
-	public boolean isBamboo2M9() {
-		return getServer().isBamboo2M9();
-	}
-
-    public boolean isBamboo24() {
-        return getServer().isBamboo24();
-    }
 
 	@Override
 	protected BambooServerCfg getServer() {

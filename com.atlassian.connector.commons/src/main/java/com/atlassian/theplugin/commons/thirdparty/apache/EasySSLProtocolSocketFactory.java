@@ -123,10 +123,10 @@ public class EasySSLProtocolSocketFactory implements SecureProtocolSocketFactory
 
         try {
             final KeyStore keyStore = getKeyStore();
-            if (keyStore != null) {
+            final String p = getProperty("javax.net.ssl.keyStorePassword");
+            if (keyStore != null && p != null) {
                 kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-                final String p = getProperty("javax.net.ssl.keyStorePassword");
-                kmf.init(keyStore, p != null ? p.toCharArray() : "".toCharArray());
+                kmf.init(keyStore, p.toCharArray() );
                 TrustManagerFactory tmf =
                         TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
                 tmf.init(keyStore);

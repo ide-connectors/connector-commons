@@ -156,25 +156,29 @@ public class EasySSLProtocolSocketFactory implements SecureProtocolSocketFactory
         KeyStore keyJKSStore = getKeyJKSStore(getProperty("javax.net.ssl.keyStore"), getProperty("javax.net.ssl.keyStorePassword"));
         KeyStore trust = getKeyJKSStore(getProperty("javax.net.ssl.trustStore"), getProperty("javax.net.ssl.trustStorePassword"));
 
-        if (keyJKSStore == null) {
-            try {
-                keyJKSStore = KeyStore.getInstance("JKS");
+//        if (keyJKSStore == null) {
+//            try {
+//                keyJKSStore = KeyStore.getInstance("JKS");
+//
+//            } catch (KeyStoreException e) {
+//                return null;
+//            }
+//        }
 
-            } catch (KeyStoreException e) {
-                return null;
-            }
-        }
-
-        if (trust != null) {
-            try {
-                while (trust.aliases().hasMoreElements()) {
-                    String alias = trust.aliases().nextElement();
-                    keyJKSStore.setCertificateEntry(alias, trust.getCertificate(alias));
-                    trust.deleteEntry(alias);
+        try {
+            if (trust != null && keyJKSStore != null && trust.size() > 0 && keyJKSStore.size() > 0) {
+                try {
+                    while (trust.aliases().hasMoreElements()) {
+                        String alias = trust.aliases().nextElement();
+                        keyJKSStore.setCertificateEntry(alias, trust.getCertificate(alias));
+                        trust.deleteEntry(alias);
+                    }
+                } catch (KeyStoreException e) {
                 }
-            } catch (KeyStoreException e) {
-            }
 
+            }
+        } catch (KeyStoreException e) {
+            e.printStackTrace();  
         }
         return keyJKSStore;
     }

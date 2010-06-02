@@ -666,6 +666,8 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 				case TEST_SUCCEED:
 					build.addSuccessfulTest(tInfo);
 					break;
+				default:
+					break;
 				}
 			}
 			final Element changesElement = doc.getRootElement().getChild("changes");

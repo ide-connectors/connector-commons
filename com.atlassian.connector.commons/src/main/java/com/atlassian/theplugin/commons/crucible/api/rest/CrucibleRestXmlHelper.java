@@ -16,8 +16,6 @@
 
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
-import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
-import static com.atlassian.theplugin.commons.util.XmlUtil.getChildElements;
 import com.atlassian.connector.commons.misc.IntRanges;
 import com.atlassian.connector.commons.misc.IntRangesParser;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
@@ -68,6 +66,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -77,6 +76,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
+import static com.atlassian.theplugin.commons.util.XmlUtil.getChildElements;
 
 public final class CrucibleRestXmlHelper {
     private static final String CDATA_END = "]]>";
@@ -1098,7 +1100,7 @@ public final class CrucibleRestXmlHelper {
     }
 
 	private static ReviewType parseReviewType(String reviewType) throws ParseException {
-		if (reviewType == null /* for old Crucible versions */|| "REVIEW".equals(reviewType)) {
+		if (reviewType == null /* for old Crucible versions */ || "REVIEW".equals(reviewType)) {
 			return ReviewType.REVIEW;
 		} else if ("SNIPPET".equals(reviewType)) {
 			return ReviewType.SNIPPET;

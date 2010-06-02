@@ -67,22 +67,39 @@ public class PrivateServerCfgInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         PrivateServerCfgInfo that = (PrivateServerCfgInfo) o;
 
-        if (isEnabled != that.isEnabled) return false;
-        if (useDefaultCredentials != that.useDefaultCredentials) return false;
-        if (useHttpBasic != that.useHttpBasic) return false;
-        if (basicPassword != null ? !basicPassword.equals(that.basicPassword) : that.basicPassword != null)
+        if (isEnabled != that.isEnabled) {
             return false;
-        if (basicUsername != null ? !basicUsername.equals(that.basicUsername) : that.basicUsername != null)
+        }
+        if (useDefaultCredentials != that.useDefaultCredentials) {
             return false;
-        if (password != null ? !password.equals(that.password) : that.password != null) return false;
-        if (serverId != null ? !serverId.equals(that.serverId) : that.serverId != null) return false;
-        if (username != null ? !username.equals(that.username) : that.username != null) return false;
-
+        }
+        if (useHttpBasic != that.useHttpBasic) {
+            return false;
+        }
+        if (basicPassword != null ? !basicPassword.equals(that.basicPassword) : that.basicPassword != null) {
+            return false;
+        }
+        if (basicUsername != null ? !basicUsername.equals(that.basicUsername) : that.basicUsername != null) {
+            return false;
+        }
+        if (password != null ? !password.equals(that.password) : that.password != null) {
+            return false;
+        }
+        if (serverId != null ? !serverId.equals(that.serverId) : that.serverId != null) {
+            return false;
+        }
+        if (username != null ? !username.equals(that.username) : that.username != null) {
+            return false;
+        }
         return true;
     }
 

@@ -253,7 +253,7 @@ public class GeneralConfigurationBean {
         if (rejectedUpgrade != null ? !rejectedUpgrade.equals(that.rejectedUpgrade) : that.rejectedUpgrade != null) {
             return false;
         }
-        if (certs!= null && !certs.equals(that.certs)) {
+        if (certs != null && !certs.equals(that.certs)) {
             return false;
         }
         if (!statsCountersMap.equals(that.statsCountersMap)) {

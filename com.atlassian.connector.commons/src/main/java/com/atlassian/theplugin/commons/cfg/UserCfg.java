@@ -68,14 +68,24 @@ public class UserCfg implements User {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         UserCfg userCfg = (UserCfg) o;
 
-        if (passwordStored != userCfg.passwordStored) return false;
-        if (password != null ? !password.equals(userCfg.password) : userCfg.password != null) return false;
-        if (username != null ? !username.equals(userCfg.username) : userCfg.username != null) return false;
+        if (passwordStored != userCfg.passwordStored) {
+            return false;
+        }
+        if (password != null ? !password.equals(userCfg.password) : userCfg.password != null) {
+            return false;
+        }
+        if (username != null ? !username.equals(userCfg.username) : userCfg.username != null) {
+            return false;
+        }
 
         return true;
     }

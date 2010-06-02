@@ -55,7 +55,7 @@ import static com.atlassian.theplugin.commons.util.UrlUtil.encodeUrl;
 public class JIRARssClient extends AbstractHttpSession {
 
     private final ConnectionCfg httpConnectionCfg;
-    private Header setCookieHeaders[];
+    private Header[] setCookieHeaders;
     private boolean login = false;
 
     public JIRARssClient(final ConnectionCfg httpConnectionCfg, final HttpSessionCallback callback)
@@ -262,7 +262,7 @@ public class JIRARssClient extends AbstractHttpSession {
     }
 
 
-    public void login() throws JIRAException{
+    public void login() throws JIRAException {
         try {
             login = true;
             super.retrievePostResponse(httpConnectionCfg.getUrl() + "/secure/Dashboard.jspa", "", false);

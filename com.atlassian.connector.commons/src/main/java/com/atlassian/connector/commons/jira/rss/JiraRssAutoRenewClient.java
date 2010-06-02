@@ -33,14 +33,16 @@ public class JiraRssAutoRenewClient {
         this.rssClient = rssClient;
     }
 
-    public List<JIRAIssue> getIssues(String queryString, String sortBy, String sortOrder, int start, int max) throws JIRAException {
+    public List<JIRAIssue> getIssues(String queryString, String sortBy, String sortOrder, int start, int max)
+            throws JIRAException {
         if (!rssClient.isLoggedIn()) {
             rssClient.login();
         }
         return rssClient.getIssues(queryString, sortBy, sortOrder, start, max);  
     }
 
-    public List<JIRAIssue> getIssues(List<JIRAQueryFragment> fragments, String sortBy, String sortOrder, int start, int max) throws JIRAException {
+    public List<JIRAIssue> getIssues(List<JIRAQueryFragment> fragments, String sortBy, String sortOrder,
+                                     int start, int max) throws JIRAException {
         if (!rssClient.isLoggedIn()) {
             rssClient.login();
         }
@@ -54,7 +56,8 @@ public class JiraRssAutoRenewClient {
         return rssClient.getAssignedIssues(assignee);
     }
 
-    public List<JIRAIssue> getSavedFilterIssues(JIRAQueryFragment fragment, String sortBy, String sortOrder, int start, int max) throws JIRAException {
+    public List<JIRAIssue> getSavedFilterIssues(JIRAQueryFragment fragment, String sortBy, String sortOrder, int start,
+                                                int max) throws JIRAException {
         if (!rssClient.isLoggedIn()) {
             rssClient.login();
         }

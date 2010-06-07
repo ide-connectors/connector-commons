@@ -22,6 +22,7 @@ import com.atlassian.theplugin.commons.fisheye.api.model.FisheyePathHistoryItem;
 import com.atlassian.theplugin.commons.fisheye.api.model.changeset.Changeset;
 import com.atlassian.theplugin.commons.fisheye.api.model.changeset.ChangesetIdList;
 import com.atlassian.theplugin.commons.fisheye.api.model.changeset.FileRevisionKey;
+import com.atlassian.theplugin.commons.remoteapi.CaptchaRequiredException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
@@ -42,7 +43,6 @@ import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
@@ -98,7 +98,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 	}
 
     @Override
-    protected void preprocessMethodResult(HttpMethod method) {        
+    protected void preprocessMethodResult(HttpMethod method) {
     }
 
     /**
@@ -129,6 +129,9 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
 			Document doc = retrieveGetResponse(loginUrl);
 			String exception = getExceptionMessages(doc);
 			if (null != exception) {
+				if (exception.contains("maximum")) {
+					throw new CaptchaRequiredException(null);
+				}
 				throw new RemoteApiLoginFailedException(exception);
 			}
 

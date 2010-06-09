@@ -1491,7 +1491,11 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 				ByteArrayPartSource targetNewFile =
 						new ByteArrayPartSource(uploadItem.getFileName(), uploadItem.getNewContent());
 
-				Part[] parts = { new FilePart("file", targetNewFile), new FilePart("diffFile", targetOldFile) };
+				Part[] parts = {
+						new FilePart("file", targetNewFile,
+								uploadItem.getNewContentType(), uploadItem.getNewCharset()),
+						new FilePart("diffFile", targetOldFile,
+								uploadItem.getOldContentType(), uploadItem.getOldCharset()) };
 
 				retrievePostResponse(urlString, parts, true);
 			}

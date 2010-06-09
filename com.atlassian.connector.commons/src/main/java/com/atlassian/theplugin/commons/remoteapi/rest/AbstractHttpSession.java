@@ -44,6 +44,7 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -250,6 +251,8 @@ public abstract class AbstractHttpSession {
 			}
 
 			CacheRecord cacheRecord = cache.get(urlString);
+            callback.configureHttpMethod(this, method);
+            
 			if (cacheRecord != null) {
 //                System.out.println(String.format("%s in cache, adding If-Modified-Since: %s and If-None-Match: %s headers.",
 //                    urlString, cacheRecord.getLastModified(), cacheRecord.getEtag()));
@@ -263,7 +266,6 @@ public abstract class AbstractHttpSession {
 				// method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
 				method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 				method.getParams().setSoTimeout(client.getParams().getSoTimeout());
-				callback.configureHttpMethod(this, method);
 
 				client.executeMethod(method);
 

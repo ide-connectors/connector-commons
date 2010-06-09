@@ -39,7 +39,6 @@ import com.atlassian.theplugin.commons.util.StringUtil;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.auth.AuthenticationException;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -71,7 +70,7 @@ public class JIRARssClient extends AbstractHttpSession {
 
         }
 
-        if (login) {
+        /*if (login) {
             if (httpConnectionCfg != null && method instanceof PostMethod) {
                 ((PostMethod) method).addParameter("os_username", httpConnectionCfg.getUsername());
                 ((PostMethod) method).addParameter("os_password", httpConnectionCfg.getPassword());
@@ -83,7 +82,7 @@ public class JIRARssClient extends AbstractHttpSession {
                 method.addRequestHeader(setCookieHeader);
             }
 
-        }
+        }*/
     }
 
     @Override
@@ -92,9 +91,13 @@ public class JIRARssClient extends AbstractHttpSession {
 
     @Override
     protected void preprocessMethodResult(HttpMethod method) {
-        if (method != null) {
-            setCookieHeaders = method.getResponseHeaders("Set-Cookie");
-        }
+        /*if (method != null) {
+            Header[] tmpHeaders;
+            tmpHeaders = method.getResponseHeaders("Set-Cookie");
+            if (tmpHeaders != null && tmpHeaders.length > 0) {
+                setCookieHeaders = tmpHeaders;
+            }
+        }*/
     }
 
     private String getAuthBasicHeaderValue() {
@@ -116,15 +119,11 @@ public class JIRARssClient extends AbstractHttpSession {
 
         url.append(queryString);
 
-        if (sortBy != null && sortBy.length() > 0) {
-            url.append("&sorter/field=").append(sortBy);
-            if (sortOrder != null && sortBy.length() > 0) {
-                url.append("&sorter/order=").append(sortOrder);
-            }
-        }
-
+        url.append("&sorter/field=").append(sortBy);
+        url.append("&sorter/order=").append(sortOrder);
         url.append("&pager/start=").append(start);
         url.append("&tempMax=").append(max);
+        url.append(appendAuthentication(false));
 
         try {
             Document doc = retrieveGetResponse(url.toString());
@@ -169,7 +168,7 @@ public class JIRARssClient extends AbstractHttpSession {
     public List<JIRAIssue> getAssignedIssues(String assignee) throws JIRAException {
         String url = getBaseUrl() + "/sr/jira.issueviews:searchrequest-xml"
                 + "/temp/SearchRequest.xml?resolution=-1&assignee=" + encodeUrl(assignee)
-                + "&sorter/field=updated&sorter/order=DESC&tempMax=100";
+                + "&sorter/field=updated&sorter/order=DESC&tempMax=100" + appendAuthentication(false);
 
         try {
             Document doc = retrieveGetResponse(url);
@@ -204,16 +203,14 @@ public class JIRARssClient extends AbstractHttpSession {
                     .append(fragment.getQueryStringFragment())
                     .append(".xml");
         }
-        url.append("?pager/start=").append(start);
+
+        url.append("?sorter/field=").append(sortBy);
+        url.append("&sorter/order=").append(sortOrder);
+        url.append("&pager/start=").append(start);
         url.append("&tempMax=").append(max);
 
-        if (sortBy != null && sortBy.length() > 0) {
-            url.append("&sorter/field=").append(sortBy);
-            if (sortOrder != null && sortOrder.length() > 0) {
-                url.append("&sorter/order=").append(sortOrder);
-            }
-        }
-        
+        url.append(appendAuthentication(false));
+
         try {
             Document doc = retrieveGetResponse(url.toString());
             Element root = doc.getRootElement();
@@ -236,6 +233,8 @@ public class JIRARssClient extends AbstractHttpSession {
 
         StringBuffer url = new StringBuffer(getBaseUrl() + "/si/jira.issueviews:issue-xml/");
         url.append(issueKey).append('/').append(issueKey).append(".xml");
+
+        url.append(appendAuthentication(true));
 
         try {
             Document doc = retrieveGetResponse(url.toString());
@@ -270,6 +269,16 @@ public class JIRARssClient extends AbstractHttpSession {
         return result;
     }
 
+    private String appendAuthentication(boolean firstItem) {
+        final String username = getUsername();
+
+        if (username != null) {
+            return (firstItem ? "?" : "&")
+                    + "os_username=" + encodeUrl(username)
+                    + "&os_password=" + encodeUrl(getPassword());
+        }
+        return "";
+    }
 
     public void login() throws JIRAException {
         try {
@@ -285,4 +294,5 @@ public class JIRARssClient extends AbstractHttpSession {
     public boolean isLoggedIn() {
         return setCookieHeaders != null && setCookieHeaders.length > 0;
     }
+
 }

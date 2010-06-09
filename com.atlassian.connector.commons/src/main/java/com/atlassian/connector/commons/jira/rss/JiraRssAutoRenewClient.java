@@ -35,39 +35,39 @@ public class JiraRssAutoRenewClient {
 
     public List<JIRAIssue> getIssues(String queryString, String sortBy, String sortOrder, int start, int max)
             throws JIRAException {
-        if (!rssClient.isLoggedIn()) {
-            rssClient.login();
-        }
+//        if (!rssClient.isLoggedIn()) {
+//            rssClient.login();
+//        }
         return rssClient.getIssues(queryString, sortBy, sortOrder, start, max);  
     }
 
     public List<JIRAIssue> getIssues(List<JIRAQueryFragment> fragments, String sortBy, String sortOrder,
                                      int start, int max) throws JIRAException {
-        if (!rssClient.isLoggedIn()) {
-            rssClient.login();
-        }
+//        if (!rssClient.isLoggedIn()) {
+//            rssClient.login();
+//        }
         return rssClient.getIssues(fragments, sortBy, sortOrder, start, max);
     }
 
     public List<JIRAIssue> getAssignedIssues(String assignee) throws JIRAException {
-        if (!rssClient.isLoggedIn()) {
-            rssClient.login();
-        }
+//        if (!rssClient.isLoggedIn()) {
+//            rssClient.login();
+//        }
         return rssClient.getAssignedIssues(assignee);
     }
 
     public List<JIRAIssue> getSavedFilterIssues(JIRAQueryFragment fragment, String sortBy, String sortOrder, int start,
                                                 int max) throws JIRAException {
-        if (!rssClient.isLoggedIn()) {
-            rssClient.login();
-        }
+//        if (!rssClient.isLoggedIn()) {
+//            rssClient.login();
+//        }
         return rssClient.getSavedFilterIssues(fragment, sortBy, sortOrder, start, max);
     }
 
     public JIRAIssue getIssue(String issueKey) throws JIRAException {
-        if (!rssClient.isLoggedIn()) {
-            rssClient.login();
-        }
+//        if (!rssClient.isLoggedIn()) {
+//            rssClient.login();
+//        }
         return rssClient.getIssue(issueKey);
     }
 }

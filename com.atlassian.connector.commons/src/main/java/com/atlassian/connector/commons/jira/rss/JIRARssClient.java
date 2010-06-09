@@ -116,8 +116,13 @@ public class JIRARssClient extends AbstractHttpSession {
 
         url.append(queryString);
 
-        url.append("&sorter/field=").append(sortBy);
-        url.append("&sorter/order=").append(sortOrder);
+        if (sortBy != null && sortBy.length() > 0) {
+            url.append("&sorter/field=").append(sortBy);
+            if (sortOrder != null && sortBy.length() > 0) {
+                url.append("&sorter/order=").append(sortOrder);
+            }
+        }
+
         url.append("&pager/start=").append(start);
         url.append("&tempMax=").append(max);
 
@@ -199,12 +204,16 @@ public class JIRARssClient extends AbstractHttpSession {
                     .append(fragment.getQueryStringFragment())
                     .append(".xml");
         }
-
-        url.append("?sorter/field=").append(sortBy);
-        url.append("&sorter/order=").append(sortOrder);
-        url.append("&pager/start=").append(start);
+        url.append("?pager/start=").append(start);
         url.append("&tempMax=").append(max);
 
+        if (sortBy != null && sortBy.length() > 0) {
+            url.append("&sorter/field=").append(sortBy);
+            if (sortOrder != null && sortOrder.length() > 0) {
+                url.append("&sorter/order=").append(sortOrder);
+            }
+        }
+        
         try {
             Document doc = retrieveGetResponse(url.toString());
             Element root = doc.getRootElement();

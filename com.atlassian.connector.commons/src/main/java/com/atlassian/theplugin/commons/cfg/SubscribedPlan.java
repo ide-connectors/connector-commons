@@ -21,9 +21,12 @@ package com.atlassian.theplugin.commons.cfg;
  */
 public final class SubscribedPlan {
 	private final String key;
+    private boolean grouped;
 
-	public SubscribedPlan(final SubscribedPlan cfg) {
-		key = cfg.getKey();
+
+    public SubscribedPlan(final SubscribedPlan cfg, final boolean grouped) {
+        this.grouped = grouped;
+        key = cfg.getKey();
 	}
 
     public SubscribedPlan(final String key) {
@@ -34,27 +37,31 @@ public final class SubscribedPlan {
 		return key;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-		SubscribedPlan that = (SubscribedPlan) o;
+        SubscribedPlan that = (SubscribedPlan) o;
 
-		//noinspection RedundantIfStatement
-		if (!key.equals(that.key)) {
-			return false;
-		}
+        if (grouped != that.grouped) return false;
+        if (!key.equals(that.key)) return false;
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public int hashCode() {
-		return key.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        int result = key.hashCode();
+        result = 31 * result + (grouped ? 1 : 0);
+        return result;
+    }
+
+    public boolean isGrouped() {
+        return grouped;
+    }
+
+    public void setGrouped(boolean grouped) {
+        this.grouped = grouped;
+    }
 }

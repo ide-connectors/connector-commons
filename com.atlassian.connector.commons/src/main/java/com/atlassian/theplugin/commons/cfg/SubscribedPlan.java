@@ -39,13 +39,22 @@ public final class SubscribedPlan {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         SubscribedPlan that = (SubscribedPlan) o;
 
-        if (grouped != that.grouped) return false;
-        if (!key.equals(that.key)) return false;
+        if (grouped != that.grouped) {
+            return false;
+        }
+        
+        if (!key.equals(that.key)) {
+            return false;
+        }
 
         return true;
     }

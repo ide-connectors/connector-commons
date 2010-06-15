@@ -17,6 +17,7 @@ package com.atlassian.theplugin.commons.cfg;
 
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.util.MiscUtil;
+
 import java.util.Collection;
 
 public class BambooServerCfg extends ServerCfg {
@@ -164,7 +165,8 @@ public class BambooServerCfg extends ServerCfg {
 	@Override
 	public PrivateServerCfgInfo createPrivateProjectConfiguration() {
 		return new PrivateBambooServerCfgInfo(getServerId(), isEnabled(), isUseDefaultCredentials(),
-				getUsername(), isPasswordStored() ? getPassword() : null, getTimezoneOffset(), false, "", "");
+				getUsername(), isPasswordStored() ? getPassword() : null, getTimezoneOffset(), false, "", "", isShared(),
+                getPlans(), isUseFavourites);
 	}
 
 	@Override
@@ -173,8 +175,10 @@ public class BambooServerCfg extends ServerCfg {
 		if (psci != null) {
 			try {
 				setTimezoneOffset(((PrivateBambooServerCfgInfo) psci).getTimezoneOffset());
+                setPlans(((PrivateBambooServerCfgInfo) psci).getPlans());
+                isUseFavourites = ((PrivateBambooServerCfgInfo) psci).isUseFavourites();
 			} catch (ClassCastException e) {
-				// Whisky Tango Foxtrot?
+				// Echo Whisky Tango Foxtrot?
 			}
 		}
 

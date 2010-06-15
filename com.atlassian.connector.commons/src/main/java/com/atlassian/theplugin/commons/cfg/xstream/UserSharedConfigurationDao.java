@@ -13,36 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.atlassian.theplugin.commons.cfg.xstream;
 
-package com.atlassian.theplugin.commons.cfg;
+import com.atlassian.theplugin.commons.cfg.ServerCfgFactoryException;
+import com.atlassian.theplugin.commons.cfg.SharedServerList;
 
-import com.atlassian.theplugin.commons.ServerType;
-
-public interface Server {
-
-	ServerIdImpl getServerId();
-
-	String getName();
-
-	String getUrl();
-
-//	void setPassword(final String password);
-
-	boolean isEnabled();
-
-	boolean isUseDefaultCredentials();
-
-	String getUsername();
-
-	String getPassword();
-
-	ServerType getServerType();
-
-    boolean isDontUseBasicAuth();
-
-    UserCfg getBasicHttpUser();
-
-    boolean isShared();
-
-    void setShared(boolean global);
+/**
+ * @autrhor pmaruszak
+ * @date Jun 10, 2010
+ */
+public interface UserSharedConfigurationDao {
+    void save(SharedServerList serversInfo) throws ServerCfgFactoryException;
+    SharedServerList load() throws ServerCfgFactoryException;
 }

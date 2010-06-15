@@ -25,7 +25,7 @@ import java.io.IOException;
 public class JDomXStreamUtilTest extends TestCase {
 
 	public void testBambooServerCfg() throws IOException {
-		final XStream xstream = JDomXStreamUtil.getProjectJDomXStream();
+		final XStream xstream = JDomXStreamUtil.getProjectJDomXStream(false);
 		final String xml = StringUtil.slurp(getClass().getResourceAsStream("bamboo-with-no-plans.xml"));
 		BambooServerCfg bamboo = (BambooServerCfg) xstream.fromXML(xml);
 		assertEquals("mybamboo1", bamboo.getName());

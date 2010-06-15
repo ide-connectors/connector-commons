@@ -13,36 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.atlassian.theplugin.commons.cfg;
 
-import com.atlassian.theplugin.commons.ServerType;
+import java.util.ArrayList;
 
-public interface Server {
-
-	ServerIdImpl getServerId();
-
-	String getName();
-
-	String getUrl();
-
-//	void setPassword(final String password);
-
-	boolean isEnabled();
-
-	boolean isUseDefaultCredentials();
-
-	String getUsername();
-
-	String getPassword();
-
-	ServerType getServerType();
-
-    boolean isDontUseBasicAuth();
-
-    UserCfg getBasicHttpUser();
-
-    boolean isShared();
-
-    void setShared(boolean global);
+/**
+ * @autrhor pmaruszak
+ * @date Jun 11, 2010
+ */
+public class SharedServerList extends ArrayList<ServerCfg> {
 }

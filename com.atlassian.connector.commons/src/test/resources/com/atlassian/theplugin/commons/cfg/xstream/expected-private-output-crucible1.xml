@@ -6,5 +6,6 @@
 		<password>cGFzc3dvcmR4eXo=</password>
 		<use-http-basic>false</use-http-basic>
 		<used-default-credentials>false</used-default-credentials>
+		<shared>false</shared>
 	</private-server-cfg>
 </single-server-private-cfg>

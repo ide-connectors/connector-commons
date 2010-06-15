@@ -16,19 +16,20 @@
 package com.atlassian.theplugin.commons.cfg;
 
 public class PrivateServerCfgInfo {
-	private final ServerIdImpl serverId;
-	private final boolean isEnabled;
-	private final String username;
-	private final String password;
-    private final boolean useHttpBasic;
-    private final String basicUsername;
-    private final String basicPassword;
-    private final boolean useDefaultCredentials;
+	protected final ServerIdImpl serverId;
+	protected final boolean isEnabled;
+	protected final String username;
+	protected final String password;
+    protected final boolean useHttpBasic;
+    protected final String basicUsername;
+    protected final String basicPassword;
+    protected final boolean useDefaultCredentials;
 	private static final int HASHCODE_MAGIC = 31;
+    protected boolean shared;
 
-	public PrivateServerCfgInfo(final ServerIdImpl serverId, final boolean enabled, final boolean useDefaultCredentials,
+    public PrivateServerCfgInfo(final ServerIdImpl serverId, final boolean enabled, final boolean useDefaultCredentials,
 			final String username, final String password, final boolean useHttpBasic, final String basicUsername,
-            final String basicPassword) {
+            final String basicPassword, final boolean shared) {
 		this.serverId = serverId;
 		isEnabled = enabled;
 		this.useDefaultCredentials = useDefaultCredentials;
@@ -38,6 +39,7 @@ public class PrivateServerCfgInfo {
         this.useHttpBasic = useHttpBasic;
         this.basicUsername = basicUsername;
         this.basicPassword = basicPassword;
+        this.shared = shared;
     }
 
 	public ServerId getServerId() {
@@ -75,31 +77,11 @@ public class PrivateServerCfgInfo {
         }
 
         PrivateServerCfgInfo that = (PrivateServerCfgInfo) o;
-
-        if (isEnabled != that.isEnabled) {
-            return false;
-        }
-        if (useDefaultCredentials != that.useDefaultCredentials) {
-            return false;
-        }
-        if (useHttpBasic != that.useHttpBasic) {
-            return false;
-        }
-        if (basicPassword != null ? !basicPassword.equals(that.basicPassword) : that.basicPassword != null) {
-            return false;
-        }
-        if (basicUsername != null ? !basicUsername.equals(that.basicUsername) : that.basicUsername != null) {
-            return false;
-        }
-        if (password != null ? !password.equals(that.password) : that.password != null) {
-            return false;
-        }
+       
         if (serverId != null ? !serverId.equals(that.serverId) : that.serverId != null) {
             return false;
         }
-        if (username != null ? !username.equals(that.username) : that.username != null) {
-            return false;
-        }
+
         return true;
     }
 
@@ -123,4 +105,8 @@ public class PrivateServerCfgInfo {
 	public boolean isUseDefaultCredentials() {
 		return useDefaultCredentials;
 	}
+
+    public boolean isShared() {
+        return shared;
+    }
 }

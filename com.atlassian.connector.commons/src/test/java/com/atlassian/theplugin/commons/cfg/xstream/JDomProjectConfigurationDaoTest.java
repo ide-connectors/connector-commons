@@ -15,8 +15,20 @@
  */
 package com.atlassian.theplugin.commons.cfg.xstream;
 
-import com.atlassian.theplugin.commons.cfg.*;
-import static com.atlassian.theplugin.commons.cfg.xstream.JDomProjectConfigurationDao.createPrivateProjectConfiguration;
+import com.atlassian.theplugin.commons.cfg.BambooServerCfg;
+import com.atlassian.theplugin.commons.cfg.CrucibleServerCfg;
+import com.atlassian.theplugin.commons.cfg.FishEyeServerCfg;
+import com.atlassian.theplugin.commons.cfg.PrivateConfigurationDao;
+import com.atlassian.theplugin.commons.cfg.PrivateServerCfgInfo;
+import com.atlassian.theplugin.commons.cfg.ProjectConfiguration;
+import com.atlassian.theplugin.commons.cfg.ProjectConfigurationDao;
+import com.atlassian.theplugin.commons.cfg.ProjectConfigurationDaoTest;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerCfgFactoryException;
+import com.atlassian.theplugin.commons.cfg.ServerId;
+import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
+import com.atlassian.theplugin.commons.cfg.SharedServerList;
+import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.StringUtil;
 import com.spartez.util.junit3.IAction;
@@ -37,6 +49,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static com.atlassian.theplugin.commons.cfg.xstream.JDomProjectConfigurationDao.createPrivateProjectConfiguration;
+
 /**
  * JDomProjectConfigurationFactory Tester.
  *
@@ -54,6 +68,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 	private final FishEyeServerCfg fisheye1 = new FishEyeServerCfg("myfisheye1",
 			new ServerIdImpl("341d662c-e744-4690-a5f8-6e127c0bc84d"));
 	private final PrivateConfigurationDao PRIVATE_CFG_FACTORY = new MemoryPrivateConfigurationDao();
+    private final UserSharedConfigurationDao PRIVATE_SHARED_CFG =  new MemorySharedConfigurationDao();
 
 
 	private ProjectConfiguration projectCfg;
@@ -61,8 +76,11 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 	private static final String FAKE_CLASS_NAME = "whateverfakeclasshere";
 
 	private Element element = new Element("test");
-	private JDomProjectConfigurationDao jdomFactory = new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY);
+	private JDomProjectConfigurationDao jdomFactory =
+            new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY, PRIVATE_SHARED_CFG);
 	private static final String EXPECTED_OUTPUT_XML = "expected-output.xml";
+    private static final String EXPECTED_OUTPUT_PROJECT_SHARED_XML = "expected-output-project-shared.xml";
+    private static final String EXPECTED_OUTPUT_PRIVATE_SHARED_XML = "expected-output-private-shared.xml";
 
 	@Override
 	protected ProjectConfigurationDao getProjectConfigurationFactory() {
@@ -83,26 +101,29 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 
 	public void testJDomSaveLoadGlobalConfiguration() throws IOException, ServerCfgFactoryException {
 
-		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY);
+		final JDomProjectConfigurationDao factory =
+                new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY, PRIVATE_SHARED_CFG);
 		factory.save(projectCfg);
 
 		assertEquals(1, element.getChildren().size());
 
 
-		final JDomProjectConfigurationDao loadFactory = new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY);
+		final JDomProjectConfigurationDao loadFactory =
+                new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY, PRIVATE_SHARED_CFG);
 		ProjectConfiguration readCfg = loadFactory.load();
 		assertEquals(projectCfg, readCfg);
 	}
 
 
 	public void testLoadOldSaveNew() {
-		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY);
+		final JDomProjectConfigurationDao factory =
+                new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY, PRIVATE_SHARED_CFG);
 		factory.save(projectCfg);
 	}
 
 	public void testHashedPassword() throws ServerCfgFactoryException, IOException {
 		MyPrivateConfigurationDao pcf = new MyPrivateConfigurationDao();
-		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, pcf);
+		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, pcf, PRIVATE_SHARED_CFG);
 		factory.save(projectCfg);
 
 		final StringWriter writer = new StringWriter();
@@ -133,7 +154,8 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		projectCfg.setFishEyeProjectPath("FishEye/Path/To");
 		projectCfg.setDefaultFishEyeRepo("FishRepo");
 
-		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY);
+		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY,
+                PRIVATE_SHARED_CFG);
 		factory.save(projectCfg);
 
 		StringWriter writer = new StringWriter();
@@ -146,19 +168,65 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		// and also vice-versa
 		Document doc = new SAXBuilder(false).build(getClass().getResourceAsStream(EXPECTED_OUTPUT_XML));
 		final JDomProjectConfigurationDao loadFactory = new JDomProjectConfigurationDao(doc.getRootElement(),
-				PRIVATE_CFG_FACTORY);
+				PRIVATE_CFG_FACTORY, PRIVATE_SHARED_CFG);
 		final ProjectConfiguration readCfg = loadFactory.load();
 		assertEquals(projectCfg, readCfg);
 	}
 
+    public void testSaveGlobalServer() throws IOException, JDOMException, ServerCfgFactoryException {
+        bamboo1.getSubscribedPlans().add(new SubscribedPlan("MYID"));
+		bamboo1.getSubscribedPlans().add(new SubscribedPlan("PLANID2"));
+		bamboo1.setUrl("http://mygreaturl");
+		bamboo1.setUsername("mytestuser");
+        bamboo1.setShared(true);
 
+		projectCfg.setDefaultCrucibleProject("CRUC");
+		projectCfg.setDefaultCrucibleServerId(crucible2.getServerId());
+		projectCfg.setDefaultFishEyeServerId(crucible1.getServerId());
+		projectCfg.setDefaultCrucibleRepo("Repo1");
+		projectCfg.setFishEyeProjectPath("FishEye/Path/To");
+		projectCfg.setDefaultFishEyeRepo("FishRepo");
+
+		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY,
+                PRIVATE_SHARED_CFG);
+		factory.save(projectCfg);
+
+		StringWriter writer = new StringWriter();
+
+		writeXml(element, writer);
+		// password should be hashed
+		String expected = StringUtil.slurp(getClass().getResourceAsStream(EXPECTED_OUTPUT_PROJECT_SHARED_XML));
+		assertEquals(expected, writer.toString());
+
+        //private/home shared file
+        HomeDirSharedConfigurationImpl homeDirSharedConfiguration = new HomeDirSharedConfigurationImpl();
+        SharedServerList sharedServerList = new SharedServerList();
+        sharedServerList.add(bamboo1);
+
+        Element el = homeDirSharedConfiguration.createJDom(sharedServerList).getRootElement();
+        writer = new StringWriter();
+        writeXml(el ,writer);
+
+        expected = StringUtil.slurp(getClass().getResourceAsStream(EXPECTED_OUTPUT_PRIVATE_SHARED_XML));
+		assertEquals(expected, writer.toString());
+
+		// and also vice-versa
+		Document doc = new SAXBuilder(false).build(getClass().getResourceAsStream(EXPECTED_OUTPUT_PROJECT_SHARED_XML));
+		final JDomProjectConfigurationDao loadFactory = new JDomProjectConfigurationDao(doc.getRootElement(),
+				PRIVATE_CFG_FACTORY, PRIVATE_SHARED_CFG);
+		final ProjectConfiguration readCfg = loadFactory.load();
+		assertTrue(projectCfg.getServers().contains(readCfg.getServers().iterator().next()));
+        assertTrue(projectCfg.getServers().contains(readCfg.getServers().iterator().next()));
+
+    }
 	public void testPublicOnlyDeSerialization() throws ServerCfgFactoryException, IOException, JDOMException {
 		bamboo1.getSubscribedPlans().add(new SubscribedPlan("MYID"));
 		bamboo1.getSubscribedPlans().add(new SubscribedPlan("PLANID2"));
 		bamboo1.setUrl("http://mygreaturl");
 		bamboo1.setUsername("mytestuser");
 
-		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY);
+		final JDomProjectConfigurationDao factory =
+                new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY, PRIVATE_SHARED_CFG);
 		factory.save(projectCfg);
 
 		StringWriter writer = new StringWriter();
@@ -168,7 +236,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 
 		// load public info only
 		final JDomProjectConfigurationDao loadFactory = new JDomProjectConfigurationDao(doc.getRootElement(),
-				new MemoryPrivateConfigurationDao());
+				new MemoryPrivateConfigurationDao(), new MemorySharedConfigurationDao());
 		final ProjectConfiguration readCfg = loadFactory.load();
 		assertEquals(2, readCfg.getServers().size());
 		final ServerCfg readServer = readCfg.getServerCfg(bamboo1.getServerId());
@@ -207,7 +275,8 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		projectCfg.getServers().add(crucible1);
 
 		MyPrivateConfigurationDao pcf = new MyPrivateConfigurationDao();
-		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, pcf);
+
+		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, pcf, PRIVATE_SHARED_CFG);
 		factory.save(projectCfg);
 
 		assertCorrectOutput(pcf, bamboo1, "expected-private-output-bamboo1.xml");
@@ -216,7 +285,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		assertCorrectOutput(pcf, crucible1, "expected-private-output-crucible1.xml");
 
 		// and also vice-versa
-		final JDomProjectConfigurationDao loadFactory = new JDomProjectConfigurationDao(element, pcf);
+		final JDomProjectConfigurationDao loadFactory = new JDomProjectConfigurationDao(element, pcf, PRIVATE_SHARED_CFG);
 		loadFactory.load();
 		TestUtil.assertHasOnlyElements(pcf.getInfos(), createPrivateProjectConfiguration(bamboo1),
 				createPrivateProjectConfiguration(bamboo2), createPrivateProjectConfiguration(crucible1),
@@ -247,11 +316,11 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		projectCfg.getServers().add(crucible1);
 
 		final MyPrivateConfigurationDao factory1 = new MyPrivateConfigurationDao();
-		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, factory1);
+		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, factory1, PRIVATE_SHARED_CFG);
 		factory.save(projectCfg);
 
 		// and also vice-versa
-		final JDomProjectConfigurationDao loadFactory = new JDomProjectConfigurationDao(element, factory1);
+		final JDomProjectConfigurationDao loadFactory = new JDomProjectConfigurationDao(element, factory1, PRIVATE_SHARED_CFG);
 		loadFactory.load();
 		TestUtil.assertHasOnlyElements(factory1.getInfos(), createPrivateProjectConfiguration(bamboo1),
 				createPrivateProjectConfiguration(bamboo2), createPrivateProjectConfiguration(crucible1),
@@ -306,7 +375,8 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		projectCfg.setDefaultFishEyeServerId(null);
 		projectCfg.setDefaultCrucibleRepo("Repo2");
 
-		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY);
+		final JDomProjectConfigurationDao factory =
+                new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY, PRIVATE_SHARED_CFG);
 		factory.save(projectCfg);
 		final ProjectConfiguration res = factory.load();
 		assertEquals(projectCfg, res);
@@ -329,7 +399,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 
 	public void testInvalidJDomElement() {
 		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(new Element("element"),
-				PRIVATE_CFG_FACTORY);
+				PRIVATE_CFG_FACTORY, PRIVATE_SHARED_CFG);
 		TestUtil.assertThrows(ServerCfgFactoryException.class, new IAction() {
 
 			public void run() throws Throwable {
@@ -338,7 +408,8 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		});
 
 		add(element, new Element(FAKE_CLASS_NAME));
-		final JDomProjectConfigurationDao factory2 = new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY);
+		final JDomProjectConfigurationDao factory2 =
+                new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY, PRIVATE_SHARED_CFG);
 		TestUtil.assertThrows(ServerCfgFactoryException.class, new IAction() {
 
 			public void run() throws Throwable {
@@ -358,7 +429,8 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		final Element serverId = new Element(ServerIdImpl.class.getName());
 		serverId.setText(new ServerIdImpl().getId());
 		add(element, serverId);
-		final JDomProjectConfigurationDao factory2 = new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY);
+		final JDomProjectConfigurationDao factory2 =
+                new JDomProjectConfigurationDao(element, PRIVATE_CFG_FACTORY, PRIVATE_SHARED_CFG);
 		TestUtil.assertThrowsAndMsgContainsRe(ServerCfgFactoryException.class,
 				"Cannot load ProjectConfiguration.*ClassCastException",
 				new IAction() {
@@ -373,13 +445,13 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 	public void testNullDomElement() {
 		TestUtil.assertThrows(IllegalArgumentException.class, new IAction() {
 			public void run() throws Throwable {
-				new JDomProjectConfigurationDao(null, PRIVATE_CFG_FACTORY);
+				new JDomProjectConfigurationDao(null, PRIVATE_CFG_FACTORY, PRIVATE_SHARED_CFG);
 			}
 		});
 		TestUtil.assertThrows(IllegalArgumentException.class, new IAction() {
 			public void run() throws Throwable {
 				//noinspection ConstantConditions
-				new JDomProjectConfigurationDao(null, null);
+				new JDomProjectConfigurationDao(null, null, null);
 			}
 		});
 	}
@@ -395,13 +467,15 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 
 	public void testMissingPrivateCfg() throws ServerCfgFactoryException {
 		final JDomProjectConfigurationDao factory = new JDomProjectConfigurationDao(element, new PrivateConfigurationDao() {
-			public PrivateServerCfgInfo load(final ServerId id) {
-				return null;
-			}
 
-			public void save(@NotNull final PrivateServerCfgInfo info) {
-			}
-		});
+            public PrivateServerCfgInfo load(ServerId id) throws ServerCfgFactoryException {
+                return null;
+            }
+
+            public void save(@NotNull PrivateServerCfgInfo info) throws ServerCfgFactoryException {
+
+            }
+        }, new HomeDirSharedConfigurationImpl());
 		factory.save(projectCfg);
 		final ProjectConfiguration cfg = factory.load();
 		final ServerCfg serverRead = cfg.getServerCfg(bamboo1.getServerId());
@@ -422,7 +496,8 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 		}
 
 		public void save(@NotNull final PrivateServerCfgInfo info) {
-			final Document jDom = HomeDirPrivateConfigurationDao.createJDom(info);
+            HomeDirPrivateConfigurationDao p = new HomeDirPrivateConfigurationDao();
+			final Document jDom = p.createJDom(info);
 			documentMap.put(info.getServerId(), jDom);
 		}
 
@@ -446,4 +521,15 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 			map.put(info.getServerId(), info);
 		}
 	}
+
+    private static class MemorySharedConfigurationDao implements UserSharedConfigurationDao {
+        private SharedServerList list = new SharedServerList();
+        public void save(SharedServerList serversInfo) throws ServerCfgFactoryException {
+            list = serversInfo;
+        }
+
+        public SharedServerList load() throws ServerCfgFactoryException {
+            return list;
+        }
+    }
 }

@@ -15,7 +15,14 @@
  */
 package com.atlassian.theplugin.commons.cfg.xstream;
 
-import com.atlassian.theplugin.commons.cfg.*;
+import com.atlassian.theplugin.commons.cfg.PrivateConfigurationDao;
+import com.atlassian.theplugin.commons.cfg.PrivateProjectConfiguration;
+import com.atlassian.theplugin.commons.cfg.PrivateServerCfgInfo;
+import com.atlassian.theplugin.commons.cfg.ProjectConfiguration;
+import com.atlassian.theplugin.commons.cfg.ProjectConfigurationDao;
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
+import com.atlassian.theplugin.commons.cfg.ServerCfgFactoryException;
+import com.atlassian.theplugin.commons.cfg.SharedServerList;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.JDomReader;
@@ -24,104 +31,180 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 public class JDomProjectConfigurationDao implements ProjectConfigurationDao {
 
-	private final Element publicElement;
-	private final PrivateConfigurationDao privateConfigurationDao;
+    private final Element publicElement;
+    private final PrivateConfigurationDao privateConfigurationDao;
+    private final UserSharedConfigurationDao sharedCfg;
 
 
-	public JDomProjectConfigurationDao(final Element element,
-			@NotNull PrivateConfigurationDao privateConfigurationDao) {
-		if (element == null) {
-			throw new IllegalArgumentException(Element.class.getSimpleName() + " cannot be null");
-		}
-		// we compile using Maven2. @NotNull has no meaning in product
-		//noinspection ConstantConditions
-		if (privateConfigurationDao == null) {
-			throw new IllegalArgumentException(PrivateConfigurationDao.class.getSimpleName() + " cannot be null");
-		}
-		this.publicElement = element;
-		this.privateConfigurationDao = privateConfigurationDao;
+    public JDomProjectConfigurationDao(final Element element,
+                                       @NotNull PrivateConfigurationDao privateConfigurationDao, @NotNull UserSharedConfigurationDao userSharedCfg) {
+        if (element == null) {
+            throw new IllegalArgumentException(Element.class.getSimpleName() + " cannot be null");
+        }
+        // we compile using Maven2. @NotNull has no meaning in product
+        //noinspection ConstantConditions
+        if (privateConfigurationDao == null) {
+            throw new IllegalArgumentException(PrivateConfigurationDao.class.getSimpleName() + " cannot be null");
+        }
+        this.publicElement = element;
+        this.privateConfigurationDao = privateConfigurationDao;
+        this.sharedCfg = userSharedCfg;
 
-	}
+    }
 
-	public ProjectConfiguration load() throws ServerCfgFactoryException {
-		PrivateProjectConfiguration ppc = new PrivateProjectConfiguration();
-		ProjectConfiguration res = load(publicElement, ProjectConfiguration.class);
-
-		for (ServerCfg serverCfg : res.getServers()) {
-			try {
-				@Nullable final PrivateServerCfgInfo privateServerCfgInfo
-						= privateConfigurationDao.load(serverCfg.getServerId());
-				if (privateServerCfgInfo != null) {
-					ppc.add(privateServerCfgInfo);
-				}
-			} catch (ServerCfgFactoryException e) {
-				// let us ignore problem for the moment - there will be no private settings for such servers
-			}
-		}
-
-		return merge(res, ppc);
-	}
-
-	public PrivateProjectConfiguration loadOldPrivateConfiguration(@NotNull Element privateElement)
-			throws ServerCfgFactoryException {
-		return load(privateElement, PrivateProjectConfiguration.class);
-	}
+    public ProjectConfiguration load() throws ServerCfgFactoryException {
+        PrivateProjectConfiguration ppc = new PrivateProjectConfiguration();
+        ProjectConfiguration res = load(publicElement, ProjectConfiguration.class);
 
 
-	private <T> T load(final Element rootElement, Class<T> clazz) throws ServerCfgFactoryException {
-		final int childCount = rootElement.getChildren().size();
-		if (childCount != 1) {
-			throw new ServerCfgFactoryException("Cannot travers JDom tree. Exactly one child node expected, but found ["
-					+ childCount + "]");
-		}
-		final JDomReader reader = new JDomReader((Element) rootElement.getChildren().get(0));
-		final XStream xStream = JDomXStreamUtil.getProjectJDomXStream();
-		try {
-			return clazz.cast(xStream.unmarshal(reader));
-		} catch (ClassCastException e) {
-			throw new ServerCfgFactoryException("Cannot load " + clazz.getSimpleName() + " due to ClassCastException: "
-					+ e.getMessage(), e);
-		} catch (Exception e) {
-			throw new ServerCfgFactoryException("Cannot load " + clazz.getSimpleName() + ": "
-					+ e.getMessage(), e);
-		}
-	}
+        @Nullable final SharedServerList sharedServers = sharedCfg.load();
+        if (sharedServers != null) {
+            res.getServers().addAll(sharedServers);
+        }
+
+        for (ServerCfg serverCfg : res.getServers()) {
+            try {
+                if (!serverCfg.isShared()) {
+                    @Nullable final PrivateServerCfgInfo privateServerCfgInfo
+                            = privateConfigurationDao.load(serverCfg.getServerId());
+                    if (privateServerCfgInfo != null) {
+                        ppc.add(privateServerCfgInfo);
+                    }
+                }
+            } catch (ServerCfgFactoryException e) {
+                // let us ignore problem for the moment - there will be no private settings for such servers
+            }
+        }
+
+        return merge(res, ppc);
+    }
 
 
-	private ProjectConfiguration merge(final ProjectConfiguration projectConfiguration,
-			final PrivateProjectConfiguration privateProjectConfiguration) {
-		for (ServerCfg serverCfg : projectConfiguration.getServers()) {
-			PrivateServerCfgInfo psci = privateProjectConfiguration.getPrivateServerCfgInfo(serverCfg.getServerId());
-			serverCfg.mergePrivateConfiguration(psci);
-		}
-		return projectConfiguration;
-	}
+    public PrivateProjectConfiguration loadOldPrivateConfiguration(@NotNull Element privateElement)
+            throws ServerCfgFactoryException {
+        return load(privateElement, PrivateProjectConfiguration.class);
+    }
 
-	public void save(final ProjectConfiguration projectConfiguration) {
-		save(projectConfiguration, publicElement);
-		for (ServerCfg serverCfg : projectConfiguration.getServers()) {
-			try {
-				privateConfigurationDao.save(serverCfg.createPrivateProjectConfiguration());
-			} catch (ServerCfgFactoryException e) {
-				LoggerImpl.getInstance().error("Cannot write private cfg file for server Uuid = "
-						+ serverCfg.getServerId().getId());
-			}
-		}
-	}
 
-	void save(final Object object, final Element rootElement) {
-		if (object == null) {
-			throw new NullPointerException("Serialized object cannot be null");
-		}
-		final JDomWriter writer = new JDomWriter(rootElement);
-		final XStream xStream = JDomXStreamUtil.getProjectJDomXStream();
-		xStream.marshal(object, writer);
+    private <T> T load(final Element rootElement, Class<T> clazz) throws ServerCfgFactoryException {
+        final int childCount = rootElement.getChildren().size();
+        if (childCount != 1) {
+            throw new ServerCfgFactoryException("Cannot travers JDom tree. Exactly one child node expected, but found ["
+                    + childCount + "]");
+        }
+        final JDomReader reader = new JDomReader((Element) rootElement.getChildren().get(0));
+        final XStream xStream = JDomXStreamUtil.getProjectJDomXStream(false);
+        try {
+            return clazz.cast(xStream.unmarshal(reader));
+        } catch (ClassCastException e) {
+            throw new ServerCfgFactoryException("Cannot load " + clazz.getSimpleName() + " due to ClassCastException: "
+                    + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new ServerCfgFactoryException("Cannot load " + clazz.getSimpleName() + ": "
+                    + e.getMessage(), e);
+        }
+    }
 
-	}
 
-	static PrivateServerCfgInfo createPrivateProjectConfiguration(final ServerCfg serverCfg) {
-		return serverCfg.createPrivateProjectConfiguration();
-	}
+    private ProjectConfiguration merge(final ProjectConfiguration projectConfiguration,
+                                       final PrivateProjectConfiguration privateProjectConfiguration) {
+        for (ServerCfg serverCfg : projectConfiguration.getServers()) {
+            if (!serverCfg.isShared()) {
+                PrivateServerCfgInfo psci = privateProjectConfiguration.getPrivateServerCfgInfo(serverCfg.getServerId());
+                serverCfg.mergePrivateConfiguration(psci);
+            }
+        }
+        return projectConfiguration;
+    }
+
+    public void save(final ProjectConfiguration projectConfiguration) {
+        final Collection<ServerCfg> privateServers = new ArrayList<ServerCfg>();
+        final SharedServerList gList = new SharedServerList();
+        for (ServerCfg server : projectConfiguration.getServers()) {
+            if (server.isShared()) {
+                gList.add(server);
+                if (privateConfigurationDao instanceof HomeDirPrivateConfigurationDao) {
+                    ((HomeDirPrivateConfigurationDao) privateConfigurationDao).deleteFile(server);
+                }
+            } else {
+                try {
+
+                    privateConfigurationDao.save(server.createPrivateProjectConfiguration());
+                    privateServers.add(server);
+                } catch (ServerCfgFactoryException e) {
+                    LoggerImpl.getInstance().error("Cannot write private cfg file for server Uuid = "
+                            + server.getServerId().getId());
+                }
+            }
+        }
+
+        final ProjectConfiguration configurationToSave = new ProjectConfiguration(projectConfiguration);
+        configurationToSave.getServers().clear();
+        configurationToSave.getServers().addAll(privateServers);
+        save(configurationToSave, publicElement);
+
+        try {
+            sharedCfg.save(gList);
+        } catch (ServerCfgFactoryException e) {
+            LoggerImpl.getInstance().error("Cannot write private shared config file ");
+        }
+    }
+
+    void save(final Object object, final Element rootElement) {
+        if (object == null) {
+            throw new NullPointerException("Serialized object cannot be null");
+        }
+        final JDomWriter writer = new JDomWriter(rootElement);
+        final XStream xStream = JDomXStreamUtil.getProjectJDomXStream(false);
+        xStream.marshal(object, writer);
+
+    }
+
+    static PrivateServerCfgInfo createPrivateProjectConfiguration(final ServerCfg serverCfg) {
+        return serverCfg.createPrivateProjectConfiguration();
+    }
+
+
+    private class PrivateServerCfg {
+        private static final int HASHCODE_MAGIC = 23;
+
+        public ServerCfg getServerCfg() {
+            return serverCfg;
+        }
+
+        private final ServerCfg serverCfg;
+
+        protected PrivateServerCfg(final ServerCfg serverCfg) {
+            this.serverCfg = serverCfg;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof PrivateServerCfg)) {
+                return false;
+            }
+
+            final PrivateServerCfg serverCfg = (PrivateServerCfg) o;
+
+            return !(this.serverCfg.getServerId() != null
+                    ? !this.serverCfg.getServerId().equals(serverCfg.serverCfg.getServerId())
+                    : serverCfg.serverCfg.getServerId() != null);
+
+        }
+
+        @Override
+        public int hashCode() {
+            return serverCfg.getServerId().getId().hashCode();
+        }
+
+    }
 }

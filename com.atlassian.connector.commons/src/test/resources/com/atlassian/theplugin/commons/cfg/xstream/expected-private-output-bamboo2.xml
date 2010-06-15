@@ -7,6 +7,9 @@
 		<basic-username />
 		<basic-password />
 		<used-default-credentials>false</used-default-credentials>
+		<shared>false</shared>
 		<timezone-offset>1</timezone-offset>
+		<plans />
+		<useFavourites>false</useFavourites>
 	</private-bamboo-server-cfg>
 </single-server-private-cfg>

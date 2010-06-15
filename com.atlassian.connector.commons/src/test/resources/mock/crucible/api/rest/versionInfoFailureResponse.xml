@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="/foo/static/k30spi/custom.css" type="text/css" />
 <link rel="stylesheet" href="/foo/static/k30spi/synhi.css" type="text/css" />
 
-<script src="/foo/static/k30spi/global.js" type="text/javascript" language="Javascript1.2" charset="utf-8"></script>
+<script src="/foo/static/k30spi/shared.js" type="text/javascript" language="Javascript1.2" charset="utf-8"></script>
 
 <script type="text/javascript" language="Javascript1.2">
 var fishEyePageContext = '/foo';

@@ -25,6 +25,7 @@ import com.atlassian.theplugin.commons.cfg.PrivateServerCfgInfo;
 import com.atlassian.theplugin.commons.cfg.ProjectConfiguration;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerIdImpl;
+import com.atlassian.theplugin.commons.cfg.SharedServerList;
 import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
@@ -38,64 +39,85 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public final class JDomXStreamUtil {
-	private static final String PLAN = "plan";
-	private static final String PLAN_KEY = "key";
+    private static final String PLAN = "plan";
+    private static final String PLAN_KEY = "key";
 
-	private JDomXStreamUtil() {
-	}
+    private JDomXStreamUtil() {
+    }
 
-	public static XStream getProjectJDomXStream() {
-		XStream xStream = new XStream(new JDomDriver());
-		xStream.setMode(XStream.NO_REFERENCES);
-		xStream.alias("bamboo", BambooServerCfg.class);
-		xStream.alias("crucible", CrucibleServerCfg.class);
-		xStream.alias("jira", JiraServerCfg.class);
-		xStream.alias("fisheye", FishEyeServerCfg.class);
+    public static XStream getProjectJDomXStream() {
+        return getProjectJDomXStream(false);
+    }
 
-		xStream.alias(PLAN, SubscribedPlan.class);
-		xStream.omitField(ServerCfg.class, "username");
-		xStream.omitField(ServerCfg.class, "password");
-		xStream.omitField(ServerCfg.class, "isPasswordStored");
-		xStream.omitField(ServerCfg.class, "useDefaultCredentials");
+    public static XStream getProjectJDomXStream(boolean saveAll) {
 
-        xStream.omitField(JiraServerCfg.class, "dontUseBasicAuth");
-        xStream.omitField(JiraServerCfg.class, "basicHttpUser");
 
-		xStream.omitField(BambooServerCfg.class, "timezoneOffset");
-		xStream.omitField(CrucibleServerCfg.class, "fishEyeView");
-		xStream.aliasField("server-id", ServerCfg.class, "serverId");
-		xStream.omitField(ServerCfg.class, "isEnabled");
-		xStream.aliasField("use-favourites", ServerCfg.class, "isUseFavourites");
-		xStream.aliasField("bamboo2", ServerCfg.class, "isBamboo2");
+        XStream xStream = new XStream(new JDomDriver());
+        xStream.setMode(XStream.NO_REFERENCES);
+        xStream.alias("bamboo", BambooServerCfg.class);
+        xStream.alias("crucible", CrucibleServerCfg.class);
+        xStream.alias("jira", JiraServerCfg.class);
+        xStream.alias("fisheye", FishEyeServerCfg.class);
 
-		xStream.alias("project-configuration", ProjectConfiguration.class);
-		xStream.aliasField("default-crucible-server", ProjectConfiguration.class, "defaultCrucibleServerId");
-		xStream.aliasField("default-crucible-project", ProjectConfiguration.class, "defaultCrucibleProject");
-		xStream.aliasField("default-crucible-repo", ProjectConfiguration.class, "defaultCrucibleRepo");
-		xStream.aliasField("default-fisheye-server", ProjectConfiguration.class, "defaultFishEyeServerId");
-		xStream.aliasField("default-fisheye-repo", ProjectConfiguration.class, "defaultFishEyeRepo");
-		xStream.aliasField("fisheye-project-path", ProjectConfiguration.class, "fishEyeProjectPath");
-		xStream.aliasField("default-jira-server", ProjectConfiguration.class, "defaultJiraServerId");
+        xStream.alias(PLAN, SubscribedPlan.class);
+        if (!saveAll) {
+            xStream.omitField(ServerCfg.class, "username");
+            xStream.omitField(ServerCfg.class, "password");
+            xStream.omitField(ServerCfg.class, "isPasswordStored");
+            xStream.omitField(ServerCfg.class, "useDefaultCredentials");
 
-		xStream.alias("private-server-cfg", PrivateServerCfgInfo.class);
-		xStream.alias("private-bamboo-server-cfg", PrivateBambooServerCfgInfo.class);
-		xStream.aliasField("server-id", PrivateServerCfgInfo.class, "serverId");
-		xStream.aliasField("enabled", PrivateServerCfgInfo.class, "isEnabled");
-		xStream.aliasField("timezone-offset", PrivateBambooServerCfgInfo.class, "timezoneOffset");
-		xStream.aliasField("used-default-credentials", PrivateServerCfgInfo.class, "useDefaultCredentials");
+            xStream.omitField(JiraServerCfg.class, "dontUseBasicAuth");
+            xStream.omitField(JiraServerCfg.class, "basicHttpUser");
+
+            xStream.omitField(BambooServerCfg.class, "timezoneOffset");
+            xStream.omitField(CrucibleServerCfg.class, "fishEyeView");
+        }
+
+        xStream.aliasField("server-id", ServerCfg.class, "serverId");
+
+        if (!saveAll) {
+            xStream.omitField(ServerCfg.class, "isEnabled");
+        }
+        xStream.aliasField("use-favourites", ServerCfg.class, "isUseFavourites");
+        xStream.aliasField("bamboo2", ServerCfg.class, "isBamboo2");
+
+        xStream.alias("project-configuration", ProjectConfiguration.class);
+        xStream.aliasField("default-crucible-server", ProjectConfiguration.class, "defaultCrucibleServerId");
+        xStream.aliasField("default-crucible-project", ProjectConfiguration.class, "defaultCrucibleProject");
+        xStream.aliasField("default-crucible-repo", ProjectConfiguration.class, "defaultCrucibleRepo");
+        xStream.aliasField("default-fisheye-server", ProjectConfiguration.class, "defaultFishEyeServerId");
+        xStream.aliasField("default-fisheye-repo", ProjectConfiguration.class, "defaultFishEyeRepo");
+        xStream.aliasField("fisheye-project-path", ProjectConfiguration.class, "fishEyeProjectPath");
+        xStream.aliasField("default-jira-server", ProjectConfiguration.class, "defaultJiraServerId");
+
+        xStream.alias("private-server-cfg", PrivateServerCfgInfo.class);
+        xStream.alias("private-bamboo-server-cfg", PrivateBambooServerCfgInfo.class);
+        xStream.aliasField("server-id", PrivateServerCfgInfo.class, "serverId");
+        xStream.aliasField("enabled", PrivateServerCfgInfo.class, "isEnabled");
+        xStream.aliasField("timezone-offset", PrivateBambooServerCfgInfo.class, "timezoneOffset");
+        xStream.aliasField("used-default-credentials", PrivateServerCfgInfo.class, "useDefaultCredentials");
         xStream.aliasField("basic-password", PrivateServerCfgInfo.class, "basicPassword");
         xStream.aliasField("basic-username", PrivateServerCfgInfo.class, "basicUsername");
         xStream.aliasField("use-http-basic", PrivateServerCfgInfo.class, "useHttpBasic");
 
-		xStream.registerLocalConverter(PrivateServerCfgInfo.class, "password", new EncodedStringConverter());
+        xStream.registerLocalConverter(PrivateServerCfgInfo.class, "password", new EncodedStringConverter());
         xStream.registerLocalConverter(PrivateServerCfgInfo.class, "basicPassword", new EncodedStringConverter());
 
 
-		xStream.alias("private-project-cfg", PrivateProjectConfiguration.class);
-		xStream.aliasField("private-server-cfgs", PrivateProjectConfiguration.class, "privateServerCfgInfos");
-		xStream.addDefaultImplementation(ArrayList.class, Collection.class);
-		xStream.aliasField("plans", BambooServerCfg.class, "plans");
-		xStream.registerLocalConverter(ServerCfg.class, "password", new EncodedStringConverter());
+        xStream.alias("private-project-cfg", PrivateProjectConfiguration.class);
+        xStream.aliasField("private-server-cfgs", PrivateProjectConfiguration.class, "privateServerCfgInfos");
+        xStream.aliasField("plans", PrivateProjectConfiguration.class, "plans");
+        xStream.aliasField("useFavourites", PrivateProjectConfiguration.class, "use-favourites");
+
+
+        xStream.aliasField("plans", BambooServerCfg.class, "plans");
+        xStream.registerLocalConverter(ServerCfg.class, "password", new EncodedStringConverter());
+
+
+        xStream.alias("shared-server-list", SharedServerList.class);
+
+        xStream.addDefaultImplementation(ArrayList.class, Collection.class);
+
 //		xStream.registerLocalConverter(BambooServerCfg.class, "plans", new Converter() {
 //			public void marshal(final Object source, final HierarchicalStreamWriter writer, final MarshallingContext context) {
 //				final Collection<?> plans = (Collection<?>) source;
@@ -126,42 +148,40 @@ public final class JDomXStreamUtil {
 //				return Collection.class.isAssignableFrom(aClass);
 //			}
 //		});
-		xStream.registerConverter(new Converter() {
+        xStream.registerConverter(new Converter() {
 
-			public void marshal(final Object source, final HierarchicalStreamWriter writer, final MarshallingContext context) {
-				SubscribedPlan value = (SubscribedPlan) source;
-				writer.addAttribute(PLAN_KEY, value.getKey());
-				//writer.setValue(value.getPlanId());
-			}
+            public void marshal(final Object source, final HierarchicalStreamWriter writer, final MarshallingContext context) {
+                SubscribedPlan value = (SubscribedPlan) source;
+                writer.addAttribute(PLAN_KEY, value.getKey());
+                //writer.setValue(value.getPlanId());
+            }
 
-			public Object unmarshal(final HierarchicalStreamReader reader, final UnmarshallingContext context) {
-				return new SubscribedPlan(reader.getAttribute(PLAN_KEY));
-			}
+            public Object unmarshal(final HierarchicalStreamReader reader, final UnmarshallingContext context) {
+                return new SubscribedPlan(reader.getAttribute(PLAN_KEY));
+            }
 
-			@SuppressWarnings({"RawUseOfParameterizedType", "unchecked"})
-			public boolean canConvert(final Class aClass) {
-				return SubscribedPlan.class.isAssignableFrom(aClass);
-			}
-		});
-		xStream.registerConverter(new Converter() {
+            @SuppressWarnings({"RawUseOfParameterizedType", "unchecked"})
+            public boolean canConvert(final Class aClass) {
+                return SubscribedPlan.class.isAssignableFrom(aClass);
+            }
+        });
+        xStream.registerConverter(new Converter() {
 
-			public void marshal(final Object source, final HierarchicalStreamWriter writer, final MarshallingContext context) {
-				ServerIdImpl value = (ServerIdImpl) source;
-				writer.setValue(value.getId());
-			}
+            public void marshal(final Object source, final HierarchicalStreamWriter writer, final MarshallingContext context) {
+                ServerIdImpl value = (ServerIdImpl) source;
+                writer.setValue(value.getId());
+            }
 
-			public Object unmarshal(final HierarchicalStreamReader reader, final UnmarshallingContext context) {
-				return new ServerIdImpl(reader.getValue());
-			}
+            public Object unmarshal(final HierarchicalStreamReader reader, final UnmarshallingContext context) {
+                return new ServerIdImpl(reader.getValue());
+            }
 
-			@SuppressWarnings({"RawUseOfParameterizedType", "unchecked"})
-			public boolean canConvert(final Class type) {
-				return type.equals(ServerIdImpl.class);
-			}
-		});
-		return xStream;
+            @SuppressWarnings({"RawUseOfParameterizedType", "unchecked"})
+            public boolean canConvert(final Class type) {
+                return type.equals(ServerIdImpl.class);
+            }
+        });
+        return xStream;
 
-	}
-
-
+    }
 }

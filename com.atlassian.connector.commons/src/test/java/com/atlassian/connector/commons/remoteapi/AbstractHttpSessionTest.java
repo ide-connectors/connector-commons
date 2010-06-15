@@ -96,6 +96,13 @@ public class AbstractHttpSessionTest extends TestCase {
                 return null;  
             }
 
+            public boolean isShared() {
+                return false;
+            }
+
+            public void setShared(boolean global) {
+            }
+
             public boolean isEnabled() {
 				return true;
 			}

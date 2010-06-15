@@ -71,6 +71,13 @@ public class CrucibleServerCfg extends ServerCfg {
                 public UserCfg getBasicHttpUser() {
                     return null;  
                 }
+
+                public boolean isShared() {
+                    return false;
+                }
+
+                public void setShared(boolean shared) {
+                }
             };
 		}
 		return fishEyeView;

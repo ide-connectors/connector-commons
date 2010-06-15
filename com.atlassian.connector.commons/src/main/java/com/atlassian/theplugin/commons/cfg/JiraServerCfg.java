@@ -77,13 +77,14 @@ public class JiraServerCfg extends ServerCfg {
 				getUsername(), isPasswordStored() ? getPassword() : null,
                 !dontUseBasicAuth,
                 basicHttpUser != null ? basicHttpUser.getUsername() : "",
-                basicHttpUser != null ? basicHttpUser.getPassword() : "");
+                basicHttpUser != null ? basicHttpUser.getPassword() : "",
+                isShared());
 
     }
 
     @Override
     public void mergePrivateConfiguration(PrivateServerCfgInfo psci) {
-        super.mergePrivateConfiguration(psci);    //To change body of overridden methods use File | Settings | File Templates.
+        super.mergePrivateConfiguration(psci);    
         if (psci != null) {
             setDontUseBasicAuth(!psci.isUseHttpBasic());
             setBasicHttpUser(new UserCfg(psci.getBasicUsername(), psci.getBasicPassword()));

@@ -40,6 +40,8 @@ public abstract class ServerCfg implements Server {
 	private String password = "";
 	private boolean isPasswordStored;
 	private boolean useDefaultCredentials;
+    
+    private boolean shared = false;
 
 
 	protected ServerCfg(final ServerCfg other) {
@@ -51,6 +53,7 @@ public abstract class ServerCfg implements Server {
 		password = other.getPassword();
 		isPasswordStored = other.isPasswordStored();
 		useDefaultCredentials = other.useDefaultCredentials;
+        shared = other.shared;
 	}
 
 	public boolean isUseDefaultCredentials() {
@@ -150,6 +153,10 @@ public abstract class ServerCfg implements Server {
 			return false;
 		}
 
+        if (shared != serverCfg.shared) {
+			return false;
+		}
+
 		if (useDefaultCredentials != serverCfg.useDefaultCredentials) {
 			return false;
 		}
@@ -169,6 +176,8 @@ public abstract class ServerCfg implements Server {
 			return false;
 		}
 
+
+
 		return true;
 	}
 
@@ -182,6 +191,7 @@ public abstract class ServerCfg implements Server {
 		result = HASHCODE_MAGIC * result + (username != null ? username.hashCode() : 0);
 		result = HASHCODE_MAGIC * result + (password != null ? password.hashCode() : 0);
 		result = HASHCODE_MAGIC * result + (isPasswordStored ? 1 : 0);
+        result = HASHCODE_MAGIC * result + (shared ? 1 : 0);
 		result = HASHCODE_MAGIC * result + (useDefaultCredentials ? 1 : 0);
 		return result;
 	}
@@ -211,7 +221,7 @@ public abstract class ServerCfg implements Server {
 	public PrivateServerCfgInfo createPrivateProjectConfiguration() {
 		return new PrivateServerCfgInfo(getServerId(), isEnabled(), isUseDefaultCredentials(),
 				getUsername(), isPasswordStored() ? getPassword() : null,
-                false, null, null);
+                false, null, null, shared);
 	}
 
 
@@ -220,6 +230,7 @@ public abstract class ServerCfg implements Server {
 			setUsername(psci.getUsername());
 			setEnabled(psci.isEnabled());
 			setUseDefaultCredentials(psci.isUseDefaultCredentials());
+            setShared(psci.isShared());
 			final String pwd = psci.getPassword();
 			if (pwd != null) {
 				setPassword(pwd);
@@ -237,4 +248,11 @@ public abstract class ServerCfg implements Server {
 		return null;
 	}
 
+    public boolean isShared() {
+        return shared;
+    }
+
+    public void setShared(boolean shared) {
+        this.shared = shared;
+    }   
 }

@@ -36,46 +36,36 @@ public class CrucibleServerCfg extends ServerCfg {
 				public ServerIdImpl getServerId() {
 					return CrucibleServerCfg.this.getServerId();
 				}
-
 				public String getPassword() {
 					return CrucibleServerCfg.this.getPassword();
 				}
-
 				public String getName() {
 					return CrucibleServerCfg.this.getName();
 				}
-
 				public String getUsername() {
 					return CrucibleServerCfg.this.getUsername();
 				}
-
 				public String getUrl() {
 					return CrucibleServerCfg.this.getUrl();
 				}
-
 				public boolean isEnabled() {
 					return CrucibleServerCfg.this.isEnabled();
 				}
-
 				public boolean isUseDefaultCredentials() {
 					return CrucibleServerCfg.this.isUseDefaultCredentials();
 				}
-
 				public ServerType getServerType() {
 					return ServerType.FISHEYE_SERVER;
 				}
-
                 public boolean isDontUseBasicAuth() {
                     return false;
                 }
                 public UserCfg getBasicHttpUser() {
                     return null;  
                 }
-
                 public boolean isShared() {
                     return false;
                 }
-
                 public void setShared(boolean shared) {
                 }
             };

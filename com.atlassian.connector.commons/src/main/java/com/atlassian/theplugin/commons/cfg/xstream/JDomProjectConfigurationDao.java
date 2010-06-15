@@ -41,8 +41,8 @@ public class JDomProjectConfigurationDao implements ProjectConfigurationDao {
     private final UserSharedConfigurationDao sharedCfg;
 
 
-    public JDomProjectConfigurationDao(final Element element,
-                                       @NotNull PrivateConfigurationDao privateConfigurationDao, @NotNull UserSharedConfigurationDao userSharedCfg) {
+    public JDomProjectConfigurationDao(final Element element, @NotNull PrivateConfigurationDao privateConfigurationDao,
+                                       @NotNull UserSharedConfigurationDao userSharedCfg) {
         if (element == null) {
             throw new IllegalArgumentException(Element.class.getSimpleName() + " cannot be null");
         }
@@ -167,44 +167,5 @@ public class JDomProjectConfigurationDao implements ProjectConfigurationDao {
 
     static PrivateServerCfgInfo createPrivateProjectConfiguration(final ServerCfg serverCfg) {
         return serverCfg.createPrivateProjectConfiguration();
-    }
-
-
-    private class PrivateServerCfg {
-        private static final int HASHCODE_MAGIC = 23;
-
-        public ServerCfg getServerCfg() {
-            return serverCfg;
-        }
-
-        private final ServerCfg serverCfg;
-
-        protected PrivateServerCfg(final ServerCfg serverCfg) {
-            this.serverCfg = serverCfg;
-        }
-
-        @Override
-        public boolean equals(final Object o) {
-
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof PrivateServerCfg)) {
-                return false;
-            }
-
-            final PrivateServerCfg serverCfg = (PrivateServerCfg) o;
-
-            return !(this.serverCfg.getServerId() != null
-                    ? !this.serverCfg.getServerId().equals(serverCfg.serverCfg.getServerId())
-                    : serverCfg.serverCfg.getServerId() != null);
-
-        }
-
-        @Override
-        public int hashCode() {
-            return serverCfg.getServerId().getId().hashCode();
-        }
-
-    }
+    }    
 }

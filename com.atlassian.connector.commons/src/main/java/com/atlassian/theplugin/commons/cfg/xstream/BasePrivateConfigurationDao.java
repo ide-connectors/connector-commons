@@ -71,7 +71,8 @@ public abstract class BasePrivateConfigurationDao<T> {
                 + " or is not a directory");
     }
 
-    protected static <T1> T1 loadJDom(final Element rootElement, Class<T1> clazz, Boolean saveAll) throws ServerCfgFactoryException {
+    protected static <T1> T1 loadJDom(final Element rootElement, Class<T1> clazz, Boolean saveAll)
+            throws ServerCfgFactoryException {
 		final int childCount = rootElement.getChildren().size();
 		if (childCount != 1) {
 			throw new ServerCfgFactoryException("Cannot travers JDom tree. Exactly one child node expected, but found ["

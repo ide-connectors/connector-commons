@@ -4,8 +4,8 @@ import org.apache.commons.httpclient.methods.multipart.FilePart;
 
 // @todo ideally byte arrays should be replaced by input streams
 public class UploadItem {
-	public final static String DEFAULT_CONTENT_TYPE = FilePart.DEFAULT_CONTENT_TYPE;
-	public final static String DEFAULT_CHARSET = FilePart.DEFAULT_CHARSET;
+	public static final String DEFAULT_CONTENT_TYPE = FilePart.DEFAULT_CONTENT_TYPE;
+	public static final String DEFAULT_CHARSET = FilePart.DEFAULT_CHARSET;
 
 	private final String fileName;
 	private final byte[] oldContent;

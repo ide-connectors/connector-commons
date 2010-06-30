@@ -24,13 +24,14 @@ public final class SubscribedPlan {
     private boolean grouped;
 
 
-    public SubscribedPlan(final SubscribedPlan cfg, final boolean grouped) {
-        this.grouped = grouped;
+    public SubscribedPlan(final SubscribedPlan cfg) {
         key = cfg.getKey();
+        this.grouped = cfg.isGrouped();
 	}
 
-    public SubscribedPlan(final String key) {
+    public SubscribedPlan(final String key, final boolean grouped) {
         this.key = key;
+        this.grouped = grouped;
     }
 
     public String getKey() {

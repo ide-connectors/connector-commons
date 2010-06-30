@@ -142,8 +142,8 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 
 
 	public void testPublicSerialization() throws ServerCfgFactoryException, IOException, JDOMException {
-		bamboo1.getSubscribedPlans().add(new SubscribedPlan("MYID"));
-		bamboo1.getSubscribedPlans().add(new SubscribedPlan("PLANID2"));
+		bamboo1.getSubscribedPlans().add(new SubscribedPlan("MYID", true));
+		bamboo1.getSubscribedPlans().add(new SubscribedPlan("PLANID2", false));
 		bamboo1.setUrl("http://mygreaturl");
 		bamboo1.setUsername("mytestuser");
 
@@ -174,8 +174,8 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 	}
 
     public void testSaveGlobalServer() throws IOException, JDOMException, ServerCfgFactoryException {
-        bamboo1.getSubscribedPlans().add(new SubscribedPlan("MYID"));
-		bamboo1.getSubscribedPlans().add(new SubscribedPlan("PLANID2"));
+        bamboo1.getSubscribedPlans().add(new SubscribedPlan("MYID", true));
+		bamboo1.getSubscribedPlans().add(new SubscribedPlan("PLANID2", false));
 		bamboo1.setUrl("http://mygreaturl");
 		bamboo1.setUsername("mytestuser");
         bamboo1.setShared(true);
@@ -220,8 +220,8 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 
     }
 	public void testPublicOnlyDeSerialization() throws ServerCfgFactoryException, IOException, JDOMException {
-		bamboo1.getSubscribedPlans().add(new SubscribedPlan("MYID"));
-		bamboo1.getSubscribedPlans().add(new SubscribedPlan("PLANID2"));
+		bamboo1.getSubscribedPlans().add(new SubscribedPlan("MYID", false));
+		bamboo1.getSubscribedPlans().add(new SubscribedPlan("PLANID2", false));
 		bamboo1.setUrl("http://mygreaturl");
 		bamboo1.setUsername("mytestuser");
 
@@ -362,7 +362,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 	public void testFullSaveLoad() throws ServerCfgFactoryException {
 		bamboo1.setUsername("mytestuser");
 		bamboo1.setPassword("mypassword1");
-		bamboo1.getSubscribedPlans().add(new SubscribedPlan("myplan"));
+		bamboo1.getSubscribedPlans().add(new SubscribedPlan("myplan", false));
 		bamboo1.setPasswordStored(true);
 		bamboo2.setUsername("mytestuser2");
 		bamboo2.setPassword("mypassword2");

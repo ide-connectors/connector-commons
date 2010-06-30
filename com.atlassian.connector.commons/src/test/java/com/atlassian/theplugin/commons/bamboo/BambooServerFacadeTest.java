@@ -50,16 +50,17 @@ import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
+import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-import junit.framework.TestCase;
 
 /**
  * {@link com.atlassian.theplugin.commons.bamboo.BambooServerFacadeImpl} test.
@@ -113,7 +114,7 @@ public class BambooServerFacadeTest extends TestCase {
 
 		ArrayList<SubscribedPlan> plans = new ArrayList<SubscribedPlan>();
 		for (int i = 1; i <= 3; ++i) {
-			SubscribedPlan plan = new SubscribedPlan(PLAN_ID);
+			SubscribedPlan plan = new SubscribedPlan(PLAN_ID, false);
 			plans.add(plan);
 		}
 
@@ -650,7 +651,7 @@ public class BambooServerFacadeTest extends TestCase {
 		server.setPassword(PASSWORD);
 
 		ArrayList<SubscribedPlan> plans = new ArrayList<SubscribedPlan>();
-		SubscribedPlan plan = new SubscribedPlan(PLAN_ID);
+		SubscribedPlan plan = new SubscribedPlan(PLAN_ID, false);
 		plans.add(plan);
 
 		server.setPlans(plans);

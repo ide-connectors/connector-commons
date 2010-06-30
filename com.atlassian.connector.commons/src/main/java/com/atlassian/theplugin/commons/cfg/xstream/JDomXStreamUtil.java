@@ -41,6 +41,7 @@ import java.util.Collection;
 public final class JDomXStreamUtil {
     private static final String PLAN = "plan";
     private static final String PLAN_KEY = "key";
+    private static final String GROUPED_KEY = "grouped";
 
     private JDomXStreamUtil() {
     }
@@ -153,11 +154,13 @@ public final class JDomXStreamUtil {
             public void marshal(final Object source, final HierarchicalStreamWriter writer, final MarshallingContext context) {
                 SubscribedPlan value = (SubscribedPlan) source;
                 writer.addAttribute(PLAN_KEY, value.getKey());
+                writer.addAttribute(GROUPED_KEY, value.isGrouped() ? "1" : "0");
                 //writer.setValue(value.getPlanId());
             }
 
             public Object unmarshal(final HierarchicalStreamReader reader, final UnmarshallingContext context) {
-                return new SubscribedPlan(reader.getAttribute(PLAN_KEY));
+                return new SubscribedPlan(reader.getAttribute(PLAN_KEY),
+                        "1".equals(reader.getAttribute(GROUPED_KEY)));
             }
 
             @SuppressWarnings({"RawUseOfParameterizedType", "unchecked"})

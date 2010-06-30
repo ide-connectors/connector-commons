@@ -21,13 +21,14 @@ import com.atlassian.theplugin.commons.cfg.SubscribedPlan;
 import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 
 /**
  * @author Jacek Jaroczynski
  */
 public class BambooServerData extends ServerData {
-	public BambooServerData(@NotNull Server server) {
+	public BambooServerData(@NotNull BambooServerCfg server) {
 		super(server);
 	}
 
@@ -36,7 +37,7 @@ public class BambooServerData extends ServerData {
 
     }
 
-    public BambooServerData(Server server, UserCfg defaultUser) {
+    public BambooServerData(BambooServerCfg server, UserCfg defaultUser) {
         super(server, defaultUser);
     }
 
@@ -55,14 +56,14 @@ public class BambooServerData extends ServerData {
         protected Server getServer() {
             return super.getServer();
         }
-    }
+    }	
 	public Collection<SubscribedPlan> getPlans() {
 		return getServer().getPlans();
 	}
 
 	public boolean isUseFavourites() {
 		return getServer().isUseFavourites();
-	}
+}
 
 	public int getTimezoneOffset() {
 		return getServer().getTimezoneOffset();

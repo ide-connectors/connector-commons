@@ -48,7 +48,7 @@ public class BambooServerCfg extends ServerCfg {
 		isBamboo2 = other.isBamboo2();
 		// shallow copy of SubscribedPlan objects is enough as they are immutable
 		plans = MiscUtil.buildArrayList(other.getPlans());
-		timezoneOffset = other.timezoneOffset;
+		timezoneOffset = other.timezoneOffset;        
 	}
 
 	@Override

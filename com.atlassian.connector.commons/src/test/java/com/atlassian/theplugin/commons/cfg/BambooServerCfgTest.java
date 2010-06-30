@@ -16,8 +16,9 @@
 package com.atlassian.theplugin.commons.cfg;
 
 import com.spartez.util.junit3.TestUtil;
-import static com.spartez.util.junit3.TestUtil.assertNotEquals;
 import junit.framework.TestCase;
+
+import static com.spartez.util.junit3.TestUtil.assertNotEquals;
 
 /**
  * BambooServerCfg Tester.
@@ -99,18 +100,18 @@ public class BambooServerCfgTest extends TestCase {
 		bamboo1sameId.setEnabled(!bamboo1sameId.isEnabled());
 		assertEquals(bamboo1, bamboo1sameId);
 
-		bamboo1sameId.getSubscribedPlans().add(new SubscribedPlan("myplan"));
+		bamboo1sameId.getSubscribedPlans().add(new SubscribedPlan("myplan", false));
 		assertNotEquals(bamboo1, bamboo1sameId);
-		bamboo1.getSubscribedPlans().add(new SubscribedPlan("myplan"));
+		bamboo1.getSubscribedPlans().add(new SubscribedPlan("myplan", false));
 		assertEquals(bamboo1, bamboo1sameId);
 	}
 
 	public void testGetClone() {
-		bamboo1.getSubscribedPlans().add(new SubscribedPlan("myplan"));
+		bamboo1.getSubscribedPlans().add(new SubscribedPlan("myplan", false));
 		BambooServerCfg clone = bamboo1.getClone();
 		assertEquals(bamboo1, clone);
 		assertNotSame(bamboo1, clone);
-		clone.getSubscribedPlans().add(new SubscribedPlan("myotherplan"));
+		clone.getSubscribedPlans().add(new SubscribedPlan("myotherplan", false));
 		TestUtil.assertNotEquals(bamboo1, clone);
 
 		bamboo1.setPasswordStored(true);

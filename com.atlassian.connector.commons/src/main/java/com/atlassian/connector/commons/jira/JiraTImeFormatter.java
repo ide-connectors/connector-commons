@@ -10,8 +10,10 @@ import java.util.Locale;
  * Date: May 12, 2009
  * Time: 1:26:22 PM
  */
-public class JiraTImeFormatter {
+public final class JiraTImeFormatter {
 
+    private JiraTImeFormatter() {
+    }
 
     public static String formatShortTimeFromJiraTimeString(String dateString) {
         DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z (z)", Locale.US);

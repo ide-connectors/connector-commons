@@ -59,4 +59,5 @@ public class JIRAActionFieldBean extends AbstractJIRAConstantBean implements JIR
 	public JIRAActionFieldBean getClone() {
 		return new JIRAActionFieldBean(this);
 	}
+
 }

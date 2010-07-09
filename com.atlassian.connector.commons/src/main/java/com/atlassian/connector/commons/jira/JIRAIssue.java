@@ -128,4 +128,5 @@ public interface JIRAIssue {
 	void setRawSoapIssue(Object soapIssue);
 
 	JIRASecurityLevelBean getSecurityLevel();
+    List<JiraCustomField> getCustomFields();
 }

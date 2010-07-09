@@ -77,6 +77,7 @@ public class JIRAIssueBean implements JIRAIssue {
 	private String timeSpentInSeconds;
 	private JIRASecurityLevelBean securityLevel;
     private String environment;
+    private List<JiraCustomField> basicCustomFields = new ArrayList<JiraCustomField>();
 
     public JIRAIssueBean() {
 	}
@@ -124,6 +125,7 @@ public class JIRAIssueBean implements JIRAIssue {
         this.timeSpentInSeconds = issue.getTimeSpentInSeconds();
         this.securityLevel = issue.getSecurityLevel();
         this.environment = issue.getEnvironment();
+        this.basicCustomFields = issue.getCustomFields();                
     }
 
 
@@ -232,6 +234,13 @@ public class JIRAIssueBean implements JIRAIssue {
 				commentsList.add(new JIRACommentBean(commentId, author, text, cal));
 			}
 		}
+
+        Element customfields = e.getChild("customfields");
+        if (customfields != null && customfields.getChildren().size() > 0) {
+              for (Object fieldElement : customfields.getChildren()) {
+                  basicCustomFields.add(new JiraCustomFieldImpl.Builder((Element) fieldElement).build());
+              }            
+        }
 	}
 
     public JIRAIssueBean(String url, RemoteIssue remoteIssue) {
@@ -616,7 +625,11 @@ public class JIRAIssueBean implements JIRAIssue {
 		return securityLevel;
 	}
 
-	public void setSecurityLevel(final JIRASecurityLevelBean securityLevelBean) {
+    public List<JiraCustomField> getCustomFields() {
+        return basicCustomFields;
+    }
+
+    public void setSecurityLevel(final JIRASecurityLevelBean securityLevelBean) {
 		this.securityLevel = securityLevelBean;
 	}
 }

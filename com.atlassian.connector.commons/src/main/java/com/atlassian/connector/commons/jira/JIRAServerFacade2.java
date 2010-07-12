@@ -25,6 +25,7 @@ import com.atlassian.connector.commons.jira.beans.JIRAPriorityBean;
 import com.atlassian.connector.commons.jira.beans.JIRAProject;
 import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
 import com.atlassian.connector.commons.jira.beans.JIRAResolutionBean;
+import com.atlassian.connector.commons.jira.beans.JIRASecurityLevelBean;
 import com.atlassian.connector.commons.jira.beans.JIRAUserBean;
 import com.atlassian.connector.commons.jira.beans.JIRAVersionBean;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
@@ -112,4 +113,6 @@ public interface JIRAServerFacade2 extends ProductServerFacade {
 
     Collection<JIRAAttachment> getIssueAttachements(ConnectionCfg httpConnectionCfg, JIRAIssue issue)
             throws JIRAException;
+
+    List<JIRASecurityLevelBean> getSecurityLevels(ConnectionCfg connectionCfg, String projectKey) throws JIRAException;
 }

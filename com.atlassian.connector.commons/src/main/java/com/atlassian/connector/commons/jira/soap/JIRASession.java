@@ -28,6 +28,7 @@ import com.atlassian.connector.commons.jira.beans.JIRAPriorityBean;
 import com.atlassian.connector.commons.jira.beans.JIRAProject;
 import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
 import com.atlassian.connector.commons.jira.beans.JIRAResolutionBean;
+import com.atlassian.connector.commons.jira.beans.JIRASecurityLevelBean;
 import com.atlassian.connector.commons.jira.beans.JIRAUserBean;
 import com.atlassian.connector.commons.jira.beans.JIRAVersionBean;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
@@ -94,4 +95,6 @@ public interface JIRASession {
 	boolean isLoggedIn();
 
 	Collection<JIRAAttachment> getIssueAttachements(JIRAIssue issue) throws RemoteApiException;
+
+    List<JIRASecurityLevelBean> getSecurityLevels(String projectKey) throws RemoteApiException;
 }

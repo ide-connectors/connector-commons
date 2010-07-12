@@ -49,5 +49,5 @@ public class JIRASecurityLevelBean extends AbstractJIRAConstantBean {
 
 	public JIRAQueryFragment getClone() {
 		return new JIRASecurityLevelBean(this);
-	}
+	}    
 }

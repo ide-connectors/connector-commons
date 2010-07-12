@@ -622,6 +622,20 @@ public class JIRASessionImpl implements JIRASession {
         }
     }
 
+    public List<JIRASecurityLevelBean> getSecurityLevels(final String projectKey) throws RemoteApiException {
+        List<JIRASecurityLevelBean> levels = new ArrayList<JIRASecurityLevelBean>();
+        try {
+            RemoteSecurityLevel[] remoteSecurityLevels = service.getSecurityLevels(token, projectKey);
+            for (RemoteSecurityLevel remoteLevel : remoteSecurityLevels) {
+                levels.add(new JIRASecurityLevelBean(Long.valueOf(remoteLevel.getId()), remoteLevel.getName()));
+            }
+        } catch (RemoteException e) {
+            throw new RemoteApiException(e);
+        }
+
+        return levels;
+    }
+    
     public List<JIRAActionField> getFieldsForAction(JIRAIssue issue, JIRAAction action) throws RemoteApiException {
         try {
             RemoteField[] fields = service.getFieldsForAction(

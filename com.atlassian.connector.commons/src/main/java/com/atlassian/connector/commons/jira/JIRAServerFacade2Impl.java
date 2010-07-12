@@ -25,6 +25,7 @@ import com.atlassian.connector.commons.jira.beans.JIRAPriorityBean;
 import com.atlassian.connector.commons.jira.beans.JIRAProject;
 import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
 import com.atlassian.connector.commons.jira.beans.JIRAResolutionBean;
+import com.atlassian.connector.commons.jira.beans.JIRASecurityLevelBean;
 import com.atlassian.connector.commons.jira.beans.JIRAUserBean;
 import com.atlassian.connector.commons.jira.beans.JIRAVersionBean;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
@@ -449,5 +450,17 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             soapSessions.remove(getSoapSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
+    }
+
+    public List<JIRASecurityLevelBean> getSecurityLevels(ConnectionCfg connectionCfg, String projectKey) throws JIRAException {
+        try {
+            JIRASession soap = getSoapSession(connectionCfg);
+            return soap.getSecurityLevels(projectKey);
+        } catch (RemoteApiException e) {
+            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            throw new JIRAException(e.getMessage(), e);
+        }
+
+
     }
 }

@@ -62,4 +62,18 @@ public class CrucibleVersionInfoTest extends TestCase {
 		assertTrue(crucibleVersion.isVersion2OrGreater());
 	}
 
+	public void testCompare() {
+		assertTrue(new CrucibleVersionInfo("2", null).compareTo(new CrucibleVersionInfo("2", null)) == 0);
+		assertTrue(new CrucibleVersionInfo("2.1.1", null).compareTo(new CrucibleVersionInfo("2.1.1", null)) == 0);
+
+		assertTrue(new CrucibleVersionInfo("2.1", null).compareTo(new CrucibleVersionInfo("2", null)) == 1);
+		assertTrue(new CrucibleVersionInfo("2.1.1", null).compareTo(new CrucibleVersionInfo("2", null)) == 1);
+		assertTrue(new CrucibleVersionInfo("2.1.1", null).compareTo(new CrucibleVersionInfo("2.1.0.23", null)) == 1);
+
+		assertTrue(new CrucibleVersionInfo("2.1", null).compareTo(new CrucibleVersionInfo("2.2", null)) == -1);
+		assertTrue(new CrucibleVersionInfo("2.1.1", null).compareTo(new CrucibleVersionInfo("2.2", null)) == -1);
+		assertTrue(new CrucibleVersionInfo("2.1.1", null).compareTo(new CrucibleVersionInfo("2.1.2", null)) == -1);
+		assertTrue(new CrucibleVersionInfo("2.1.1.123", null).compareTo(new CrucibleVersionInfo("2.2", null)) == -1);
+	}
+
 }

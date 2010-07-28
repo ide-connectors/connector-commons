@@ -23,7 +23,7 @@ import java.io.Serializable;
  * @author Pawel Niewiadomski
  */
 @SuppressWarnings("serial")
-public class CrucibleVersionInfo implements Serializable {
+public class CrucibleVersionInfo implements Serializable, Comparable<CrucibleVersionInfo> {
 	private final String buildDate;
 
 	private final String releaseNumber;
@@ -103,6 +103,53 @@ public class CrucibleVersionInfo implements Serializable {
 
 	public String getBuild() {
 		return build;
+	}
+
+	private int compareInts(Integer a, Integer b) {
+		if (a == null && b != null) {
+			return -1;
+		} else if (a != null && b == null) {
+			return 1;
+		} else if (a == null && b == null) {
+			return 0;
+		} else {
+			return a.compareTo(b);
+		}
+	}
+
+	public int compareTo(CrucibleVersionInfo o) {
+		int r = compareInts(major, o.major);
+		if (r == 0) {
+			r = compareInts(minor, o.minor);
+			if (r == 0) {
+				return compareInts(maintanance, o.maintanance);
+			} else {
+				return r;
+			}
+		} else {
+			return r;
+		}
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		if (major != null) {
+			sb.append(major);
+			if (minor != null) {
+				sb.append(".");
+				sb.append(minor);
+				if (maintanance != null) {
+					sb.append(".");
+					sb.append(maintanance);
+					if (build != null) {
+						sb.append(".");
+						sb.append(build);
+					}
+				}
+			}
+		}
+		return sb.toString();
 	}
 
 }

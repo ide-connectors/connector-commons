@@ -1193,6 +1193,33 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	@Nullable
+	public BasicReview createSnippetReview(Review review, String snippet, String filename) throws RemoteApiException {
+		if (!isLoggedIn()) {
+			throwNotLoggedIn();
+		}
+
+		Document request = CrucibleRestXmlHelper.prepareCreateSnippetReviewNode(review, snippet, filename);
+		try {
+			Document doc = retrievePostResponse(getBaseUrl() + REVIEW_SERVICE, request);
+
+			XPath xpath = XPath.newInstance("/reviewData");
+			@SuppressWarnings("unchecked")
+			List<Element> elements = xpath.selectNodes(doc);
+
+			if (elements != null && !elements.isEmpty()) {
+				return parseBasicReview(elements.iterator().next());
+			}
+			return null;
+		} catch (IOException e) {
+			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+		} catch (JDOMException e) {
+			throwMalformedResponseReturned(e);
+		}
+
+		return null;
+	}
+
+	@Nullable
 	public BasicReview createReviewFromPatch(Review review, String patch) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();

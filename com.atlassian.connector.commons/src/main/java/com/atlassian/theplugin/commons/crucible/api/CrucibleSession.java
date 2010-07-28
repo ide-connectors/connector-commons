@@ -56,6 +56,9 @@ public interface CrucibleSession extends ProductSession {
 	BasicReview createReview(Review review) throws RemoteApiException;
 
 	@Nullable
+	BasicReview createSnippetReview(Review review, String snippet, String filename) throws RemoteApiException;
+
+	@Nullable
 	BasicReview createReviewFromPatch(Review review, String patch) throws RemoteApiException;
 
 	@Nullable

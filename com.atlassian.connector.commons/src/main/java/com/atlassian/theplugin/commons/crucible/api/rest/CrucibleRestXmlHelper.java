@@ -16,6 +16,8 @@
 
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
+import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
+import static com.atlassian.theplugin.commons.util.XmlUtil.getChildElements;
 import com.atlassian.connector.commons.misc.IntRanges;
 import com.atlassian.connector.commons.misc.IntRangesParser;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
@@ -66,7 +68,6 @@ import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -76,9 +77,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
-import static com.atlassian.theplugin.commons.util.XmlUtil.getChildElements;
 
 public final class CrucibleRestXmlHelper {
     private static final String CDATA_END = "]]>";
@@ -432,6 +430,24 @@ public final class CrucibleRestXmlHelper {
         return doc;
     }
 
+	public static Document prepareCreateSnippetReviewNode(Review review, String snippet, String filename) {
+		Element root = new Element("createReview");
+		Document doc = new Document(root);
+
+		getContent(root).add(prepareSnippetReviewNodeElement(review));
+
+		Element patchData = new Element("snippet");
+		getContent(root).add(patchData);
+
+		CDATA patchT = new CDATA(escapeForCdata(snippet));
+		patchData.setContent(patchT);
+
+		Element filenameT = new Element("filename");
+		getContent(root).add(filenameT);
+		filenameT.setText(filename);
+		return doc;
+	}
+
     public static Document prepareCloseReviewSummaryNode(String message) {
         Element root = new Element("closeReviewSummary");
         Document doc = new Document(root);
@@ -596,6 +612,27 @@ public final class CrucibleRestXmlHelper {
         return reviewData;
     }
 
+	private static Element prepareSnippetReviewNodeElement(BasicReview review) {
+		Element reviewData = new Element("reviewData");
+
+		Element authorElement = new Element("creator");
+		getContent(reviewData).add(authorElement);
+		addTag(authorElement, "userName", review.getAuthor().getUsername());
+
+		addTag(reviewData, "description", review.getDescription());
+		addTag(reviewData, "name", review.getName());
+		addTag(reviewData, "projectKey", review.getProjectKey());
+		if (review.getState() != null) {
+			addTag(reviewData, "state", review.getState().value());
+		}
+		if (review.getPermId() != null) {
+			Element permIdElement = new Element("permaId");
+			getContent(reviewData).add(permIdElement);
+			addTag(permIdElement, "id", review.getPermId().getId());
+		}
+
+		return reviewData;
+	}
 
     private static PermId parsePermId(final Element permIdNode) throws ParseException {
         if (permIdNode != null) {

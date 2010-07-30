@@ -16,7 +16,6 @@
 
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
-import static com.atlassian.theplugin.commons.crucible.api.rest.CrucibleRestXmlHelper.parseActions;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
@@ -68,6 +67,7 @@ import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -83,6 +83,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.atlassian.theplugin.commons.crucible.api.rest.CrucibleRestXmlHelper.parseActions;
 
 /**
  * Communication stub for Crucible REST API.
@@ -512,8 +514,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
         return null;
 	}
-
-	// this method is completely untested - it will almost certainly fail. You were warned!
+  
 	public List<BasicReview> getAllReviewsForFile(String repoName, String path) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
@@ -524,7 +525,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 					+ DETAIL_REVIEW_INFO + SEARCH_REVIEWS_QUERY + URLEncoder.encode(path, "UTF-8");
 			Document doc = retrieveGetResponse(url);
 
-			XPath xpath = XPath.newInstance("/detailedReviews/detailReviewData");
+			XPath xpath = XPath.newInstance("/detailedReviews/detailedReviewData");
 
 			@SuppressWarnings("unchecked")
 			List<Element> elements = xpath.selectNodes(doc);

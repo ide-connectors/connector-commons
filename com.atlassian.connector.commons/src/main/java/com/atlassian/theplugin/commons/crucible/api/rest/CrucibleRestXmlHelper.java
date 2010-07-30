@@ -151,7 +151,7 @@ public final class CrucibleRestXmlHelper {
     public static User parseUserNode(Element repoNode) {
         CrucibleVersion version = CrucibleVersion.CRUCIBLE_15;
         Element userName = repoNode.getChild("userName");
-        if (userName != null && !userName.getText().equals("")) {
+        if (userName != null && !"".equals(userName.getText())) {
             version = CrucibleVersion.CRUCIBLE_16;
         }
         if (version == CrucibleVersion.CRUCIBLE_15) {

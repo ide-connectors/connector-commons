@@ -41,6 +41,7 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -109,8 +110,8 @@ public interface CrucibleSession extends ProductSession {
 
 	List<BasicReview> getReviewsForCustomFilter(CustomFilter filter) throws RemoteApiException;
 
-	// this method is untested - don't use it
-	// List<Review> getAllReviewsForFile(String repoName, String path) throws RemoteApiException;
+
+	List<BasicReview> getAllReviewsForFile(String repoName, String path) throws RemoteApiException;
 
 	Review getReview(PermId permId) throws RemoteApiException;
 
@@ -171,4 +172,5 @@ public interface CrucibleSession extends ProductSession {
 	@NotNull
 	Changes getChanges(@NotNull String repository, @Nullable String oldestCsid, boolean includeOldest,
 			@Nullable String newestCsid, boolean includeNewest, @Nullable Integer max) throws RemoteApiException;
+
 }

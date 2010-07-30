@@ -50,6 +50,7 @@ import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -258,7 +259,13 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 		return session.getServerVersion();
 	}
 
-	public Review addPatchToReview(ConnectionCfg server, PermId permId, String repository, String patch)
+    public List<BasicReview> getAllReviewsForFile(ConnectionCfg server, String repoName, String filePath)
+            throws RemoteApiException, ServerPasswordNotProvidedException {
+        CrucibleSession session = getSession(server);
+        return session.getAllReviewsForFile(repoName, filePath);
+    }
+
+    public Review addPatchToReview(ConnectionCfg server, PermId permId, String repository, String patch)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		final CrucibleSession session = getSession(server);
 		return getFullReview(session.addPatchToReview(permId, repository, patch), session);

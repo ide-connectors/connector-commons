@@ -35,6 +35,7 @@ import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -382,4 +383,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	 */
 	@Deprecated
 	CrucibleVersionInfo getServerVersion(ConnectionCfg server) throws RemoteApiException, ServerPasswordNotProvidedException;
+
+    List<BasicReview> getAllReviewsForFile(ConnectionCfg server, String repoName, String filePath)
+            throws RemoteApiException, ServerPasswordNotProvidedException;
 }

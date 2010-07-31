@@ -178,7 +178,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	private static final String CHANGES = "/changes/";
 
-    private static final String REVIEWS_FOR_ISSUE ="/reviewsForIssue";
+    private static final String REVIEWS_FOR_ISSUE = "/reviewsForIssue";
 
 	private String authToken;
 

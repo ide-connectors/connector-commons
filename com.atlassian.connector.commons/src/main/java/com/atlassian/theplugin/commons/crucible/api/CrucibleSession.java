@@ -173,4 +173,7 @@ public interface CrucibleSession extends ProductSession {
 	Changes getChanges(@NotNull String repository, @Nullable String oldestCsid, boolean includeOldest,
 			@Nullable String newestCsid, boolean includeNewest, @Nullable Integer max) throws RemoteApiException;
 
+    List<BasicReview> getReviewsForIssue(@NotNull String jiraIssueKey, @NotNull int maxReturn)
+            throws RemoteApiException;
+
 }

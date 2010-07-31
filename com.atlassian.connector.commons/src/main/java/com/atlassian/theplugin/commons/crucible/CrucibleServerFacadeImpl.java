@@ -265,6 +265,12 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
         return session.getAllReviewsForFile(repoName, filePath);
     }
 
+    public List<BasicReview> getReviewsForIssue(ConnectionCfg server, String jiraIssueKey, int maxReturn) 
+            throws RemoteApiException, ServerPasswordNotProvidedException {
+        CrucibleSession session = getSession(server);
+        return session.getReviewsForIssue(jiraIssueKey, maxReturn);
+    }
+
     public Review addPatchToReview(ConnectionCfg server, PermId permId, String repository, String patch)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		final CrucibleSession session = getSession(server);

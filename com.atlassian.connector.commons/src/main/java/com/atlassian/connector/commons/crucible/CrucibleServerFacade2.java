@@ -386,4 +386,7 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 
     List<BasicReview> getAllReviewsForFile(ConnectionCfg server, String repoName, String filePath)
             throws RemoteApiException, ServerPasswordNotProvidedException;
+
+     List<BasicReview> getReviewsForIssue(ConnectionCfg server, String jiraIssueKey, int maxReturn)
+             throws RemoteApiException, ServerPasswordNotProvidedException;
 }

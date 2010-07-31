@@ -98,6 +98,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	private static final String REPOSITORIES_SERVICE = "/rest-service/repositories-v1";
 
+    private static final String SEARCH_SERVICE = "/rest-service/search-v1";
+
 	private static final String USER_SERVICE = "/rest-service/users-v1";
 
 	private static final String LOGIN = "/login";
@@ -175,6 +177,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	private static final String PROJECT_EXPAND_ALLOWED_REVIEWERS = "?expand=allowedReviewers";
 
 	private static final String CHANGES = "/changes/";
+
+    private static final String REVIEWS_FOR_ISSUE ="/reviewsForIssue";
 
 	private String authToken;
 
@@ -1861,4 +1865,40 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 		throw new RemoteApiException("No changes returned by server.");
 	}
+
+    @NotNull
+    public List<BasicReview> getReviewsForIssue(@NotNull String jiraIssueKey, @NotNull int maxReturn)
+            throws RemoteApiException, RemoteApiSessionExpiredException {
+	if (!isLoggedIn()) {
+            throwNotLoggedIn();
+        }
+        List<BasicReview> reviews = new ArrayList<BasicReview>();
+
+		try {
+			String url = getBaseUrl() + SEARCH_SERVICE + REVIEWS_FOR_ISSUE + "/?jiraKey=" 
+                    + URLEncoder.encode(jiraIssueKey, "UTF-8") + "&maxReturn=" + maxReturn;
+			Document doc = retrieveGetResponse(url);
+
+			XPath xpath = XPath.newInstance("/detailedReviews/detailedReviewData");
+
+			@SuppressWarnings("unchecked")
+			List<Element> elements = xpath.selectNodes(doc);
+
+			if (elements != null && !elements.isEmpty()) {
+				for (Element element : elements) {
+					reviews.add(parseBasicReview(element));
+				}
+			}
+			for (BasicReview review : reviews) {
+				updateMetricsMetadata(review);
+			}
+			return reviews;
+		} catch (IOException e) {
+			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+		} catch (JDOMException e) {
+            throwMalformedResponseReturned(e);
+        }
+
+        return reviews;
+    }
 }

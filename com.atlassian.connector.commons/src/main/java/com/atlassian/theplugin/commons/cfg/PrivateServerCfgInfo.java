@@ -20,7 +20,7 @@ public class PrivateServerCfgInfo {
 	protected final boolean isEnabled;
 	protected final String username;
 	protected final String password;
-    protected final boolean useHttpBasic;
+    protected boolean useHttpBasic = false;
     protected final String basicUsername;
     protected final String basicPassword;
     protected final boolean useDefaultCredentials;

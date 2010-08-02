@@ -19,7 +19,7 @@ import com.atlassian.theplugin.commons.ServerType;
 
 public class JiraServerCfg extends ServerCfg {
     private static final int HASHCODE_MAGIC = 31;
-    private boolean dontUseBasicAuth;
+    private boolean dontUseBasicAuth = true;
     private UserCfg basicHttpUser;
 
     public JiraServerCfg(final String name, final ServerIdImpl serverId, boolean dontUseBasicAuth) {
@@ -88,6 +88,8 @@ public class JiraServerCfg extends ServerCfg {
         if (psci != null) {
             setDontUseBasicAuth(!psci.isUseHttpBasic());
             setBasicHttpUser(new UserCfg(psci.getBasicUsername(), psci.getBasicPassword()));
+        } else {
+            setDontUseBasicAuth(true);
         }
 
     }

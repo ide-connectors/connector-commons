@@ -44,9 +44,9 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -252,7 +252,7 @@ public abstract class AbstractHttpSession {
 
 			CacheRecord cacheRecord = cache.get(urlString);
             callback.configureHttpMethod(this, method);
-            
+
 			if (cacheRecord != null) {
 //                System.out.println(String.format("%s in cache, adding If-Modified-Since: %s and If-None-Match: %s headers.",
 //                    urlString, cacheRecord.getLastModified(), cacheRecord.getEtag()));
@@ -335,8 +335,24 @@ public abstract class AbstractHttpSession {
         return retrievePostResponseInternal(urlString, request, expectResponse, 0);
     }
 
-	private Document retrievePostResponseInternal(String urlString, String request, boolean expectResponse,
-                                                  int redirectCounter)
+	private interface PostMethodPreparer {
+		void prepare(PostMethod postMethod) throws UnsupportedEncodingException;
+	}
+
+	private Document retrievePostResponseInternal(String urlString, final String request, boolean expectResponse,
+			int redirectCounter) throws JDOMException, RemoteApiException {
+		return retrievePostResponseInternalImpl(urlString, new PostMethodPreparer() {
+
+			public void prepare(PostMethod postMethod) throws UnsupportedEncodingException {
+				if (request != null && !"".equals(request)) {
+					postMethod.setRequestEntity(new StringRequestEntity(request, "application/xml", "UTF-8"));
+				}
+			}
+		}, expectResponse, redirectCounter);
+	}
+
+	private Document retrievePostResponseInternalImpl(String urlString, PostMethodPreparer postMethodPreparer,
+			boolean expectResponse, int redirectCounter)
 			throws JDOMException, RemoteApiException {
 		try {
 			UrlUtil.validateUrl(urlString);
@@ -361,10 +377,8 @@ public abstract class AbstractHttpSession {
 				method.getParams().setSoTimeout(client.getParams().getSoTimeout());
 
 				callback.configureHttpMethod(this, method);
+				postMethodPreparer.prepare(method);
 
-				if (request != null && !"".equals(request)) {
-					method.setRequestEntity(new StringRequestEntity(request, "application/xml", "UTF-8"));
-				}
 
 				client.executeMethod(method);
 
@@ -379,8 +393,8 @@ public abstract class AbstractHttpSession {
                             throw new RemoteApiException(
                                     "Connection error. Received redirection without new target address");
                         }
-                        return retrievePostResponseInternal(
-                                newLocation.getValue(), request, expectResponse, redirectCounter + 1);
+						return retrievePostResponseInternalImpl(
+								newLocation.getValue(), postMethodPreparer, expectResponse, redirectCounter + 1);
                     } else {
                         throw new RemoteApiException(
                                 "Connection error. Received too many redirects (more than " + MAX_REDIRECTS + ")");
@@ -409,6 +423,20 @@ public abstract class AbstractHttpSession {
 			}
 		}
 		return doc;
+	}
+
+	protected Document retrievePostResponseWithForm(String urlString, final Map<String, String> form, boolean expectResponse)
+			throws JDOMException, RemoteApiException {
+		return retrievePostResponseInternalImpl(urlString, new PostMethodPreparer() {
+
+			public void prepare(PostMethod postMethod) throws UnsupportedEncodingException {
+				if (form != null) {
+					for (Map.Entry<String, String> formEntry : form.entrySet()) {
+						postMethod.addParameter(formEntry.getKey(), formEntry.getValue());
+					}
+				}
+			}
+		}, expectResponse, 0);
 	}
 
 	/**

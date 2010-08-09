@@ -31,6 +31,8 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
+import com.spartez.util.junit3.IAction;
+import com.spartez.util.junit3.TestUtil;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import junit.framework.TestCase;
 
@@ -73,19 +75,20 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 	}
 
 	public void testFailedLoginGetReviewsForFilter() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD, LoginCallback.ALWAYS_FAIL));
 
-		try {
-			testedCrucibleServerFacade.getReviewsForFilter(crucibleServerCfg, PredefinedFilter.Open);
-			fail();
-		} catch (RemoteApiLoginFailedException e) {
-
-		}
+		TestUtil.assertThrows(RemoteApiLoginFailedException.class, new IAction() {
+			public void run() throws Throwable {
+				testedCrucibleServerFacade.getReviewsForFilter(crucibleServerCfg, PredefinedFilter.Open);
+			}
+		});
 
 		mockServer.verify();
 	}
 
 	public void testConnectionTestSucceed() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		testedCrucibleServerFacade.testServerConnection(crucibleServerCfg);
@@ -93,6 +96,7 @@ public class CrucibleServerFacadeConnectionTest extends TestCase {
 	}
 
 	public void testConnectionTestFailed() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(false));
 

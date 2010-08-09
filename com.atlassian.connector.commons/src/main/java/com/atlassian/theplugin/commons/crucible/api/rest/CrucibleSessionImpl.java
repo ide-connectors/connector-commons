@@ -16,6 +16,7 @@
 
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
+import static com.atlassian.theplugin.commons.crucible.api.rest.CrucibleRestXmlHelper.parseActions;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
 import com.atlassian.theplugin.commons.crucible.api.CrucibleSession;
@@ -53,6 +54,7 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredExceptio
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.Logger;
+import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.ProductVersionUtil;
 import com.atlassian.theplugin.commons.util.StringUtil;
 import org.apache.commons.httpclient.Header;
@@ -67,7 +69,6 @@ import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -84,12 +85,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.atlassian.theplugin.commons.crucible.api.rest.CrucibleRestXmlHelper.parseActions;
-
 /**
  * Communication stub for Crucible REST API.
  */
 public class CrucibleSessionImpl extends AbstractHttpSession implements CrucibleSession {
+	private static final CrucibleVersionInfo MIN_VERSION_SUPPORTING_POST_LOGIN = new CrucibleVersionInfo("2.4", null);
+
 	private static final String AUTH_SERVICE = "/rest-service/auth-v1";
 
 	private static final String REVIEW_SERVICE = "/rest-service/reviews-v1";
@@ -186,7 +187,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 	private final Map<String, List<CustomFieldDef>> metricsDefinitions = new HashMap<String, List<CustomFieldDef>>();
 
-	private CrucibleVersionInfo crucibleVersionInfo;
+	@Nullable
+	private volatile CrucibleVersionInfo crucibleVersionInfo;
 
 	private boolean loginCalled = false;
 
@@ -216,23 +218,16 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		login();
 	}
 
+
+	private boolean isPostLoginSupported() throws RemoteApiException {
+		final CrucibleVersionInfo cvi = getCrucibleVersionInfo();
+		return cvi.compareTo(MIN_VERSION_SUPPORTING_POST_LOGIN) >= 0;
+	}
+
 	private void realLogin() throws RemoteApiLoginException {
 		// Login every time access Crucible server - https://studio.atlassian.com/browse/ACC-31
-		String loginUrl;
 		try {
-			if (getUsername() == null || getPassword() == null) {
-				throw new RemoteApiLoginException("Corrupted configuration. Username or Password null");
-			}
-			loginUrl = getBaseUrl() + AUTH_SERVICE + LOGIN + "?userName=" + URLEncoder.encode(getUsername(), "UTF-8")
-					+ "&password=" + URLEncoder.encode(getPassword(), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			///CLOVER:OFF
-			throw new RuntimeException("URLEncoding problem: " + e.getMessage());
-			///CLOVER:ON
-		}
-
-		try {
-			Document doc = retrieveGetResponse(loginUrl);
+			Document doc = retrieveLoginResponse();
 			String exception = getExceptionMessages(doc);
 			if (null != exception) {
 				throw new RemoteApiLoginFailedException(exception);
@@ -262,6 +257,37 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			throw new RemoteApiLoginException("Remote session expired on server:" + getBaseUrl(), e);
 		} catch (IllegalArgumentException e) {
 			throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
+		} catch (RemoteApiLoginException e) {
+			throw e;
+		} catch (RemoteApiException e) {
+			throw new RemoteApiLoginException(e.getMessage(), e);
+		}
+	}
+
+	private Document retrieveLoginResponse() throws IOException, JDOMException, RemoteApiException {
+		final String username = getUsername();
+		final String password = getPassword();
+		if (username == null || password == null) {
+			throw new RemoteApiLoginException("Corrupted configuration. Username or Password null");
+		}
+		final String loginUrlPrefix = getBaseUrl() + AUTH_SERVICE + LOGIN;
+
+		if (isPostLoginSupported()) {
+			final Map<String, String> form = MiscUtil.buildHashMap();
+			form.put("userName", username);
+			form.put("password", password);
+			return retrievePostResponseWithForm(loginUrlPrefix, form, true);
+		} else {
+			final String loginUrl;
+			try {
+				loginUrl = loginUrlPrefix + "?userName=" + URLEncoder.encode(username, "UTF-8") + "&password="
+						+ URLEncoder.encode(password, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				// /CLOVER:OFF
+				throw new RuntimeException("URLEncoding problem: " + e.getMessage());
+				// /CLOVER:ON
+			}
+			return retrieveGetResponse(loginUrl);
 		}
 	}
 
@@ -273,9 +299,6 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 	}
 
 	public CrucibleVersionInfo getServerVersion() throws RemoteApiException {
-		if (!isLoggedIn()) {
-            throwNotLoggedIn();
-        }
 
 		String requestUrl = getBaseUrl() + REVIEW_SERVICE + VERSION;
 		try {
@@ -293,6 +316,8 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			}
 
 			throw new RemoteApiException("No version info found in server response");
+		} catch (UnknownHostException e) {
+			throw new RemoteApiException("Unknown host: " + e.getMessage(), e);
 		} catch (IOException e) {
 			throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
 		} catch (JDOMException e) {
@@ -414,6 +439,14 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 		return false;
 	}
 
+	public CrucibleVersionInfo getCrucibleVersionInfo() throws RemoteApiException {
+		if (crucibleVersionInfo != null) {
+			return crucibleVersionInfo;
+		} else {
+			return getServerVersion();
+		}
+	}
+
 	public boolean checkContentUrlAvailable() {
 		if (crucibleVersionInfo == null) {
 			try {
@@ -518,7 +551,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
         return null;
 	}
-  
+
 	public List<BasicReview> getAllReviewsForFile(String repoName, String path) throws RemoteApiException {
 		if (!isLoggedIn()) {
             throwNotLoggedIn();
@@ -1875,7 +1908,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         List<BasicReview> reviews = new ArrayList<BasicReview>();
 
 		try {
-			String url = getBaseUrl() + SEARCH_SERVICE + REVIEWS_FOR_ISSUE + "/?jiraKey=" 
+			String url = getBaseUrl() + SEARCH_SERVICE + REVIEWS_FOR_ISSUE + "/?jiraKey="
                     + URLEncoder.encode(jiraIssueKey, "UTF-8") + "&maxReturn=" + maxReturn;
 			Document doc = retrieveGetResponse(url);
 

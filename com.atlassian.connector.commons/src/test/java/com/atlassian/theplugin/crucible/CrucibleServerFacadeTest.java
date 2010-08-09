@@ -35,9 +35,9 @@ import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleUserCacheImpl;
+import com.atlassian.theplugin.commons.crucible.api.model.ExtendedCrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.ExtendedCrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewTestUtil;
@@ -50,6 +50,8 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
+import com.spartez.util.junit3.IAction;
+import com.spartez.util.junit3.TestUtil;
 import org.apache.commons.httpclient.HttpStatus;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
@@ -112,15 +114,16 @@ public class CrucibleServerFacadeTest extends TestCase {
 
 		crucibleServerCfg.setUrl("http://localhost:" + server.getConnectors()[0].getLocalPort());
 		JettyMockServer mockServer = new JettyMockServer(server);
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUsername(), VALID_PASSWORD,
 				LoginCallback.ALWAYS_FAIL));
 
-		try {
-			facade.testServerConnection(getServerData(crucibleServerCfg));
-			fail("testServerConnection failed");
-		} catch (RemoteApiException e) {
-			//
-		}
+		TestUtil.assertThrows(RemoteApiException.class, new IAction() {
+
+			public void run() throws Throwable {
+				facade.testServerConnection(getServerData(crucibleServerCfg));
+			}
+		});
 
 		mockServer.verify();
 		server.stop();
@@ -133,8 +136,6 @@ public class CrucibleServerFacadeTest extends TestCase {
 		crucibleServerCfg.setUrl("http://localhost:" + server.getConnectors()[0].getLocalPort());
 		JettyMockServer mockServer = new JettyMockServer(server);
 
-		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUsername(), VALID_PASSWORD,
-				false));
 		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(false));
 
 		try {
@@ -160,6 +161,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		crucibleServerCfg.setUrl("http://localhost:" + server.getConnectors()[0].getLocalPort());
 		JettyMockServer mockServer = new JettyMockServer(server);
 
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new ErrorResponse(404, "Not Found"));
 
 		try {
@@ -198,6 +200,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		crucibleServerCfg.setUrl("http://localhost:" + server.getConnectors()[0].getLocalPort());
 		JettyMockServer mockServer = new JettyMockServer(server);
 
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(VALID_LOGIN.getUsername(), VALID_PASSWORD,
 				false));
 		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
@@ -205,7 +208,7 @@ public class CrucibleServerFacadeTest extends TestCase {
 		try {
 			facade.testServerConnection(getServerData(crucibleServerCfg));
 		} catch (RemoteApiException e) {
-			fail("testServerConnection failed");
+			fail("testServerConnection failed: " + e.getMessage());
 		}
 
 		mockServer.verify();

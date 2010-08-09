@@ -32,9 +32,9 @@ import com.atlassian.theplugin.commons.crucible.api.model.BasicReview;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
+import com.atlassian.theplugin.commons.crucible.api.model.ExtendedCrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
-import com.atlassian.theplugin.commons.crucible.api.model.ExtendedCrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
 import com.atlassian.theplugin.commons.crucible.api.model.Review;
 import com.atlassian.theplugin.commons.crucible.api.model.ReviewType;
@@ -57,6 +57,7 @@ import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetReviewersCallba
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.GetReviewsCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.LoginCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.MalformedResponseCallback;
+import com.atlassian.theplugin.crucible.api.rest.cruciblemock.Version2x4InfoCallback;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.VersionInfoCallback;
 import com.spartez.util.junit3.TestUtil;
 import org.ddsteps.mock.httpserver.JettyMockServer;
@@ -107,12 +108,18 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testSuccessCrucibleLogin() throws Exception {
+		testCrucibleLoginImpl(new VersionInfoCallback(true), false);
+	}
 
+	private void testCrucibleLoginImpl(JettyMockServer.Callback versionInfoCallback, boolean shouldExpectPost)
+			throws RemoteApiException, RemoteApiLoginException {
 		String[] usernames = { "user", "+-=&;<>", "", "a;&username=other", "!@#$%^&*()_-+=T " };
 		String[] passwords = { "password", "+-=&;<>", "", "&password=other", ",./';[]\t\\ |}{\":><?" };
 
 		for (int i = 0; i < usernames.length; ++i) {
-			mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(usernames[i], passwords[i]));
+			mockServer.expect("/rest-service/reviews-v1/versionInfo", versionInfoCallback);
+			mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(usernames[i], passwords[i], false,
+					shouldExpectPost));
 			final CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, usernames[i], passwords[i]);
 
 			apiHandler.login();
@@ -123,7 +130,12 @@ public class CrucibleSessionTest extends TestCase {
 		mockServer.verify();
 	}
 
+	public void testSuccessLoginForCrucible2x4() throws Exception {
+		testCrucibleLoginImpl(new Version2x4InfoCallback(), true);
+	}
+
 	public void testLoginMalformedResponse() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new MalformedResponseCallback());
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
@@ -137,6 +149,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testLoginInternalErrorResponse() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new ErrorResponse(500, ""));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
@@ -151,6 +164,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testSuccessCrucibleLoginURLWithSlash() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl + "/", USER_NAME, PASSWORD);
@@ -186,7 +200,7 @@ public class CrucibleSessionTest extends TestCase {
 	@SuppressWarnings("null")
 	public void testWrongUrlCrucibleLogin() throws Exception {
 		ErrorResponse error = new ErrorResponse(400, "Bad Request/reason phrase");
-		mockServer.expect("/wrongurl/rest-service/auth-v1/login", error);
+		mockServer.expect("/wrongurl/rest-service/reviews-v1/versionInfo", error); // logging in first looks for cru version
 		RemoteApiLoginException exception = null;
 
 		try {
@@ -199,8 +213,12 @@ public class CrucibleSessionTest extends TestCase {
 		mockServer.verify();
 
 		assertNotNull("Exception expected", exception);
-		assertNotNull("Exception should have a cause", exception.getCause());
-		assertSame(IOException.class, exception.getCause().getClass());
+		final Throwable cause = exception.getCause();
+		assertNotNull("Exception should have a cause", cause);
+		assertSame(RemoteApiException.class, cause.getClass());
+		final Throwable nestedCause = cause.getCause();
+		assertNotNull("The Cause should have another cause", nestedCause);
+		assertSame(IOException.class, nestedCause.getClass());
 		// Regression test for https://studio.atlassian.com/browse/PLE-514
 		// exception should not include Reason Phrase - it goes to log
 		assertFalse(exception.getMessage().contains(error.getErrorMessage()));
@@ -219,9 +237,14 @@ public class CrucibleSessionTest extends TestCase {
 		}
 
 		assertNotNull("Exception expected", exception);
-		assertNotNull("Exception should have a cause", exception.getCause());
-		assertSame("UnknownHostException expected", UnknownHostException.class, exception.getCause().getClass());
-		assertEquals("Checking exception message", "Unknown host: non.existing.server.utest", exception.getMessage());
+		final Throwable cause = exception.getCause();
+		assertNotNull("Exception should have a cause", cause);
+		assertSame("RemoteApiException expected", RemoteApiException.class, cause.getClass());
+
+		final Throwable innecCause = cause.getCause();
+		assertNotNull("Exception cause should have nested cause", innecCause);
+		assertSame("UnknownHostException expected", UnknownHostException.class, innecCause.getClass());
+		assertEquals("Checking exception message failed", "Unknown host: non.existing.server.utest", exception.getMessage());
 	}
 
 	public void testMalformedUrlCrucibleLogin() {
@@ -283,6 +306,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testWrongUserCrucibleLogin() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD,
 				LoginCallback.ALWAYS_FAIL));
 
@@ -309,6 +333,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testSuccessCrucibleLogout() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -326,6 +351,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testFailedCrucibleLogin() throws RemoteApiException {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD,
 				LoginCallback.ALWAYS_FAIL));
 		try {
@@ -365,6 +391,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testSuccessCrucibleDoubleLogin() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -415,12 +442,11 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetAllTypeReviews() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = Arrays.asList(State.values());
 		mockServer.expect("/rest-service/reviews-v1/details", new GetReviewsCallback(states));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-        mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
-        mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/metrics/1", new GetMetricsCallback());
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
@@ -435,6 +461,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetEmptyReviews() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = new ArrayList<State>();
 		mockServer.expect("/rest-service/reviews-v1/details", new GetReviewsCallback(states));
@@ -448,6 +475,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetEmptyReviewsForType() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = new ArrayList<State>();
 		mockServer.expect("/rest-service/reviews-v1/details", new GetReviewsCallback(states));
@@ -461,12 +489,11 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetReviewsInStates() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
 		mockServer.expect("/rest-service/reviews-v1/details", new GetReviewsCallback(states));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-        mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
-        mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/metrics/1", new GetMetricsCallback());
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
@@ -478,6 +505,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetMissingReviewsInStates() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
 		mockServer.expect("/rest-service/reviews-v1/details", new GetReviewsCallback(states));
@@ -491,12 +519,11 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetEmptyRequestReviewsInStates() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		List<State> states = Arrays.asList(State.REVIEW, State.DRAFT);
 		mockServer.expect("/rest-service/reviews-v1/details", new GetReviewsCallback(states));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-        mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
-        mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/metrics/1", new GetMetricsCallback());
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
 
@@ -509,6 +536,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetAllReviewsMalformedResponse() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/details", new MalformedResponseCallback());
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -524,6 +552,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetReviewsInStatesMalformedResponse() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/details", new MalformedResponseCallback());
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -540,6 +569,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetEmptyReviewers() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/PR-1/reviewers", new GetReviewersCallback(new User[] {}));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -557,6 +587,7 @@ public class CrucibleSessionTest extends TestCase {
 		reviewers[1] = new User("alice");
 		reviewers[2] = new User("steve");
 
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/PR-1/reviewers", new GetReviewersCallback(reviewers));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -572,6 +603,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetReviewersInvalidId() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/PR-2/reviewers", new ErrorResponse(500, ""));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -589,6 +621,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetReviewersMalformedResponse() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/PR-1/reviewers", new MalformedResponseCallback());
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -608,6 +641,7 @@ public class CrucibleSessionTest extends TestCase {
 	public void testCreateReview() throws Exception {
 		Review review = createReviewRequest();
 
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new CreateReviewCallback());
@@ -630,6 +664,7 @@ public class CrucibleSessionTest extends TestCase {
 	public void testCreateReviewMalformedResponse() throws Exception {
 		Review review = createReviewRequest();
 
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new MalformedResponseCallback());
@@ -648,6 +683,7 @@ public class CrucibleSessionTest extends TestCase {
 	public void testCreateReviewErrorResponse() throws Exception {
 		Review review = createReviewRequest();
 
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new ErrorResponse(500, ""));
@@ -665,6 +701,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testCreateReviewFromPatch() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new CreateReviewCallback());
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -685,6 +722,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testCreateReviewFromNullPatch() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new CreateReviewCallback());
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -705,6 +743,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testCreateReviewFromEmptyPatch() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new CreateReviewCallback());
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -725,6 +764,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testCreateReviewFromPatchMalformedResponse() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1", new MalformedResponseCallback());
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -744,6 +784,7 @@ public class CrucibleSessionTest extends TestCase {
 	public void testGetProjectsCrucible1_6() throws Exception {
 		int size = 4;
 
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
         mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(size, false));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -763,6 +804,7 @@ public class CrucibleSessionTest extends TestCase {
     public void testGetProjectsCrucible2_0() throws Exception {
 		int size = 4;
 
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(size, true));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -780,6 +822,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetProjects2_0() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/projects-v1", new ResourceCallback(
 				"projects2_0.xml"));
@@ -805,6 +848,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetProjectCrDemo() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/projects-v1/CR-DEMO", new ResourceCallback(
 				"project-CR-DEMO.xml"));
@@ -826,7 +870,7 @@ public class CrucibleSessionTest extends TestCase {
 
 	public void testGetProjectsEmpty() throws Exception {
 		int size = 0;
-
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
         mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/projects-v1", new GetProjectsCallback(size, false));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -846,6 +890,7 @@ public class CrucibleSessionTest extends TestCase {
 	public void testGetRepositories() throws Exception {
 		int size = 4;
 
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/repositories-v1", new GetRepositoriesCallback(size));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -863,6 +908,7 @@ public class CrucibleSessionTest extends TestCase {
 	public void testGetRepositoriesEmpty() throws Exception {
 		int size = 0;
 
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/repositories-v1", new GetRepositoriesCallback(size));
 		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
@@ -1036,6 +1082,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetReviewsForFilter() throws RemoteApiException {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/filter/open/details", new ResourceCallback(
 				"open-reviews-filter-results-cru-1.6.xml"));
@@ -1072,6 +1119,7 @@ public class CrucibleSessionTest extends TestCase {
 
 	private Review getReview(final PermId permId, final String resource, int numRepos) throws RemoteApiException {
 		final int size = 4;
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/reviews-v1/" + permId.getId() + "/details", new JettyMockServer.Callback() {
 			public void onExpectedRequest(final String target, final HttpServletRequest request,
@@ -1080,8 +1128,6 @@ public class CrucibleSessionTest extends TestCase {
 				response.getOutputStream().flush();
 			}
 		});
-		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
-        mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		for (int i = 0; i < numRepos; i++) {
 			mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 			mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
@@ -1101,6 +1147,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetChanges() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/repositories-v1/changes/PLE/", new JettyMockServer.Callback() {
 			public void onExpectedRequest(String arg0, HttpServletRequest request, HttpServletResponse response)
@@ -1121,6 +1168,7 @@ public class CrucibleSessionTest extends TestCase {
 	}
 
 	public void testGetChangesForMissingRepository() throws Exception {
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new VersionInfoCallback(true));
 		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/rest-service/repositories-v1/changes/PLE/", new JettyMockServer.Callback() {
 			public void onExpectedRequest(String arg0, HttpServletRequest request, HttpServletResponse response)

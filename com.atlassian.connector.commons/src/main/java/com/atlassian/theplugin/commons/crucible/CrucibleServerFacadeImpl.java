@@ -50,7 +50,6 @@ import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -173,6 +172,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
     public void testServerConnection(ConnectionCfg connectionCfg) throws RemoteApiException {
 		final CrucibleSession session = new CrucibleSessionImpl(connectionCfg, callback, logger);
 		session.login();
+		session.isLoggedIn();
 		try {
 			session.getServerVersion();
 		} catch (RemoteApiException e) {
@@ -265,7 +265,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
         return session.getAllReviewsForFile(repoName, filePath);
     }
 
-    public List<BasicReview> getReviewsForIssue(ConnectionCfg server, String jiraIssueKey, int maxReturn) 
+    public List<BasicReview> getReviewsForIssue(ConnectionCfg server, String jiraIssueKey, int maxReturn)
             throws RemoteApiException, ServerPasswordNotProvidedException {
         CrucibleSession session = getSession(server);
         return session.getReviewsForIssue(jiraIssueKey, maxReturn);

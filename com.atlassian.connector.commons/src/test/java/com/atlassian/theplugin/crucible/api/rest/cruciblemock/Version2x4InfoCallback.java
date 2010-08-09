@@ -20,22 +20,12 @@ import org.ddsteps.mock.httpserver.JettyMockServer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class VersionInfoCallback implements JettyMockServer.Callback {
-	private final boolean cru16;
-
-	public VersionInfoCallback(boolean cru16) {
-		this.cru16 = cru16;
-	}
+public class Version2x4InfoCallback implements JettyMockServer.Callback {
 
 	public void onExpectedRequest(String target, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		assertTrue(request.getPathInfo().endsWith("/rest-service/reviews-v1/versionInfo"));
 
-		if (cru16) {
-			new CrucibleMockUtil().copyResource(response.getOutputStream(), "versionInfoSuccessResponse.xml");
-		} else {
-			new CrucibleMockUtil().copyResource(response.getOutputStream(), "versionInfoFailureResponse.xml");
-			response.setStatus(500);
-		}
+		new CrucibleMockUtil().copyResource(response.getOutputStream(), "versionInfo-2.4.xml");
 		response.getOutputStream().flush();
 
 	}

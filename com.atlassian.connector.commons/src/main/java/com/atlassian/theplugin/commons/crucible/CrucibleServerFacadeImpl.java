@@ -155,12 +155,6 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 		return getFullReview(session.createReviewFromUpload(review, uploadItems), session);
 	}
 
-	public byte[] getFileContent(@NotNull final ConnectionCfg server, @NotNull final String contentUrl)
-			throws RemoteApiException, ServerPasswordNotProvidedException {
-		CrucibleSession session = getSession(server);
-		return session.getFileContent(contentUrl);
-	}
-
 	/**
 	 * For testing Only
 	 */

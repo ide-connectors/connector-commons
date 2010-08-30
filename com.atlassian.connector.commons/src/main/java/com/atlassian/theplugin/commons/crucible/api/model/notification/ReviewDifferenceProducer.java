@@ -1,6 +1,5 @@
 package com.atlassian.theplugin.commons.crucible.api.model.notification;
 
-import static com.atlassian.theplugin.commons.util.MiscUtil.isModified;
 import com.atlassian.theplugin.commons.crucible.api.model.Comment;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleAction;
 import com.atlassian.theplugin.commons.crucible.api.model.CrucibleFileInfo;
@@ -9,11 +8,14 @@ import com.atlassian.theplugin.commons.crucible.api.model.Reviewer;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.atlassian.theplugin.commons.util.MiscUtil.isModified;
 
 /**
  * This class is NOT thread-safe!
@@ -336,7 +338,8 @@ public class ReviewDifferenceProducer {
 		for (T corg : org) {
 			boolean found = false;
 			for (T cnew : modified) {
-				if (cnew.getPermId().equals(corg.getPermId())) {
+				if (cnew != null && cnew.getPermId() != null && corg != null
+                        && cnew.getPermId().equals(corg.getPermId())) {
 					found = true;
 					break;
 				}

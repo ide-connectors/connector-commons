@@ -116,4 +116,23 @@ public abstract class UrlUtil {
 		}
 	}
 
+	/**
+	 * Removes the junction part of the urlPath and serverUrl from the urlPath and returns modified urlPath
+	 *
+	 * @param urlPath
+	 * @param serverUrl
+	 * @return
+	 */
+	public static String adjustUrlPath(String urlPath, String serverUrl) {
+		String[] serverTokens = serverUrl.split("/");
+		String[] pathTokens = urlPath.split("/");
+
+		if (serverTokens.length > 0 && pathTokens.length > 0) {
+			if (serverTokens[serverTokens.length - 1].equals(pathTokens[0])) {
+				urlPath = urlPath.substring(pathTokens[0].length(), urlPath.length());
+}
+		}
+		return urlPath;
+	}
+
 }

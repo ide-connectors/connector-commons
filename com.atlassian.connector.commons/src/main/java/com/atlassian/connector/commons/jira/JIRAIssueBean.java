@@ -25,6 +25,7 @@ import com.atlassian.connector.commons.jira.soap.axis.RemoteIssue;
 import org.jdom.Element;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -228,8 +229,14 @@ public class JIRAIssueBean implements JIRAIssue {
 				try {
 					cal.setTime(df.parse(creationDate));
 				} catch (java.text.ParseException ex) {
-					// oh well, invalid time  - now what? :(
-				}
+                    //try another one
+					df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
+                    try {
+                        cal.setTime(df.parse(creationDate));
+                    } catch (ParseException e1) {
+                        //not good date format is not handled
+                    }
+                }
 
 				commentsList.add(new JIRACommentBean(commentId, author, text, cal));
 			}

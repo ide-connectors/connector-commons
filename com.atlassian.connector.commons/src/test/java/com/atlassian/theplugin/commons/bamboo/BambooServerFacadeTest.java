@@ -29,6 +29,7 @@ import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallbackNew;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LogoutCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.NewPlanListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.ProjectListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.Util;
@@ -50,17 +51,16 @@ import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
-import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import junit.framework.TestCase;
 
 /**
  * {@link com.atlassian.theplugin.commons.bamboo.BambooServerFacadeImpl} test.
@@ -402,9 +402,9 @@ public class BambooServerFacadeTest extends TestCase {
 
 	public void testPlanList() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		//mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
-		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
-		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
+		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback(
+				"/mock/bamboo/3_0/api/rest/bambooBuildNumberResponse.xml"));
+		mockServer.expect("/rest/api/latest/plan/", new NewPlanListCallback());
 
 		Collection<BambooPlan> plans = testedBambooServerFacade.getPlanList(getServerData(bambooServerCfg));
 		Util.verifyPlanListWithFavouritesResult(plans);
@@ -663,8 +663,9 @@ public class BambooServerFacadeTest extends TestCase {
 		final BambooServerCfg s = getServer(mockBaseUrl);
 
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
-		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
+		mockServer.expect("/api/rest/getBambooBuildNumber.action",
+				new BamboBuildNumberCalback("/mock/bamboo/3_0/api/rest/bambooBuildNumberResponse.xml"));
+		mockServer.expect("/rest/api/latest/plan/", new NewPlanListCallback());
 		mockServer.expect("/rest/api/latest/plan/TP-DEF", new LatestBuildResultCallbackNew());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());
 		final ConnectionCfg connectionCfg = new ConnectionCfg(s.getServerId().getId(), s.getUrl(), s.getUsername(),

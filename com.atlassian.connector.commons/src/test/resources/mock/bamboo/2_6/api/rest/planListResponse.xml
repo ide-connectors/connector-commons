@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<plans expand="plans">
+  <link rel="self" href="https://gdansk.bamboo2.atlassian.com/rest/api/latest/plan/"/>
+  <plans expand="plan" size="27" max-result="25" start-index="0">
+    <plan enabled="true" type="build" name="First Project - First Plan" key="PO-FP" expand="actions">
+      <projectKey>ACC</projectKey>
+      <projectName>Atlassian Connector Commons</projectName>
+      <link rel="self" href="https://gdansk.bamboo2.atlassian.com/rest/api/latest/plan/PO-FP"/>
+      <isFavourite>true</isFavourite>
+      <isActive>false</isActive>
+      <isBuilding>false</isBuilding>
+      <averageBuildTimeInSeconds>8.0</averageBuildTimeInSeconds>
+      <actions size="7" max-result="7" start-index="0"/>
+    </plan>
+    <plan enabled="true" type="build" name="First Project - Second Plan" key="PO-SECPLAN" expand="actions">
+      <projectKey>ACC</projectKey>
+      <projectName>Atlassian Connector Commons</projectName>
+      <link rel="self" href="https://gdansk.bamboo2.atlassian.com/rest/api/latest/plan/PO-SECPLAN"/>
+      <isFavourite>true</isFavourite>
+      <isActive>false</isActive>
+      <isBuilding>false</isBuilding>
+      <averageBuildTimeInSeconds>24.0</averageBuildTimeInSeconds>
+      <actions size="7" max-result="7" start-index="0"/>
+    </plan>
+    <plan enabled="true" type="build" name="First Project - Third Plan" key="PO-TP" expand="actions">
+      <projectKey>ACC</projectKey>
+      <projectName>Atlassian Connector Commons</projectName>
+      <link rel="self" href="https://gdansk.bamboo2.atlassian.com/rest/api/latest/plan/PO-TP"/>
+      <isFavourite>true</isFavourite>
+      <isActive>false</isActive>
+      <isBuilding>false</isBuilding>
+      <averageBuildTimeInSeconds>93.0</averageBuildTimeInSeconds>
+      <actions size="7" max-result="7" start-index="0"/>
+    </plan>
+    <plan enabled="false" type="build" name="Second Project - The Only Plan" key="PT-TOP" expand="actions">
+      <projectKey>ACC</projectKey>
+      <projectName>Atlassian Connector Commons</projectName>
+      <link rel="self" href="https://gdansk.bamboo2.atlassian.com/rest/api/latest/plan/PT-TOP"/>
+      <isFavourite>true</isFavourite>
+      <isActive>false</isActive>
+      <isBuilding>false</isBuilding>
+      <averageBuildTimeInSeconds>32.0</averageBuildTimeInSeconds>
+      <actions size="7" max-result="7" start-index="0"/>
+    </plan>
+  </plans>
+</plans>

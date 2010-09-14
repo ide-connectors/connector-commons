@@ -33,7 +33,7 @@ import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultVelocityCa
 import com.atlassian.theplugin.bamboo.api.bamboomock.LatestPlanCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LogoutCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.NewPlanListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.ProjectListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.RecentCompletedBuildResultsCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.Util;
@@ -159,9 +159,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testGetPlanList() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/api/rest/getBambooBuildNumber.action",
-				new BamboBuildNumberCalback("/mock/bamboo/3_0/api/rest/bambooBuildNumberResponse.xml"));
-		mockServer.expect("/rest/api/latest/plan/", new NewPlanListCallback());
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
+		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		BambooSession apiHandler = createBambooSession(mockBaseUrl);
@@ -201,8 +200,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	private void implTestBuildForPlanSuccess(int timezoneOffset) throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/rest/api/latest/plan/TP-DEF", new GenericResourceCallback(Util.RESOURCE_BASE_2_6
-				+ "/plan-TP-DEF.xml", "/rest/api/latest/plan/TP-DEF"));
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
@@ -239,8 +237,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	private void implTestGetLatestBuildForNeverExecutedPlan(final String fullFilePath) throws RemoteApiException {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/rest/api/latest/plan/TP-DEF", new GenericResourceCallback(Util.RESOURCE_BASE_2_6
-				+ "/plan-TP-DEF.xml", "/rest/api/latest/plan/TP-DEF"));
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("", fullFilePath));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
@@ -264,7 +261,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		assertEquals(mockBaseUrl + "/browse/TP-DEF", build.getBuildUrl());
 		assertNull(build.getTestSummary());
 		assertEquals(bambooServerCfg, build.getServer());
-		assertFalse(build.getEnabled());
+		assertTrue(build.getEnabled());
 		assertNull(build.getProjectName());
 		assertTrue(build.getPollingTime().getTime() >= now.getTime()
 				&& build.getPollingTime().getTime() <= new Date().getTime());
@@ -278,8 +275,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	private void implTestGetLatestBuildForPlanBamboo2x1x5(int timezoneOffset) throws RemoteApiException {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/rest/api/latest/plan/TP-DEF", new GenericResourceCallback(Util.RESOURCE_BASE_2_6
-				+ "/plan-TP-DEF.xml", "/rest/api/latest/plan/TP-DEF"));
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("",
 				"/mock/bamboo/2_1_5/api/rest/getLatestBuildForPlanResponse.xml"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
@@ -318,8 +314,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildForPlanFailure() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/rest/api/latest/plan/TP-DEF", new GenericResourceCallback(Util.RESOURCE_BASE_2_6
-				+ "/plan-TP-DEF.xml", "/rest/api/latest/plan/TP-DEF"));
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("FAILED"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
@@ -354,8 +349,8 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testBuildForNonExistingPlan() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/rest/api/latest/plan/TP-DEF", new GenericResourceCallback(
-				"/mock/bamboo/2_3/api/rest/planNotFoundResponse.xml", "/rest/api/latest/plan/TP-DEF"));
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
+		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("WRONG"));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		BambooSession apiHandler = createBambooSession(mockBaseUrl);
@@ -363,10 +358,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		BambooBuild build = apiHandler.getLatestBuildForPlan("TP-DEF", 0);
 		apiHandler.logout();
 
-		Assert.assertSame(BuildStatus.UNKNOWN, build.getStatus());
-		Assert.assertTrue(build.getPollingTime().getTime() - System.currentTimeMillis() < 5000);
-		Assert.assertEquals("Malformed server reply: no 'plan' element",
-				build.getErrorMessage());
+		Util.verifyErrorBuildResult(build);
 
 		mockServer.verify();
 	}
@@ -886,15 +878,10 @@ public class BambooSessionTest extends AbstractSessionTest {
 	}
 
 	public void testEnabledStatus() throws RemoteApiException {
-
-		mockServer.verify();
-
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/rest/api/latest/plan/PO-TP", new GenericResourceCallback(Util.RESOURCE_BASE_2_6
-				+ "/plan-ACC-CLO.xml", "/rest/api/latest/plan/PO-TP"));
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultVelocityCallback("PO-TP", 123));
-		mockServer.expect("/rest/api/latest/plan/PT-TOP", new GenericResourceCallback(Util.RESOURCE_BASE_2_6
-				+ "/plan-PT-TOP.xml", "/rest/api/latest/plan/PT-TOP"));
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultVelocityCallback("PT-TOP", 45));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 

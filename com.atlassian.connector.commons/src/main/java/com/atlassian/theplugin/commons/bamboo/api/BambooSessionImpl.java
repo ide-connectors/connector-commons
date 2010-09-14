@@ -72,9 +72,13 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 	private static final String LIST_PROJECT_ACTION = "/api/rest/listProjectNames.action";
 
+	private static final String LIST_PLAN_ACTION = "/api/rest/listBuildNames.action";
+
 	private static final String LATEST_BUILD_FOR_PLAN_ACTION = "/api/rest/getLatestBuildResults.action";
 
-	private static final String LIST_PLAN_ACTION = "/api/rest/listBuildNames.action";
+	private static final String PLAN_STATE = "/rest/api/latest/plan/";
+
+    private static final String GET_BUILD_ACTION = "/rest/api/latest/build/";
 
     private static final String GET_ISSUES_SUFFIX = "?expand=jiraIssues";
 
@@ -96,12 +100,6 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 	/** Bamboo 2.3 REST API */
 	private static final String GET_BUILD_BY_NUMBER_ACTION = "/rest/api/latest/build";
-
-	private static final String GET_PLAN_PATH = "/rest/api/latest/plan/";
-
-	private static final String GET_PLAN_DETAILS_SUFFIX = "?expand=plans.plan";
-
-	private static final String GET_BUILD_ACTION = "/rest/api/latest/build/";
 
 	private static final String BUILD_COMPLETED_DATE_ELEM = "buildCompletedDate";
 
@@ -186,7 +184,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	}
 
 	@NotNull
-	private List<BambooPlan> listPlanNamesOld() throws RemoteApiException {
+	private List<BambooPlan> listPlanNames() throws RemoteApiException {
 		String buildResultUrl = getBaseUrl() + LIST_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken);
 
 		List<BambooPlan> plans = new ArrayList<BambooPlan>();
@@ -217,31 +215,6 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		return plans;
 	}
 
-	@NotNull
-	private List<BambooPlan> listPlanNamesNew() throws RemoteApiException {
-		String buildResultUrl = getBaseUrl() + GET_PLAN_PATH + GET_PLAN_DETAILS_SUFFIX + "&auth="
-				+ UrlUtil.encodeUrl(authToken);
-
-		List<BambooPlan> plans = new ArrayList<BambooPlan>();
-		try {
-			Document doc = retrieveGetResponse(buildResultUrl);
-			XPath xpath = XPath.newInstance("/plans/plans/plan");
-			@SuppressWarnings("unchecked")
-			List<Element> elements = xpath.selectNodes(doc);
-			if (elements != null) {
-				for (Element element : elements) {
-					plans.add(constructPlanItem(element, Boolean.TRUE));
-				}
-			}
-		} catch (JDOMException e) {
-			throw new RemoteApiException("Server returned malformed response", e);
-		} catch (IOException e) {
-			throw new RemoteApiException(e.getMessage(), e);
-		}
-
-		return plans;
-	}
-
 	/**
 	 * Returns a {@link com.atlassian.theplugin.commons.bamboo.BambooBuild} information about the latest build in a
 	 * plan.
@@ -254,12 +227,9 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	@NotNull
 	public BambooBuild getLatestBuildForPlan(@NotNull String planKey, final int timezoneOffset)
 			throws RemoteApiException {
-		try {
-			final BambooPlan plan = getPlanDetails(planKey);
-			return getLatestBuildForPlan(planKey, plan.isEnabled(), timezoneOffset);
-		} catch (Exception e) {
-			return constructBuildErrorInfo(planKey, e.getMessage(), e, new Date()).build();
-		}
+		final List<BambooPlan> planList = listPlanNames();
+		final Boolean isEnabled = isPlanEnabled(planList, planKey);
+		return getLatestBuildForPlan(planKey, isEnabled != null ? isEnabled : true, timezoneOffset);
 	}
 
 	@Nullable
@@ -312,7 +282,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 	@NotNull
 	public BambooPlan getPlanDetails(@NotNull final String planKey) throws RemoteApiException {
-		String planUrl = getBaseUrl() + GET_PLAN_PATH + UrlUtil.encodeUrl(planKey) + "?auth=" + UrlUtil.encodeUrl(authToken);
+		String planUrl = getBaseUrl() + PLAN_STATE + UrlUtil.encodeUrl(planKey) + "?auth=" + UrlUtil.encodeUrl(authToken);
 
 		try {
 			Document doc = retrieveGetResponse(planUrl);
@@ -344,7 +314,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	public BambooBuild getLatestBuildForPlanNew(@NotNull final String planKey, final boolean isPlanEnabled,
 			final int timezoneOffset) throws RemoteApiException {
 
-		String planUrl = getBaseUrl() + GET_PLAN_PATH + UrlUtil.encodeUrl(planKey);
+		String planUrl = getBaseUrl() + PLAN_STATE + UrlUtil.encodeUrl(planKey);
 
 		try {
 			Document doc = retrieveGetResponse(planUrl);
@@ -1089,26 +1059,22 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 	@NotNull
 	public Collection<BambooPlan> getPlanList() throws RemoteApiException {
-		if (getBamboBuildNumber() < BAMBOO_2_6_BUILD_NUMBER) {
-			List<BambooPlan> plans = listPlanNamesOld();
-			try {
-				List<String> favPlans = getFavouriteUserPlans();
-				for (String fav : favPlans) {
-					for (ListIterator<BambooPlan> it = plans.listIterator(); it.hasNext();) {
-						final BambooPlan plan = it.next();
-						if (plan.getKey().equalsIgnoreCase(fav)) {
-							it.set(plan.withFavourite(true));
-							break;
-						}
+		List<BambooPlan> plans = listPlanNames();
+		try {
+			List<String> favPlans = getFavouriteUserPlans();
+			for (String fav : favPlans) {
+				for (ListIterator<BambooPlan> it = plans.listIterator(); it.hasNext();) {
+					final BambooPlan plan = it.next();
+					if (plan.getKey().equalsIgnoreCase(fav)) {
+						it.set(plan.withFavourite(true));
+						break;
 					}
 				}
-			} catch (RemoteApiException e) {
-				// lack of favourite info is not a blocker here
 			}
-			return plans;
-		} else {
-			return listPlanNamesNew();
+		} catch (RemoteApiException e) {
+			// lack of favourite info is not a blocker here
 		}
+		return plans;
 	}
 
 	@NotNull

@@ -18,14 +18,15 @@ package com.atlassian.theplugin.commons.bamboo.api;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.remoteapi.CaptchaRequiredException;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginFailedException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
-import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -33,6 +34,7 @@ import org.jdom.xpath.XPath;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -70,19 +72,37 @@ public class LoginBambooSession extends AbstractHttpSession implements ProductSe
 	 * @throws com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException
 	 *             on connection or authentication errors
 	 */
-	public void login(String name, char[] aPassword) throws RemoteApiLoginException {
-		String loginUrl;
+	public void login(final String name, char[] aPassword) throws RemoteApiLoginException {
+		String loginUrl, host = null;
 
 		if (name == null || aPassword == null) {
 			throw new RemoteApiLoginException("Corrupted configuration. Username or Password null");
 		}
-		String pass = String.valueOf(aPassword);
-		loginUrl = getBaseUrl() + LOGIN_ACTION + "?username=" + UrlUtil.encodeUrl(name) + "&password="
-				+ UrlUtil.encodeUrl(pass) + "&os_username=" + UrlUtil.encodeUrl(name) + "&os_password="
-				+ UrlUtil.encodeUrl(pass);
+		final String pass = String.valueOf(aPassword);
+		// loginUrl = getBaseUrl() + LOGIN_ACTION + "?username=" + UrlUtil.encodeUrl(name) + "&password="
+		// + UrlUtil.encodeUrl(pass) + "&os_username=" + UrlUtil.encodeUrl(name) + "&os_password="
+		// + UrlUtil.encodeUrl(pass);
+
+		loginUrl = getBaseUrl() + LOGIN_ACTION;
 
 		try {
-			Document doc = retrieveGetResponse(loginUrl);
+			try {
+				host = new URL(getBaseUrl()).getHost();
+			} catch (MalformedURLException e) {
+				throw new RemoteApiException(e.getMessage(), e);
+			}
+
+			// Document doc = retrieveGetResponse(loginUrl);
+			Document doc = retrievePostResponseInternalImpl(loginUrl, new PostMethodPreparer() {
+				public void prepare(PostMethod login) throws UnsupportedEncodingException {
+					login.addRequestHeader("Accept", "application/xml;q=0.9,*/*");
+					login.addParameter("os_username", name); //$NON-NLS-1$
+					login.addParameter("os_password", pass); //$NON-NLS-1$
+					login.addParameter("username", name); //$NON-NLS-1$
+					login.addParameter("password", pass); //$NON-NLS-1$
+				}
+			}, true, 0);
+
 			String exception = getExceptionMessages(doc);
 			if (null != exception) {
 				throw new RemoteApiLoginFailedException(exception);
@@ -98,23 +118,26 @@ public class LoginBambooSession extends AbstractHttpSession implements ProductSe
 						+ elements.size() + ")");
 			}
 			this.authToken = elements.get(0).getText();
-		} catch (MalformedURLException e) {
-			throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
-		} catch (UnknownHostException e) {
-			throw new RemoteApiLoginException("Unknown host: " + e.getMessage(), e);
-		} catch (IOException e) {
+		} catch (RemoteApiException e) {
 			if (e.getCause() != null && e.getCause().getMessage().contains("maximum")) {
 				throw new CaptchaRequiredException(e);
+			} else if (e.getCause() instanceof UnknownHostException) {
+				throw new RemoteApiLoginException("Unknown host: " + host, e);
+			} else if (e.getCause() instanceof MalformedURLException) {
+				throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
 			}
 			throw new RemoteApiLoginException(e.getMessage(), e);
 		} catch (JDOMException e) {
 			throw new RemoteApiLoginException("Server returned malformed response", e);
-		} catch (RemoteApiSessionExpiredException e) {
-			throw new RemoteApiLoginException("Session expired", e);
 		} catch (IllegalArgumentException e) {
 			throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
 		}
-
+		// catch (IOException e) {
+		// if (e.getCause() != null && e.getCause().getMessage().contains("maximum")) {
+		// throw new CaptchaRequiredException(e);
+		// }
+		// throw new RemoteApiLoginException(e.getMessage(), e);
+		// }
 	}
 
 	public void logout() {

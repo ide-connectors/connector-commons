@@ -335,7 +335,7 @@ public abstract class AbstractHttpSession {
         return retrievePostResponseInternal(urlString, request, expectResponse, 0);
     }
 
-	private interface PostMethodPreparer {
+	protected interface PostMethodPreparer {
 		void prepare(PostMethod postMethod) throws UnsupportedEncodingException;
 	}
 
@@ -351,7 +351,7 @@ public abstract class AbstractHttpSession {
 		}, expectResponse, redirectCounter);
 	}
 
-	private Document retrievePostResponseInternalImpl(String urlString, PostMethodPreparer postMethodPreparer,
+	protected Document retrievePostResponseInternalImpl(String urlString, PostMethodPreparer postMethodPreparer,
 			boolean expectResponse, int redirectCounter)
 			throws JDOMException, RemoteApiException {
 		try {
@@ -379,7 +379,6 @@ public abstract class AbstractHttpSession {
 				callback.configureHttpMethod(this, method);
 				postMethodPreparer.prepare(method);
 
-
 				client.executeMethod(method);
 
 				final int httpStatus = method.getStatusCode();
@@ -399,6 +398,12 @@ public abstract class AbstractHttpSession {
                         throw new RemoteApiException(
                                 "Connection error. Received too many redirects (more than " + MAX_REDIRECTS + ")");
                     }
+				} else if (httpStatus == HttpStatus.SC_FORBIDDEN) {
+					final String errorDescription = "HTTP " + HttpStatus.SC_FORBIDDEN + " ("
+							+ HttpStatus.getStatusText(HttpStatus.SC_FORBIDDEN) + ")";
+					LoggerImpl.getInstance().info(errorDescription + "\n" + method.getStatusText());
+
+					throw new RemoteApiException(errorDescription, new Exception(method.getResponseBodyAsString()));
                 } else if (httpStatus != HttpStatus.SC_OK && httpStatus != HttpStatus.SC_CREATED) {
 
 					Document document;
@@ -415,8 +420,10 @@ public abstract class AbstractHttpSession {
 			} catch (NullPointerException e) {
 				throw new RemoteApiException("Connection error to [" + urlString + "]", e);
 			} catch (IOException e) {
-				throw new RemoteApiException(IOException.class.getSimpleName() + " encountered while posting data to ["
-						+ urlString + "]: " + e.getMessage(), e);
+				throw new RemoteApiException(e.getMessage(), e);
+				// TODO jj PLE-1245 we may need below extended description for some reason (if yes, then restore it)
+				// throw new RemoteApiException(IOException.class.getSimpleName() + " encountered while posting data to ["
+				// + urlString + "]: " + e.getMessage(), e);
 			} finally {
                 preprocessMethodResult(method);
 				method.releaseConnection();

@@ -118,6 +118,8 @@ public class LoginBambooSession extends AbstractHttpSession implements ProductSe
 						+ elements.size() + ")");
 			}
 			this.authToken = elements.get(0).getText();
+		} catch (RemoteApiLoginFailedException e) {
+			throw e;
 		} catch (RemoteApiException e) {
 			if (e.getCause() != null && e.getCause().getMessage().contains("maximum")) {
 				throw new CaptchaRequiredException(e);
@@ -126,6 +128,7 @@ public class LoginBambooSession extends AbstractHttpSession implements ProductSe
 			} else if (e.getCause() instanceof MalformedURLException) {
 				throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
 			}
+
 			throw new RemoteApiLoginException(e.getMessage(), e);
 		} catch (JDOMException e) {
 			throw new RemoteApiLoginException("Server returned malformed response", e);

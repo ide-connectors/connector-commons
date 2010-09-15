@@ -288,7 +288,6 @@ public abstract class AbstractHttpSession {
 					if (lastModified != null && eTag != null) {
 						cacheRecord = new CacheRecord(result, lastModified, eTag);
 						cache.put(urlString, cacheRecord);
-//						System.out.println("Latest GET response document placed in cache: " + new String(result));
 					}
 					return result;
 				}

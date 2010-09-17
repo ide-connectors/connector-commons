@@ -745,6 +745,14 @@ public class JIRASessionImpl implements JIRASession {
         } catch (ClassCastException e) {
             throw new RemoteApiException("Soap axis remote request failed to properly cast response while "
                     + "acquiring issue attachments", e);
+        } catch (Exception e) {
+            if (e.getMessage().contains("Bad types")) {
+                throw new RemoteApiException("Soap axis remote request failed to properly cast response while "
+                    + "acquiring issue attachments", e);
+            } else {
+                throw new RemoteApiException(e.toString(), e);
         }
+
     }
-}
+}}
+

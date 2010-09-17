@@ -177,7 +177,7 @@ public class ProjectConfiguration {
 		// no additional check - let IDE handle such error in a standard way (error dialog)
 		// in unlikely event of some fuck-up
 		final CrucibleServerCfg crucible = (CrucibleServerCfg) serverCfg;
-		if (!crucible.isEnabled()) {
+		if (crucible == null || !crucible.isEnabled()) {
 			return null;
 		}
 		return crucible;

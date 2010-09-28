@@ -13,11 +13,12 @@
 		<url>http://atlassian.com/</url>
 	</organization>
 	<scm>
-		<connection>scm:hg:https://bitbucket.org/atlassian/connector-commons/</connection>
-		<developerConnection>scm:hg:https://bitbucket.org/atlassian/connector-commons/</developerConnection>
+		<connection>scm:hg:file:///home/pmaruszak/dev.test/commons.ssh/com.atlassian.connector.commons/</connection>
+		<developerConnection>scm:hg:file:///home/pmaruszak/dev.test/commons.ssh/com.atlassian.connector.commons/</developerConnection>
 		<url>https://bitbucket.org/atlassian/connector-commons/</url>
 	</scm>
 	<issueManagement>
+		<system>Jira</system>
 		<system>Jira</system>
 		<url>https://studio.atlassian.com/browse/ACC</url>
 	</issueManagement>

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.atlassian.connector</groupId>
 	<artifactId>atlassian-connector-commons</artifactId>
-	<version>4.0.0-SNAPSHOT</version>
+	<version>4.0.0-m4</version>
 	<packaging>jar</packaging>
 	<inceptionYear>2008</inceptionYear>
 	<name>Library of common classes</name>
@@ -18,7 +18,6 @@
 		<url>https://bitbucket.org/atlassian/connector-commons/</url>
 	</scm>
 	<issueManagement>
-		<system>Jira</system>
 		<system>Jira</system>
 		<url>https://studio.atlassian.com/browse/ACC</url>
 	</issueManagement>

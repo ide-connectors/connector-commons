@@ -17,17 +17,7 @@
 package com.atlassian.connector.commons.jira;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
-import com.atlassian.connector.commons.jira.beans.JIRAAttachment;
-import com.atlassian.connector.commons.jira.beans.JIRAComment;
-import com.atlassian.connector.commons.jira.beans.JIRAComponentBean;
-import com.atlassian.connector.commons.jira.beans.JIRAConstant;
-import com.atlassian.connector.commons.jira.beans.JIRAPriorityBean;
-import com.atlassian.connector.commons.jira.beans.JIRAProject;
-import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
-import com.atlassian.connector.commons.jira.beans.JIRAResolutionBean;
-import com.atlassian.connector.commons.jira.beans.JIRASecurityLevelBean;
-import com.atlassian.connector.commons.jira.beans.JIRAUserBean;
-import com.atlassian.connector.commons.jira.beans.JIRAVersionBean;
+import com.atlassian.connector.commons.jira.beans.*;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
 import com.atlassian.connector.commons.jira.rss.JIRARssClient;
 import com.atlassian.connector.commons.jira.rss.JiraRssAutoRenewClient;
@@ -42,11 +32,7 @@ import com.atlassian.theplugin.commons.util.Logger;
 
 import javax.xml.rpc.ServiceException;
 import java.net.MalformedURLException;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 
 public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
 
@@ -54,13 +40,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
     private final AxisSessionCallback axisCallback;
     private static Logger logger;
 
-    private final Map<String, JiraRssAutoRenewClient> rssSessions = new WeakHashMap<String, JiraRssAutoRenewClient>();
-    private final Map<String, JIRASession> soapSessions = new WeakHashMap<String, JIRASession>();
+    private final Map<String, JiraRssAutoRenewClient> rssSessions = new HashMap<String, JiraRssAutoRenewClient>();
+    private final Map<String, JIRASession> soapSessions = new HashMap<String, JIRASession>();
 
-    private String getSoapSessionKey(ConnectionCfg httpConnectionCfg) {
-        return httpConnectionCfg.getUsername() + httpConnectionCfg.getUrl() + httpConnectionCfg.getPassword();
+    private static final long FIVE_MINUTES = 5 * 60 * 1000;
+
+    private String getSessionKey(ConnectionCfg httpConnectionCfg) {
+        return httpConnectionCfg.getUrl() + "_" + httpConnectionCfg.getUsername() + "_" + httpConnectionCfg.getPassword();
     }
-
 
     public JIRAServerFacade2Impl(HttpSessionCallback callback, AxisSessionCallback axisCallback) {
         this.callback = callback;
@@ -68,7 +55,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
     }
 
     private synchronized JIRASession getSoapSession(ConnectionCfg connectionCfg) throws RemoteApiException {
-        String key = getSoapSessionKey(connectionCfg);
+        String key = getSessionKey(connectionCfg);
 
         JIRASession session = soapSessions.get(key);
         if (session == null) {
@@ -80,7 +67,6 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
                 throw new RemoteApiException(e);
             }
 
-
             session.login(connectionCfg.getUsername(), connectionCfg.getPassword());
             soapSessions.put(key, session);
         }
@@ -88,16 +74,28 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
     }
 
     private synchronized JiraRssAutoRenewClient getRssSession(ConnectionCfg server) throws RemoteApiException {
-        // @todo old server will stay on map - remove them !!!
-        String key = server.getUsername() + server.getUrl() + server.getPassword();
+        String key = getSessionKey(server);
+
         JiraRssAutoRenewClient session = rssSessions.get(key);
-        if (session == null) {
-            session = new JiraRssAutoRenewClient(new JIRARssClient(server, callback));
+
+        // sessions should time out after 5 mins to avoid silent session drop on JIRA side
+        if (session == null || (session.getLastUsed().getTime() < new Date().getTime() - FIVE_MINUTES)) {
+            JIRARssClient client = new JIRARssClient(server, callback);
+            try {
+                client.login();
+            } catch (JIRAException e) {
+                throw new RemoteApiException(e);
+            }
+            session = new JiraRssAutoRenewClient(client);
             rssSessions.put(key, session);
         }
+        session.setLastUsed(new Date());
         return session;
     }
 
+    private synchronized void removeRssSession(ConnectionCfg server) {
+        rssSessions.remove(getSessionKey(server));
+    }
 
     public void testServerConnection(ConnectionCfg httpConnectionCfg)
             throws RemoteApiException {
@@ -122,13 +120,13 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
 
     public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, String queryString, String sort,
                                      String sortOrder, int start, int size) throws JIRAException {
-        JiraRssAutoRenewClient rss;
         try {
-            rss = getRssSession(httpConnectionCfg);
+            JiraRssAutoRenewClient rss = getRssSession(httpConnectionCfg);
+            return rss.getIssues(queryString, sort, sortOrder, start, size);
         } catch (RemoteApiException e) {
+            removeRssSession(httpConnectionCfg);
             throw new JIRAException(e.getMessage(), e);
         }
-        return rss.getIssues(queryString, sort, sortOrder, start, size);
     }
 
     public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg,
@@ -137,13 +135,13 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
                                      String sortOrder,
                                      int start,
                                      int size) throws JIRAException {
-        JiraRssAutoRenewClient rss;
         try {
-            rss = getRssSession(httpConnectionCfg);
+            JiraRssAutoRenewClient rss = getRssSession(httpConnectionCfg);
+            return rss.getIssues(query, sort, sortOrder, start, size);
         } catch (RemoteApiException e) {
+            removeRssSession(httpConnectionCfg);
             throw new JIRAException(e.getMessage(), e);
         }
-        return rss.getIssues(query, sort, sortOrder, start, size);
     }
 
     public List<JIRAIssue> getSavedFilterIssues(ConnectionCfg httpConnectionCfg,
@@ -152,27 +150,27 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
                                                 String sortOrder,
                                                 int start,
                                                 int size) throws JIRAException {
-        JiraRssAutoRenewClient rss;
         try {
-            rss = getRssSession(httpConnectionCfg);
+            JiraRssAutoRenewClient rss = getRssSession(httpConnectionCfg);
+            if (query.size() != 1) {
+                throw new JIRAException("Only one saved filter could be used for query");
+            } else {
+                return rss.getSavedFilterIssues(query.get(0), sort, sortOrder, start, size);
+            }
         } catch (RemoteApiException e) {
+            removeRssSession(httpConnectionCfg);
             throw new JIRAException(e.getMessage(), e);
-        }
-        if (query.size() != 1) {
-            throw new JIRAException("Only one saved filter could be used for query");
-        } else {
-            return rss.getSavedFilterIssues(query.get(0), sort, sortOrder, start, size);
         }
     }
 
     public JIRAIssue getIssue(ConnectionCfg httpConnectionCfg, String key) throws JIRAException {
-        JiraRssAutoRenewClient rss;
         try {
-            rss = getRssSession(httpConnectionCfg);
+            JiraRssAutoRenewClient rss = getRssSession(httpConnectionCfg);
+            return rss.getIssue(key);
         } catch (RemoteApiException e) {
+            removeRssSession(httpConnectionCfg);
             throw new JIRAException(e.getMessage(), e);
         }
-        return rss.getIssue(key);
     }
 
     public List<JIRAProject> getProjects(ConnectionCfg server) throws JIRAException {
@@ -180,7 +178,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(server);
             return soap.getProjects();
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(server));
+            soapSessions.remove(getSessionKey(server));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -190,7 +188,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(httpConnectionCfg);
             return soap.getIssueTypes();
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(httpConnectionCfg));
+            soapSessions.remove(getSessionKey(httpConnectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -201,7 +199,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(httpConnectionCfg);
             return soap.getIssueTypesForProject(project);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(httpConnectionCfg));
+            soapSessions.remove(getSessionKey(httpConnectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -211,7 +209,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(httpConnectionCfg);
             return soap.getSubtaskIssueTypes();
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(httpConnectionCfg));
+            soapSessions.remove(getSessionKey(httpConnectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -222,18 +220,17 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             return soap.getSubtaskIssueTypesForProject(project);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
-
 
     public List<JIRAConstant> getStatuses(ConnectionCfg connection) throws JIRAException {
         try {
             JIRASession soap = getSoapSession(connection);
             return soap.getStatuses();
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connection));
+            soapSessions.remove(getSessionKey(connection));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -243,7 +240,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             soap.addComment(issueKey, comment);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -254,7 +251,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             soap.addAttachment(issueKey, name, content);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -265,7 +262,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRAIssue i = soap.createIssue(issue);
             return getIssue(connectionCfg, i.getKey());
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -277,7 +274,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             soap.logWork(issue, timeSpent, startDate, comment, updateEstimate, newEstimate);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -287,7 +284,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             return soap.getComponents(projectKey);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -297,7 +294,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             return soap.getVersions(projectKey);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             if (e == null) {
                 logger.warn("PL-1710: e is null");
             } else if (e.getMessage() == null) {
@@ -315,7 +312,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             return soap.getPriorities();
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -325,7 +322,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             return soap.getResolutions();
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -335,7 +332,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             return soap.getSavedFilters();
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -345,7 +342,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             return soap.getAvailableActions(issue);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -356,7 +353,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             return soap.getFieldsForAction(issue, action);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -367,7 +364,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             soap.setField(issue, fieldId, value);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -378,7 +375,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
 			JIRASession soap = getSoapSession(connectionCfg);
 			soap.setField(issue, fieldId, values);
 		} catch (RemoteApiException e) {
-			soapSessions.remove(getSoapSessionKey(connectionCfg));
+			soapSessions.remove(getSessionKey(connectionCfg));
 			throw new JIRAException(e.getMessage(), e);
 		}
 	}
@@ -388,7 +385,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
 			JIRASession soap = getSoapSession(connectionCfg);
 			soap.setFields(issue, fields);
 		} catch (RemoteApiException e) {
-			soapSessions.remove(getSoapSessionKey(connectionCfg));
+			soapSessions.remove(getSessionKey(connectionCfg));
 			throw new JIRAException(e.getMessage(), e);
 		}
 	}
@@ -399,7 +396,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             return soap.getComments(issue);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -410,7 +407,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             return soap.getIssueAttachements(issue);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -426,7 +423,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             soap.progressWorkflowAction(issue, action, fields);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -436,7 +433,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             return soap.getIssueDetails(issue);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -447,7 +444,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             return soap.getUser(loginName);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -457,10 +454,8 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             JIRASession soap = getSoapSession(connectionCfg);
             return soap.getSecurityLevels(projectKey);
         } catch (RemoteApiException e) {
-            soapSessions.remove(getSoapSessionKey(connectionCfg));
+            soapSessions.remove(getSessionKey(connectionCfg));
             throw new JIRAException(e.getMessage(), e);
         }
-
-
     }
 }

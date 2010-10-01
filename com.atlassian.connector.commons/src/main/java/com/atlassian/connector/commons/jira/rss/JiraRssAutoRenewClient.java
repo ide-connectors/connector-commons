@@ -18,6 +18,7 @@ package com.atlassian.connector.commons.jira.rss;
 import com.atlassian.connector.commons.jira.JIRAIssue;
 import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,6 +29,7 @@ import java.util.List;
 public class JiraRssAutoRenewClient {
     private final JIRARssClient rssClient;
 
+    private Date lastUsed;
 
     public JiraRssAutoRenewClient(JIRARssClient rssClient) {
         this.rssClient = rssClient;
@@ -35,39 +37,32 @@ public class JiraRssAutoRenewClient {
 
     public List<JIRAIssue> getIssues(String queryString, String sortBy, String sortOrder, int start, int max)
             throws JIRAException {
-//        if (!rssClient.isLoggedIn()) {
-//            rssClient.login();
-//        }
-        return rssClient.getIssues(queryString, sortBy, sortOrder, start, max);  
+        return rssClient.getIssues(queryString, sortBy, sortOrder, start, max);
     }
 
     public List<JIRAIssue> getIssues(List<JIRAQueryFragment> fragments, String sortBy, String sortOrder,
                                      int start, int max) throws JIRAException {
-//        if (!rssClient.isLoggedIn()) {
-//            rssClient.login();
-//        }
         return rssClient.getIssues(fragments, sortBy, sortOrder, start, max);
     }
 
     public List<JIRAIssue> getAssignedIssues(String assignee) throws JIRAException {
-//        if (!rssClient.isLoggedIn()) {
-//            rssClient.login();
-//        }
         return rssClient.getAssignedIssues(assignee);
     }
 
     public List<JIRAIssue> getSavedFilterIssues(JIRAQueryFragment fragment, String sortBy, String sortOrder, int start,
                                                 int max) throws JIRAException {
-//        if (!rssClient.isLoggedIn()) {
-//            rssClient.login();
-//        }
         return rssClient.getSavedFilterIssues(fragment, sortBy, sortOrder, start, max);
     }
 
     public JIRAIssue getIssue(String issueKey) throws JIRAException {
-//        if (!rssClient.isLoggedIn()) {
-//            rssClient.login();
-//        }
         return rssClient.getIssue(issueKey);
+    }
+
+    public Date getLastUsed() {
+        return lastUsed;
+    }
+
+    public void setLastUsed(Date lastUsed) {
+        this.lastUsed = lastUsed;
     }
 }

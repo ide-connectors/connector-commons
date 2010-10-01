@@ -13,9 +13,9 @@
 		<url>http://atlassian.com/</url>
 	</organization>
 	<scm>
-		<connection>scm:svn:https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.commons</connection>
-		<developerConnection>scm:svn:https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.commons</developerConnection>
-		<url>https://studio.atlassian.com/svn/ACC/trunk/com.atlassian.connector.commons</url>
+		<connection>scm:hg:ssh://bitbucket.org/atlassian/connector-commons/</connection>
+		<developerConnection>scm:hg:ssh://bitbucket.org/atlassian/connector-commons/</developerConnection>
+		<url>https://bitbucket.org/atlassian/connector-commons/</url>
 	</scm>
 	<issueManagement>
 		<system>Jira</system>
@@ -113,8 +113,8 @@
 		<dependency>
 			<groupId>com.intellij.idea</groupId>
 			<artifactId>annotations</artifactId>
-			<version>7.0</version>
-			<classifier>7590</classifier>
+ 			<version>8.1.4</version>
+		        <classifier>9952</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.mortbay.jetty</groupId>

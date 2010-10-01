@@ -45,9 +45,7 @@ import org.jdom.JDOMException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.atlassian.theplugin.commons.util.UrlUtil.encodeUrl;
 
@@ -123,7 +121,7 @@ public class JIRARssClient extends AbstractHttpSession {
         url.append("&sorter/order=").append(sortOrder);
         url.append("&pager/start=").append(start);
         url.append("&tempMax=").append(max);
-        url.append(appendAuthentication(false));
+//        url.append(appendAuthentication(false));
 
         try {
             Document doc = retrieveGetResponse(url.toString());
@@ -168,7 +166,8 @@ public class JIRARssClient extends AbstractHttpSession {
     public List<JIRAIssue> getAssignedIssues(String assignee) throws JIRAException {
         String url = getBaseUrl() + "/sr/jira.issueviews:searchrequest-xml"
                 + "/temp/SearchRequest.xml?resolution=-1&assignee=" + encodeUrl(assignee)
-                + "&sorter/field=updated&sorter/order=DESC&tempMax=100" + appendAuthentication(false);
+                + "&sorter/field=updated&sorter/order=DESC&tempMax=100"; 
+//                + appendAuthentication(false);
 
         try {
             Document doc = retrieveGetResponse(url);
@@ -209,7 +208,7 @@ public class JIRARssClient extends AbstractHttpSession {
         url.append("&pager/start=").append(start);
         url.append("&tempMax=").append(max);
 
-        url.append(appendAuthentication(false));
+//        url.append(appendAuthentication(false));
 
         try {
             Document doc = retrieveGetResponse(url.toString());
@@ -234,7 +233,7 @@ public class JIRARssClient extends AbstractHttpSession {
         StringBuffer url = new StringBuffer(getBaseUrl() + "/si/jira.issueviews:issue-xml/");
         url.append(issueKey).append('/').append(issueKey).append(".xml");
 
-        url.append(appendAuthentication(true));
+//        url.append(appendAuthentication(true));
 
         try {
             Document doc = retrieveGetResponse(url.toString());
@@ -269,21 +268,24 @@ public class JIRARssClient extends AbstractHttpSession {
         return result;
     }
 
-    private String appendAuthentication(boolean firstItem) {
-        final String username = getUsername();
-
-        if (username != null) {
-            return (firstItem ? "?" : "&")
-                    + "os_username=" + encodeUrl(username)
-                    + "&os_password=" + encodeUrl(getPassword());
-        }
-        return "";
-    }
+//    private String appendAuthentication(boolean firstItem) {
+//        final String username = getUsername();
+//
+//        if (username != null) {
+//            return (firstItem ? "?" : "&")
+//                    + "os_username=" + encodeUrl(username)
+//                    + "&os_password=" + encodeUrl(getPassword());
+//        }
+//        return "";
+//    }
 
     public void login() throws JIRAException {
         try {
             login = true;
-            super.retrievePostResponse(httpConnectionCfg.getUrl() + "/secure/Dashboard.jspa", "", false);
+            Map<String, String> loginParams = new HashMap<String, String>();
+            loginParams.put("os_username", httpConnectionCfg.getUsername());
+            loginParams.put("os_password", httpConnectionCfg.getPassword());
+            super.retrievePostResponseWithForm(httpConnectionCfg.getUrl() + "/secure/Dashboard.jspa", loginParams, false);
         } catch (JDOMException e) {
             throw new JIRAException(e.getMessage());
         } catch (RemoteApiException e) {

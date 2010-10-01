@@ -111,6 +111,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 	private static final int BAMBOO_23_BUILD_NUMBER = 1308;
 	private static final int BAMBOO_2_6_BUILD_NUMBER = 1839;
+	private static final int BAMBOO_3_0_m8_BUILD_NUMBER = 2027;
 
 	private static final String CANNOT_PARSE_BUILD_TIME = "Cannot parse buildTime.";
     private static final String INVALID_SERVER_RESPONSE = "Invalid server response";
@@ -471,6 +472,37 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 			if (elements != null) {
 				for (Element element : elements) {
 					builds.add(element.getChildText("key"));
+				}
+				return builds;
+			} else {
+				return builds;
+			}
+		} catch (IOException e) {
+			return builds;
+		} catch (JDOMException e) {
+			return builds;
+		}
+	}
+
+	@NotNull
+	public List<String> getFavouriteUserPlansNew() throws RemoteApiException {
+		List<String> builds = new ArrayList<String>();
+		String buildResultUrl = getBaseUrl() + PLAN_STATE + "?favourite&expand=plans.plan.stages.stage.plans.plan" + "&auth="
+				+ UrlUtil.encodeUrl(authToken);
+
+		try {
+			Document doc = retrieveGetResponse(buildResultUrl);
+			String exception = getExceptionMessages(doc);
+			if (null != exception) {
+				return builds;
+			}
+
+			final XPath xpath = XPath.newInstance("/plans/plans/plan/stages/stage/plans/plan");
+			@SuppressWarnings("unchecked")
+			final List<Element> elements = xpath.selectNodes(doc);
+			if (elements != null) {
+				for (Element element : elements) {
+					builds.add(element.getAttributeValue("key"));
 				}
 				return builds;
 			} else {
@@ -1061,7 +1093,12 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	public Collection<BambooPlan> getPlanList() throws RemoteApiException {
 		List<BambooPlan> plans = listPlanNames();
 		try {
-			List<String> favPlans = getFavouriteUserPlans();
+			List<String> favPlans;
+			if (getBamboBuildNumber() >= BAMBOO_3_0_m8_BUILD_NUMBER) {
+				favPlans = getFavouriteUserPlansNew();
+			} else {
+				favPlans = getFavouriteUserPlans();
+			}
 			for (String fav : favPlans) {
 				for (ListIterator<BambooPlan> it = plans.listIterator(); it.hasNext();) {
 					final BambooPlan plan = it.next();

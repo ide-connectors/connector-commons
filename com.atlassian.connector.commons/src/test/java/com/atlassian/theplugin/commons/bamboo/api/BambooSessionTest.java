@@ -817,6 +817,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testExecuteBuild() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/executeBuild.action", new ExecuteBuildCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
@@ -830,6 +831,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testExecuteBuildFailed() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/executeBuild.action", new ExecuteBuildCallback(ExecuteBuildCallback.NON_EXIST_FAIL));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 

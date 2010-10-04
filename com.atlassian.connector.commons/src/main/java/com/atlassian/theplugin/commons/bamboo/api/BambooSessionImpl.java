@@ -43,6 +43,7 @@ import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import com.atlassian.theplugin.commons.util.XmlUtil;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -82,6 +83,8 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
     private static final String GET_ISSUES_SUFFIX = "?expand=jiraIssues";
 
+	private static final String BUILD_QUEUE_SERVICE = "/rest/api/latest/queue/";
+
 	private static final String RECENT_BUILDS_FOR_PLAN_ACTION = "/api/rest/getRecentlyCompletedBuildResultsForBuild.action";
 
 	private static final String RECENT_BUILDS_FOR_USER_ACTION = "/api/rest/getLatestBuildsByUser.action";
@@ -111,7 +114,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 	private static final int BAMBOO_23_BUILD_NUMBER = 1308;
 	private static final int BAMBOO_2_6_BUILD_NUMBER = 1839;
-	private static final int BAMBOO_3_0_m8_BUILD_NUMBER = 2027;
+	private static final int BAMBOO_3_0_M8_BUILD_NUMBER = 2027;
 
 	private static final String CANNOT_PARSE_BUILD_TIME = "Cannot parse buildTime.";
     private static final String INVALID_SERVER_RESPONSE = "Invalid server response";
@@ -812,6 +815,17 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	}
 
 	public void executeBuild(@NotNull String planKey) throws RemoteApiException {
+
+		if (getBamboBuildNumber() >= BAMBOO_3_0_M8_BUILD_NUMBER) {
+			// workaround for PLE-1272 (we need to switch to the new Bamboo items hierarchy: chains/stages/jobs vs plans/builds)
+			planKey = StringUtils.substringBeforeLast(planKey, "-");
+			executeBuildNewApi(planKey);
+		} else {
+			executeBuildOldApi(planKey);
+		}
+	}
+
+	private void executeBuildOldApi(String planKey) throws RemoteApiException {
 		String buildResultUrl;
 
 		buildResultUrl = getBaseUrl() + EXECUTE_BUILD_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken) + "&buildKey="
@@ -828,7 +842,21 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		} catch (IOException e) {
 			throw new RemoteApiException(e.getMessage(), e);
 		}
+
 	}
+
+
+	private void executeBuildNewApi(String planKey) throws RemoteApiException {
+		String url = getBaseUrl() + BUILD_QUEUE_SERVICE + UrlUtil.encodeUrl(planKey) + "?auth="
+				+ UrlUtil.encodeUrl(authToken);
+
+		try {
+			retrievePostResponse(url, "", false);
+		} catch (JDOMException e) {
+			throw new RemoteApiException("Server returned malformed response", e);
+		}
+	}
+
 
 	BambooBuildInfo.Builder constructBuildErrorInfo(String planKey, String message, Date lastPollingTime) {
 		return new BambooBuildInfo.Builder(planKey, null, serverData, null, null, BuildStatus.UNKNOWN).pollingTime(
@@ -1094,7 +1122,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		List<BambooPlan> plans = listPlanNames();
 		try {
 			List<String> favPlans;
-			if (getBamboBuildNumber() >= BAMBOO_3_0_m8_BUILD_NUMBER) {
+			if (getBamboBuildNumber() >= BAMBOO_3_0_M8_BUILD_NUMBER) {
 				favPlans = getFavouriteUserPlansNew();
 			} else {
 				favPlans = getFavouriteUserPlans();

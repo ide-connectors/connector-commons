@@ -374,6 +374,7 @@ public abstract class AbstractHttpSession {
 				// method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
 				method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 				method.getParams().setSoTimeout(client.getParams().getSoTimeout());
+				method.addRequestHeader("Accept", "application/xml");
 
 				callback.configureHttpMethod(this, method);
 				postMethodPreparer.prepare(method);
@@ -544,6 +545,15 @@ public abstract class AbstractHttpSession {
 
 		{
 			XPath xpath = XPath.newInstance("error/message");
+			@SuppressWarnings("unchecked")
+			final List<Element> messages = xpath.selectNodes(document);
+			if (messages != null && !messages.isEmpty()) {
+				textBuilder.append("\nMessage: ").append(messages.get(0).getValue());
+			}
+		}
+
+		{
+			XPath xpath = XPath.newInstance("status/message");
 			@SuppressWarnings("unchecked")
 			final List<Element> messages = xpath.selectNodes(document);
 			if (messages != null && !messages.isEmpty()) {

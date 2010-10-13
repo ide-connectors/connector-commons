@@ -421,7 +421,7 @@ public abstract class AbstractHttpSession {
 				throw new RemoteApiException("Connection error to [" + urlString + "]", e);
 			} catch (IOException e) {
 				throw new RemoteApiException(e.getMessage(), e);
-				// TODO jj PLE-1245 we may need below extended description for some reason (if yes, then restore it)
+				// TODO PLE-1245 we may need below extended description for some reason (if yes, then restore it)
 				// throw new RemoteApiException(IOException.class.getSimpleName() + " encountered while posting data to ["
 				// + urlString + "]: " + e.getMessage(), e);
 			} finally {

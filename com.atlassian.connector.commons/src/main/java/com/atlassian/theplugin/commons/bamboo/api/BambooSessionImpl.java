@@ -289,8 +289,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 	@NotNull
 	public BambooPlan getPlanDetails(@NotNull final String planKey) throws RemoteApiException {
-		// TODO jj remove token
-		String planUrl = getBaseUrl() + PLAN_STATE + UrlUtil.encodeUrl(planKey) + "?auth=" + UrlUtil.encodeUrl(authToken);
+		String planUrl = getBaseUrl() + PLAN_STATE + UrlUtil.encodeUrl(planKey);
 
 		try {
 			Document doc = retrieveGetResponse(planUrl);
@@ -493,10 +492,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	@NotNull
 	public List<String> getFavouriteUserPlansNew() throws RemoteApiException {
 		List<String> builds = new ArrayList<String>();
-		// String buildResultUrl = getBaseUrl() + PLAN_STATE + "?favourite&expand=plans.plan.stages.stage.plans.plan" + "&auth="
-		String buildResultUrl = getBaseUrl() + PLAN_STATE + "?favourite&expand=plans.plan.stages.stage.plans.plan" + "&auth="
-				+ UrlUtil.encodeUrl(authToken);
-		// TODO jj check it (remove token, check nesting)
+		String buildResultUrl = getBaseUrl() + PLAN_STATE + "?favourite&expand=plans";
 
 		try {
 			Document doc = retrieveGetResponse(buildResultUrl);
@@ -505,7 +501,6 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 				return builds;
 			}
 
-			// final XPath xpath = XPath.newInstance("/plans/plans/plan/stages/stage/plans/plan");
 			final XPath xpath = XPath.newInstance("/plans/plans/plan");
 			@SuppressWarnings("unchecked")
 			final List<Element> elements = xpath.selectNodes(doc);
@@ -1226,15 +1221,6 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		} catch (JDOMException e) {
 			throw new RemoteApiException(e.getMessage(), e);
 		}
-
-		// http://tardigrade.sydney.atlassian.com:8085/bamboo/rest/api/latest/plan/JACPROJ-CI?expand=stages.stage.plans
-
-		// http://tardigrade.sydney.atlassian.com:8085/bamboo/download/JACPROJ-CI/build_logs/JACPROJ-CI-5.log
-
-		// http://tardigrade.sydney.atlassian.com:8085/bamboo/download/BAM-BAMFUNC-JOB1/build_logs/BAM-BAMFUNC-JOB1-6829.log
-
-		// http://tardigrade.sydney.atlassian.com:8085/bamboo/download/JACPROJ-CI-PERM/build_logs/JACPROJ-CI-PERM-3.log
-
 	}
 
 	public Collection<BuildIssue> getIssuesForBuild(@NotNull String planKey, int buildNumber) throws RemoteApiException {
@@ -1285,7 +1271,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		List<BambooPlan> plans = listPlanNames();
 		try {
 			List<String> favPlans;
-			if (getBamboBuildNumber() >= BAMBOO_3_0_M8_BUILD_NUMBER) {
+			if (getBamboBuildNumber() > BAMBOO_2_6_3_BUILD_NUMBER) {
 				favPlans = getFavouriteUserPlansNew();
 			} else {
 				favPlans = getFavouriteUserPlans();

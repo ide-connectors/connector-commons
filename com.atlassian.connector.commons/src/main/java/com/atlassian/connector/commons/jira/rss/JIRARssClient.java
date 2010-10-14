@@ -29,16 +29,17 @@ import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
 import com.atlassian.connector.commons.jira.cache.CacheConstants;
 import com.atlassian.connector.commons.jira.cache.CachedIconLoader;
 import com.atlassian.theplugin.commons.cfg.UserCfg;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
+import com.atlassian.theplugin.commons.remoteapi.*;
+import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
+import com.atlassian.theplugin.commons.remoteapi.jira.JiraServiceUnavailableException;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.StringUtil;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.auth.AuthenticationException;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -54,6 +55,7 @@ public class JIRARssClient extends AbstractHttpSession {
     private final ConnectionCfg httpConnectionCfg;
     private Header[] setCookieHeaders;
     private boolean login = false;
+    private static boolean JIRA_4_X = true;
 
     public JIRARssClient(final ConnectionCfg httpConnectionCfg, final HttpSessionCallback callback)
             throws RemoteApiMalformedUrlException {
@@ -88,7 +90,8 @@ public class JIRARssClient extends AbstractHttpSession {
     }
 
     @Override
-    protected void preprocessMethodResult(HttpMethod method) {
+    protected void preprocessMethodResult(HttpMethod method)
+            throws CaptchaRequiredException, ServiceUnavailableException {
         /*if (method != null) {
             Header[] tmpHeaders;
             tmpHeaders = method.getResponseHeaders("Set-Cookie");
@@ -96,6 +99,30 @@ public class JIRARssClient extends AbstractHttpSession {
                 setCookieHeaders = tmpHeaders;
             }
         }*/
+        try {
+            if (login) {
+                if (method.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                    JIRA_4_X = false;
+                } else if (method.getResponseHeader("Content-Type").getValue().startsWith("application/json")) {
+                    // we're talking to JIRA 4.x
+                    String json = "";
+                    if (method instanceof PostMethod) {
+                        json = new String(((PostMethod) method).getResponseBody(1024));
+                    } else {
+                        json = method.getResponseBodyAsString();
+                    }
+                    if (json.contains("\"captchaFailure\":true")) {
+                        throw new CaptchaRequiredException(null);
+                    }
+                    if (json.contains("\"loginFailedByPermissions\":true")) {
+                        throw new JiraServiceUnavailableException("You don't have permission to login");
+                    }
+                }
+            }
+        } catch (IOException e) {
+
+
+        }
     }
 
     private String getAuthBasicHeaderValue() {
@@ -166,7 +193,7 @@ public class JIRARssClient extends AbstractHttpSession {
     public List<JIRAIssue> getAssignedIssues(String assignee) throws JIRAException {
         String url = getBaseUrl() + "/sr/jira.issueviews:searchrequest-xml"
                 + "/temp/SearchRequest.xml?resolution=-1&assignee=" + encodeUrl(assignee)
-                + "&sorter/field=updated&sorter/order=DESC&tempMax=100"; 
+                + "&sorter/field=updated&sorter/order=DESC&tempMax=100";
 //                + appendAuthentication(false);
 
         try {
@@ -279,17 +306,32 @@ public class JIRARssClient extends AbstractHttpSession {
 //        return "";
 //    }
 
-    public void login() throws JIRAException {
+    public void login() throws JIRAException, JiraCaptchaRequiredException {
+        final String restLogin = "/rest/gadget/1.0/login";  // JIRA 4.x has additional endpoint for login that tells if CAPTCHA limit was hit
+        final String loginAction = "/secure/Dashboard.jspa";
+
         try {
             login = true;
             Map<String, String> loginParams = new HashMap<String, String>();
             loginParams.put("os_username", httpConnectionCfg.getUsername());
             loginParams.put("os_password", httpConnectionCfg.getPassword());
-            super.retrievePostResponseWithForm(httpConnectionCfg.getUrl() + "/secure/Dashboard.jspa", loginParams, false);
+//            loginParams.put("os_destination", "/success");
+
+            if (JIRA_4_X) {
+                super.retrievePostResponseWithForm(httpConnectionCfg.getUrl() + restLogin, loginParams, false);
+            }
+            if (!JIRA_4_X) {
+                super.retrievePostResponseWithForm(httpConnectionCfg.getUrl() + loginAction, loginParams, false);
+            }
+
         } catch (JDOMException e) {
             throw new JIRAException(e.getMessage());
+        } catch (CaptchaRequiredException e) {
+            throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             throw new JIRAException(e.getMessage());
+        } finally {
+            login = false;
         }
     }
 

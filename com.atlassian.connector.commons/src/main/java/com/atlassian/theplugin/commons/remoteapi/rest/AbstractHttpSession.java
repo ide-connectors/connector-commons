@@ -18,9 +18,7 @@ package com.atlassian.theplugin.commons.remoteapi.rest;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.exception.HttpProxySettingsException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.remoteapi.*;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.apache.commons.httpclient.Header;
@@ -44,6 +42,7 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -633,7 +632,7 @@ public abstract class AbstractHttpSession {
 
 	protected abstract void preprocessResult(Document doc) throws JDOMException, RemoteApiSessionExpiredException;
 
-    protected abstract void preprocessMethodResult(HttpMethod method);
+    protected abstract void preprocessMethodResult(HttpMethod method) throws CaptchaRequiredException, ServiceUnavailableException;
 
 	public static String getServerNameFromUrl(String urlString) {
 		int pos = urlString.indexOf("://");

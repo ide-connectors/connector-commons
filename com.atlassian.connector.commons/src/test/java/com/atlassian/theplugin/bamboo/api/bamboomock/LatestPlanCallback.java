@@ -16,10 +16,8 @@
 
 package com.atlassian.theplugin.bamboo.api.bamboomock;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import org.ddsteps.mock.httpserver.JettyMockServer;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -43,7 +41,7 @@ public class LatestPlanCallback implements JettyMockServer.Callback {
 	}
 
 	public LatestPlanCallback(String file) {
-		this("ECL-DPL", file, NON_ERROR);	
+		this("ECL-DPL", file, NON_ERROR);
 	}
 
 	public LatestPlanCallback(int reason) {
@@ -56,13 +54,13 @@ public class LatestPlanCallback implements JettyMockServer.Callback {
 
 		assertTrue(request.getPathInfo().endsWith("/rest/api/latest/plan/" + planKey));
 
-		final String[] authTokens = request.getParameterValues("auth");
-
-		assertEquals(1, authTokens.length);
-
-		final String authToken = authTokens[0];
-
-		assertEquals(LoginCallback.AUTH_TOKEN, authToken);
+		// final String[] authTokens = request.getParameterValues("auth");
+		//
+		// assertEquals(1, authTokens.length);
+		//
+		// final String authToken = authTokens[0];
+		//
+		// assertEquals(LoginCallback.AUTH_TOKEN, authToken);
 
 		switch (errorReason) {
 			case NON_ERROR:

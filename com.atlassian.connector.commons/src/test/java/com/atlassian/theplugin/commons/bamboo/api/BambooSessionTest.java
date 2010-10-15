@@ -160,6 +160,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 	public void testGetPlanList() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
 		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
+		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
@@ -816,6 +817,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testExecuteBuild() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/executeBuild.action", new ExecuteBuildCallback());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
@@ -829,6 +831,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 
 	public void testExecuteBuildFailed() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/executeBuild.action", new ExecuteBuildCallback(ExecuteBuildCallback.NON_EXIST_FAIL));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
@@ -906,6 +909,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		final String charset1 = "UTF-8";
 		final String charset2 = "UTF-16";
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/download/myplan/build_logs/myplan-123.log", new BuildLogCallback(TEXT, charset1));
 		mockServer.expect("/download/myplan/build_logs/myplan-123.log", new BuildLogCallback(TEXT, charset2));
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());

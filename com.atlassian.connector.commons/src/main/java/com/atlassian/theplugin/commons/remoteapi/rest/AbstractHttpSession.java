@@ -373,6 +373,7 @@ public abstract class AbstractHttpSession {
 				// method.getParams().setCookiePolicy(CookiePolicy.RFC_2109);
 				method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 				method.getParams().setSoTimeout(client.getParams().getSoTimeout());
+				method.addRequestHeader("Accept", "application/xml");
 
 				callback.configureHttpMethod(this, method);
 				postMethodPreparer.prepare(method);
@@ -419,7 +420,7 @@ public abstract class AbstractHttpSession {
 				throw new RemoteApiException("Connection error to [" + urlString + "]", e);
 			} catch (IOException e) {
 				throw new RemoteApiException(e.getMessage(), e);
-				// TODO jj PLE-1245 we may need below extended description for some reason (if yes, then restore it)
+				// TODO PLE-1245 we may need below extended description for some reason (if yes, then restore it)
 				// throw new RemoteApiException(IOException.class.getSimpleName() + " encountered while posting data to ["
 				// + urlString + "]: " + e.getMessage(), e);
 			} finally {
@@ -543,6 +544,15 @@ public abstract class AbstractHttpSession {
 
 		{
 			XPath xpath = XPath.newInstance("error/message");
+			@SuppressWarnings("unchecked")
+			final List<Element> messages = xpath.selectNodes(document);
+			if (messages != null && !messages.isEmpty()) {
+				textBuilder.append("\nMessage: ").append(messages.get(0).getValue());
+			}
+		}
+
+		{
+			XPath xpath = XPath.newInstance("status/message");
 			@SuppressWarnings("unchecked")
 			final List<Element> messages = xpath.selectNodes(document);
 			if (messages != null && !messages.isEmpty()) {

@@ -1,12 +1,9 @@
 package com.atlassian.theplugin.bamboo.api.bamboomock;
 
+import static junit.framework.Assert.assertTrue;
 import org.ddsteps.mock.httpserver.JettyMockServer;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.assertEquals;
 
 /**
  * User: kalamon
@@ -27,13 +24,13 @@ public class BuildForPlanAndNumberCallback implements JettyMockServer.Callback {
 
         assertTrue(request.getPathInfo().contains("/rest/api/latest/build"));
 
-        final String[] authTokens = request.getParameterValues("auth");
-
-        assertEquals(1, authTokens.length);
-
-        final String authToken = authTokens[0];
-
-        assertEquals(LoginCallback.AUTH_TOKEN, authToken);
+		// final String[] authTokens = request.getParameterValues("auth");
+		//
+		// assertEquals(1, authTokens.length);
+		//
+		// final String authToken = authTokens[0];
+		//
+		// assertEquals(LoginCallback.AUTH_TOKEN, authToken);
 
         Util.copyResourceWithFullPath(response.getOutputStream(), resource);
         response.getOutputStream().flush();

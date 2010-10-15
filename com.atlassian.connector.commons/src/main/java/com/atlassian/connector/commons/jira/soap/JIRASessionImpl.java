@@ -170,7 +170,7 @@ public class JIRASessionImpl implements JIRASession {
         if (callback != null) {
             callback.configureRemoteService(service, connectionCfg);
         }
- 
+
         setProxy();
 
         this.httpConnectionCfg = connectionCfg;
@@ -382,15 +382,15 @@ public class JIRASessionImpl implements JIRASession {
     }
 
     public void addAttachment(String issueKey, String name, byte[] content) throws RemoteApiException {
-		String[] encodedContents = new String[]{new String(new Base64().encode(content))};
-		String[] names = new String[]{name};
-		try {
-			service.addBase64EncodedAttachmentsToIssue(token, issueKey, names, encodedContents);
-		} catch (RemoteException e) {
-			if (e.toString().startsWith("java.lang.OutOfMemoryError")) {
-				throw new RemoteApiException("Attachment size is too large, try uploading directly from web browser", e);
-			}
-			throw new RemoteApiException(e.toString(), e);
+        String[] encodedContents = new String[]{new String(new Base64().encode(content))};
+        String[] names = new String[]{name};
+        try {
+            service.addBase64EncodedAttachmentsToIssue(token, issueKey, names, encodedContents);
+        } catch (RemoteException e) {
+            if (e.toString().startsWith("java.lang.OutOfMemoryError")) {
+                throw new RemoteApiException("Attachment size is too large, try uploading directly from web browser", e);
+            }
+            throw new RemoteApiException(e.toString(), e);
         }
     }
 
@@ -566,37 +566,37 @@ public class JIRASessionImpl implements JIRASession {
 
     }
 
-	public void setField(JIRAIssue issue, String fieldId, String value) throws RemoteApiException {
-		setField(issue, fieldId, new String[]{value});
-	}
+    public void setField(JIRAIssue issue, String fieldId, String value) throws RemoteApiException {
+        setField(issue, fieldId, new String[]{value});
+    }
 
-	public void setField(JIRAIssue issue, String fieldId, String[] values) throws RemoteApiException {
-		RemoteFieldValue v = new RemoteFieldValue();
-		RemoteFieldValue[] vTable = {v};
-		v.setId(fieldId);
-		v.setValues(values);
-		try {
-			service.updateIssue(token, issue.getKey(), vTable);
-		} catch (RemoteException e) {
-			throw new RemoteApiException(e.toString(), e);
-		}
-	}
+    public void setField(JIRAIssue issue, String fieldId, String[] values) throws RemoteApiException {
+        RemoteFieldValue v = new RemoteFieldValue();
+        RemoteFieldValue[] vTable = {v};
+        v.setId(fieldId);
+        v.setValues(values);
+        try {
+            service.updateIssue(token, issue.getKey(), vTable);
+        } catch (RemoteException e) {
+            throw new RemoteApiException(e.toString(), e);
+        }
+    }
 
-	public void setFields(JIRAIssue issue, List<JIRAActionField> fields) throws RemoteApiException {
-		RemoteFieldValue[] vTable = new RemoteFieldValue[fields.size()];
-		int i = 0;
-		for (JIRAActionField field : fields) {
-			vTable[i] = new RemoteFieldValue();
-			vTable[i].setId(field.getFieldId());
-			vTable[i].setValues(field.getValues().toArray(new String[field.getValues().size()]));
-			i++;
-		}
-		try {
-			service.updateIssue(token, issue.getKey(), vTable);
-		} catch (RemoteException e) {
-			throw new RemoteApiException(e.toString(), e);
-		}
-	}
+    public void setFields(JIRAIssue issue, List<JIRAActionField> fields) throws RemoteApiException {
+        RemoteFieldValue[] vTable = new RemoteFieldValue[fields.size()];
+        int i = 0;
+        for (JIRAActionField field : fields) {
+            vTable[i] = new RemoteFieldValue();
+            vTable[i].setId(field.getFieldId());
+            vTable[i].setValues(field.getValues().toArray(new String[field.getValues().size()]));
+            i++;
+        }
+        try {
+            service.updateIssue(token, issue.getKey(), vTable);
+        } catch (RemoteException e) {
+            throw new RemoteApiException(e.toString(), e);
+        }
+    }
 
     public List<JIRAAction> getAvailableActions(JIRAIssue issue) throws RemoteApiException {
         try {
@@ -635,7 +635,7 @@ public class JIRASessionImpl implements JIRASession {
 
         return levels;
     }
-    
+
     public List<JIRAActionField> getFieldsForAction(JIRAIssue issue, JIRAAction action) throws RemoteApiException {
         try {
             RemoteField[] fields = service.getFieldsForAction(
@@ -733,11 +733,13 @@ public class JIRASessionImpl implements JIRASession {
         try {
             RemoteAttachment[] attachements = service.getAttachmentsFromIssue(token, issue.getKey());
 
-            List<JIRAAttachment> attachmentList = new ArrayList<JIRAAttachment>(attachements.length);
-            for (RemoteAttachment a : attachements) {
-                attachmentList.add(new JIRAAttachment(a.getId(),
-                        a.getAuthor(), a.getFilename(), a.getFilesize(),
-                        a.getMimetype(), a.getCreated()));
+            List<JIRAAttachment> attachmentList = new ArrayList<JIRAAttachment>(attachements != null ? attachements.length : 0);
+            if (attachements != null) {
+                for (RemoteAttachment a : attachements) {
+                    attachmentList.add(new JIRAAttachment(a.getId(),
+                            a.getAuthor(), a.getFilename(), a.getFilesize(),
+                            a.getMimetype(), a.getCreated()));
+                }
             }
             return attachmentList;
         } catch (RemoteException e) {
@@ -748,11 +750,12 @@ public class JIRASessionImpl implements JIRASession {
         } catch (Exception e) {
             if (e.getMessage().contains("Bad types")) {
                 throw new RemoteApiException("Soap axis remote request failed to properly cast response while "
-                    + "acquiring issue attachments", e);
+                        + "acquiring issue attachments", e);
             } else {
                 throw new RemoteApiException(e.toString(), e);
-        }
+            }
 
+        }
     }
-}}
+}
 

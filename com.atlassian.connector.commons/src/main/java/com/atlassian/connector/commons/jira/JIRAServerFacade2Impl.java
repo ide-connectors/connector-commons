@@ -25,6 +25,7 @@ import com.atlassian.connector.commons.jira.soap.AxisSessionCallback;
 import com.atlassian.connector.commons.jira.soap.JIRASession;
 import com.atlassian.connector.commons.jira.soap.JIRASessionImpl;
 import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.exception.HttpProxySettingsException;
 import com.atlassian.theplugin.commons.remoteapi.CaptchaRequiredException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
@@ -81,17 +82,26 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         JiraRssAutoRenewClient session = rssSessions.get(key);
 
         // sessions should time out after 5 mins to avoid silent session drop on JIRA side
-        if (session == null || (session.getLastUsed().getTime() < new Date().getTime() - FIVE_MINUTES)) {
-            JIRARssClient client = new JIRARssClient(server, callback);
-            try {
-                client.login();
-            } catch (JiraCaptchaRequiredException e) {
-                throw new CaptchaRequiredException(e);
-            } catch (JIRAException e) {
-                throw new RemoteApiException(e);
+        try {
+            if (session == null || (session.getLastUsed().getTime() < new Date().getTime() - FIVE_MINUTES)) {
+
+
+                    JIRARssClient client = new JIRARssClient(server, callback);
+                    try {
+                        if (callback.getHttpClient(server) == null) {
+                            client.login();
+                        }
+                    } catch (JiraCaptchaRequiredException e) {
+                        throw new CaptchaRequiredException(e);
+                    } catch (JIRAException e) {
+                        throw new RemoteApiException(e);
+                    }
+
+                    session = new JiraRssAutoRenewClient(client);
+                rssSessions.put(key, session);
             }
-            session = new JiraRssAutoRenewClient(client);
-            rssSessions.put(key, session);
+        } catch (HttpProxySettingsException e) {
+            throw new RemoteApiException(e);
         }
         session.setLastUsed(new Date());
         return session;

@@ -318,7 +318,7 @@ public class JIRARssClient extends AbstractHttpSession {
 //            loginParams.put("os_destination", "/success");
 
             if (JIRA_4_X) {
-                super.retrievePostResponseWithForm(httpConnectionCfg.getUrl() + restLogin, loginParams, false);
+                super.retrievePostResponseWithForm(httpConnectionCfg.getUrl() + loginAction, loginParams, false);
             }
             if (!JIRA_4_X) {
                 super.retrievePostResponseWithForm(httpConnectionCfg.getUrl() + loginAction, loginParams, false);

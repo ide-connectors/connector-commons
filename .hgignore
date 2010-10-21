@@ -2,3 +2,5 @@
 syntax: glob
 
 com.atlassian.connector.commons/bin
+com.atlassian.connector.commons/target/
+com.atlassian.connector.commons/atlassian-connector-commons.*

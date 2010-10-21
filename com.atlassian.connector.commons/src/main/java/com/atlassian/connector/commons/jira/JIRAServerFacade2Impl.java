@@ -17,7 +17,17 @@
 package com.atlassian.connector.commons.jira;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
-import com.atlassian.connector.commons.jira.beans.*;
+import com.atlassian.connector.commons.jira.beans.JIRAAttachment;
+import com.atlassian.connector.commons.jira.beans.JIRAComment;
+import com.atlassian.connector.commons.jira.beans.JIRAComponentBean;
+import com.atlassian.connector.commons.jira.beans.JIRAConstant;
+import com.atlassian.connector.commons.jira.beans.JIRAPriorityBean;
+import com.atlassian.connector.commons.jira.beans.JIRAProject;
+import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
+import com.atlassian.connector.commons.jira.beans.JIRAResolutionBean;
+import com.atlassian.connector.commons.jira.beans.JIRASecurityLevelBean;
+import com.atlassian.connector.commons.jira.beans.JIRAUserBean;
+import com.atlassian.connector.commons.jira.beans.JIRAVersionBean;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
 import com.atlassian.connector.commons.jira.rss.JIRARssClient;
 import com.atlassian.connector.commons.jira.rss.JiraRssAutoRenewClient;
@@ -25,17 +35,22 @@ import com.atlassian.connector.commons.jira.soap.AxisSessionCallback;
 import com.atlassian.connector.commons.jira.soap.JIRASession;
 import com.atlassian.connector.commons.jira.soap.JIRASessionImpl;
 import com.atlassian.theplugin.commons.ServerType;
-import com.atlassian.theplugin.commons.exception.HttpProxySettingsException;
 import com.atlassian.theplugin.commons.remoteapi.CaptchaRequiredException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
+import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.Logger;
 
 import javax.xml.rpc.ServiceException;
 import java.net.MalformedURLException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
 
@@ -82,26 +97,22 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         JiraRssAutoRenewClient session = rssSessions.get(key);
 
         // sessions should time out after 5 mins to avoid silent session drop on JIRA side
-        try {
-            if (session == null || (session.getLastUsed().getTime() < new Date().getTime() - FIVE_MINUTES)) {
+
+        if (session == null || (session.getLastUsed().getTime() < new Date().getTime() - FIVE_MINUTES)) {
 
 
-                    JIRARssClient client = new JIRARssClient(server, callback);
-                    try {
-                        if (callback.getHttpClient(server) == null) {
-                            client.login();
-                        }
-                    } catch (JiraCaptchaRequiredException e) {
-                        throw new CaptchaRequiredException(e);
-                    } catch (JIRAException e) {
-                        throw new RemoteApiException(e);
-                    }
-
-                    session = new JiraRssAutoRenewClient(client);
-                rssSessions.put(key, session);
+            JIRARssClient client = new JIRARssClient(server, callback);
+            ((HttpSessionCallbackImpl) callback).disposeClient(server);
+            try {
+                client.login();
+            } catch (JiraCaptchaRequiredException e) {
+                throw new CaptchaRequiredException(e);
+            } catch (JIRAException e) {
+                throw new RemoteApiException(e);
             }
-        } catch (HttpProxySettingsException e) {
-            throw new RemoteApiException(e);
+
+            session = new JiraRssAutoRenewClient(client);
+            rssSessions.put(key, session);
         }
         session.setLastUsed(new Date());
         return session;

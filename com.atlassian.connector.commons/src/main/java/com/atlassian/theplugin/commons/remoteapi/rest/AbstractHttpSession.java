@@ -18,7 +18,10 @@ package com.atlassian.theplugin.commons.remoteapi.rest;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.exception.HttpProxySettingsException;
-import com.atlassian.theplugin.commons.remoteapi.*;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.remoteapi.ServiceUnavailableException;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import org.apache.commons.httpclient.Header;
@@ -305,7 +308,8 @@ public abstract class AbstractHttpSession {
 //                  String characterEncoding = getResponseCharSet();
 //                  if (characterEncoding == null && postMethod != null) {
 //                      try {
-//                          characterEncoding = callback.getHttpClient(server).getHostConfiguration().getParams(). postMethod.getCharacterEncoding();
+//                          characterEncoding = callback.getHttpClient(server).
+// getHostConfiguration().getParams(). postMethod.getCharacterEncoding();
 //                      } catch (HttpProxySettingsException e) {
 //
 //                      }
@@ -408,9 +412,9 @@ public abstract class AbstractHttpSession {
                             throw new RemoteApiException(
                                     "Connection error. Received redirection without new target address");
                         }
-                        String url = newLocation.getValue();
-                        if (url.endsWith("/success")) {
-                            String newBaseUrl = url.substring(0, url.lastIndexOf("/success"));
+                        String lUrl = newLocation.getValue();
+                        if (lUrl.endsWith("/success")) {
+                            String newBaseUrl = lUrl.substring(0, lUrl.lastIndexOf("/success"));
                             if (baseUrl.equals(newBaseUrl)) {
                                 // success
                             } else {
@@ -673,7 +677,7 @@ public abstract class AbstractHttpSession {
 
     protected abstract void preprocessResult(Document doc) throws JDOMException, RemoteApiSessionExpiredException;
 
-    protected abstract void preprocessMethodResult(HttpMethod method) throws CaptchaRequiredException, ServiceUnavailableException;
+    protected abstract void preprocessMethodResult(HttpMethod method) throws RemoteApiException, ServiceUnavailableException;
 
     public static String getServerNameFromUrl(String urlString) {
         int pos = urlString.indexOf("://");

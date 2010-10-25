@@ -64,7 +64,7 @@ public class JIRARssClient extends AbstractHttpSession {
 
     private final ConnectionCfg httpConnectionCfg;
     private boolean login = false;
-    private static boolean JIRA_4_X = true;
+    private static boolean JIRA4X = true;
 
     public JIRARssClient(final ConnectionCfg httpConnectionCfg, final HttpSessionCallback callback)
             throws RemoteApiMalformedUrlException {
@@ -85,11 +85,11 @@ public class JIRARssClient extends AbstractHttpSession {
 
     @Override
     protected void preprocessMethodResult(HttpMethod method)
-            throws CaptchaRequiredException, ServiceUnavailableException {
+            throws RemoteApiException, ServiceUnavailableException {
         try {
             if (login && method != null) {
                 if (method.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
-                    JIRA_4_X = false;
+                    JIRA4X = false;
                 } else if (method.getResponseHeader("Content-Type").getValue().startsWith("application/json")) {
                     // we're talking to JIRA 4.x
                     String json = "";
@@ -107,7 +107,7 @@ public class JIRARssClient extends AbstractHttpSession {
                 }
             }
         } catch (IOException e) {
-
+              throw new RemoteApiException("Cannot parse method result.", e);
 
         }
     }
@@ -284,7 +284,8 @@ public class JIRARssClient extends AbstractHttpSession {
     }
 
     public void login() throws JIRAException, JiraCaptchaRequiredException {
-        final String restLogin = "/rest/gadget/1.0/login";  // JIRA 4.x has additional endpoint for login that tells if CAPTCHA limit was hit
+        final String restLogin = "/rest/gadget/1.0/login";
+        // JIRA 4.x has additional endpoint for login that tells if CAPTCHA limit was hit
         final String loginAction = "/secure/Dashboard.jspa";
 
         try {
@@ -294,10 +295,10 @@ public class JIRARssClient extends AbstractHttpSession {
             loginParams.put("os_password", httpConnectionCfg.getPassword());
             loginParams.put("os_destination", "/success");
 
-            if (JIRA_4_X) {
+            if (JIRA4X) {
                 super.retrievePostResponseWithForm(httpConnectionCfg.getUrl() + restLogin, loginParams, false);
             }
-            if (!JIRA_4_X) {
+            if (!JIRA4X) {
                 super.retrievePostResponseWithForm(httpConnectionCfg.getUrl() + loginAction, loginParams, false);
             }
 

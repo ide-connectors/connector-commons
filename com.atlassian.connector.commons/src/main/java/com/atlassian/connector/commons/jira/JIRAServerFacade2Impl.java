@@ -40,7 +40,6 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
-import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallbackImpl;
 import com.atlassian.theplugin.commons.util.Logger;
 
 import javax.xml.rpc.ServiceException;
@@ -102,8 +101,9 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
 
 
             JIRARssClient client = new JIRARssClient(server, callback);
-            ((HttpSessionCallbackImpl) callback).disposeClient(server);
-            try {
+
+            try {                
+                callback.disposeClient(server);
                 client.login();
             } catch (JiraCaptchaRequiredException e) {
                 throw new CaptchaRequiredException(e);

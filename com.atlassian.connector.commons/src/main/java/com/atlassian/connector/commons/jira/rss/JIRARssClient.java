@@ -29,12 +29,18 @@ import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
 import com.atlassian.connector.commons.jira.cache.CacheConstants;
 import com.atlassian.connector.commons.jira.cache.CachedIconLoader;
 import com.atlassian.theplugin.commons.cfg.UserCfg;
-import com.atlassian.theplugin.commons.remoteapi.*;
+import com.atlassian.theplugin.commons.remoteapi.CaptchaRequiredException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
+import com.atlassian.theplugin.commons.remoteapi.ServiceUnavailableException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraServiceUnavailableException;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.StringUtil;
+import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
@@ -46,14 +52,17 @@ import org.jdom.JDOMException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.atlassian.theplugin.commons.util.UrlUtil.encodeUrl;
 
 public class JIRARssClient extends AbstractHttpSession {
 
     private final ConnectionCfg httpConnectionCfg;
-    private Header[] setCookieHeaders;
     private boolean login = false;
     private static boolean JIRA_4_X = true;
 
@@ -67,22 +76,7 @@ public class JIRARssClient extends AbstractHttpSession {
     protected void adjustHttpHeader(HttpMethod method) {
         if (httpConnectionCfg instanceof ServerData && ((ServerData) httpConnectionCfg).isUseBasicUser()) {
             method.addRequestHeader(new Header("Authorization", getAuthBasicHeaderValue()));
-
         }
-
-        /*if (login) {
-            if (httpConnectionCfg != null && method instanceof PostMethod) {
-                ((PostMethod) method).addParameter("os_username", httpConnectionCfg.getUsername());
-                ((PostMethod) method).addParameter("os_password", httpConnectionCfg.getPassword());
-                login = false;
-            }
-        }
-        if (setCookieHeaders != null) {
-            for (Header setCookieHeader : setCookieHeaders) {
-                method.addRequestHeader(setCookieHeader);
-            }
-
-        }*/
     }
 
     @Override
@@ -92,15 +86,8 @@ public class JIRARssClient extends AbstractHttpSession {
     @Override
     protected void preprocessMethodResult(HttpMethod method)
             throws CaptchaRequiredException, ServiceUnavailableException {
-        /*if (method != null) {
-            Header[] tmpHeaders;
-            tmpHeaders = method.getResponseHeaders("Set-Cookie");
-            if (tmpHeaders != null && tmpHeaders.length > 0) {
-                setCookieHeaders = tmpHeaders;
-            }
-        }*/
         try {
-            if (login) {
+            if (login && method != null) {
                 if (method.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
                     JIRA_4_X = false;
                 } else if (method.getResponseHeader("Content-Type").getValue().startsWith("application/json")) {
@@ -134,6 +121,7 @@ public class JIRARssClient extends AbstractHttpSession {
 
         return "";
     }
+
 
 
     public List<JIRAIssue> getIssues(String queryString, String sortBy, String sortOrder, int start, int max)
@@ -295,17 +283,6 @@ public class JIRARssClient extends AbstractHttpSession {
         return result;
     }
 
-//    private String appendAuthentication(boolean firstItem) {
-//        final String username = getUsername();
-//
-//        if (username != null) {
-//            return (firstItem ? "?" : "&")
-//                    + "os_username=" + encodeUrl(username)
-//                    + "&os_password=" + encodeUrl(getPassword());
-//        }
-//        return "";
-//    }
-
     public void login() throws JIRAException, JiraCaptchaRequiredException {
         final String restLogin = "/rest/gadget/1.0/login";  // JIRA 4.x has additional endpoint for login that tells if CAPTCHA limit was hit
         final String loginAction = "/secure/Dashboard.jspa";
@@ -315,10 +292,10 @@ public class JIRARssClient extends AbstractHttpSession {
             Map<String, String> loginParams = new HashMap<String, String>();
             loginParams.put("os_username", httpConnectionCfg.getUsername());
             loginParams.put("os_password", httpConnectionCfg.getPassword());
-//            loginParams.put("os_destination", "/success");
+            loginParams.put("os_destination", "/success");
 
             if (JIRA_4_X) {
-                super.retrievePostResponseWithForm(httpConnectionCfg.getUrl() + loginAction, loginParams, false);
+                super.retrievePostResponseWithForm(httpConnectionCfg.getUrl() + restLogin, loginParams, false);
             }
             if (!JIRA_4_X) {
                 super.retrievePostResponseWithForm(httpConnectionCfg.getUrl() + loginAction, loginParams, false);
@@ -335,8 +312,9 @@ public class JIRARssClient extends AbstractHttpSession {
         }
     }
 
-    public boolean isLoggedIn() {
-        return setCookieHeaders != null && setCookieHeaders.length > 0;
+    public boolean isLoggedIn(ConnectionCfg server) {
+        Cookie[] cookies = callback.getCookiesHeaders(server);
+        return cookies != null && cookies.length > 0;       
     }
 
 }

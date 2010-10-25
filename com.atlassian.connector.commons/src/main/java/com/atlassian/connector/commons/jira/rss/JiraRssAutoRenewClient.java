@@ -15,8 +15,10 @@
  */
 package com.atlassian.connector.commons.jira.rss;
 
+import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.jira.JIRAIssue;
 import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
+import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 
 import java.util.Date;
 import java.util.List;
@@ -30,11 +32,17 @@ public class JiraRssAutoRenewClient {
     private final JIRARssClient rssClient;
 
     private Date lastUsed;
-
+    
     public JiraRssAutoRenewClient(JIRARssClient rssClient) {
         this.rssClient = rssClient;
     }
 
+    public void login() throws JIRAException, JiraCaptchaRequiredException {
+        rssClient.login();
+    }
+    public boolean isLoggedIn(ConnectionCfg server) {
+        return rssClient != null && rssClient.isLoggedIn(server);
+    }
     public List<JIRAIssue> getIssues(String queryString, String sortBy, String sortOrder, int start, int max)
             throws JIRAException {
         return rssClient.getIssues(queryString, sortBy, sortOrder, start, max);

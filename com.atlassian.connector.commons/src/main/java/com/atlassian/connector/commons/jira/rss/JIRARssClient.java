@@ -64,7 +64,7 @@ public class JIRARssClient extends AbstractHttpSession {
 
     private final ConnectionCfg httpConnectionCfg;
     private boolean login = false;
-    private static boolean JIRA4X = true;
+    private boolean jira4x = true;
 
     public JIRARssClient(final ConnectionCfg httpConnectionCfg, final HttpSessionCallback callback)
             throws RemoteApiMalformedUrlException {
@@ -89,7 +89,7 @@ public class JIRARssClient extends AbstractHttpSession {
         try {
             if (login && method != null) {
                 if (method.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
-                    JIRA4X = false;
+                    jira4x = false;
                 } else if (method.getResponseHeader("Content-Type").getValue().startsWith("application/json")) {
                     // we're talking to JIRA 4.x
                     String json = "";
@@ -295,10 +295,10 @@ public class JIRARssClient extends AbstractHttpSession {
             loginParams.put("os_password", httpConnectionCfg.getPassword());
             loginParams.put("os_destination", "/success");
 
-            if (JIRA4X) {
+            if (jira4x) {
                 super.retrievePostResponseWithForm(httpConnectionCfg.getUrl() + restLogin, loginParams, false);
             }
-            if (!JIRA4X) {
+            if (!jira4x) {
                 super.retrievePostResponseWithForm(httpConnectionCfg.getUrl() + loginAction, loginParams, false);
             }
 

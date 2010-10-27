@@ -87,7 +87,7 @@ public class JIRARssClient extends AbstractHttpSession {
     protected void preprocessMethodResult(HttpMethod method)
             throws RemoteApiException, ServiceUnavailableException {
         try {
-            if (login && method != null) {
+            if (login && method != null && method.getStatusLine() != null) {
                 if (method.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
                     jira4x = false;
                 } else if (method.getResponseHeader("Content-Type").getValue().startsWith("application/json")) {
@@ -98,10 +98,10 @@ public class JIRARssClient extends AbstractHttpSession {
                     } else {
                         json = method.getResponseBodyAsString();
                     }
-                    if (json.contains("\"captchaFailure\":true")) {
+                    if (json!= null && json.contains("\"captchaFailure\":true")) {
                         throw new CaptchaRequiredException(null);
                     }
-                    if (json.contains("\"loginFailedByPermissions\":true")) {
+                    if (json != null && json.contains("\"loginFailedByPermissions\":true")) {
                         throw new JiraServiceUnavailableException("You don't have permission to login");
                     }
                 }

@@ -98,7 +98,7 @@ public class JIRARssClient extends AbstractHttpSession {
                     } else {
                         json = method.getResponseBodyAsString();
                     }
-                    if (json!= null && json.contains("\"captchaFailure\":true")) {
+                    if (json != null && json.contains("\"captchaFailure\":true")) {
                         throw new CaptchaRequiredException(null);
                     }
                     if (json != null && json.contains("\"loginFailedByPermissions\":true")) {

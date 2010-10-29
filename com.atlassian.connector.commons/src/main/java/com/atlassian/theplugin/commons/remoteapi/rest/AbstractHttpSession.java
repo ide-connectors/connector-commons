@@ -415,7 +415,7 @@ public abstract class AbstractHttpSession {
                         String lUrl = newLocation.getValue();
                         if (lUrl.endsWith("/success")) {
                             String newBaseUrl = lUrl.substring(0, lUrl.lastIndexOf("/success"));
-                            if (!baseUrl.equals(newBaseUrl)) {
+                            if (!baseUrl.startsWith(newBaseUrl)) {
                                 // need to login to make sure HttpClient picks up the session cookie
                                 baseUrl = newBaseUrl;
                                 continue;

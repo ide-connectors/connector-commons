@@ -169,6 +169,6 @@ public final class StringUtil {
 			timeLog.append(" ").append(minutes).append("m");
 		}
 
-		return timeLog.toString();
+		return timeLog.toString().trim();
 	}
 }

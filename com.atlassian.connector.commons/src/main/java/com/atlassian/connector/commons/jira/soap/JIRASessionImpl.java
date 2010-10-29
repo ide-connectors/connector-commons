@@ -180,7 +180,12 @@ public class JIRASessionImpl implements JIRASession {
         try {
             token = service.login(userName, password);
         } catch (RemoteAuthenticationException e) {
-            throw new RemoteApiLoginException("Authentication failed");
+            if (e != null && e.getFaultString() != null
+                    && e.getFaultString().contains("The maximum number of failed login attempts")) {
+                throw new RemoteApiLoginException("Captcha failure. Please login via WEB interface.", e);
+            } else {
+                throw new RemoteApiLoginException("Authentication failed", e);
+            }
         } catch (RemoteException e) {
             throw new RemoteApiException(e.toString());
         }

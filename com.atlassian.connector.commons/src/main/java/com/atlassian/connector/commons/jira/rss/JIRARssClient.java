@@ -90,7 +90,8 @@ public class JIRARssClient extends AbstractHttpSession {
             if (login && method != null && method.getStatusLine() != null) {
                 if (method.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
                     jira4x = false;
-                } else if (method.getResponseHeader("Content-Type").getValue().startsWith("application/json")) {
+                } else if (method.getResponseHeader("Content-Type") != null 
+                        && method.getResponseHeader("Content-Type").getValue().startsWith("application/json")) {
                     // we're talking to JIRA 4.x
                     String json = "";
                     if (method instanceof PostMethod) {

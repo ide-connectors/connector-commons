@@ -420,6 +420,8 @@ public abstract class AbstractHttpSession {
                                 baseUrl = newBaseUrl;
                                 continue;
                             }
+                        } else if (lUrl.endsWith("/JiraLockedError")) {
+                            throw new RemoteApiException("JIRA is locked. Please contact your JIRA administrator.");
                         } else {
                             throw new RemoteApiException(
                                     "Connection error. Received too many redirects (more than " + MAX_REDIRECTS + ")");

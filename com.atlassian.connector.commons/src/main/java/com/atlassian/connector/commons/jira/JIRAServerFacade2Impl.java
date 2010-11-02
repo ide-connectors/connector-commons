@@ -60,7 +60,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
     private final Map<String, JiraRssAutoRenewClient> rssSessions = new HashMap<String, JiraRssAutoRenewClient>();
     private final Map<String, JIRASession> soapSessions = new HashMap<String, JIRASession>();
 
-    private static final long FIVE_MINUTES = 5 * 60 * 1000;
+    private static final long ONE_MINUTE = 1 * 60 * 1000;
 
     private String getSessionKey(ConnectionCfg httpConnectionCfg) {
         return httpConnectionCfg.getUrl() + "_" + httpConnectionCfg.getUsername() + "_" + httpConnectionCfg.getPassword();
@@ -97,7 +97,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
 
         // sessions should time out after 5 mins to avoid silent session drop on JIRA side
 
-        if (session == null || (session.getLastUsed().getTime() < new Date().getTime() - FIVE_MINUTES)) {
+        if (session == null || (session.getLastUsed().getTime() < new Date().getTime() - ONE_MINUTE)) {
 
 
             JIRARssClient client = new JIRARssClient(server, callback);

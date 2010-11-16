@@ -433,12 +433,25 @@ public abstract class AbstractHttpSession {
                         LoggerImpl.getInstance().info(errorDescription + "\n" + method.getStatusText());
 
                         throw new RemoteApiException(errorDescription, new Exception(method.getResponseBodyAsString()));
-                    } else if (httpStatus != HttpStatus.SC_OK && httpStatus != HttpStatus.SC_CREATED) {
+                    } else if (httpStatus != HttpStatus.SC_OK && httpStatus != HttpStatus.SC_CREATED && !method.getResponseBodyAsString().startsWith("<html>")) {
 
                         Document document;
                         SAXBuilder builder = new SAXBuilder();
                         document = builder.build(method.getResponseBodyAsStream());
                         throw buildExceptionText(method.getStatusCode(), document);
+                        
+                    } else if (httpStatus == HttpStatus.SC_NOT_ACCEPTABLE) {
+                        final String errorDescription = "HTTP " + httpStatus + " ("
+                                + "Authentication failed (probably invalid username or password)."
+                                + HttpStatus.getStatusText(httpStatus) + ")";
+                        LoggerImpl.getInstance().info(errorDescription + "\n" + method.getStatusText());
+                        throw new RemoteApiException(errorDescription, new Exception(method.getResponseBodyAsString()));
+                        
+                    } else if (httpStatus != HttpStatus.SC_OK && httpStatus != HttpStatus.SC_CREATED ) {//RECEIVED STATUS AS html
+                        final String errorDescription = "HTTP " + httpStatus + " ("
+                                + HttpStatus.getStatusText(httpStatus) + ")";
+                        LoggerImpl.getInstance().info(errorDescription + "\n" + method.getStatusText());
+                        throw new RemoteApiException(errorDescription, new Exception(method.getResponseBodyAsString()));
                     }
 
                     this.responseCharSet = method.getResponseCharSet();

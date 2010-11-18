@@ -433,7 +433,9 @@ public abstract class AbstractHttpSession {
                         LoggerImpl.getInstance().info(errorDescription + "\n" + method.getStatusText());
 
                         throw new RemoteApiException(errorDescription, new Exception(method.getResponseBodyAsString()));
-                    } else if (httpStatus != HttpStatus.SC_OK && httpStatus != HttpStatus.SC_CREATED && !method.getResponseBodyAsString().startsWith("<html>")) {
+                    } else if (httpStatus != HttpStatus.SC_OK
+                            && httpStatus != HttpStatus.SC_CREATED
+                            && !method.getResponseBodyAsString().startsWith("<html>")) {
 
                         Document document;
                         SAXBuilder builder = new SAXBuilder();
@@ -446,8 +448,9 @@ public abstract class AbstractHttpSession {
                                 + HttpStatus.getStatusText(httpStatus) + ")";
                         LoggerImpl.getInstance().info(errorDescription + "\n" + method.getStatusText());
                         throw new RemoteApiException(errorDescription, new Exception(method.getResponseBodyAsString()));
-                        
-                    } else if (httpStatus != HttpStatus.SC_OK && httpStatus != HttpStatus.SC_CREATED ) {//RECEIVED STATUS AS html
+
+                        //RECEIVED STATUS AS html
+                    } else if (httpStatus != HttpStatus.SC_OK && httpStatus != HttpStatus.SC_CREATED) {
                         final String errorDescription = "HTTP " + httpStatus + " ("
                                 + HttpStatus.getStatusText(httpStatus) + ")";
                         LoggerImpl.getInstance().info(errorDescription + "\n" + method.getStatusText());

@@ -13,8 +13,8 @@
 		<url>http://atlassian.com/</url>
 	</organization>
 	<scm>
-		<connection>scm:hg:file:///${basedir}</connection>
-		<developerConnection>scm:hg:file:///${basedir}</developerConnection>
+		<connection>scm:hg:file://${basedir}</connection>
+		<developerConnection>scm:hg:file://${basedir}</developerConnection>
 		<url>https://bitbucket.org/atlassian/connector-commons/</url>
 	</scm>
 	<issueManagement>

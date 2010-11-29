@@ -16,6 +16,7 @@
 package com.atlassian.theplugin.commons.bamboo.api;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
+import com.atlassian.theplugin.commons.exception.HttpProxySettingsException;
 import com.atlassian.theplugin.commons.remoteapi.CaptchaRequiredException;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
@@ -79,9 +80,6 @@ public class LoginBambooSession extends AbstractHttpSession implements ProductSe
 			throw new RemoteApiLoginException("Corrupted configuration. Username or Password null");
 		}
 		final String pass = String.valueOf(aPassword);
-		// loginUrl = getBaseUrl() + LOGIN_ACTION + "?username=" + UrlUtil.encodeUrl(name) + "&password="
-		// + UrlUtil.encodeUrl(pass) + "&os_username=" + UrlUtil.encodeUrl(name) + "&os_password="
-		// + UrlUtil.encodeUrl(pass);
 
 		loginUrl = getBaseUrl() + LOGIN_ACTION;
 
@@ -92,7 +90,7 @@ public class LoginBambooSession extends AbstractHttpSession implements ProductSe
 				throw new RemoteApiException(e.getMessage(), e);
 			}
 
-			// Document doc = retrieveGetResponse(loginUrl);
+			callback.getHttpClient(getServer()).getState().clearCookies();
 			Document doc = retrievePostResponseInternalImpl(loginUrl, new PostMethodPreparer() {
 				public void prepare(PostMethod login) throws UnsupportedEncodingException {
 					login.addRequestHeader("Accept", "application/xml;q=0.9,*/*");
@@ -134,6 +132,8 @@ public class LoginBambooSession extends AbstractHttpSession implements ProductSe
 			throw new RemoteApiLoginException("Server returned malformed response", e);
 		} catch (IllegalArgumentException e) {
 			throw new RemoteApiLoginException("Malformed server URL: " + getBaseUrl(), e);
+		} catch (HttpProxySettingsException e) {
+			throw new RemoteApiLoginException(e.getMessage(), e);
 		}
 		// catch (IOException e) {
 		// if (e.getCause() != null && e.getCause().getMessage().contains("maximum")) {

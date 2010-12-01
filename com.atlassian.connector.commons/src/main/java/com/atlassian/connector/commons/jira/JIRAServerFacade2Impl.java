@@ -75,7 +75,12 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         String key = getSessionKey(connectionCfg);
 
         JIRASession session = soapSessions.get(key);
-        if (session == null) {
+        if (session == null
+                || (((JIRASessionImpl) session).getLastUsed().getTime() < new Date().getTime() - ONE_MINUTE)) {
+            if (session != null) {
+                soapSessions.remove(key);
+            }
+
             try {
                 session = new JIRASessionImpl(logger, connectionCfg, axisCallback);
             } catch (MalformedURLException e) {
@@ -102,7 +107,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
 
             JIRARssClient client = new JIRARssClient(server, callback);
 
-            try {                
+            try {
                 callback.disposeClient(server);
                 client.login();
             } catch (JiraCaptchaRequiredException e) {
@@ -219,6 +224,15 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(server));
+            try {
+                if (e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = null;
+                    soap = getSoapSession(server);
+                    return soap.getProjects();
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -232,6 +246,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(httpConnectionCfg));
+            try {
+                if (e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(httpConnectionCfg);
+                    return soap.getIssueTypes();
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -246,6 +268,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(httpConnectionCfg));
+            try {
+                if (e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(httpConnectionCfg);
+                    return soap.getIssueTypesForProject(project);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -259,6 +289,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(httpConnectionCfg));
+            try {
+                if (e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(httpConnectionCfg);
+                    return soap.getSubtaskIssueTypes();
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -273,6 +311,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    return soap.getSubtaskIssueTypesForProject(project);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -286,6 +332,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connection));
+            try {
+                if (e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connection);
+                    return soap.getStatuses();
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -299,6 +353,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    soap.addComment(issueKey, comment);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -313,6 +375,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    soap.addAttachment(issueKey, name, content);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -327,6 +397,15 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    JIRAIssue i = soap.createIssue(issue);
+                    return getIssue(connectionCfg, i.getKey());
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -342,6 +421,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    soap.logWork(issue, timeSpent, startDate, comment, updateEstimate, newEstimate);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -355,6 +442,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    return soap.getComponents(projectKey);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -373,9 +468,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             } else if (e.getMessage() == null) {
                 logger.warn("PL-1710: e.getMessage() is null");
             }
-//			if (e == null || e.getMessage() == null) {
-//				throw new JIRAException("Cannot retrieve versions from the server", e);
-//			}
+            try {
+                if (e != null && e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    return soap.getVersions(projectKey);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -389,6 +489,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e != null && e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    return soap.getPriorities();
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -402,6 +510,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e != null && e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    return soap.getResolutions();
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -415,6 +531,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e != null && e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    return soap.getSavedFilters();
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -428,6 +552,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e != null && e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    return soap.getAvailableActions(issue);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -442,6 +574,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e != null && e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    return soap.getFieldsForAction(issue, action);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -456,6 +596,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e != null && e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                     soap.setField(issue, fieldId, value);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -470,6 +618,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e != null && e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                     soap.setField(issue, fieldId, values);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -483,6 +639,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e != null && e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                     soap.setFields(issue, fields);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -497,6 +661,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e != null && e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                     return soap.getComments(issue);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -511,6 +683,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e != null && e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    return soap.getIssueAttachements(issue);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -530,6 +710,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e != null && e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    soap.progressWorkflowAction(issue, action, fields);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -543,6 +731,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e != null && e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    return soap.getIssueDetails(issue);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -557,6 +753,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e != null && e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    return soap.getUser(loginName);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }
@@ -570,6 +774,14 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
             throw new JiraCaptchaRequiredException(e.getMessage());
         } catch (RemoteApiException e) {
             soapSessions.remove(getSessionKey(connectionCfg));
+            try {
+                if (e != null && e.getMessage().contains("User not authenticated yet, or session timed out.")) {
+                    JIRASession soap = getSoapSession(connectionCfg);
+                    return soap.getSecurityLevels(projectKey);
+                }
+            } catch (RemoteApiException e1) {
+                throw new JIRAException(e.getMessage(), e);
+            }
             throw new JIRAException(e.getMessage(), e);
         }
     }

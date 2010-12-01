@@ -78,6 +78,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -88,6 +89,16 @@ public class JIRASessionImpl implements JIRASession {
     private final ConnectionCfg httpConnectionCfg;
     private boolean loggedIn;
     private final Logger logger;
+    private Date lastUsed = new Date();
+
+
+    public Date getLastUsed() {
+        return lastUsed;
+    }
+
+    public void setLastUsed(Date lastUsed) {
+        this.lastUsed = lastUsed;
+    }
 
     //
     // AxisProperties are shit - if you try to set nonexistent property to null, NPE is thrown. Moreover, sometimes

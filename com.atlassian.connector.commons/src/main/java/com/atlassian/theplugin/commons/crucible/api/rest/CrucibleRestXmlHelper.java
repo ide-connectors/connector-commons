@@ -85,6 +85,7 @@ public final class CrucibleRestXmlHelper {
     private static final String PRESERVE_OLD = "{preserve-old}";
 
     ///CLOVER:OFF
+
     private CrucibleRestXmlHelper() {
     }
     ///CLOVER:ON
@@ -98,40 +99,40 @@ public final class CrucibleRestXmlHelper {
         return "";
     }
 
-	@Nullable
-	public static String getChildTextOrNull(Element node, String childName) {
-		final Element child = node.getChild(childName);
-		if (child != null) {
-			return child.getText();
-		}
-		return null;
-	}
+    @Nullable
+    public static String getChildTextOrNull(Element node, String childName) {
+        final Element child = node.getChild(childName);
+        if (child != null) {
+            return child.getText();
+        }
+        return null;
+    }
 
-	public static BasicProject parseBasicProjectNode(Element projectNode) {
-    	String defaultDuration = getChildText(projectNode, "defaultDuration");
+    public static BasicProject parseBasicProjectNode(Element projectNode) {
+        String defaultDuration = getChildText(projectNode, "defaultDuration");
         return new BasicProject(
                 getChildText(projectNode, "id"),
                 getChildText(projectNode, "key"),
                 getChildText(projectNode, "name"),
-				parseUserNames(projectNode.getChild("defaultReviewers")),
-				getChildText(projectNode, "defaultRepositoryName"),
-				Boolean.parseBoolean(getChildText(projectNode, "allowReviewersToJoin")),
-				!StringUtils.isEmpty(defaultDuration) ? Integer.parseInt(defaultDuration) : null,
-				Boolean.parseBoolean(getChildText(projectNode, "moderatorEnabled")));
-	}
+                parseUserNames(projectNode.getChild("defaultReviewers")),
+                getChildText(projectNode, "defaultRepositoryName"),
+                Boolean.parseBoolean(getChildText(projectNode, "allowReviewersToJoin")),
+                !StringUtils.isEmpty(defaultDuration) ? Integer.parseInt(defaultDuration) : null,
+                Boolean.parseBoolean(getChildText(projectNode, "moderatorEnabled")));
+    }
 
-	public static ExtendedCrucibleProject parseProjectNode(Element projectNode) {
-		String defaultDuration = getChildText(projectNode, "defaultDuration");
-		return new ExtendedCrucibleProject(
-				getChildText(projectNode, "id"),
-				getChildText(projectNode, "key"),
-				getChildText(projectNode, "name"),
-				parseUserNames(projectNode.getChild("allowedReviewers")),
-				parseUserNames(projectNode.getChild("defaultReviewers")),
-				getChildText(projectNode, "defaultRepositoryName"),
-				Boolean.parseBoolean(getChildText(projectNode, "allowReviewersToJoin")),
-				!StringUtils.isEmpty(defaultDuration) ? Integer.parseInt(defaultDuration) : null,
-				Boolean.parseBoolean(getChildText(projectNode, "moderatorEnabled")));
+    public static ExtendedCrucibleProject parseProjectNode(Element projectNode) {
+        String defaultDuration = getChildText(projectNode, "defaultDuration");
+        return new ExtendedCrucibleProject(
+                getChildText(projectNode, "id"),
+                getChildText(projectNode, "key"),
+                getChildText(projectNode, "name"),
+                parseUserNames(projectNode.getChild("allowedReviewers")),
+                parseUserNames(projectNode.getChild("defaultReviewers")),
+                getChildText(projectNode, "defaultRepositoryName"),
+                Boolean.parseBoolean(getChildText(projectNode, "allowReviewersToJoin")),
+                !StringUtils.isEmpty(defaultDuration) ? Integer.parseInt(defaultDuration) : null,
+                Boolean.parseBoolean(getChildText(projectNode, "moderatorEnabled")));
     }
 
     public static Repository parseRepositoryNode(Element repoNode) {
@@ -160,31 +161,30 @@ public final class CrucibleRestXmlHelper {
             return new User(repoNode.getText(), repoNode.getText());
         } else {
             return new User(getChildText(repoNode, "userName"),
-					getChildText(repoNode, "displayName"), getChildText(repoNode, "avatarUrl"));
+                    getChildText(repoNode, "displayName"), getChildText(repoNode, "avatarUrl"));
         }
     }
 
-	/**
-	 *
-	 * @param element
-	 * @return action
-	 * @throws ParseException
-	 */
-	@NotNull
-	public static CrucibleAction parseActionNode(Element element) throws ParseException {
-		final String name = element.getChildText("name");
-		if (name == null) {
-			throw new ParseException("Cannot parse action node - missing [name] element", 0);
-		}
-		try {
-			return CrucibleAction.fromValue(name);
-		} catch (IllegalArgumentException e) {
-			final String displayName = element.getChildText("displayName");
-			if (displayName != null) {
-				return new CrucibleAction(displayName, name);
-			}
-			throw new ParseException("Cannot parse action node " + XmlUtil.toPrettyFormatedString(element), 0);
-		}
+    /**
+     * @param element
+     * @return action
+     * @throws ParseException
+     */
+    @NotNull
+    public static CrucibleAction parseActionNode(Element element) throws ParseException {
+        final String name = element.getChildText("name");
+        if (name == null) {
+            throw new ParseException("Cannot parse action node - missing [name] element", 0);
+        }
+        try {
+            return CrucibleAction.fromValue(name);
+        } catch (IllegalArgumentException e) {
+            final String displayName = element.getChildText("displayName");
+            if (displayName != null) {
+                return new CrucibleAction(displayName, name);
+            }
+            throw new ParseException("Cannot parse action node " + XmlUtil.toPrettyFormatedString(element), 0);
+        }
     }
 
     public static Reviewer parseReviewerNode(Element reviewerNode) {
@@ -201,7 +201,7 @@ public final class CrucibleRestXmlHelper {
                     getChildText(reviewerNode, "userName"),
                     getChildText(reviewerNode, "displayName"),
                     Boolean.parseBoolean(getChildText(reviewerNode, "completed")),
-					getChildText(reviewerNode, "avatarUrl"));
+                    getChildText(reviewerNode, "avatarUrl"));
         }
     }
 
@@ -219,17 +219,17 @@ public final class CrucibleRestXmlHelper {
         return null;
     }
 
-	public static BasicReview parseBasicReview(String serverUrl, final Element reviewNode, boolean trimWikiMarkers)
-			throws ParseException {
+    public static BasicReview parseBasicReview(String serverUrl, final Element reviewNode, boolean trimWikiMarkers)
+            throws ParseException {
         final String projectKey = getChildText(reviewNode, "projectKey");
         final User author = parseUserNode(reviewNode.getChild("author"));
         final User creator = parseUserNode(reviewNode.getChild("creator"));
-		final ReviewType reviewType = parseReviewType(reviewNode.getChildText("type"));
+        final ReviewType reviewType = parseReviewType(reviewNode.getChildText("type"));
 
         final User moderator = (reviewNode.getChild("moderator") != null)
                 ? parseUserNode(reviewNode.getChild("moderator")) : null;
 
-		BasicReview review = new BasicReview(reviewType, serverUrl, projectKey, author, moderator);
+        BasicReview review = new BasicReview(reviewType, serverUrl, projectKey, author, moderator);
         review.setCreator(creator);
         fillAlwaysPresentReviewData(review, reviewNode, serverUrl, trimWikiMarkers);
         fillMoreDetailedReviewData(review, reviewNode, trimWikiMarkers);
@@ -239,7 +239,7 @@ public final class CrucibleRestXmlHelper {
         return review;
     }
 
-	public static Review parseFullReview(String serverUrl, String myUsername, final Element reviewNode,
+    public static Review parseFullReview(String serverUrl, String myUsername, final Element reviewNode,
                                          boolean trimWikiMarkers) throws ParseException {
         final String projectKey = getChildText(reviewNode, "projectKey");
         final User author = parseUserNode(reviewNode.getChild("author"));
@@ -249,9 +249,9 @@ public final class CrucibleRestXmlHelper {
 
         final User creator = (reviewNode.getChild("creator") != null)
                 ? parseUserNode(reviewNode.getChild("creator")) : null;
-		final ReviewType reviewType = parseReviewType(reviewNode.getChildText("type"));
+        final ReviewType reviewType = parseReviewType(reviewNode.getChildText("type"));
 
-		Review review = new Review(reviewType, serverUrl, projectKey, author, moderator);
+        Review review = new Review(reviewType, serverUrl, projectKey, author, moderator);
         review.setCreator(creator);
         fillAlwaysPresentReviewData(review, reviewNode, serverUrl, trimWikiMarkers);
         fillMoreDetailedReviewData(review, reviewNode, trimWikiMarkers);
@@ -304,7 +304,7 @@ public final class CrucibleRestXmlHelper {
     }
 
     private static void fillAlwaysPresentReviewData(BasicReview review, final Element reviewNode, String serverUrl,
-													boolean trimWikiMarkers) throws ParseException {
+                                                    boolean trimWikiMarkers) throws ParseException {
         review.setCreateDate(parseDateTime(getChildText(reviewNode, "createDate")));
         review.setCloseDate(parseDateTime(getChildText(reviewNode, "closeDate")));
         String soo = getChildText(reviewNode, "description");
@@ -319,12 +319,12 @@ public final class CrucibleRestXmlHelper {
         if (!"".equals(stateString)) {
             review.setState(State.fromValue(stateString));
         }
-		review.setAllowReviewerToJoin(Boolean.parseBoolean(getChildText(reviewNode, "allowReviewersToJoin")));
+        review.setAllowReviewerToJoin(Boolean.parseBoolean(getChildText(reviewNode, "allowReviewersToJoin")));
 
-		final String dueDateStr = getChildTextOrNull(reviewNode, "dueDate");
-		if (dueDateStr != null) {
-			review.setDueDate(parseJodaDateTime(dueDateStr));
-		}
+        final String dueDateStr = getChildTextOrNull(reviewNode, "dueDate");
+        if (dueDateStr != null) {
+            review.setDueDate(parseJodaDateTime(dueDateStr));
+        }
 
         if (reviewNode.getChild("permaId") != null) {
             PermId permId = new PermId(reviewNode.getChild("permaId").getChild("id").getText());
@@ -339,20 +339,20 @@ public final class CrucibleRestXmlHelper {
         }
     }
 
-	public static List<CrucibleAction> parseActions(List<Element> elements) {
-		List<CrucibleAction> res = new ArrayList<CrucibleAction>();
+    public static List<CrucibleAction> parseActions(List<Element> elements) {
+        List<CrucibleAction> res = new ArrayList<CrucibleAction>();
 
-		if (elements != null && !elements.isEmpty()) {
-			for (Element element : elements) {
-				try {
-					res.add(CrucibleRestXmlHelper.parseActionNode(element));
-				} catch (ParseException e) {
-					LoggerImpl.getInstance().warn(e);
-				}
-			}
-		}
-		return res;
-	}
+        if (elements != null && !elements.isEmpty()) {
+            for (Element element : elements) {
+                try {
+                    res.add(CrucibleRestXmlHelper.parseActionNode(element));
+                } catch (ParseException e) {
+                    LoggerImpl.getInstance().warn(e);
+                }
+            }
+        }
+        return res;
+    }
 
     private static void fillMoreDetailedReviewData(BasicReview review, Element reviewNode, boolean trimWikiMarkers) {
         List<Element> reviewersNode = getChildElements(reviewNode, "reviewers");
@@ -365,27 +365,27 @@ public final class CrucibleRestXmlHelper {
         }
         review.setReviewers(reviewers);
 
-		final List<CrucibleAction> transitions = new ArrayList<CrucibleAction>();
-		final Element transitionsNode = reviewNode.getChild("transitions");
-		if (transitionsNode != null) {
-			List<Element> transDataNodes = getChildElements(transitionsNode, "transitionData");
-			transitions.addAll(parseActions(transDataNodes));
-		}
+        final List<CrucibleAction> transitions = new ArrayList<CrucibleAction>();
+        final Element transitionsNode = reviewNode.getChild("transitions");
+        if (transitionsNode != null) {
+            List<Element> transDataNodes = getChildElements(transitionsNode, "transitionData");
+            transitions.addAll(parseActions(transDataNodes));
+        }
 
         review.setTransitions(transitions);
 
         final Set<CrucibleAction> actions = new HashSet<CrucibleAction>();
-		final Element actionsNode = reviewNode.getChild("actions");
-		if (actionsNode != null) {
-			List<Element> actionDataNodes = getChildElements(actionsNode, "actionData");
-			actions.addAll(parseActions(actionDataNodes));
-		}
+        final Element actionsNode = reviewNode.getChild("actions");
+        if (actionsNode != null) {
+            List<Element> actionDataNodes = getChildElements(actionsNode, "actionData");
+            actions.addAll(parseActions(actionDataNodes));
+        }
 
-		// @todo wseliga: this code is probably need instead of the current line. Need to revisit it one day
-		// final CrucibleAction parseActionNode = parseActionNode(element);
-		// if (!(review.getState() == State.CLOSED && parseActionNode == CrucibleAction.MODIFY_FILES)) {
-		// actions.add(parseActionNode);
-		// }
+        // @todo wseliga: this code is probably need instead of the current line. Need to revisit it one day
+        // final CrucibleAction parseActionNode = parseActionNode(element);
+        // if (!(review.getState() == State.CLOSED && parseActionNode == CrucibleAction.MODIFY_FILES)) {
+        // actions.add(parseActionNode);
+        // }
 
         review.setActions(actions);
     }
@@ -432,23 +432,23 @@ public final class CrucibleRestXmlHelper {
         return doc;
     }
 
-	public static Document prepareCreateSnippetReviewNode(Review review, String snippet, String filename) {
-		Element root = new Element("createReview");
-		Document doc = new Document(root);
+    public static Document prepareCreateSnippetReviewNode(Review review, String snippet, String filename) {
+        Element root = new Element("createReview");
+        Document doc = new Document(root);
 
-		getContent(root).add(prepareSnippetReviewNodeElement(review));
+        getContent(root).add(prepareSnippetReviewNodeElement(review));
 
-		Element patchData = new Element("snippet");
-		getContent(root).add(patchData);
+        Element patchData = new Element("snippet");
+        getContent(root).add(patchData);
 
-		CDATA patchT = new CDATA(escapeForCdata(snippet));
-		patchData.setContent(patchT);
+        CDATA patchT = new CDATA(escapeForCdata(snippet));
+        patchData.setContent(patchT);
 
-		Element filenameT = new Element("filename");
-		getContent(root).add(filenameT);
-		filenameT.setText(filename);
-		return doc;
-	}
+        Element filenameT = new Element("filename");
+        getContent(root).add(filenameT);
+        filenameT.setText(filename);
+        return doc;
+    }
 
     public static Document prepareCloseReviewSummaryNode(String message) {
         Element root = new Element("closeReviewSummary");
@@ -614,27 +614,27 @@ public final class CrucibleRestXmlHelper {
         return reviewData;
     }
 
-	private static Element prepareSnippetReviewNodeElement(BasicReview review) {
-		Element reviewData = new Element("reviewData");
+    private static Element prepareSnippetReviewNodeElement(BasicReview review) {
+        Element reviewData = new Element("reviewData");
 
-		Element authorElement = new Element("creator");
-		getContent(reviewData).add(authorElement);
-		addTag(authorElement, "userName", review.getAuthor().getUsername());
+        Element authorElement = new Element("creator");
+        getContent(reviewData).add(authorElement);
+        addTag(authorElement, "userName", review.getAuthor().getUsername());
 
-		addTag(reviewData, "description", review.getDescription());
-		addTag(reviewData, "name", review.getName());
-		addTag(reviewData, "projectKey", review.getProjectKey());
-		if (review.getState() != null) {
-			addTag(reviewData, "state", review.getState().value());
-		}
-		if (review.getPermId() != null) {
-			Element permIdElement = new Element("permaId");
-			getContent(reviewData).add(permIdElement);
-			addTag(permIdElement, "id", review.getPermId().getId());
-		}
+        addTag(reviewData, "description", review.getDescription());
+        addTag(reviewData, "name", review.getName());
+        addTag(reviewData, "projectKey", review.getProjectKey());
+        if (review.getState() != null) {
+            addTag(reviewData, "state", review.getState().value());
+        }
+        if (review.getPermId() != null) {
+            Element permIdElement = new Element("permaId");
+            getContent(reviewData).add(permIdElement);
+            addTag(permIdElement, "id", review.getPermId().getId());
+        }
 
-		return reviewData;
-	}
+        return reviewData;
+    }
 
     private static PermId parsePermId(final Element permIdNode) throws ParseException {
         if (permIdNode != null) {
@@ -728,6 +728,7 @@ public final class CrucibleRestXmlHelper {
       * @return <code>false</code> if this comment should not be included in the Review, as the it's a draft from other people
       * the caller should not see
       */
+
     private static boolean parseGeneralComment(Review review, String myUsername, GeneralComment commentBean,
                                                Element reviewCommentNode, boolean trimWikiMarkers) {
 
@@ -817,6 +818,7 @@ public final class CrucibleRestXmlHelper {
       * @return <code>false</code> if this comment should not be included in the Review, as the it's a draft from other people
       * the caller should not see
       */
+
     private static boolean parseComment(String myUsername, Comment commentBean,
                                         Element reviewCommentNode, boolean trimWikiMarkers) {
 
@@ -965,7 +967,7 @@ public final class CrucibleRestXmlHelper {
 
     @Nullable
     public static VersionedComment parseVersionedCommentNode(Review review, Map<PermId,
-                                                             CrucibleFileInfo> crucibleFileInfos,
+            CrucibleFileInfo> crucibleFileInfos,
                                                              String myUsername, Element reviewCommentNode,
                                                              boolean trimWikiMarkers) throws ParseException {
 
@@ -1006,18 +1008,18 @@ public final class CrucibleRestXmlHelper {
         Element child = reviewCommentNode.getChild("lineRanges");
         if (child != null) {
             parseAndFillLineRanges(comment, child);
-		} else {
-			CrucibleFileInfo fileInfo = comment.getCrucibleFileInfo();
-			Map<String, IntRanges> ranges = MiscUtil.buildHashMap();
-			if (fileInfo.getFileDescriptor() != null && comment.getToLineRanges() != null) {
-				ranges.put(fileInfo.getFileDescriptor().getRevision(), comment.getToLineRanges());
-			}
-			if (fileInfo.getOldFileDescriptor() != null && comment.getFromLineRanges() != null) {
-				ranges.put(fileInfo.getOldFileDescriptor().getRevision(), comment.getFromLineRanges());
-			}
-			if (ranges.size() > 0) {
-				comment.setLineRanges(ranges);
-			}
+        } else {
+            CrucibleFileInfo fileInfo = comment.getCrucibleFileInfo();
+            Map<String, IntRanges> ranges = MiscUtil.buildHashMap();
+            if (fileInfo.getFileDescriptor() != null && comment.getToLineRanges() != null) {
+                ranges.put(fileInfo.getFileDescriptor().getRevision(), comment.getToLineRanges());
+            }
+            if (fileInfo.getOldFileDescriptor() != null && comment.getFromLineRanges() != null) {
+                ranges.put(fileInfo.getOldFileDescriptor().getRevision(), comment.getFromLineRanges());
+            }
+            if (ranges.size() > 0) {
+                comment.setLineRanges(ranges);
+            }
         }
         return comment;
     }
@@ -1128,38 +1130,57 @@ public final class CrucibleRestXmlHelper {
     //"2010-11-05T15:20:54.856Z'
 
     public static Date parseDateTime(String date) {
+        IllegalArgumentException ae = null;
+
         if (date != null && !date.equals("")) {
             for (DateTimeFormatter f : COMMENT_TIME_FORMATS) {
                 try {
-                Date parsedDate = f.parseDateTime(date).toDate();
-                return parsedDate;
+                    Date parsedDate = f.parseDateTime(date).toDate();
+                    return parsedDate;
                 } catch (IllegalArgumentException e) {
-                    //try next format/pattern
+                    ae = e;
                 }
+            }
+            
+            if (ae != null) {
+                throw ae;
             }
         }
 
-        return null;        
+        return null;
     }
 
-	private static DateTime parseJodaDateTime(String date) throws ParseException {
-		try {
-			return COMMENT_TIME_FORMAT_BASE.parseDateTime(date);
-		} catch (IllegalArgumentException e) {
-			throw new ParseException("Invalid date string encountered [" + date + "]", 0);
-		} catch (RuntimeException e) {
-			throw new ParseException("Cannot convert string [" + date + "] to date", 0);
-		}
+    private static DateTime parseJodaDateTime(String date) throws ParseException {
+        ParseException pe = null;
+
+        if (date != null && !date.equals("")) {
+            for (DateTimeFormatter f : COMMENT_TIME_FORMATS) {
+                try {
+                    return f.parseDateTime(date);
+                } catch (IllegalArgumentException e) {
+                    //ignore invalid format try harder
+                    pe =  new ParseException("Invalid date string encountered [" + date + "]", 0);
+
+                } catch (RuntimeException e) {
+                    pe = new ParseException("Cannot convert string [" + date + "] to date", 0);
+                }
+            }
+            //unable to parse string throw exception
+            if (pe != null) {
+                throw pe;
+            }
+        }
+        return null;
     }
 
-	private static ReviewType parseReviewType(String reviewType) throws ParseException {
-		if (reviewType == null /* for old Crucible versions */ || "REVIEW".equals(reviewType)) {
-			return ReviewType.REVIEW;
-		} else if ("SNIPPET".equals(reviewType)) {
-			return ReviewType.SNIPPET;
-		}
-		throw new ParseException("Unknown review type [" + reviewType + "]", 0);
-	}
+    private static ReviewType parseReviewType(String reviewType) throws ParseException {
+        if (reviewType == null /* for old Crucible versions */ || "REVIEW".equals(reviewType)) {
+            return ReviewType.REVIEW;
+        } else if ("SNIPPET".equals(reviewType)) {
+            return ReviewType.SNIPPET;
+        }
+        throw new ParseException("Unknown review type [" + reviewType + "]", 0);
+    }
 
     public static CrucibleVersionInfo parseVersionNode(Element element) {
         return new CrucibleVersionInfo(getChildText(element, "releaseNumber"), getChildText(element, "buildDate"));

@@ -14,6 +14,7 @@ import com.atlassian.theplugin.commons.util.XmlUtil;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CrucibleMockUtil;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
+import junit.framework.TestCase;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -21,11 +22,14 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import junit.framework.TestCase;
 
 /**
  * @author pmaruszak
@@ -244,5 +248,29 @@ public class CrucibleRestXmlHelperTest extends TestCase {
 				"https://secure.gravatar.com/avatar/4ba9395f438bc01f336c48adedd24532?s=48&d=https%3A//extranet.atlassian.com/crucible/avatar/j_doe%3Fs%3D48",
 				review.getAuthor().getAvatarUrl());
 	}
+
+
+    public void testDate() {
+            //2010-10-26T09:12:48-07:00
+    //"2010-11-05T15:20:54.856Z'
+    final DateTimeFormatter COMMENT_TIME_FORMATS[] = {DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ"),
+            DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"),
+            DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
+            DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+            DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")};
+
+
+        Date d = COMMENT_TIME_FORMATS[0].parseDateTime("2010-10-26T09:12:48.000-07:00").toDate();
+        assertEquals(d, CrucibleRestXmlHelper.parseDateTime("2010-10-26T09:12:48.000-07:00"));
+        assertEquals(null, CrucibleRestXmlHelper.parseDateTime("2010-10-26T09:12:48-0700"));
+
+        d = COMMENT_TIME_FORMATS[2].parseDateTime("2010-10-26T09:12:48.000Z").toDate();
+        assertEquals(d, CrucibleRestXmlHelper.parseDateTime("2010-10-26T09:12:48.000Z"));
+
+        assertEquals(d, CrucibleRestXmlHelper.parseDateTime("2010-10-26T09:12:48Z"));
+        assertEquals(d, CrucibleRestXmlHelper.parseDateTime("2010-10-26T09:12:48"));
+
+
+    }
 
 }

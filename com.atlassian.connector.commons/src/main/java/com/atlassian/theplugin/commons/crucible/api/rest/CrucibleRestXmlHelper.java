@@ -16,8 +16,6 @@
 
 package com.atlassian.theplugin.commons.crucible.api.rest;
 
-import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
-import static com.atlassian.theplugin.commons.util.XmlUtil.getChildElements;
 import com.atlassian.connector.commons.misc.IntRanges;
 import com.atlassian.connector.commons.misc.IntRangesParser;
 import com.atlassian.theplugin.commons.VersionedVirtualFile;
@@ -68,6 +66,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -77,6 +76,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
+import static com.atlassian.theplugin.commons.util.XmlUtil.getChildElements;
 
 public final class CrucibleRestXmlHelper {
     private static final String CDATA_END = "]]>";
@@ -898,7 +900,7 @@ public final class CrucibleRestXmlHelper {
     }
 
     private static void prepareComment(Comment comment, Element commentNode) {
-        String date = COMMENT_TIME_FORMAT.print(comment.getCreateDate().getTime());
+        String date = COMMENT_TIME_FORMAT_BASE.print(comment.getCreateDate().getTime());
         String strangeDate = date.substring(0, date.length() - 2);
         strangeDate += ":00";
         addTag(commentNode, "createDate", strangeDate);
@@ -1116,19 +1118,33 @@ public final class CrucibleRestXmlHelper {
         return filterData;
     }
 
-    private static final DateTimeFormatter COMMENT_TIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    private static final DateTimeFormatter COMMENT_TIME_FORMAT_BASE = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    private static final DateTimeFormatter COMMENT_TIME_FORMATS[] = {COMMENT_TIME_FORMAT_BASE,
+            DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"),
+            DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
+            DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+            DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")};
+    //2010-10-26T09:12:48-07:00
+    //"2010-11-05T15:20:54.856Z'
 
-    private static Date parseDateTime(String date) {
+    public static Date parseDateTime(String date) {
         if (date != null && !date.equals("")) {
-            return COMMENT_TIME_FORMAT.parseDateTime(date).toDate();
-        } else {
-            return null;
+            for (DateTimeFormatter f : COMMENT_TIME_FORMATS) {
+                try {
+                Date parsedDate = f.parseDateTime(date).toDate();
+                return parsedDate;
+                } catch (IllegalArgumentException e) {
+                    //try next format/pattern
+                }
+            }
         }
+
+        return null;        
     }
 
 	private static DateTime parseJodaDateTime(String date) throws ParseException {
 		try {
-			return COMMENT_TIME_FORMAT.parseDateTime(date);
+			return COMMENT_TIME_FORMAT_BASE.parseDateTime(date);
 		} catch (IllegalArgumentException e) {
 			throw new ParseException("Invalid date string encountered [" + date + "]", 0);
 		} catch (RuntimeException e) {

@@ -405,14 +405,15 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 	 */
 	public BuildDetails getBuildDetails(ConnectionCfg bambooServer, @NotNull String planKey, int buildNumber)
 			throws ServerPasswordNotProvidedException, RemoteApiException {
-		try {
-			System.out.println("getting build details");
-			BambooSession api = getSession(bambooServer);
-			return api.getBuildResultDetails(planKey, buildNumber);
-		} catch (RemoteApiException e) {
-			logger.info("Bamboo exception: " + e.getMessage());
-			throw e;
-		}
+		throw new RemoteApiException("test");
+		// try {
+		// // test
+		// BambooSession api = getSession(bambooServer);
+		// return api.getBuildResultDetails(planKey, buildNumber);
+		// } catch (RemoteApiException e) {
+		// logger.info("Bamboo exception: " + e.getMessage());
+		// throw e;
+		// }
 	}
 
 	public BambooBuild getBuildForPlanAndNumber(ConnectionCfg bambooServer, @NotNull String planKey,

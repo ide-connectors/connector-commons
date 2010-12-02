@@ -1121,7 +1121,7 @@ public final class CrucibleRestXmlHelper {
     }
 
     private static final DateTimeFormatter COMMENT_TIME_FORMAT_BASE = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    private static final DateTimeFormatter COMMENT_TIME_FORMATS[] = {COMMENT_TIME_FORMAT_BASE,
+    private static final DateTimeFormatter[] COMMENT_TIME_FORMATS = {COMMENT_TIME_FORMAT_BASE,
             DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"),
             DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
             DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"),

@@ -406,7 +406,7 @@ public abstract class AbstractHttpSession {
                         return doc;
                     } else if (httpStatus == HttpStatus.SC_MOVED_PERMANENTLY
                             || httpStatus == HttpStatus.SC_MOVED_TEMPORARILY) {
-
+                                                
                         Header newLocation = method.getResponseHeader("Location");
                         if (newLocation == null) {
                             throw new RemoteApiException(

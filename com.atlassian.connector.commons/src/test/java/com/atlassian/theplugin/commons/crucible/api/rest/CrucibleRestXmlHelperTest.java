@@ -14,6 +14,7 @@ import com.atlassian.theplugin.commons.util.XmlUtil;
 import com.atlassian.theplugin.crucible.api.rest.cruciblemock.CrucibleMockUtil;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
+import junit.framework.TestCase;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -21,11 +22,14 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import junit.framework.TestCase;
 
 /**
  * @author pmaruszak
@@ -82,7 +86,7 @@ public class CrucibleRestXmlHelperTest extends TestCase {
 
         @SuppressWarnings("unchecked")
         List<Element> elements = xpath.selectNodes(doc);
-		ExtendedCrucibleProject cp = CrucibleRestXmlHelper.parseProjectNode(elements.get(0));
+        ExtendedCrucibleProject cp = CrucibleRestXmlHelper.parseProjectNode(elements.get(0));
 
         assertEquals(cp.getAllowedReviewers(), null);
 
@@ -154,95 +158,125 @@ public class CrucibleRestXmlHelperTest extends TestCase {
 
     }
 
-	private static final String TEST_URL = "http://localhost";
+    private static final String TEST_URL = "http://localhost";
 
-	public void testParseReviewDataWithDueDate() throws JDOMException, IOException, ParseException {
-		final Document doc = loadDocument("reviewDataWithDueDate.xml");
-		final BasicReview review = CrucibleRestXmlHelper.parseBasicReview(TEST_URL, doc.getRootElement(), false);
-		final DateTime expected = new DateTime(2010, 03, 21, 13, 29, 35, 289, DateTimeZone.forOffsetHours(1));
-		assertTrue(expected.isEqual(review.getDueDate()));
-	}
+    public void testParseReviewDataWithDueDate() throws JDOMException, IOException, ParseException {
+        final Document doc = loadDocument("reviewDataWithDueDate.xml");
+        final BasicReview review = CrucibleRestXmlHelper.parseBasicReview(TEST_URL, doc.getRootElement(), false);
+        final DateTime expected = new DateTime(2010, 03, 21, 13, 29, 35, 289, DateTimeZone.forOffsetHours(1));
+        assertTrue(expected.isEqual(review.getDueDate()));
+    }
 
-	public void testParseReviewDataWithoutDueDate() throws JDOMException, IOException, ParseException {
-		final Document doc = loadDocument("reviewDataWithoutDueDate.xml");
-		final BasicReview review = CrucibleRestXmlHelper.parseBasicReview(TEST_URL, doc.getRootElement(), false);
-		assertNull(review.getDueDate());
-	}
+    public void testParseReviewDataWithoutDueDate() throws JDOMException, IOException, ParseException {
+        final Document doc = loadDocument("reviewDataWithoutDueDate.xml");
+        final BasicReview review = CrucibleRestXmlHelper.parseBasicReview(TEST_URL, doc.getRootElement(), false);
+        assertNull(review.getDueDate());
+    }
 
-	public void testParseReviewDataWithoutCorruptedDueDate() throws JDOMException, IOException, ParseException {
-		final Document doc = loadDocument("reviewDataWithCorruptedDueDate.xml");
-		TestUtil.assertThrows(ParseException.class, new IAction() {
-			public void run() throws Throwable {
-				CrucibleRestXmlHelper.parseBasicReview(TEST_URL, doc.getRootElement(), false);
-			}
-		});
-	}
+    public void testParseReviewDataWithoutCorruptedDueDate() throws JDOMException, IOException, ParseException {
+        final Document doc = loadDocument("reviewDataWithCorruptedDueDate.xml");
+        TestUtil.assertThrows(ParseException.class, new IAction() {
+            public void run() throws Throwable {
+                CrucibleRestXmlHelper.parseBasicReview(TEST_URL, doc.getRootElement(), false);
+            }
+        });
+    }
 
-	public void testParseOpenSnippet() throws ParseException, JDOMException, IOException {
-		final Document doc = loadDocument("open-snippet-details.xml");
-		final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "wseliga", doc.getRootElement(),
-				false);
-		assertEquals(State.OPEN_SNIPPET, review.getState());
-		assertEquals(ReviewType.SNIPPET, review.getType());
-	}
+    public void testParseOpenSnippet() throws ParseException, JDOMException, IOException {
+        final Document doc = loadDocument("open-snippet-details.xml");
+        final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "wseliga", doc.getRootElement(),
+                false);
+        assertEquals(State.OPEN_SNIPPET, review.getState());
+        assertEquals(ReviewType.SNIPPET, review.getType());
+    }
 
-	public void testParseClosedSnippet() throws ParseException, JDOMException, IOException {
-		final Document doc = loadDocument("closed-snippet-details.xml");
-		final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "wseliga", doc.getRootElement(),
-				false);
-		assertEquals(State.CLOSED_SNIPPET, review.getState());
-		assertEquals(ReviewType.SNIPPET, review.getType());
-	}
+    public void testParseClosedSnippet() throws ParseException, JDOMException, IOException {
+        final Document doc = loadDocument("closed-snippet-details.xml");
+        final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "wseliga", doc.getRootElement(),
+                false);
+        assertEquals(State.CLOSED_SNIPPET, review.getState());
+        assertEquals(ReviewType.SNIPPET, review.getType());
+    }
 
-	public void testParseRegularReviewType() throws ParseException, JDOMException, IOException {
-		final Document doc = loadDocument("reviewDetailsResponse-withReviewType.xml");
-		final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "wseliga", doc.getRootElement(),
-				false);
-		assertEquals(State.DRAFT, review.getState());
-		assertEquals(ReviewType.REVIEW, review.getType());
-	}
+    public void testParseRegularReviewType() throws ParseException, JDOMException, IOException {
+        final Document doc = loadDocument("reviewDetailsResponse-withReviewType.xml");
+        final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "wseliga", doc.getRootElement(),
+                false);
+        assertEquals(State.DRAFT, review.getState());
+        assertEquals(ReviewType.REVIEW, review.getType());
+    }
 
-	private Document loadDocument(String resourceName) throws JDOMException, IOException {
-		final SAXBuilder builder = new SAXBuilder();
-		final Document doc = builder.build(new CrucibleMockUtil().getResource(resourceName));
-		return doc;
-	}
+    private Document loadDocument(String resourceName) throws JDOMException, IOException {
+        final SAXBuilder builder = new SAXBuilder();
+        final Document doc = builder.build(new CrucibleMockUtil().getResource(resourceName));
+        return doc;
+    }
 
-	public void testParseReviewDataWithUnkownAndIncompleteAction() throws JDOMException, IOException, ParseException {
-		final Document doc = loadDocument("reviewDataWithUnknownAction.xml");
-		try {
-			final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "pniewiadomski", doc.getRootElement(),
-				false);
-			// assertTrue(a.contains(CrucibleAction.CREATE));
-			TestUtil.assertHasOnlyElements(review.getActions(), CrucibleAction.CLOSE,
-					CrucibleAction.SUMMARIZE, CrucibleAction.COMPLETE,
-					CrucibleAction.VIEW, CrucibleAction.MODIFY_FILES, CrucibleAction.COMMENT,
-					CrucibleAction.UNCOMPLETE, CrucibleAction.RECOVER, CrucibleAction.REOPEN,
-					CrucibleAction.CREATE_SNIPPET, CrucibleAction.REOPEN_SNIPPET, CrucibleAction.CLOSE_SNIPPET);
-		} catch (IllegalArgumentException e) {
-			fail("Should not throw this excaption outside");
-		}
-	}
+    public void testParseReviewDataWithUnkownAndIncompleteAction() throws JDOMException, IOException, ParseException {
+        final Document doc = loadDocument("reviewDataWithUnknownAction.xml");
+        try {
+            final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "pniewiadomski", doc.getRootElement(),
+                    false);
+            // assertTrue(a.contains(CrucibleAction.CREATE));
+            TestUtil.assertHasOnlyElements(review.getActions(), CrucibleAction.CLOSE,
+                    CrucibleAction.SUMMARIZE, CrucibleAction.COMPLETE,
+                    CrucibleAction.VIEW, CrucibleAction.MODIFY_FILES, CrucibleAction.COMMENT,
+                    CrucibleAction.UNCOMPLETE, CrucibleAction.RECOVER, CrucibleAction.REOPEN,
+                    CrucibleAction.CREATE_SNIPPET, CrucibleAction.REOPEN_SNIPPET, CrucibleAction.CLOSE_SNIPPET);
+        } catch (IllegalArgumentException e) {
+            fail("Should not throw this excaption outside");
+        }
+    }
 
-	public void testParseActionsWithUnknownAction() throws JDOMException, IOException {
-		final Document doc = loadDocument("actions-with-some-new-action.xml");
-		final List<Element> actionElements = XmlUtil.getChildElements(doc.getRootElement(), "actionData");
-		final List<CrucibleAction> actions = CrucibleRestXmlHelper.parseActions(actionElements);
-		TestUtil.assertHasOnlyElements(actions, CrucibleAction.REJECT, CrucibleAction.APPROVE,
-				CrucibleAction.VIEW, CrucibleAction.CREATE, CrucibleAction.REOPEN, CrucibleAction.COMMENT,
-				new CrucibleAction("My strange action", "action:myStrangeAction"));
+    public void testParseActionsWithUnknownAction() throws JDOMException, IOException {
+        final Document doc = loadDocument("actions-with-some-new-action.xml");
+        final List<Element> actionElements = XmlUtil.getChildElements(doc.getRootElement(), "actionData");
+        final List<CrucibleAction> actions = CrucibleRestXmlHelper.parseActions(actionElements);
+        TestUtil.assertHasOnlyElements(actions, CrucibleAction.REJECT, CrucibleAction.APPROVE,
+                CrucibleAction.VIEW, CrucibleAction.CREATE, CrucibleAction.REOPEN, CrucibleAction.COMMENT,
+                new CrucibleAction("My strange action", "action:myStrangeAction"));
 
-	}
+    }
 
-	public void testParseReviewDataWithAvatars() throws JDOMException, IOException, ParseException {
-		final Document doc = loadDocument("reviewDataWithAvatars.xml");
-		final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "pniewiadomski", doc.getRootElement(),
-				false);
-		assertNotNull(review);
-		assertNotNull(review.getAuthor());
-		assertEquals(
-				"https://secure.gravatar.com/avatar/4ba9395f438bc01f336c48adedd24532?s=48&d=https%3A//extranet.atlassian.com/crucible/avatar/j_doe%3Fs%3D48",
-				review.getAuthor().getAvatarUrl());
-	}
+    public void testParseReviewDataWithAvatars() throws JDOMException, IOException, ParseException {
+        final Document doc = loadDocument("reviewDataWithAvatars.xml");
+        final Review review = CrucibleRestXmlHelper.parseFullReview(TEST_URL, "pniewiadomski", doc.getRootElement(),
+                false);
+        assertNotNull(review);
+        assertNotNull(review.getAuthor());
+        assertEquals(
+                "https://secure.gravatar.com/avatar/4ba9395f438bc01f336c48adedd24532?s=48&d=https%3A//extranet.atlassian.com/crucible/avatar/j_doe%3Fs%3D48",
+                review.getAuthor().getAvatarUrl());
+    }
+
+
+    public void testDate() {
+        //2010-10-26T09:12:48-07:00
+        //"2010-11-05T15:20:54.856Z'
+        final DateTimeFormatter COMMENT_TIME_FORMATS[] = {DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ"),
+                DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"),
+                DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
+                DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"),
+                DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")};
+
+
+        Date d = COMMENT_TIME_FORMATS[0].parseDateTime("2010-10-26T09:12:48.000-07:00").toDate();
+        assertEquals(d, CrucibleRestXmlHelper.parseDateTime("2010-10-26T09:12:48.000-07:00"));
+        try {
+            CrucibleRestXmlHelper.parseDateTime("2010-10-26T09:12:48-0700");
+            fail();
+        } catch (IllegalArgumentException e) {
+
+        }
+
+
+        d = COMMENT_TIME_FORMATS[2].parseDateTime("2010-10-26T09:12:48.000Z").toDate();
+        assertEquals(d, CrucibleRestXmlHelper.parseDateTime("2010-10-26T09:12:48.000Z"));
+
+        assertEquals(d, CrucibleRestXmlHelper.parseDateTime("2010-10-26T09:12:48Z"));
+        assertEquals(d, CrucibleRestXmlHelper.parseDateTime("2010-10-26T09:12:48"));
+
+
+    }
 
 }

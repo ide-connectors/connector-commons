@@ -15,7 +15,8 @@ package com.atlassian.theplugin.commons.remoteapi;
 public class CaptchaRequiredException extends RemoteApiLoginException {
 
 	public CaptchaRequiredException(Throwable throwable) {
-		super("Captcha authentication requested", throwable);
+		super("Due to multiple failed login attempts, you have been temporarily banned from using the remote API."
+                + " To re-enable the remote API please log into your server via the web interface.", throwable);
 	}
 
 }

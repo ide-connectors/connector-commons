@@ -193,7 +193,9 @@ public class JIRASessionImpl implements JIRASession {
         } catch (RemoteAuthenticationException e) {
             if (e != null && e.getFaultString() != null
                     && e.getFaultString().contains("The maximum number of failed login attempts")) {
-                throw new RemoteApiLoginException("Captcha failure. Please login via WEB interface.", e);
+                throw new RemoteApiLoginException("Due to multiple failed login attempts, "
+                        + "you have been temporarily banned from using the remote API.\n"
+                        + "To re-enable the remote API please log into your server via the web interface", e);
             } else {
                 throw new RemoteApiLoginException("Authentication failed", e);
             }

@@ -16,24 +16,28 @@
 
 package com.atlassian.theplugin.bamboo.api.bamboomock;
 
-import static junit.framework.Assert.assertEquals;
 import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildStatus;
 import com.atlassian.theplugin.commons.util.ResourceUtil;
+import junit.framework.Assert;
 import org.apache.commons.httpclient.HttpStatus;
+
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-import junit.framework.Assert;
+
+import static junit.framework.Assert.assertEquals;
 
 public abstract class Util {
 
 	public static final String RESOURCE_BASE_1_2_4 = "/mock/bamboo/1_2_4/api/rest/";
 	public static final String RESOURCE_BASE_2_1_5 = "/mock/bamboo/2_1_5/api/rest/";
 	public static final String RESOURCE_BASE_2_3 = "/mock/bamboo/2_3/api/rest/";
+    public static final String RESOURCE_BASE_3_0 = "/mock/bamboo/3_0/api/rest/";
+
 
 	private Util() {
 	}

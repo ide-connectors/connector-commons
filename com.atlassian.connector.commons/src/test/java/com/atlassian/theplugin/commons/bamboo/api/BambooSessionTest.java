@@ -22,12 +22,14 @@ import com.atlassian.theplugin.api.AbstractSessionTest;
 import com.atlassian.theplugin.bamboo.api.bamboomock.AddCommentToBuildCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.AddLabelToBuildCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.BamboBuildNumberCalback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetails30ResultCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetailsResultCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.BuildForPlanAndNumberCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.ErrorMessageCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.ExecuteBuildCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.GenericResourceCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.JobKeyForChainCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultVelocityCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LatestPlanCallback;
@@ -52,11 +54,13 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
+import junit.framework.Assert;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.ISODateTimeFormat;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -65,7 +69,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import junit.framework.Assert;
 
 
 /**
@@ -417,6 +420,47 @@ public class BambooSessionTest extends AbstractSessionTest {
 		assertEquals(TestResult.TEST_SUCCEED,
 				build.getSuccessfulTestDetails().iterator().next().getTestResult());
 	}
+
+
+    public void testBuildDetailsFor3_0() throws Exception {
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+
+    mockServer.expect("/api/rest/getBambooBuildNumber.action",
+				new BamboBuildNumberCalback("/mock/bamboo/3_0/api/rest/bambooBuildNumberResponse.xml"));
+                                                          //?expand=stages.stage.plans
+		mockServer.expect("/rest/api/latest/plan/COMMON-BB",
+				new JobKeyForChainCallback("/mock/bamboo/3_0/api/rest/jobKeyForChain.xml", "COMMON-BB"));
+
+		mockServer.expect("/rest/api/latest/result/COMMON-BB-JOB1-5",
+				new BuildDetails30ResultCallback("/mock/bamboo/3_0/api/rest/buildResultDetails.xml", "COMMON-BB-JOB1-5"));
+		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
+
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
+		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
+		BuildDetails build = apiHandler.getBuildResultDetails("COMMON-BB", 5);
+		apiHandler.logout();
+
+		mockServer.verify();
+
+		assertNotNull(build);
+		// commit
+		assertEquals(0, build.getCommitInfo().size());
+
+		// failed tests
+		assertEquals(2, build.getFailedTestDetails().size());
+		assertEquals("com.atlassian.bitbucket.ChangeSetBuilderTest",
+				build.getFailedTestDetails().iterator().next().getTestClassName());
+		assertEquals("testFindChangeSetsForRepository",
+				build.getFailedTestDetails().iterator().next().getTestMethodName());
+		assertEquals(0.191,
+				build.getFailedTestDetails().iterator().next().getTestDuration());
+		assertNotNull(build.getFailedTestDetails().iterator().next().getErrors());
+		assertEquals(TestResult.TEST_FAILED,
+				build.getFailedTestDetails().iterator().next().getTestResult());
+
+		// successful tests
+		assertEquals(0, build.getSuccessfulTestDetails().size());
+    }
 
 	public void testBuildDetailsFor1CommitFailedTests() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));

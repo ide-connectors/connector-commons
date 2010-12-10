@@ -379,13 +379,13 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
         String buildResultUrl;
         String nodePath;
         if (bambooBuild < BAMBOO_2_6_3_BUILD_NUMBER) {
-            buildResultUrl = getBaseUrl() +
-                    GET_BUILD_BY_NUMBER_ACTION + "/" + UrlUtil.encodeUrl(planKey)
+            buildResultUrl = getBaseUrl()
+                    + GET_BUILD_BY_NUMBER_ACTION + "/" + UrlUtil.encodeUrl(planKey)
                     + "/" + buildNumber + "?auth=" + UrlUtil.encodeUrl(authToken);
             nodePath = "/build";
         } else {
-            buildResultUrl = getBaseUrl() +
-                    GET_BUILD_DETAILS  + UrlUtil.encodeUrl(planKey) + "-" + buildNumber;
+            buildResultUrl = getBaseUrl()
+                    + GET_BUILD_DETAILS  + UrlUtil.encodeUrl(planKey) + "-" + buildNumber;
             nodePath = "/result";
         }
 
@@ -661,13 +661,13 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
         } else if (bamboBuildNumber > BAMBOO_2_6_3_BUILD_NUMBER && bamboBuildNumber < BAMBOO_3_0_M8_BUILD_NUMBER) {
             return getBuildResultDetailsNew(planKey, buildNumber);
         } else if (bamboBuildNumber >= BAMBOO_3_0_M8_BUILD_NUMBER) {
-            return getBuildResultDetails3_0(planKey, buildNumber);
+            return getBuildResultDetails3x(planKey, buildNumber);
         } else {
             return getBuildResultDetailsOld(planKey, buildNumber);
         }
     }
 
-    private BuildDetails getBuildResultDetails3_0(String planKey, int buildNumber) throws RemoteApiException {
+    private BuildDetails getBuildResultDetails3x(String planKey, int buildNumber) throws RemoteApiException {
 
         // tests are available for separate jobs since Bamboo v 2.7 (build number not known yet)
         List<String> jobKeys = getJobKeysForChain(planKey);
@@ -1098,7 +1098,8 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
     }
 
     private BambooBuildInfo.Builder constructBuilderItem(Element buildItemNode, Date lastPollingTime, final String aPlanKey,
-                                                         Set<String> commiters, final int timezoneOffset) throws RemoteApiException {
+                                                         Set<String> commiters, final int timezoneOffset)
+            throws RemoteApiException {
 
         BambooBuildInfo.Builder builder;
         // for never executed build we actually have no data here (no children)

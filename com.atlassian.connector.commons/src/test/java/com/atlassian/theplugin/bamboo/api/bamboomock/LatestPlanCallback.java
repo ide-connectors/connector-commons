@@ -16,36 +16,40 @@
 
 package com.atlassian.theplugin.bamboo.api.bamboomock;
 
-import static junit.framework.Assert.assertTrue;
 import org.ddsteps.mock.httpserver.JettyMockServer;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import static junit.framework.Assert.assertTrue;
 
 public class LatestPlanCallback implements JettyMockServer.Callback {
 
 	private int errorReason = NON_ERROR;
-	private final String file;
+    private final String resourcePrefixPath;
+    private final String file;
 	private final String planKey;
 
 	public static final int NON_ERROR = 0;
 	public static final int NON_EXIST_FAIL = 1;
 
 	public LatestPlanCallback() {
-		this("ECL-DPL", "planResponse.xml", NON_ERROR);
+		this("ECL-DPL", "planResponse.xml", NON_ERROR, Util.RESOURCE_BASE_2_3);
 	}
 
-	public LatestPlanCallback(String planKey, String file, int reason) {
+	public LatestPlanCallback(String planKey, String file, int reason, String resourcePrefixPath) {
 		this.planKey = planKey;
 		this.file = file;
 		this.errorReason = reason;
-	}
+        this.resourcePrefixPath = resourcePrefixPath;
+    }
 
 	public LatestPlanCallback(String file) {
-		this("ECL-DPL", file, NON_ERROR);
+		this("ECL-DPL", file, NON_ERROR, Util.RESOURCE_BASE_2_3);
 	}
 
 	public LatestPlanCallback(int reason) {
-		this("ECL-DPL", "planResponse.xml", reason);
+		this("ECL-DPL", "planResponse.xml", reason, Util.RESOURCE_BASE_2_3);
 	}
 
 	public void onExpectedRequest(String target,
@@ -64,10 +68,10 @@ public class LatestPlanCallback implements JettyMockServer.Callback {
 
 		switch (errorReason) {
 			case NON_ERROR:
-				Util.copyResourceWithFullPath(response.getOutputStream(), Util.RESOURCE_BASE_2_3 + file);
+				Util.copyResourceWithFullPath(response.getOutputStream(), resourcePrefixPath + file);
 				break;
 			case NON_EXIST_FAIL:
-				Util.copyResourceWithFullPath(response.getOutputStream(), Util.RESOURCE_BASE_2_3 + "planNotFoundResponse.xml");
+				Util.copyResourceWithFullPath(response.getOutputStream(), resourcePrefixPath + "planNotFoundResponse.xml");
 				break;
 		}
 		response.getOutputStream().flush();

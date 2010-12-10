@@ -376,8 +376,18 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
         if (bambooBuild < BAMBOO_23_BUILD_NUMBER) {
             throw new RemoteApiBadServerVersionException("Bamboo version 2.3 or newer required");
         }
-        String buildResultUrl = getBaseUrl() + GET_BUILD_BY_NUMBER_ACTION + "/" + UrlUtil.encodeUrl(planKey)
-                + "/" + buildNumber + "?auth=" + UrlUtil.encodeUrl(authToken);
+        String buildResultUrl;
+        String nodePath;
+        if (bambooBuild < BAMBOO_2_6_3_BUILD_NUMBER) {
+            buildResultUrl = getBaseUrl() +
+                    GET_BUILD_BY_NUMBER_ACTION + "/" + UrlUtil.encodeUrl(planKey)
+                    + "/" + buildNumber + "?auth=" + UrlUtil.encodeUrl(authToken);
+            nodePath = "/build";
+        } else {
+            buildResultUrl = getBaseUrl() +
+                    GET_BUILD_DETAILS  + UrlUtil.encodeUrl(planKey) + "-" + buildNumber;
+            nodePath = "/result";
+        }
 
         try {
             Document doc = retrieveGetResponse(buildResultUrl);
@@ -387,7 +397,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
             }
 
             @SuppressWarnings("unchecked")
-            final List<Element> elements = XPath.newInstance("/build").selectNodes(doc);
+            final List<Element> elements = XPath.newInstance(nodePath).selectNodes(doc);
             Element el = elements.get(0);
             return constructBuildItemFromNewApi(el, new Date(), planKey);
 

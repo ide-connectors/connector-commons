@@ -226,7 +226,7 @@ public class FishEyeRestSession extends AbstractHttpSession implements FishEyeSe
             throw new IllegalStateException(CALLING_METHOD_WITHOUT_CALLING_LOGIN_FIRST);
         }
 
-        String requestUrl = getBaseUrl() + LIST_HISTORY_ACTION + repo + "?path=" + path;
+        String requestUrl = getBaseUrl() + LIST_HISTORY_ACTION + repo + "?path=" + UrlUtil.encodeUrl(path);
         try {
             Document doc = retrieveGetResponse(requestUrl);
 

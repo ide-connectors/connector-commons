@@ -757,16 +757,11 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
     @NotNull
     private BuildDetails getBuildResultDetailsNew(@NotNull String planKey, int buildNumber) throws RemoteApiException {
 
-        // tests are available for separate jobs since Bamboo v 2.7 (build number not known yet)
+		// tests are available for separate jobs since Bamboo v 2.7
         List<String> jobKeys = getJobKeysForChain(planKey);
-
-		// if (jobKeys.size() > 1) {
-		// throw new RemoteApiException("Getting tests is not supported for plans (chains) with more than one job");
-		// }
 
         BuildDetailsInfo build = new BuildDetailsInfo();
 
-		// if (jobKeys.size() == 1 && jobKeys.get(0) != null && jobKeys.get(0).length() > 0) {
 		for (String jobKey : jobKeys) { // job key contains project key
 
         	BambooJob job = new BambooJobImpl(jobKey);

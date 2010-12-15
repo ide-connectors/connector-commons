@@ -11,6 +11,7 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
+import org.apache.commons.lang.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,15 +34,27 @@ public class BambooJobImpl implements BambooJob {
 	}
 
 	public void addFailedTest(TestDetailsInfo tInfo) {
-		failedTests.add(tInfo);
+		getFailedTests().add(tInfo);
 	}
 
 	public void addSuccessfulTest(TestDetailsInfo tInfo) {
-		successfulTests.add(tInfo);
+		getSuccessfulTests().add(tInfo);
 	}
 
 	public String getKey() {
 		return key;
+	}
+
+	public String getShortKey() {
+		return StringUtils.substringAfterLast(key, "-");
+	}
+
+	public List<TestDetails> getSuccessfulTests() {
+		return successfulTests;
+	}
+
+	public List<TestDetails> getFailedTests() {
+		return failedTests;
 	}
 
 }

@@ -11,6 +11,8 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
+import java.util.List;
+
 /**
  *
  * @author Jacek Jaroczynski
@@ -20,5 +22,13 @@ public interface BambooJob {
 	void addFailedTest(TestDetailsInfo tInfo);
 
 	void addSuccessfulTest(TestDetailsInfo tInfo);
+
+	List<TestDetails> getSuccessfulTests();
+
+	List<TestDetails> getFailedTests();
+
+	String getKey();
+
+	String getShortKey();
 
 }

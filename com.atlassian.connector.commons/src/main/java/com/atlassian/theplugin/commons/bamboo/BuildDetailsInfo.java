@@ -80,4 +80,8 @@ public class BuildDetailsInfo implements BuildDetails {
 	public void addJob(BambooJob job) {
 		jobs.add(job);
 	}
+
+	public List<BambooJob> getJobs() {
+		return jobs;
+	}
 }

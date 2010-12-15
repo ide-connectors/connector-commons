@@ -30,4 +30,6 @@ public interface BuildDetails {
 	List<TestDetails> getSuccessfulTestDetails();
 	List<TestDetails> getFailedTestDetails();
 	List<BambooChangeSet> getCommitInfo();
+
+	List<BambooJob> getJobs();
 }

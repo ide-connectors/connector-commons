@@ -20,6 +20,7 @@ import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
 import com.atlassian.theplugin.commons.bamboo.BambooChangeSet;
+import com.atlassian.theplugin.commons.bamboo.BambooJob;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
@@ -214,6 +215,10 @@ public class AutoRenewBambooSessionTest extends TestCase {
 			}
 
 			public List<BambooChangeSet> getCommitInfo() {
+				return null;
+			}
+
+			public List<BambooJob> getJobs() {
 				return null;
 			}
 		});

@@ -22,6 +22,8 @@ import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
 import com.atlassian.theplugin.commons.bamboo.BambooChangeSet;
 import com.atlassian.theplugin.commons.bamboo.BambooChangeSetImpl;
+import com.atlassian.theplugin.commons.bamboo.BambooJob;
+import com.atlassian.theplugin.commons.bamboo.BambooJobImpl;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BambooProjectInfo;
@@ -53,7 +55,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -119,7 +120,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
     private static final int BAMBOO_23_BUILD_NUMBER = 1308;
     private static final int BAMBOO_2_6_BUILD_NUMBER = 1839;
     private static final int BAMBOO_2_6_3_BUILD_NUMBER = 1904;
-    private static final int BAMBOO_3_0_M8_BUILD_NUMBER = 2027;
+	private static final int BAMBOO_2_7_2_BUILD_NUMBER = 2101;
 
     private static final String CANNOT_PARSE_BUILD_TIME = "Cannot parse buildTime.";
     private static final String INVALID_SERVER_RESPONSE = "Invalid server response";
@@ -658,9 +659,9 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
         final int bamboBuildNumber = getBamboBuildNumber();
         if (bamboBuildNumber >= BAMBOO_2_6_BUILD_NUMBER && bamboBuildNumber <= BAMBOO_2_6_3_BUILD_NUMBER) {
             return getBuildResultDetailsMoreRestish(planKey, buildNumber);
-        } else if (bamboBuildNumber > BAMBOO_2_6_3_BUILD_NUMBER && bamboBuildNumber < BAMBOO_3_0_M8_BUILD_NUMBER) {
+		} else if (bamboBuildNumber > BAMBOO_2_6_3_BUILD_NUMBER && bamboBuildNumber <= BAMBOO_2_7_2_BUILD_NUMBER) {
             return getBuildResultDetailsNew(planKey, buildNumber);
-        } else if (bamboBuildNumber >= BAMBOO_3_0_M8_BUILD_NUMBER) {
+		} else if (bamboBuildNumber > BAMBOO_2_7_2_BUILD_NUMBER) {
             return getBuildResultDetails3x(planKey, buildNumber);
         } else {
             return getBuildResultDetailsOld(planKey, buildNumber);
@@ -759,15 +760,17 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
         // tests are available for separate jobs since Bamboo v 2.7 (build number not known yet)
         List<String> jobKeys = getJobKeysForChain(planKey);
 
-        if (jobKeys.size() > 1) {
-            throw new RemoteApiException("Getting tests is not supported for plans (chains) with more than one job");
-        }
+		// if (jobKeys.size() > 1) {
+		// throw new RemoteApiException("Getting tests is not supported for plans (chains) with more than one job");
+		// }
 
         BuildDetailsInfo build = new BuildDetailsInfo();
 
-        if (jobKeys.size() == 1 && jobKeys.get(0) != null && jobKeys.get(0).length() > 0) {
+		// if (jobKeys.size() == 1 && jobKeys.get(0) != null && jobKeys.get(0).length() > 0) {
+		for (String jobKey : jobKeys) { // job key contains project key
 
-            String jobKey = jobKeys.get(0); // job key contains project key
+        	BambooJob job = new BambooJobImpl(jobKey);
+			build.addJob(job);
 
             final String url = new StringBuilder().append(getBaseUrl())
                     .append(GET_BUILD_DETAILS)
@@ -813,10 +816,12 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
                     switch (tInfo.getTestResult()) {
                         case TEST_FAILED:
-                            build.addFailedTest(tInfo);
+						build.addFailedTest(tInfo); // TODO: remove when IntelliJ is ready with the jobs
+						job.addFailedTest(tInfo);
                             break;
                         case TEST_SUCCEED:
-                            build.addSuccessfulTest(tInfo);
+						build.addSuccessfulTest(tInfo); // TODO: remove when IntelliJ is ready with the jobs
+						job.addSuccessfulTest(tInfo);
                             break;
                         default:
                             break;
@@ -826,7 +831,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
                 if (changesElement != null) {
                     build.setCommitInfo(parseChangeSets(changesElement));
                 }
-                return build;
+				// return build;
             } catch (JDOMException e) {
                 throw new RemoteApiException("Server returned malformed response", e);
             } catch (IOException e) {
@@ -1003,7 +1008,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
     public void executeBuild(@NotNull String planKey) throws RemoteApiException {
 
-        if (getBamboBuildNumber() >= BAMBOO_3_0_M8_BUILD_NUMBER) {
+		if (getBamboBuildNumber() >= BAMBOO_2_7_2_BUILD_NUMBER) {
             executeBuildNewApi(planKey);
         } else {
             executeBuildOldApi(planKey);

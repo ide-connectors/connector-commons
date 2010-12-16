@@ -1248,7 +1248,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
             List<String> jobKeys = getJobKeysForChain(planKey);
 
             if (jobKeys.size() > 1) {
-                throw new RemoteApiException("Getting log is not supported for plans (chains) with more than one job");
+                throw new RemoteApiException("Logs are only available for Plans with a single Job.");
             }
 
             if (jobKeys.size() == 1 && jobKeys.get(0) != null && jobKeys.get(0).length() > 0) {

@@ -673,15 +673,12 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
         // tests are available for separate jobs since Bamboo v 2.7 (build number not known yet)
         List<String> jobKeys = getJobKeysForChain(planKey);
 
-        if (jobKeys.size() > 1) {
-            throw new RemoteApiException("Getting tests is not supported for plans (chains) with more than one job");
-        }
-
         BuildDetailsInfo build = new BuildDetailsInfo();
 
-        if (jobKeys.size() == 1 && jobKeys.get(0) != null && jobKeys.get(0).length() > 0) {
+		for (String jobKey : jobKeys) { // job key contains project key
 
-            String jobKey = jobKeys.get(0); // job key contains project key
+			BambooJob job = new BambooJobImpl(jobKey);
+			build.addJob(job);
 
             final String url = new StringBuilder().append(getBaseUrl())
                     .append(GET_BUILD_DETAILS)
@@ -728,9 +725,11 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
                     switch (tInfo.getTestResult()) {
                         case TEST_FAILED:
                             build.addFailedTest(tInfo);
+						job.addFailedTest(tInfo);
                             break;
                         case TEST_SUCCEED:
                             build.addSuccessfulTest(tInfo);
+						job.addSuccessfulTest(tInfo);
                             break;
                         default:
                             break;
@@ -740,7 +739,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
                 if (changesElement != null) {
                     build.setCommitInfo(parseChangeSets(changesElement));
                 }
-                return build;
+				// return build;
             } catch (JDOMException e) {
                 throw new RemoteApiException("Server returned malformed response", e);
             } catch (IOException e) {

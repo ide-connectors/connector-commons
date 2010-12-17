@@ -31,4 +31,6 @@ public interface BambooJob {
 
 	String getShortKey();
 
+    boolean isEnabled();
+
 }

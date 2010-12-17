@@ -22,14 +22,15 @@ import java.util.List;
 public class BambooJobImpl implements BambooJob {
 
 	private final String key;
-
+    private final boolean enabled;
 	private final List<TestDetails> successfulTests;
 	private final List<TestDetails> failedTests;
 
-	public BambooJobImpl(String key) {
+	public BambooJobImpl(String key, boolean enabled) {
 		this.key = key;
+        this.enabled = enabled;
 
-		successfulTests = new ArrayList<TestDetails>();
+        successfulTests = new ArrayList<TestDetails>();
 		failedTests = new ArrayList<TestDetails>();
 	}
 
@@ -49,7 +50,11 @@ public class BambooJobImpl implements BambooJob {
 		return StringUtils.substringAfterLast(key, "-");
 	}
 
-	public List<TestDetails> getSuccessfulTests() {
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public List<TestDetails> getSuccessfulTests() {
 		return successfulTests;
 	}
 

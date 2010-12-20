@@ -19,18 +19,19 @@ import java.util.List;
  */
 public interface BambooJob {
 
-	void addFailedTest(TestDetailsInfo tInfo);
-
-	void addSuccessfulTest(TestDetailsInfo tInfo);
-
-	List<TestDetails> getSuccessfulTests();
-
-	List<TestDetails> getFailedTests();
 
 	String getKey();
 
 	String getShortKey();
 
-    boolean isEnabled();
+	String getName();
+
+	String getShortName();
+
+	boolean isEnabled();
+
+	List<TestDetails> getFailedTests();	
+
+	List<TestDetails> getSuccessfulTests();
 
 }

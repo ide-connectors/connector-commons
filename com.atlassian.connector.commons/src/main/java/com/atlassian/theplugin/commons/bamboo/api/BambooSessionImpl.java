@@ -22,7 +22,6 @@ import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooBuildInfo;
 import com.atlassian.theplugin.commons.bamboo.BambooChangeSet;
 import com.atlassian.theplugin.commons.bamboo.BambooChangeSetImpl;
-import com.atlassian.theplugin.commons.bamboo.BambooJob;
 import com.atlassian.theplugin.commons.bamboo.BambooJobImpl;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
@@ -671,21 +670,22 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
     private BuildDetails getBuildResultDetails3x(String planKey, int buildNumber) throws RemoteApiException {
 
         // tests are available for separate jobs since Bamboo v 2.7 (build number not known yet)
-        List<BambooJob> jobs = getJobKeysForChain(planKey);
+		List<BambooJobImpl> jobs = getJobsForPlan(planKey);
 
         BuildDetailsInfo build = new BuildDetailsInfo();
 
-		for (BambooJob job : jobs) { // job key contains project key
+		for (BambooJobImpl job : jobs) { // job key contains project key
 
-            //omit disabled plans
-			if (!job.isEnabled()) {
-                continue;
-            }
 			build.addJob(job);
+
+			if (!job.isEnabled()) {
+				// there are no details for disabled jobs
+				continue;
+			}
 
             final String url = new StringBuilder().append(getBaseUrl())
                     .append(GET_BUILD_DETAILS)
-                    .append(job.getKey())
+					.append(job.getKey())
                     .append("-")
                     .append(buildNumber)
                     .append("?")
@@ -760,17 +760,22 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
     private BuildDetails getBuildResultDetailsNew(@NotNull String planKey, int buildNumber) throws RemoteApiException {
 
 		// tests are available for separate jobs since Bamboo v 2.7
-        List<BambooJob> jobs = getJobKeysForChain(planKey);
+		List<BambooJobImpl> jobs = getJobsForPlan(planKey);
 
         BuildDetailsInfo build = new BuildDetailsInfo();
 
-		for (BambooJob job : jobs) { // job key contains project key
+		for (BambooJobImpl job : jobs) { // job key contains project key
 
 			build.addJob(job);
 
+			if (!job.isEnabled()) {
+				// there are no details for disabled jobs
+				continue;
+			}
+
             final String url = new StringBuilder().append(getBaseUrl())
                     .append(GET_BUILD_DETAILS)
-                    .append(job.getKey())
+					.append(job.getKey())
                     .append("-")
                     .append(buildNumber)
                     .append("?")
@@ -1246,13 +1251,13 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
         // log is available for separate jobs since Bamboo v 2.7 (build number not known yet)
         if (getBamboBuildNumber() > BAMBOO_2_6_3_BUILD_NUMBER) {
 
-            List<BambooJob> jobs = getJobKeysForChain(planKey);
+			List<BambooJobImpl> jobs = getJobsForPlan(planKey);
 
             if (jobs.size() > 1) {
                 throw new RemoteApiException("Logs are only available for Plans with a single Job.");
             }
 
-            if (jobs.size() == 1 && jobs.get(0) != null && jobs.get(0).getKey().length() > 0) {
+			if (jobs.size() == 1 && jobs.get(0).isEnabled()) {
 
                 String jobKey = jobs.get(0).getKey(); // job key contains project key
 
@@ -1290,9 +1295,9 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
         return null;
     }
 
-    private List<BambooJob> getJobKeysForChain(String planKey) throws RemoteApiException {
+	private List<BambooJobImpl> getJobsForPlan(String planKey) throws RemoteApiException {
 
-        List<BambooJob> jobs = new ArrayList<BambooJob>();
+        List<BambooJobImpl> jobs = new ArrayList<BambooJobImpl>();
 
         String url = getBaseUrl() + PLAN_STATE + UrlUtil.encodeUrl(planKey) + "?expand=stages.stage.plans";
 
@@ -1308,9 +1313,22 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
             final List<Element> elements = xpath.selectNodes(doc);
             if (elements != null) {
                 for (Element element : elements) {
-                    jobs.add(new BambooJobImpl(element.getAttributeValue("key"),
-                            element.getAttribute("enabled") != null && element.getAttribute("enabled").getValue() != null
-                                    ? Boolean.valueOf(element.getAttribute("enabled").getValue()) : false));
+					String key = element.getAttributeValue("key");
+					String shortKey = element.getAttributeValue("shortKey");
+					String name = element.getAttributeValue("name");
+					String shortName = element.getAttributeValue("shortName");
+
+					BambooJobImpl job = new BambooJobImpl(key, shortKey, name, shortName);
+					String enabled = element.getAttributeValue("enabled");
+					// we treat job as enabled by default (old Bamboo compatibility)
+					// TODO jj test it!
+					if (enabled != null && enabled.equalsIgnoreCase("false")) {
+						job.setEnabled(false);
+					} else {
+						job.setEnabled(true);
+					}
+
+					jobs.add(job);
                 }
             }
 

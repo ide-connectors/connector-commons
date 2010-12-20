@@ -22,13 +22,20 @@ import java.util.List;
 public class BambooJobImpl implements BambooJob {
 
 	private final String key;
-    private final boolean enabled;
+	private final String shortKey;
+
+	private final String name;
+	private final String shortName;
+
+	private boolean enabled;
 	private final List<TestDetails> successfulTests;
 	private final List<TestDetails> failedTests;
 
-	public BambooJobImpl(String key, boolean enabled) {
+	public BambooJobImpl(String key, String shortKey, String name, String shortName) {
 		this.key = key;
-        this.enabled = enabled;
+		this.shortKey = shortKey;
+		this.name = name;
+		this.shortName = shortName;
 
         successfulTests = new ArrayList<TestDetails>();
 		failedTests = new ArrayList<TestDetails>();
@@ -47,9 +54,11 @@ public class BambooJobImpl implements BambooJob {
 	}
 
 	public String getShortKey() {
-		return StringUtils.substringAfterLast(key, "-");
+		// key: PROJECTKEY-PLANKEY-JOBKEY
+		// shortKey: JOBKEY
+		return (shortKey != null && shortKey.length() > 0) ? shortKey : StringUtils.substringAfterLast(key, "-");
 	}
-
+	
     public boolean isEnabled() {
         return enabled;
     }
@@ -62,4 +71,15 @@ public class BambooJobImpl implements BambooJob {
 		return failedTests;
 	}
 
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getShortName() {
+		return shortName;
+	}
 }

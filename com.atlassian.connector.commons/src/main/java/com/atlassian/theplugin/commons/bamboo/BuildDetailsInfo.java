@@ -16,6 +16,7 @@
 
 package com.atlassian.theplugin.commons.bamboo;
 
+import com.atlassian.theplugin.commons.util.MiscUtil;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,7 +82,22 @@ public class BuildDetailsInfo implements BuildDetails {
 		jobs.add(job);
 	}
 
+	/**
+	 * @return list of all jobs (including disabled)
+	 */
 	public List<BambooJob> getJobs() {
 		return jobs;
+	}
+
+	public List<BambooJob> getEnabledJobs() {
+		List<BambooJob> enabledJobs = MiscUtil.buildArrayList();
+
+		for (BambooJob job : jobs) {
+			if (job.isEnabled()) {
+				enabledJobs.add(job);
+			}
+		}
+
+		return enabledJobs;
 	}
 }

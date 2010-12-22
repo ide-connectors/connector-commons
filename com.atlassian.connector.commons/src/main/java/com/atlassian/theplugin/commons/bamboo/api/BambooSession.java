@@ -17,6 +17,7 @@
 package com.atlassian.theplugin.commons.bamboo.api;
 
 import com.atlassian.theplugin.commons.bamboo.BambooBuild;
+import com.atlassian.theplugin.commons.bamboo.BambooJobImpl;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
@@ -32,6 +33,7 @@ import java.util.List;
 /**
  * @author Marek Went
  * @author Wojciech Seliga
+ * @author Jacek Jaroczynski
  */
 public interface BambooSession extends ProductSession {
 
@@ -106,4 +108,6 @@ public interface BambooSession extends ProductSession {
 
 	@NotNull
 	BambooPlan getPlanDetails(@NotNull String planKey) throws RemoteApiException;
+
+	List<BambooJobImpl> getJobsForPlan(String planKey) throws RemoteApiException;
 }

@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.bamboo.api;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.theplugin.commons.bamboo.BambooBuild;
+import com.atlassian.theplugin.commons.bamboo.BambooJobImpl;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
@@ -229,6 +230,15 @@ public class AutoRenewBambooSession implements BambooSession {
 		} catch (RemoteApiSessionExpiredException e) {
 			delegate.login(userName, password);
 			return delegate.getSubscribedPlansResults(plans, isUseFavourities, timezoneOffset);
+		}
+	}
+
+	public List<BambooJobImpl> getJobsForPlan(String planKey) throws RemoteApiException {
+		try {
+			return delegate.getJobsForPlan(planKey);
+		} catch (RemoteApiSessionExpiredException e) {
+			delegate.login(userName, password);
+			return delegate.getJobsForPlan(planKey);
 		}
 	}
 

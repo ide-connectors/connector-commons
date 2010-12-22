@@ -24,12 +24,14 @@ import com.atlassian.theplugin.bamboo.api.bamboomock.AddLabelToBuildCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.BamboBuildNumberCalback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetails30ResultCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetailsResultCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetailsResultCallback27;
 import com.atlassian.theplugin.bamboo.api.bamboomock.BuildForPlanAndNumberCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.ErrorMessageCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.ExecuteBuildCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.GenericResourceCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.JobKeyForChainCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.JobsForPlanCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultVelocityCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LatestPlanCallback;
@@ -42,6 +44,7 @@ import com.atlassian.theplugin.bamboo.api.bamboomock.Util;
 import com.atlassian.theplugin.commons.BambooFileInfo;
 import com.atlassian.theplugin.commons.bamboo.BambooBuild;
 import com.atlassian.theplugin.commons.bamboo.BambooChangeSet;
+import com.atlassian.theplugin.commons.bamboo.BambooJobImpl;
 import com.atlassian.theplugin.commons.bamboo.BambooPlan;
 import com.atlassian.theplugin.commons.bamboo.BambooProject;
 import com.atlassian.theplugin.commons.bamboo.BuildDetails;
@@ -54,13 +57,11 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
-import junit.framework.Assert;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.ISODateTimeFormat;
-
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -69,6 +70,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import junit.framework.Assert;
 
 
 /**
@@ -189,6 +191,53 @@ public class BambooSessionTest extends AbstractSessionTest {
         Util.verifyFavouriteListResult(plans);
         mockServer.verify();
     }
+
+	public void testBuildDetailsFor1CommitSuccessTests() throws Exception {
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+
+		mockServer.expect("/api/rest/getBambooBuildNumber.action",
+				new BamboBuildNumberCalback("/mock/bamboo/2_3/api/rest/bambooBuildNumberResponse.xml"));
+		mockServer.expect("/api/rest/getBuildResultsDetails.action",
+				new BuildDetailsResultCallback("buildResult-1Commit-SuccessfulTests.xml", "100"));
+
+		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
+
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
+		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
+		BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", 100);
+		apiHandler.logout();
+
+		mockServer.verify();
+
+		assertNotNull(build);
+		assertEquals("13928", build.getVcsRevisionKey());
+		// commit
+		assertEquals(1, build.getCommitInfo().size());
+		assertEquals("author", build.getCommitInfo().iterator().next().getAuthor());
+		assertNotNull(build.getCommitInfo().iterator().next().getCommitDate());
+		assertEquals("commit comment", build.getCommitInfo().iterator().next().getComment());
+		assertEquals(3, build.getCommitInfo().iterator().next().getFiles().size());
+		assertEquals("13928",
+				build.getCommitInfo().iterator().next().getFiles().iterator().next().getFileDescriptor().getRevision());
+		assertEquals(
+				"/PL/trunk/ThePlugin/src/main/java/com/atlassian/theplugin/bamboo/HtmlBambooStatusListener.java",
+				build.getCommitInfo().iterator().next().getFiles().iterator().next().getFileDescriptor().getUrl());
+
+        // failed tests
+		assertEquals(0, build.getFailedTestDetails().size());
+
+		// successful tests
+		assertEquals(117, build.getSuccessfulTestDetails().size());
+		assertEquals("com.atlassian.theplugin.commons.bamboo.BambooServerFacadeTest",
+				build.getSuccessfulTestDetails().iterator().next().getTestClassName());
+		assertEquals("testProjectList",
+				build.getSuccessfulTestDetails().iterator().next().getTestMethodName());
+		assertEquals(0.046,
+				build.getSuccessfulTestDetails().iterator().next().getTestDuration());
+		assertNull(build.getSuccessfulTestDetails().iterator().next().getErrors());
+		assertEquals(TestResult.TEST_SUCCEED,
+				build.getSuccessfulTestDetails().iterator().next().getTestResult());
+	}
 
     public void testBuildForPlanSuccessNoTimezone() throws Exception {
         implTestBuildForPlanSuccess(0);
@@ -530,50 +579,78 @@ public class BambooSessionTest extends AbstractSessionTest {
         assertEquals(0, build.getSuccessfulTestDetails().size());
     }
 
-    public void testBuildDetailsFor1CommitSuccessTests() throws Exception {
-        mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-        mockServer.expect("/api/rest/getBambooBuildNumber.action",
-                new BamboBuildNumberCalback("/mock/bamboo/2_3/api/rest/bambooBuildNumberResponse.xml"));
-        mockServer.expect("/api/rest/getBuildResultsDetails.action",
-                new BuildDetailsResultCallback("buildResult-1Commit-SuccessfulTests.xml", "100"));
-        mockServer.expect("/api/rest/logout.action", new LogoutCallback());
+	public void testGetJobsForPlanBamboo27() throws Exception {
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		// mockServer.expect("/api/rest/getBambooBuildNumber.action",
+		// new BamboBuildNumberCalback("/mock/bamboo/2_7/api/rest/bambooBuildNumberResponse.xml"));
+		mockServer.expect("/rest/api/latest/plan/PLAN", new JobsForPlanCallback(
+				Util.RESOURCE_BASE_2_7));
+		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-        BambooSession apiHandler = createBambooSession(mockBaseUrl);
-        apiHandler.login(USER_NAME, PASSWORD.toCharArray());
-        BuildDetails build = apiHandler.getBuildResultDetails("TP-DEF", 100);
-        apiHandler.logout();
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
+		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
+		List<BambooJobImpl> jobs = apiHandler.getJobsForPlan("PLAN");
+		apiHandler.logout();
+		assertEquals(3, jobs.size());
+	}
 
-        mockServer.verify();
+	public void testGetBuildDetailsBamboo27() throws Exception {
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action",
+				new BamboBuildNumberCalback("/mock/bamboo/2_7/api/rest/bambooBuildNumberResponse.xml"));
+		mockServer.expect("/rest/api/latest/plan/PLAN", new JobsForPlanCallback(
+				Util.RESOURCE_BASE_2_7));
+		// there are two jobs J1 and J2 returned by response for PLAN
+		mockServer.expect("/rest/api/latest/result/J1-1", new BuildDetailsResultCallback27(Util.RESOURCE_BASE_2_7,
+				"J1-result.xml"));
+		mockServer.expect("/rest/api/latest/result/J2-1", new BuildDetailsResultCallback27(Util.RESOURCE_BASE_2_7,
+				"J2-result.xml"));
+		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
-        assertNotNull(build);
-        assertEquals("13928", build.getVcsRevisionKey());
-        // commit
-        assertEquals(1, build.getCommitInfo().size());
-        assertEquals("author", build.getCommitInfo().iterator().next().getAuthor());
-        assertNotNull(build.getCommitInfo().iterator().next().getCommitDate());
-        assertEquals("commit comment", build.getCommitInfo().iterator().next().getComment());
-        assertEquals(3, build.getCommitInfo().iterator().next().getFiles().size());
-        assertEquals("13928",
-                build.getCommitInfo().iterator().next().getFiles().iterator().next().getFileDescriptor().getRevision());
-        assertEquals(
-                "/PL/trunk/ThePlugin/src/main/java/com/atlassian/theplugin/bamboo/HtmlBambooStatusListener.java",
-                build.getCommitInfo().iterator().next().getFiles().iterator().next().getFileDescriptor().getUrl());
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
+		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
+		BuildDetails build = apiHandler.getBuildResultDetails("PLAN", 1);
+		apiHandler.logout();
 
-        // failed tests
-        assertEquals(0, build.getFailedTestDetails().size());
+		assertEquals(3, build.getJobs().size());
+		assertEquals(2, build.getEnabledJobs().size());
 
-        // successful tests
-        assertEquals(117, build.getSuccessfulTestDetails().size());
-        assertEquals("com.atlassian.theplugin.commons.bamboo.BambooServerFacadeTest",
-                build.getSuccessfulTestDetails().iterator().next().getTestClassName());
-        assertEquals("testProjectList",
-                build.getSuccessfulTestDetails().iterator().next().getTestMethodName());
-        assertEquals(0.046,
-                build.getSuccessfulTestDetails().iterator().next().getTestDuration());
-        assertNull(build.getSuccessfulTestDetails().iterator().next().getErrors());
-        assertEquals(TestResult.TEST_SUCCEED,
-                build.getSuccessfulTestDetails().iterator().next().getTestResult());
-    }
+		assertEquals(1, build.getFailedTestDetails().size());
+		assertEquals(1, build.getJobs().get(0).getFailedTests().size());
+
+		assertEquals(3, build.getSuccessfulTestDetails().size());
+		assertEquals(1, build.getJobs().get(0).getSuccessfulTests().size());
+		assertEquals(2, build.getJobs().get(1).getSuccessfulTests().size());
+	}
+
+	public void testGetBuildDetailsBamboo30() throws Exception {
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action",
+				new BamboBuildNumberCalback("/mock/bamboo/3_0/api/rest/bambooBuildNumberResponse.xml"));
+		mockServer.expect("/rest/api/latest/plan/PLAN", new JobsForPlanCallback(
+				Util.RESOURCE_BASE_2_7));
+		// there are two jobs J1 and J2 returned by response for PLAN
+		mockServer.expect("/rest/api/latest/result/J1-1", new BuildDetailsResultCallback27(Util.RESOURCE_BASE_3_0,
+				"J1-result.xml"));
+		mockServer.expect("/rest/api/latest/result/J2-1", new BuildDetailsResultCallback27(Util.RESOURCE_BASE_3_0,
+				"J2-result.xml"));
+		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
+
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
+		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
+		BuildDetails build = apiHandler.getBuildResultDetails("PLAN", 1);
+		apiHandler.logout();
+
+		assertEquals(3, build.getJobs().size());
+		assertEquals(2, build.getEnabledJobs().size());
+
+		assertEquals(2, build.getFailedTestDetails().size());
+		assertEquals(2, build.getJobs().get(0).getFailedTests().size());
+
+		assertEquals(2, build.getSuccessfulTestDetails().size());
+		assertEquals(0, build.getJobs().get(0).getSuccessfulTests().size());
+		assertEquals(2, build.getJobs().get(1).getSuccessfulTests().size());
+	}
 
     public void testBuildDetailsFor3CommitFailedSuccessTests() throws Exception {
         mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));

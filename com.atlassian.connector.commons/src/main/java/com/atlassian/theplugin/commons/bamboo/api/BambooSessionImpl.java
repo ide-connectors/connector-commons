@@ -1295,7 +1295,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
         return null;
     }
 
-	private List<BambooJobImpl> getJobsForPlan(String planKey) throws RemoteApiException {
+	public List<BambooJobImpl> getJobsForPlan(String planKey) throws RemoteApiException {
 
         List<BambooJobImpl> jobs = new ArrayList<BambooJobImpl>();
 

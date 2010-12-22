@@ -221,6 +221,11 @@ public class AutoRenewBambooSessionTest extends TestCase {
 			public List<BambooJob> getJobs() {
 				return null;
 			}
+
+			public List<BambooJob> getEnabledJobs() {
+				// ignore
+				return null;
+			}
 		});
 
 		EasyMock.replay(mockDelegate);
@@ -322,6 +327,10 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		assertFalse(testedSession.isLoggedIn());
 
 		EasyMock.verify(mockDelegate);
+	}
+
+	public List<BambooJob> getEnabledJobs() {
+		return null;
 	}
 
 }

@@ -32,4 +32,5 @@ public interface BuildDetails {
 	List<BambooChangeSet> getCommitInfo();
 
 	List<BambooJob> getJobs();
+	List<BambooJob> getEnabledJobs();
 }

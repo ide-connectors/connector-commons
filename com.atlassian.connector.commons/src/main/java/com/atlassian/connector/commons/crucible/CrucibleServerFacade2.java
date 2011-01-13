@@ -35,6 +35,7 @@ import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -195,6 +196,14 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	Review getReview(ConnectionCfg server, PermId permId) throws RemoteApiException, ServerPasswordNotProvidedException;
 
 	/**
+	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
+	 *             {@link CrucibleSession} directly.
+	 */
+//	@Deprecated
+//	Review createReviewFromPatch(ConnectionCfg server, Review review, String patch, PatchAnchorData anchorData) throws RemoteApiException,
+//		ServerPasswordNotProvidedException;
+
+		/**
 	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
 	 *             {@link CrucibleSession} directly.
 	 */

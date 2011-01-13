@@ -33,6 +33,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
+import com.atlassian.theplugin.commons.crucible.api.model.PatchAnchorData;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
@@ -265,7 +266,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
         return session.getReviewsForIssue(jiraIssueKey, maxReturn);
     }
 
-    public Review addPatchToReview(ConnectionCfg server, PermId permId, String repository, String patch)
+	public Review addPatchToReview(ConnectionCfg server, PermId permId, String repository, String patch)
 			throws RemoteApiException, ServerPasswordNotProvidedException {
 		final CrucibleSession session = getSession(server);
 		return getFullReview(session.addPatchToReview(permId, repository, patch), session);
@@ -346,6 +347,7 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	/**
 	 * Creates new review in Crucible
 	 *
+	 *
 	 * @param server connection configuration
 	 * @param review data for new review to create (some fields have to be set e.g. projectKey)
 	 * @param patch  patch to assign with the review
@@ -353,12 +355,31 @@ public class CrucibleServerFacadeImpl implements CrucibleServerFacade2 {
 	 * @throws com.atlassian.theplugin.commons.crucible.api.CrucibleException
 	 *          in case of createReview error or CrucibleLoginException in case of login error
 	 */
-	public Review createReviewFromPatch(ConnectionCfg server, Review review, String patch) throws RemoteApiException,
+	public Review createReviewFromPatch(ConnectionCfg server, Review review, String patch)
+			throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);
 		return getFullReview(session.createReviewFromPatch(review, patch), session);
 	}
 
+		/**
+	 * Creates new review in Crucible
+	 *
+	 *
+	 * @param server connection configuration
+	 * @param review data for new review to create (some fields have to be set e.g. projectKey)
+	 * @param patch  patch to assign with the review
+	 * @param anchorData
+	 * @return created revew date
+	 * @throws com.atlassian.theplugin.commons.crucible.api.CrucibleException
+	 *          in case of createReview error or CrucibleLoginException in case of login error
+	 */
+	public Review createReviewFromPatch(ConnectionCfg server, Review review, String patch, PatchAnchorData anchorData)
+			throws RemoteApiException,
+			ServerPasswordNotProvidedException {
+		CrucibleSession session = getSession(server);
+		return getFullReview(session.createReviewFromPatch(review, patch, anchorData), session);
+	}
 	public Set<CrucibleFileInfo> getFiles(ConnectionCfg server, PermId permId) throws RemoteApiException,
 			ServerPasswordNotProvidedException {
 		CrucibleSession session = getSession(server);

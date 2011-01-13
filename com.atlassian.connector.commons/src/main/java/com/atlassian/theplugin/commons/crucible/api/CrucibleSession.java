@@ -26,6 +26,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.CustomFieldDef;
 import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.ExtendedCrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
+import com.atlassian.theplugin.commons.crucible.api.model.PatchAnchorData;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
@@ -58,6 +59,9 @@ public interface CrucibleSession extends ProductSession {
 
 	@Nullable
 	BasicReview createSnippetReview(Review review, String snippet, String filename) throws RemoteApiException;
+
+	@Nullable
+	BasicReview createReviewFromPatch(Review review, String patch, PatchAnchorData anchorData) throws RemoteApiException;
 
 	@Nullable
 	BasicReview createReviewFromPatch(Review review, String patch) throws RemoteApiException;

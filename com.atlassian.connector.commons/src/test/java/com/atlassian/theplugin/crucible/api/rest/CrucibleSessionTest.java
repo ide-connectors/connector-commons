@@ -677,6 +677,31 @@ public class CrucibleSessionTest extends TestCase {
 		mockServer.verify();
 	}
 
+
+	public void testCreateReviewFromPatch240() throws Exception {
+
+        //http://localhost:54080/rest-service/reviews-v1
+
+		mockServer.expect("/rest-service/reviews-v1/versionInfo", new Version2x4InfoCallback());
+		mockServer.expect("/rest-service/auth-v1/login", new LoginCallback(USER_NAME, PASSWORD, false, true));
+		mockServer.expect("/rest-service/reviews-v1", new CreateReviewCallback24());
+		CrucibleSession apiHandler = createCrucibleSession(mockBaseUrl, USER_NAME, PASSWORD);
+		PatchAnchorData patchAnchorData = new PatchAnchorDataBean("repoName", "path", "stripCount");
+
+		apiHandler.login();
+		Review review = createReviewRequest();
+		BasicReview response = apiHandler.createReviewFromPatch(review, "patch text", patchAnchorData);
+		assertEquals(review.getAuthor(), response.getAuthor());
+		assertEquals(review.getCreator(), response.getCreator());
+		assertEquals(review.getDescription(), response.getDescription());
+		assertEquals(review.getModerator(), response.getModerator());
+		assertEquals(review.getName(), response.getName());
+		assertEquals(review.getProjectKey(), response.getProjectKey());
+		assertEquals(State.DRAFT, response.getState());
+		assertEquals(CreateReviewCallback.PERM_ID, response.getPermId().getId());
+
+		mockServer.verify();
+	}
 	public void testCreateReviewFromPatch() throws Exception {
 
         //http://localhost:54080/rest-service/reviews-v1

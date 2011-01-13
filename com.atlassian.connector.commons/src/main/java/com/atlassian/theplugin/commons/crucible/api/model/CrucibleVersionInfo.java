@@ -63,6 +63,18 @@ public class CrucibleVersionInfo implements Serializable, Comparable<CrucibleVer
 		return false;
 	}
 
+	public boolean isVersion24OrGrater() {
+
+		if (major == null || minor == null) {
+			return false;
+		}
+
+		if (major > 2 || (major == 2 && minor >= 4)) {
+			return true;
+		}
+
+		return false;
+	}
 	private void tokenizeVersionAndSetFields(String number) {
 		String[] tokens = number.split("[.]");
 
@@ -151,5 +163,4 @@ public class CrucibleVersionInfo implements Serializable, Comparable<CrucibleVer
 		}
 		return sb.toString();
 	}
-
 }

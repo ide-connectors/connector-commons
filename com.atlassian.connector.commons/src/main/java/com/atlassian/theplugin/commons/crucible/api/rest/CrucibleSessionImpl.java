@@ -32,6 +32,7 @@ import com.atlassian.theplugin.commons.crucible.api.model.CustomFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.ExtendedCrucibleProject;
 import com.atlassian.theplugin.commons.crucible.api.model.GeneralComment;
 import com.atlassian.theplugin.commons.crucible.api.model.NewReviewItem;
+import com.atlassian.theplugin.commons.crucible.api.model.PatchAnchorData;
 import com.atlassian.theplugin.commons.crucible.api.model.PermId;
 import com.atlassian.theplugin.commons.crucible.api.model.PredefinedFilter;
 import com.atlassian.theplugin.commons.crucible.api.model.Repository;
@@ -1255,13 +1256,47 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         return null;
     }
 
+
     @Nullable
-    public BasicReview createReviewFromPatch(Review review, String patch) throws RemoteApiException {
+    public BasicReview createReviewFromPatch(Review review, String patch)
+			throws RemoteApiException {
         if (!isLoggedIn()) {
             throwNotLoggedIn();
         }
 
         Document request = CrucibleRestXmlHelper.prepareCreateReviewNode(review, patch);
+
+        try {
+            Document doc = retrievePostResponse(getBaseUrl() + REVIEW_SERVICE, request);
+
+            XPath xpath = XPath.newInstance("/reviewData");
+            @SuppressWarnings("unchecked")
+            List<Element> elements = xpath.selectNodes(doc);
+
+            if (elements != null && !elements.isEmpty()) {
+                return parseBasicReview(elements.iterator().next());
+            }
+            return null;
+        } catch (IOException e) {
+            throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
+        } catch (JDOMException e) {
+            throwMalformedResponseReturned(e);
+        }
+
+        return null;
+    }
+    @Nullable
+    public BasicReview createReviewFromPatch(Review review, String patch, PatchAnchorData anchorData)
+			throws RemoteApiException {
+        if (!isLoggedIn()) {
+            throwNotLoggedIn();
+        }
+
+        Document request = CrucibleRestXmlHelper.prepareCreateReviewNode(review, patch);
+		if (getCrucibleVersionInfo().isVersion24OrGrater() && anchorData != null) {
+
+			CrucibleRestXmlHelper.addAnchorData(request, anchorData);
+		}
         try {
             Document doc = retrievePostResponse(getBaseUrl() + REVIEW_SERVICE, request);
 

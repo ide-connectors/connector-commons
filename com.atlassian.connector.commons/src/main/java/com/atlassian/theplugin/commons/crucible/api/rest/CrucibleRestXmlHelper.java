@@ -726,9 +726,10 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	/*
-		  * @return <code>false</code> if this comment should not be included in the Review, as the it's a draft from other people
-		  * the caller should not see
-		  */
+	 * @return <code>false</code> if this comment should not be included in the Review,
+	 *  as the it's a draft from other people
+	 * the caller should not see
+	 */
 
 	private static boolean parseGeneralComment(Review review, String myUsername, GeneralComment commentBean,
 			Element reviewCommentNode, boolean trimWikiMarkers) {
@@ -815,10 +816,10 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	/*
-		  *
-		  * @return <code>false</code> if this comment should not be included in the Review, as the it's a draft from other people
-		  * the caller should not see
-		  */
+     *
+	 * @return <code>false</code> if this comment should not be included in the Review, as the it's a draft from other people
+	 * the caller should not see
+	 */
 
 	private static boolean parseComment(String myUsername, Comment commentBean,
 			Element reviewCommentNode, boolean trimWikiMarkers) {
@@ -1247,7 +1248,7 @@ public final class CrucibleRestXmlHelper {
 		anchorData.addContent(anchorPath);
 		anchorData.addContent(stripCount);
 
-		((Element)request.getContent().get(0)).addContent(anchorData);
+		((Element) request.getContent().get(0)).addContent(anchorData);
 
 	}
 }

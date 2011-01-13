@@ -5,9 +5,9 @@
 package com.atlassian.theplugin.commons.crucible.api.model;
 
 public class PatchAnchorDataBean implements PatchAnchorData {
-	String path;
-	String stripCount;
-	String repositoryName;
+	private String path;
+	private String stripCount;
+	private String repositoryName;
 
 	public PatchAnchorDataBean(String repoName, String path, String stripCount) {
 		this.repositoryName = repoName;

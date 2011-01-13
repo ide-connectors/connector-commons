@@ -199,10 +199,6 @@ public interface CrucibleServerFacade2 extends ProductServerFacade {
 	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
 	 *             {@link CrucibleSession} directly.
 	 */
-//	@Deprecated
-//	Review createReviewFromPatch(ConnectionCfg server, Review review, String patch, PatchAnchorData anchorData) throws RemoteApiException,
-//		ServerPasswordNotProvidedException;
-
 		/**
 	 * @deprecated We are going remove {@link CrucibleServerFacade2}, so getSession here is for new code that should use
 	 *             {@link CrucibleSession} directly.

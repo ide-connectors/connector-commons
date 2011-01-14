@@ -421,7 +421,7 @@ public final class CrucibleRestXmlHelper {
 		Element root = new Element("createReview");
 		Document doc = new Document(root);
 
-		getContent(root).add(prepareReviewNodeElement(review));
+		getContent(root).add(prepareReviewNodeElement(review, true));
 
 		if (patch != null) {
 			Element patchData = new Element("patch");
@@ -469,7 +469,7 @@ public final class CrucibleRestXmlHelper {
 		Element root = new Element("createReview");
 		Document doc = new Document(root);
 
-		getContent(root).add(prepareReviewNodeElement(review));
+		getContent(root).add(prepareReviewNodeElement(review, false));
 
 		if (!revisions.isEmpty()) {
 			Element changes = new Element("changesets");
@@ -579,11 +579,11 @@ public final class CrucibleRestXmlHelper {
 	}
 
 	public static Document prepareReviewNode(BasicReview review) {
-		Element reviewData = prepareReviewNodeElement(review);
+		Element reviewData = prepareReviewNodeElement(review, false);
 		return new Document(reviewData);
 	}
 
-	private static Element prepareReviewNodeElement(BasicReview review) {
+	private static Element prepareReviewNodeElement(BasicReview review, final boolean addType) {
 		Element reviewData = new Element("reviewData");
 
 		Element authorElement = new Element("author");
@@ -610,6 +610,10 @@ public final class CrucibleRestXmlHelper {
 			Element permIdElement = new Element("permaId");
 			getContent(reviewData).add(permIdElement);
 			addTag(permIdElement, "id", review.getPermId().getId());
+		}
+
+		if (addType) {
+			addTag(reviewData, "type", "REVIEW");
 		}
 
 		return reviewData;

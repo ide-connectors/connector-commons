@@ -1297,6 +1297,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
 			CrucibleRestXmlHelper.addAnchorData(request, anchorData);
 		}
+
         try {
             Document doc = retrievePostResponse(getBaseUrl() + REVIEW_SERVICE, request);
 

@@ -1241,16 +1241,16 @@ public final class CrucibleRestXmlHelper {
 
 		Element anchorData = new Element("anchorData");
 		final Element anchorRepository = new Element("anchorRepository");
-		final Element anchorPath = new Element("anchorPath");
-		final Element stripCount = new Element("stripCount", "");
+//		final Element anchorPath = new Element("anchorPath");
+//		final Element stripCount = new Element("stripCount", "");
 
 		anchorRepository.setText(patchAnchorData.getRepositoryName());
-		anchorPath.setText(patchAnchorData.getPath());
-		stripCount.setText(patchAnchorData.getStripCount());
+//		anchorPath.setText(patchAnchorData.getPath());
+//		stripCount.setText(patchAnchorData.getStripCount());
 
 		anchorData.addContent(anchorRepository);
-		anchorData.addContent(anchorPath);
-		anchorData.addContent(stripCount);
+//		anchorData.addContent(anchorPath);
+//		anchorData.addContent(stripCount);
 
 		((Element) request.getContent().get(0)).addContent(anchorData);
 

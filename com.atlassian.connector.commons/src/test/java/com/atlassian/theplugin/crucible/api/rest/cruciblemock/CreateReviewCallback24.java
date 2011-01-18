@@ -54,10 +54,10 @@ public class CreateReviewCallback24 implements JettyMockServer.Callback {
         @SuppressWarnings("unchecked")
         List<Element> elements = xpath.selectNodes(req);
 		final Element anchorData = req.getDocument().getRootElement().getChild("anchorData");
-		assertEquals(3, anchorData.getChildren().size());
+		assertEquals(1, anchorData.getChildren().size());
 		assertNotNull(anchorData.getChild("anchorRepository"));
-		assertNotNull(anchorData.getChild("anchorPath"));
-		assertNotNull(anchorData.getChild("stripCount"));
+//		assertNotNull(anchorData.getChild("anchorPath"));
+//		assertNotNull(anchorData.getChild("stripCount"));
 
 
 		BasicReview reqReview = CrucibleRestXmlHelper.parseBasicReview("http://bogus.server", elements.get(0), false);

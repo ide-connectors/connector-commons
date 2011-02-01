@@ -417,12 +417,13 @@ public abstract class AbstractHttpSession {
                             String newBaseUrl = lUrl.substring(0, lUrl.lastIndexOf("/success"));
                             if (!baseUrl.startsWith(newBaseUrl)) {
                                 // need to login to make sure HttpClient picks up the session cookie
-                                baseUrl = newBaseUrl;
+                                baseUrl = newBaseUrl + "/";
                                 continue;
                             }
                         } else if (lUrl.endsWith("/JiraLockedError")) {
                             throw new RemoteApiException("JIRA is locked. Please contact your JIRA administrator.");
-                        } else {
+
+						} else {
                             throw new RemoteApiException(
                                     "Connection error. Received too many redirects (more than " + MAX_REDIRECTS + ")");
                         }

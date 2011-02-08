@@ -53,7 +53,7 @@ public class CreateReviewCallback24 implements JettyMockServer.Callback {
         XPath xpath = XPath.newInstance("/createReview/reviewData");
         @SuppressWarnings("unchecked")
         List<Element> elements = xpath.selectNodes(req);
-		final Element anchorData = req.getDocument().getRootElement().getChild("anchorData");
+		final Element anchorData = req.getDocument().getRootElement().getChild("anchor");
 		assertEquals(1, anchorData.getChildren().size());
 		assertNotNull(anchorData.getChild("anchorRepository"));
 //		assertNotNull(anchorData.getChild("anchorPath"));

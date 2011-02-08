@@ -1239,7 +1239,7 @@ public final class CrucibleRestXmlHelper {
 			return;
 		}
 
-		Element anchorData = new Element("anchorData");
+		Element anchorData = new Element("anchor");
 		final Element anchorRepository = new Element("anchorRepository");
 //		final Element anchorPath = new Element("anchorPath");
 //		final Element stripCount = new Element("stripCount", "");

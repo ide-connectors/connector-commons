@@ -133,5 +133,15 @@
 			<id>atlassian-public-repository</id>
 			<url>https://maven.atlassian.com/public</url>
 		</repository>
+			<repository>
+				<id>central</id>
+				<url>https://m2proxy.atlassian.com/repository/internal/</url>
+				<snapshots>
+					<enabled>true</enabled>
+					<updatePolicy>always</updatePolicy>
+					<checksumPolicy>fail</checksumPolicy>
+				</snapshots>
+			</repository>
+
 	</repositories>
 </project>

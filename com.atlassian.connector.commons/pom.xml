@@ -136,11 +136,11 @@
 			<repository>
 				<id>central</id>
 				<url>https://m2proxy.atlassian.com/repository/internal/</url>
-				<!--<snapshots>-->
-					<!--<enabled>true</enabled>-->
-					<!--<updatePolicy>always</updatePolicy>-->
-					<!--<checksumPolicy>fail</checksumPolicy>-->
-				<!--</snapshots>-->
+				<snapshots>
+					<enabled>false</enabled>
+					<updatePolicy>never</updatePolicy>
+					<checksumPolicy>fail</checksumPolicy>
+				</snapshots>
 			</repository>
 
 	</repositories>

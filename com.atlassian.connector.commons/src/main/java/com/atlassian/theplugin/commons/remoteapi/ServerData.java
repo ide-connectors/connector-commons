@@ -61,6 +61,10 @@ public class ServerData extends ConnectionCfg {
             this.useBasicUser = !server.isDontUseBasicAuth();
             this.useDefaultUser = server.isUseDefaultCredentials();
         }
+	    public Builder(Server server, UserCfg defaultUser) {
+            this(server);
+			this.defaultUser = defaultUser;
+        }
 
         protected Server getServer() {
             return server;

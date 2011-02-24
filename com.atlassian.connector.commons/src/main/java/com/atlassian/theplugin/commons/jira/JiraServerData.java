@@ -29,7 +29,11 @@ public class JiraServerData extends ServerData {
             super(server);
         }
 
-        @Override
+		public Builder(Server server, UserCfg defaultUser) {
+			super(server, defaultUser);
+		}
+
+		@Override
         public JiraServerData build() {
             return new JiraServerData(this);
         }

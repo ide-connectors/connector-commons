@@ -44,7 +44,8 @@
 		<downloadDir>download</downloadDir>
 		<metadataDir>metadata</metadataDir>
 		<bundle.namespace>com.atlassian.theplugin</bundle.namespace>
-		<versionReleaseNotes>Ported to IDEA 8.0, JIRA tab renamed to Issue and changed layout, Bug fixes</versionReleaseNotes>
+		<versionReleaseNotes>Ported to IDEA 8.0, JIRA tab renamed to Issue and changed layout, Bug fixes
+		</versionReleaseNotes>
 		<versionReleaseNotesUrl>
 			http://confluence.atlassian.com/display/IDEPLUGIN/Atlassian+IntelliJ+Connector+2.0+Beta+7+Release+Notes
 		</versionReleaseNotesUrl>
@@ -180,7 +181,8 @@
 				<artifactId>maven-deploy-plugin</artifactId>
 				<inherited>false</inherited>
 				<configuration>
-					<altDeploymentRepository>atlassian-m2-snapshot-repository::default::dav:https://maven.atlassian.com/public/
+					<altDeploymentRepository>
+						atlassian-m2-snapshot-repository::default::dav:https://maven.atlassian.com/public/
 					</altDeploymentRepository>
 				</configuration>
 			</plugin>
@@ -303,7 +305,7 @@
 			<url>dav:https://docs.atlassian.com/${project.artifactId}/${project.version}</url>
 		</site>
 	</distributionManagement>
-	<repositories>
+	<!--	<repositories>
 		<repository>
 			<id>atlassian-public-repository</id>
 			<url>https://maven.atlassian.com/public</url>
@@ -312,12 +314,12 @@
 			<id>atlassian-3rdparty</id>
 			<url>https://maven.atlassian.com/3rdparty</url>
 		</repository>
-		<!--        <repository>
+		&lt;!&ndash;        <repository>
 			  <id>ddsteps.org</id>
 			  <name>DDSteps Repo</name>
 			  <url>http://repo.ddsteps.org/maven/release/</url>
 		  </repository>
-  -->
+  &ndash;&gt;
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
@@ -340,5 +342,131 @@
 				<enabled>true</enabled>
 			</releases>
 		</pluginRepository>
-	</pluginRepositories>
+	</pluginRepositories>-->
+	<profiles>
+		<profile>
+			<id>deployProfile</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<repositories>
+				<repository>
+					<id>atlassian-m2-repository</id>
+					<url>https://maven.atlassian.com/public</url>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+				</repository>
+				<repository>
+					<id>atlassian-m2-snapshot-repository</id>
+					<url>https://maven.atlassian.com/public-snapshot</url>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+				</repository>
+				<repository>
+					<id>atlassian-private</id>
+					<url>https://maven.atlassian.com/private</url>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+				</repository>
+				<repository>
+					<id>atlassian-private-snapshot</id>
+					<url>https://maven.atlassian.com/private-snapshot</url>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+				</repository>
+				<repository>
+					<id>atlassian-contrib</id>
+					<url>https://maven.atlassian.com/contrib</url>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+				</repository>
+				<repository>
+					<id>atlassian-contrib-snapshot</id>
+					<url>https://maven.atlassian.com/contrib-snapshot</url>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+				</repository>
+				<repository>
+					<id>atlassian-3rdparty</id>
+					<url>https://maven.atlassian.com/3rdpary</url>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+				</repository>
+				<repository>
+					<id>atlassian-restricted</id>
+					<url>https://maven.atlassian.com/restricted</url>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+				</repository>
+				<repository>
+					<id>central</id>
+					<url>https://maven.atlassian.com/repository/internal/</url>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+				</repository>
+				<repository>
+					<id>atlassian-m1-repository</id>
+					<url>https://maven.atlassian.com/maven1</url>
+					<layout>legacy</layout>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>central</id>
+					<url>https://maven.atlassian.com/repository/internal/</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+				</pluginRepository>
+			</pluginRepositories>
+			<properties>
+				<!-- Uncomment this and specify the location on your file system where the clover license is located.
+								 <clover.licenseLocation>/path/to/clover/license</clover.licenseLocation>
+								 -->
+			</properties>
+		</profile>
+	</profiles>
 </project>

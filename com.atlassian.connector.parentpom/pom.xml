@@ -317,23 +317,23 @@
 		<repository>
 			<id>atlassian-m2-repository</id>
 			<url>https://maven.atlassian.com/public</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
+			<!--<snapshots>-->
+				<!--<enabled>false</enabled>-->
+			<!--</snapshots>-->
+			<!--<releases>-->
+				<!--<enabled>true</enabled>-->
+			<!--</releases>-->
 		</repository>
 		<repository>
 			<id>central</id>
 			<url>https://maven.atlassian.com/repository/internal/</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
+			<!--<snapshots>-->
+				<!--<enabled>true</enabled>-->
+				<!--<updatePolicy>always</updatePolicy>-->
+			<!--</snapshots>-->
+			<!--<releases>-->
+				<!--<enabled>true</enabled>-->
+			<!--</releases>-->
 		</repository>
 	</repositories>
 	<pluginRepositories>

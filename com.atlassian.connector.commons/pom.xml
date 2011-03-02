@@ -101,6 +101,8 @@
 			  <scope>test</scope>
 		  </dependency>
   -->
+
+
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
@@ -127,4 +129,21 @@
 		</dependency>
 
 	</dependencies>
+	<repositories>
+		<repository>
+			<id>atlassian-public-repository</id>
+			<url>https://maven.atlassian.com/public</url>
+		</repository>
+		<repository>
+			<id>atlassian-m2-snapshot-repository</id>
+			<url>https://maven.atlassian.com/public-snapshot</url>
+		</repository>
+		<repository>
+			<id>central</id>
+			<url>https://m2proxy.atlassian.com/repository/internal/</url>
+		</repository>
+
+
+	</repositories>
 </project>
+

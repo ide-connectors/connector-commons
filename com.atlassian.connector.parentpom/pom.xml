@@ -309,50 +309,6 @@
 					<!--<url>https://maven.atlassian.com/public-snapshot</url>-->
 		<!--</snapshotRepository>-->
 	</distributionManagement>
-<!--		<repositories>
-		<repository>
-			<id>atlassian-public-repository</id>
-			<url>https://maven.atlassian.com/public</url>
-		</repository>
-		<repository>
-			<id>atlassian-3rdparty</id>
-			<url>https://maven.atlassian.com/3rdparty</url>
-		</repository>
-		&lt;!&ndash;        <repository>
-			  <id>ddsteps.org</id>
-			  <name>DDSteps Repo</name>
-			  <url>http://repo.ddsteps.org/maven/release/</url>
-		  </repository>
-  &ndash;&gt;
-	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>maven.shapshot</id>
-			<name>Maven snapshot repository</name>
-			<url>http://people.apache.org/repo/m2-snapshot-repository</url>
-		</pluginRepository>
-		<pluginRepository>
-			<id>atlassian-public-repository</id>
-			<url>https://maven.atlassian.com/public</url>
-		</pluginRepository>
-		<pluginRepository>
-			<id>mc-release</id>
-			<name>Local Maven repository of releases</name>
-			<url>http://mc-repo.googlecode.com/svn/maven2/releases</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</pluginRepository>
-	</pluginRepositories>-->
-	<profiles>
-		<profile>
-			<id>deployProfile</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<repositories>
 				<repository>
 					<id>atlassian-m2-repository</id>
@@ -367,75 +323,6 @@
 				<repository>
 					<id>atlassian-m2-snapshot-repository</id>
 					<url>https://maven.atlassian.com/public-snapshot</url>
-					<!--<snapshots>-->
-						<!--<enabled>true</enabled>-->
-						<!--<updatePolicy>always</updatePolicy>-->
-					<!--</snapshots>-->
-					<!--<releases>-->
-						<!--<enabled>false</enabled>-->
-					<!--</releases>-->
-				</repository>
-				<repository>
-					<id>atlassian-private</id>
-					<url>https://maven.atlassian.com/private</url>
-					<snapshots>
-						<enabled>false</enabled>
-					</snapshots>
-					<releases>
-						<enabled>true</enabled>
-					</releases>
-				</repository>
-				<repository>
-					<id>atlassian-private-snapshot</id>
-					<url>https://maven.atlassian.com/private-snapshot</url>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
-					</snapshots>
-					<releases>
-						<enabled>false</enabled>
-					</releases>
-				</repository>
-				<repository>
-					<id>atlassian-contrib</id>
-					<url>https://maven.atlassian.com/contrib</url>
-					<snapshots>
-						<enabled>false</enabled>
-					</snapshots>
-					<releases>
-						<enabled>true</enabled>
-					</releases>
-				</repository>
-				<repository>
-					<id>atlassian-contrib-snapshot</id>
-					<url>https://maven.atlassian.com/contrib-snapshot</url>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
-					</snapshots>
-					<releases>
-						<enabled>false</enabled>
-					</releases>
-				</repository>
-				<repository>
-					<id>atlassian-3rdparty</id>
-					<url>https://maven.atlassian.com/3rdpary</url>
-					<snapshots>
-						<enabled>false</enabled>
-					</snapshots>
-					<releases>
-						<enabled>true</enabled>
-					</releases>
-				</repository>
-				<repository>
-					<id>atlassian-restricted</id>
-					<url>https://maven.atlassian.com/restricted</url>
-					<snapshots>
-						<enabled>false</enabled>
-					</snapshots>
-					<releases>
-						<enabled>true</enabled>
-					</releases>
 				</repository>
 				<repository>
 					<id>central</id>
@@ -447,14 +334,6 @@
 					<releases>
 						<enabled>true</enabled>
 					</releases>
-				</repository>
-				<repository>
-					<id>atlassian-m1-repository</id>
-					<url>https://maven.atlassian.com/maven1</url>
-					<layout>legacy</layout>
-					<snapshots>
-						<enabled>false</enabled>
-					</snapshots>
 				</repository>
 			</repositories>
 			<pluginRepositories>
@@ -471,6 +350,5 @@
 								 <clover.licenseLocation>/path/to/clover/license</clover.licenseLocation>
 								 -->
 			</properties>
-		</profile>
-	</profiles>
+
 </project>

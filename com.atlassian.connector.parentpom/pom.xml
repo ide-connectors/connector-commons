@@ -304,8 +304,12 @@
 			<id>atlassian-documentation</id>
 			<url>dav:https://docs.atlassian.com/${project.artifactId}/${project.version}</url>
 		</site>
+		<!--<snapshotRepository>-->
+					<!--<id>atlassian-m2-snapshot-repository</id>-->
+					<!--<url>https://maven.atlassian.com/public-snapshot</url>-->
+		<!--</snapshotRepository>-->
 	</distributionManagement>
-	<!--	<repositories>
+<!--		<repositories>
 		<repository>
 			<id>atlassian-public-repository</id>
 			<url>https://maven.atlassian.com/public</url>
@@ -363,13 +367,13 @@
 				<repository>
 					<id>atlassian-m2-snapshot-repository</id>
 					<url>https://maven.atlassian.com/public-snapshot</url>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
-					</snapshots>
-					<releases>
-						<enabled>false</enabled>
-					</releases>
+					<!--<snapshots>-->
+						<!--<enabled>true</enabled>-->
+						<!--<updatePolicy>always</updatePolicy>-->
+					<!--</snapshots>-->
+					<!--<releases>-->
+						<!--<enabled>false</enabled>-->
+					<!--</releases>-->
 				</repository>
 				<repository>
 					<id>atlassian-private</id>

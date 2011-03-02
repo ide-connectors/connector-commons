@@ -305,50 +305,50 @@
 			<url>dav:https://docs.atlassian.com/${project.artifactId}/${project.version}</url>
 		</site>
 		<!--<snapshotRepository>-->
-					<!--<id>atlassian-m2-snapshot-repository</id>-->
-					<!--<url>https://maven.atlassian.com/public-snapshot</url>-->
+		<!--<id>atlassian-m2-snapshot-repository</id>-->
+		<!--<url>https://maven.atlassian.com/public-snapshot</url>-->
 		<!--</snapshotRepository>-->
 	</distributionManagement>
-			<repositories>
-				<repository>
-					<id>atlassian-m2-repository</id>
-					<url>https://maven.atlassian.com/public</url>
-					<snapshots>
-						<enabled>false</enabled>
-					</snapshots>
-					<releases>
-						<enabled>true</enabled>
-					</releases>
-				</repository>
-				<repository>
-					<id>atlassian-m2-snapshot-repository</id>
-					<url>https://maven.atlassian.com/public-snapshot</url>
-				</repository>
-				<repository>
-					<id>central</id>
-					<url>https://maven.atlassian.com/repository/internal/</url>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
-					</snapshots>
-					<releases>
-						<enabled>true</enabled>
-					</releases>
-				</repository>
-			</repositories>
-			<pluginRepositories>
-				<pluginRepository>
-					<id>central</id>
-					<url>https://maven.atlassian.com/repository/internal/</url>
-					<releases>
-						<enabled>true</enabled>
-					</releases>
-				</pluginRepository>
-			</pluginRepositories>
-			<properties>
-				<!-- Uncomment this and specify the location on your file system where the clover license is located.
-								 <clover.licenseLocation>/path/to/clover/license</clover.licenseLocation>
-								 -->
-			</properties>
+	<repositories>
+		<repository>
+			<id>atlassian-m2-snapshot-repository</id>
+			<url>https://maven.atlassian.com/public-snapshot</url>
+		</repository>
+		<repository>
+			<id>atlassian-m2-repository</id>
+			<url>https://maven.atlassian.com/public</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>central</id>
+			<url>https://maven.atlassian.com/repository/internal/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>central</id>
+			<url>https://maven.atlassian.com/repository/internal/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</pluginRepository>
+	</pluginRepositories>
+	<!--<properties>-->
+	<!--&lt;!&ndash; Uncomment this and specify the location on your file system where the clover license is located.-->
+	<!--<clover.licenseLocation>/path/to/clover/license</clover.licenseLocation>-->
+	<!--&ndash;&gt;-->
+	<!--</properties>-->
 
 </project>

@@ -304,10 +304,10 @@
 			<id>atlassian-documentation</id>
 			<url>dav:https://docs.atlassian.com/${project.artifactId}/${project.version}</url>
 		</site>
-		<!--<snapshotRepository>-->
-		<!--<id>atlassian-m2-snapshot-repository</id>-->
-		<!--<url>https://maven.atlassian.com/public-snapshot</url>-->
-		<!--</snapshotRepository>-->
+		<snapshotRepository>
+			<id>atlassian-m2-snapshot-repository</id>
+			<url>https://maven.atlassian.com/public-snapshot</url>
+		</snapshotRepository>
 	</distributionManagement>
 	<repositories>
 		<repository>
@@ -318,21 +318,21 @@
 			<id>atlassian-m2-repository</id>
 			<url>https://maven.atlassian.com/public</url>
 			<!--<snapshots>-->
-				<!--<enabled>false</enabled>-->
+			<!--<enabled>false</enabled>-->
 			<!--</snapshots>-->
 			<!--<releases>-->
-				<!--<enabled>true</enabled>-->
+			<!--<enabled>true</enabled>-->
 			<!--</releases>-->
 		</repository>
 		<repository>
 			<id>central</id>
 			<url>https://maven.atlassian.com/repository/internal/</url>
 			<!--<snapshots>-->
-				<!--<enabled>true</enabled>-->
-				<!--<updatePolicy>always</updatePolicy>-->
+			<!--<enabled>true</enabled>-->
+			<!--<updatePolicy>always</updatePolicy>-->
 			<!--</snapshots>-->
 			<!--<releases>-->
-				<!--<enabled>true</enabled>-->
+			<!--<enabled>true</enabled>-->
 			<!--</releases>-->
 		</repository>
 	</repositories>

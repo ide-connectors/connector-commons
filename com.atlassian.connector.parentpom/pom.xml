@@ -182,7 +182,7 @@
 				<inherited>false</inherited>
 				<configuration>
 					<altDeploymentRepository>
-						atlassian-m2-snapshot-repository::default::dav:https://maven.atlassian.com/public/
+						atlassian-m2-snapshot-repository::default::dav:https://maven.atlassian.com/public-snapshot
 					</altDeploymentRepository>
 				</configuration>
 			</plugin>

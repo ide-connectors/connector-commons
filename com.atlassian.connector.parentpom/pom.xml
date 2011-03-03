@@ -315,27 +315,27 @@
 			<id>atlassian-m2-snapshot-repository</id>
 			<url>https://maven.atlassian.com/public-snapshot</url>
 		</repository>
-		<repository>
-			<id>atlassian-m2-repository</id>
-			<url>https://maven.atlassian.com/public</url>
-			<!--<snapshots>-->
-			<!--<enabled>false</enabled>-->
-			<!--</snapshots>-->
-			<!--<releases>-->
-			<!--<enabled>true</enabled>-->
-			<!--</releases>-->
-		</repository>
-		<repository>
-			<id>central</id>
-			<url>https://maven.atlassian.com/repository/internal/</url>
-			<!--<snapshots>-->
-			<!--<enabled>true</enabled>-->
-			<!--<updatePolicy>always</updatePolicy>-->
-			<!--</snapshots>-->
-			<!--<releases>-->
-			<!--<enabled>true</enabled>-->
-			<!--</releases>-->
-		</repository>
+		<!--<repository>-->
+			<!--<id>atlassian-m2-repository</id>-->
+			<!--<url>https://maven.atlassian.com/public</url>-->
+			<!--&lt;!&ndash;<snapshots>&ndash;&gt;-->
+			<!--&lt;!&ndash;<enabled>false</enabled>&ndash;&gt;-->
+			<!--&lt;!&ndash;</snapshots>&ndash;&gt;-->
+			<!--&lt;!&ndash;<releases>&ndash;&gt;-->
+			<!--&lt;!&ndash;<enabled>true</enabled>&ndash;&gt;-->
+			<!--&lt;!&ndash;</releases>&ndash;&gt;-->
+		<!--</repository>-->
+		<!--<repository>-->
+			<!--<id>central</id>-->
+			<!--<url>https://maven.atlassian.com/repository/internal/</url>-->
+			<!--&lt;!&ndash;<snapshots>&ndash;&gt;-->
+			<!--&lt;!&ndash;<enabled>true</enabled>&ndash;&gt;-->
+			<!--&lt;!&ndash;<updatePolicy>always</updatePolicy>&ndash;&gt;-->
+			<!--&lt;!&ndash;</snapshots>&ndash;&gt;-->
+			<!--&lt;!&ndash;<releases>&ndash;&gt;-->
+			<!--&lt;!&ndash;<enabled>true</enabled>&ndash;&gt;-->
+			<!--&lt;!&ndash;</releases>&ndash;&gt;-->
+		<!--</repository>-->
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>

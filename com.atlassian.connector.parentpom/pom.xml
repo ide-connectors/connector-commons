@@ -316,25 +316,25 @@
 			<url>https://maven.atlassian.com/public-snapshot</url>
 		</repository>
 		<!--<repository>-->
-			<!--<id>atlassian-m2-repository</id>-->
-			<!--<url>https://maven.atlassian.com/public</url>-->
-			<!--&lt;!&ndash;<snapshots>&ndash;&gt;-->
-			<!--&lt;!&ndash;<enabled>false</enabled>&ndash;&gt;-->
-			<!--&lt;!&ndash;</snapshots>&ndash;&gt;-->
-			<!--&lt;!&ndash;<releases>&ndash;&gt;-->
-			<!--&lt;!&ndash;<enabled>true</enabled>&ndash;&gt;-->
-			<!--&lt;!&ndash;</releases>&ndash;&gt;-->
+		<!--<id>atlassian-m2-repository</id>-->
+		<!--<url>https://maven.atlassian.com/public</url>-->
+		<!--&lt;!&ndash;<snapshots>&ndash;&gt;-->
+		<!--&lt;!&ndash;<enabled>false</enabled>&ndash;&gt;-->
+		<!--&lt;!&ndash;</snapshots>&ndash;&gt;-->
+		<!--&lt;!&ndash;<releases>&ndash;&gt;-->
+		<!--&lt;!&ndash;<enabled>true</enabled>&ndash;&gt;-->
+		<!--&lt;!&ndash;</releases>&ndash;&gt;-->
 		<!--</repository>-->
 		<!--<repository>-->
-			<!--<id>central</id>-->
-			<!--<url>https://maven.atlassian.com/repository/internal/</url>-->
-			<!--&lt;!&ndash;<snapshots>&ndash;&gt;-->
-			<!--&lt;!&ndash;<enabled>true</enabled>&ndash;&gt;-->
-			<!--&lt;!&ndash;<updatePolicy>always</updatePolicy>&ndash;&gt;-->
-			<!--&lt;!&ndash;</snapshots>&ndash;&gt;-->
-			<!--&lt;!&ndash;<releases>&ndash;&gt;-->
-			<!--&lt;!&ndash;<enabled>true</enabled>&ndash;&gt;-->
-			<!--&lt;!&ndash;</releases>&ndash;&gt;-->
+		<!--<id>central</id>-->
+		<!--<url>https://maven.atlassian.com/repository/internal/</url>-->
+		<!--&lt;!&ndash;<snapshots>&ndash;&gt;-->
+		<!--&lt;!&ndash;<enabled>true</enabled>&ndash;&gt;-->
+		<!--&lt;!&ndash;<updatePolicy>always</updatePolicy>&ndash;&gt;-->
+		<!--&lt;!&ndash;</snapshots>&ndash;&gt;-->
+		<!--&lt;!&ndash;<releases>&ndash;&gt;-->
+		<!--&lt;!&ndash;<enabled>true</enabled>&ndash;&gt;-->
+		<!--&lt;!&ndash;</releases>&ndash;&gt;-->
 		<!--</repository>-->
 	</repositories>
 	<pluginRepositories>
@@ -351,5 +351,64 @@
 	<!--<clover.licenseLocation>/path/to/clover/license</clover.licenseLocation>-->
 	<!--&ndash;&gt;-->
 	<!--</properties>-->
+	<pluginGroups>
+		<pluginGroup>com.atlassian.maven.plugins</pluginGroup>
+	</pluginGroups>
+	<profiles>
+		<profile>
+			<id>defaultProfile</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<repositories>
+				<repository>
+					<id>central</id>
+					<url>dav:https://maven.atlassian.com/repository/internal/</url>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+						<checksumPolicy>fail</checksumPolicy>
+					</snapshots>
+					<releases>
+						<enabled>true</enabled>
+						<checksumPolicy>fail</checksumPolicy>
+					</releases>
+				</repository>
+				<repository>
+					<id>maven1</id>
+					<url>dav:https://maven.atlassian.com/maven1</url>
+					<layout>legacy</layout>
+				</repository>
+				<repository>
+					<id>atlassian-m1-repository</id>
+					<url>dav:https://m2proxy.atlassian.com/repository/m1/</url>
+					<releases>
+						<checksumPolicy>fail</checksumPolicy>
+					</releases>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>central</id>
+					<url>dav:https://maven.atlassian.com/repository/internal/</url>
+					<releases>
+						<checksumPolicy>fail</checksumPolicy>
+						<enabled>true</enabled>
+					</releases>
+					<snapshots>
+						<checksumPolicy>fail</checksumPolicy>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+			<properties>
+				<!-- Uncomment this and specify the location on your file system where the clover license is located.
+				<clover.licenseLocation>/path/to/clover/license</clover.licenseLocation>
+				-->
+			</properties>
+		</profile>
+	</profiles>
 
 </project>

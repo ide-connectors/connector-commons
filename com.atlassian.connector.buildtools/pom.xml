@@ -12,20 +12,6 @@
 	<parent>
 		<groupId>com.atlassian.connector</groupId>
 		<artifactId>atlassian-connector-parent-pom</artifactId>
-		<version>2.1.5-SNAPSHOT</version>
+		<version>2.1.1</version>
 	</parent>
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<inherited>false</inherited>
-				<version>2.5</version>
-				<configuration>
-					<altDeploymentRepository>
-						atlassian-m2-snapshot-repository::default::dav:https://maven.atlassian.com/public-snapshot
-					</altDeploymentRepository>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>

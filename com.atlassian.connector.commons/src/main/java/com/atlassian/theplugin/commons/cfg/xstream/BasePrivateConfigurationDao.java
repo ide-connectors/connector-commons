@@ -41,7 +41,7 @@ public abstract class BasePrivateConfigurationDao<T> {
 
     }
 
-    protected String getPrivateCfgDirectoryPath() {
+    protected static String getPrivateCfgDirectoryPath() {
         return System.getProperty("user.home") + File.separator + ATLASSIAN_DIR_NAME
                 + File.separator + ATLASSIAN_IDE_CONNECTOR_DIR_NAME;
     }
@@ -54,7 +54,7 @@ public abstract class BasePrivateConfigurationDao<T> {
         return document;
     }
 
-    protected File getPrivateCfgDirectorySavePath() throws ServerCfgFactoryException {
+    protected static File getPrivateCfgDirectorySavePath() throws ServerCfgFactoryException {
 
         final File ideConnectorHomeDir = new File(getPrivateCfgDirectoryPath());
         if (ideConnectorHomeDir.exists() == false) {

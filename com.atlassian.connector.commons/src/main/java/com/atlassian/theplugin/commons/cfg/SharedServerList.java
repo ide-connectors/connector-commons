@@ -16,10 +16,24 @@
 package com.atlassian.theplugin.commons.cfg;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * @autrhor pmaruszak
  * @date Jun 11, 2010
  */
 public class SharedServerList extends ArrayList<ServerCfg> {
+	public static SharedServerList merge(SharedServerList list1, SharedServerList list2) {
+		HashSet<ServerCfg> sharedMergeSet = new HashSet<ServerCfg>();
+		sharedMergeSet.addAll(list1);
+		sharedMergeSet.addAll(list2);
+		SharedServerList newList = new SharedServerList();
+
+		for (ServerCfg server : sharedMergeSet) {
+			if (server.getUrl() != null && server.getUrl().length() > 0) {
+				newList.add(server);
+			}
+		}
+		return newList;
+	}
 }

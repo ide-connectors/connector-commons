@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.atlassian.pom</groupId>
 		<artifactId>atlassian-public-pom</artifactId>
-		<version>17</version>
+		<version>28</version>
 	</parent>
 	<groupId>com.atlassian.connector</groupId>
 	<artifactId>atlassian-connector-parent-pom</artifactId>
@@ -44,7 +44,7 @@
 		<downloadDir>download</downloadDir>
 		<metadataDir>metadata</metadataDir>
 		<bundle.namespace>com.atlassian.theplugin</bundle.namespace>
-		<versionReleaseNotes>Ported to IDEA 8.0, JIRA tab renamed to Issue and changed layout, Bug fixes</versionReleaseNotes>
+		<versionReleaseNotes>Ported to IDEA IU-95.627</versionReleaseNotes>
 		<versionReleaseNotesUrl>
 			http://confluence.atlassian.com/display/IDEPLUGIN/Atlassian+IntelliJ+Connector+2.0+Beta+7+Release+Notes
 		</versionReleaseNotesUrl>
@@ -56,6 +56,7 @@
 			<version>1.0-m1</version>
 			<scope>test</scope>
 		</dependency>
+<!--
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
@@ -65,7 +66,7 @@
 			<groupId>commons-httpclient</groupId>
 			<artifactId>commons-httpclient</artifactId>
 			<version>3.1</version>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -147,7 +148,7 @@
 				<version>2.1</version>
 				<configuration>
 					<ideaPlugin>false</ideaPlugin>
-					<jdkName>IDEA 7590</jdkName>
+					<jdkName>IDEA IU-95.627</jdkName>
 					<jdkLevel>${jdkLevel}</jdkLevel>
 					<exclude>vs</exclude>
 					<downloadSources>true</downloadSources>

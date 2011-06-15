@@ -31,6 +31,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.converters.reflection.Sun14ReflectionProvider;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.xml.JDomDriver;
@@ -53,7 +54,7 @@ public final class JDomXStreamUtil {
     public static XStream getProjectJDomXStream(boolean saveAll) {
 
 
-        XStream xStream = new XStream(new JDomDriver());
+        XStream xStream = new XStream(new Sun14ReflectionProvider(), new JDomDriver());
         xStream.setMode(XStream.NO_REFERENCES);
         xStream.alias("bamboo", BambooServerCfg.class);
         xStream.alias("crucible", CrucibleServerCfg.class);

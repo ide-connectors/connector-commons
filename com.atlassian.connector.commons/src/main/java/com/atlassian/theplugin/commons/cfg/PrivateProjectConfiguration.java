@@ -19,13 +19,14 @@ import com.atlassian.theplugin.commons.util.MiscUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.Set;
 
 public class PrivateProjectConfiguration {
 	public Collection<PrivateServerCfgInfo> getPrivateServerCfgInfos() {
 		return privateServerCfgInfos;
 	}
 
-	private Collection<PrivateServerCfgInfo> privateServerCfgInfos = MiscUtil.buildArrayList();
+	private Set<PrivateServerCfgInfo> privateServerCfgInfos = MiscUtil.buildHashSet();
 
 	public void add(@NotNull PrivateServerCfgInfo info) {
 		privateServerCfgInfos.add(info);

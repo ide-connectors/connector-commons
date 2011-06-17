@@ -7,6 +7,8 @@
 
 package com.atlassian.connector.commons.jira.soap.axis;
 
+import org.apache.axis.EngineConfiguration;
+
 public class JiraSoapServiceServiceLocator extends org.apache.axis.client.Service
 		implements com.atlassian.connector.commons.jira.soap.axis.JiraSoapServiceService {
 
@@ -41,13 +43,35 @@ public class JiraSoapServiceServiceLocator extends org.apache.axis.client.Servic
 		JirasoapserviceV2WSDDServiceName = name;
 	}
 
+	@Override
+	protected EngineConfiguration getEngineConfiguration() {
+		java.lang.StringBuffer sb = new java.lang.StringBuffer();
+
+		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				+ "<deployment name=\"defaultClientConfig\"\n"
+				+ "            xmlns=\"http://xml.apache.org/axis/wsdd/\"\n"
+				+ "            xmlns:java=\"http://xml.apache.org/axis/wsdd/providers/java\">\n"
+				+ " <globalConfiguration>\n"
+				+ "   <parameter name=\"disablePrettyXML\" value=\"true\"/>\n"
+				+ "   <parameter name=\"enableNamespacePrefixOptimization\" value=\"false\"/>\n"
+				+ " </globalConfiguration>");
+
+		sb.append("<transport name=\"http\" pivot=\"java:").append(org.apache.axis.transport.http.HTTPSender.class.getName()).append("\" />\r\n");
+		sb.append("<transport name=\"local\" pivot=\"java:").append(org.apache.axis.transport.local.LocalSender.class.getName()).append("\" />\r\n");
+		sb.append("<transport name=\"java\" pivot=\"java:").append(org.apache.axis.transport.java.JavaSender.class.getName()).append("\" />\r\n");
+		sb.append("</deployment>\r\n");
+		org.apache.axis.configuration.XMLStringProvider config =
+				new org.apache.axis.configuration.XMLStringProvider(sb.toString());
+		return config;
+	}
+
+
 	public com.atlassian.connector.commons.jira.soap.axis.JiraSoapService getJirasoapserviceV2()
 			throws javax.xml.rpc.ServiceException {
 		java.net.URL endpoint;
 		try {
 			endpoint = new java.net.URL(JirasoapserviceV2_address);
-		}
-		catch (java.net.MalformedURLException e) {
+		} catch (java.net.MalformedURLException e) {
 			throw new javax.xml.rpc.ServiceException(e);
 		}
 		return getJirasoapserviceV2(endpoint);
@@ -57,11 +81,11 @@ public class JiraSoapServiceServiceLocator extends org.apache.axis.client.Servic
 			throws javax.xml.rpc.ServiceException {
 		try {
 			com.atlassian.connector.commons.jira.soap.axis.JirasoapserviceV2SoapBindingStub _stub
-					= new com.atlassian.connector.commons.jira.soap.axis.JirasoapserviceV2SoapBindingStub(portAddress, this);
+					= new com.atlassian.connector.commons.jira.soap.axis.JirasoapserviceV2SoapBindingStub(portAddress,
+					this);
 			_stub.setPortName(getJirasoapserviceV2WSDDServiceName());
 			return _stub;
-		}
-		catch (org.apache.axis.AxisFault e) {
+		} catch (org.apache.axis.AxisFault e) {
 			return null;
 		}
 	}
@@ -77,15 +101,15 @@ public class JiraSoapServiceServiceLocator extends org.apache.axis.client.Servic
 	 */
 	public java.rmi.Remote getPort(Class serviceEndpointInterface) throws javax.xml.rpc.ServiceException {
 		try {
-			if (com.atlassian.connector.commons.jira.soap.axis.JiraSoapService.class.isAssignableFrom(serviceEndpointInterface)) {
+			if (com.atlassian.connector.commons.jira.soap.axis.JiraSoapService.class
+					.isAssignableFrom(serviceEndpointInterface)) {
 				com.atlassian.connector.commons.jira.soap.axis.JirasoapserviceV2SoapBindingStub _stub
 						= new com.atlassian.connector.commons.jira.soap.axis.JirasoapserviceV2SoapBindingStub(
 						new java.net.URL(JirasoapserviceV2_address), this);
 				_stub.setPortName(getJirasoapserviceV2WSDDServiceName());
 				return _stub;
 			}
-		}
-		catch (java.lang.Throwable t) {
+		} catch (java.lang.Throwable t) {
 			throw new javax.xml.rpc.ServiceException(t);
 		}
 		throw new javax.xml.rpc.ServiceException("There is no stub implementation for the interface:  " +
@@ -113,7 +137,8 @@ public class JiraSoapServiceServiceLocator extends org.apache.axis.client.Servic
 	}
 
 	public javax.xml.namespace.QName getServiceName() {
-		return new javax.xml.namespace.QName("http://jira.atlassian.com/rpc/soap/jirasoapservice-v2", "JiraSoapServiceService");
+		return new javax.xml.namespace.QName("http://jira.atlassian.com/rpc/soap/jirasoapservice-v2",
+				"JiraSoapServiceService");
 	}
 
 	private java.util.HashSet ports = null;
@@ -130,7 +155,8 @@ public class JiraSoapServiceServiceLocator extends org.apache.axis.client.Servic
 	/**
 	 * Set the endpoint address for the specified port name.
 	 */
-	public void setEndpointAddress(java.lang.String portName, java.lang.String address) throws javax.xml.rpc.ServiceException {
+	public void setEndpointAddress(java.lang.String portName, java.lang.String address)
+			throws javax.xml.rpc.ServiceException {
 
 		if ("JirasoapserviceV2".equals(portName)) {
 			setJirasoapserviceV2EndpointAddress(address);

@@ -43,6 +43,9 @@ public class JiraSoapServiceServiceLocator extends org.apache.axis.client.Servic
 		JirasoapserviceV2WSDDServiceName = name;
 	}
 
+	/*
+	  overiden configuration from file client-config.wsdd
+	* */
 	@Override
 	protected EngineConfiguration getEngineConfiguration() {
 		java.lang.StringBuffer sb = new java.lang.StringBuffer();

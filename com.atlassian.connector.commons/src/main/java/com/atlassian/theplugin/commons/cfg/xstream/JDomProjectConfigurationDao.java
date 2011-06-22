@@ -64,7 +64,21 @@ public class JDomProjectConfigurationDao implements ProjectConfigurationDao {
 
         @Nullable final SharedServerList sharedServers = sharedCfg.load();
         if (sharedServers != null) {
-            res.getServers().addAll(sharedServers);
+			Collection<ServerCfg> serversToAdd = new ArrayList<ServerCfg>();
+            for (ServerCfg sharedServer : sharedServers) {
+				if (res.getServers().size() > 0) {
+                 for (ServerCfg sc : res.getServers()) {
+                     if (sc.getServerId().equals(sharedServer.getServerId())) {
+                         continue;
+                     }
+                     serversToAdd.add(sharedServer);
+                 }
+				} else {
+					serversToAdd.addAll(sharedServers);
+				}
+            }
+//            res.getServers().addAll(sharedServers);
+			res.getServers().addAll(serversToAdd);
         }
 
         for (ServerCfg serverCfg : res.getServers()) {
@@ -127,7 +141,13 @@ public class JDomProjectConfigurationDao implements ProjectConfigurationDao {
         final SharedServerList gList = new SharedServerList();
         for (ServerCfg server : projectConfiguration.getServers()) {
             if (server.isShared()) {
-                gList.add(server);
+				gList.add(server);
+//                if (projectConfiguration.getServerCfg(server.getServerId()) == null) {
+//                    gList.add(server);
+//                } else {
+//                    projectConfiguration.getServerCfg(server.getServerId()).setShared(true);
+//                }
+
                 if (privateConfigurationDao instanceof HomeDirPrivateConfigurationDao) {
                     ((HomeDirPrivateConfigurationDao) privateConfigurationDao).deleteFile(server);
                 }
@@ -167,5 +187,5 @@ public class JDomProjectConfigurationDao implements ProjectConfigurationDao {
 
     static PrivateServerCfgInfo createPrivateProjectConfiguration(final ServerCfg serverCfg) {
         return serverCfg.createPrivateProjectConfiguration();
-    }    
+    }
 }

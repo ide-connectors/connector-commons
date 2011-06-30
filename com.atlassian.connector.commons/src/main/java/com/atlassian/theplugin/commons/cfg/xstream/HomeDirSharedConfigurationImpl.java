@@ -41,16 +41,22 @@ public class HomeDirSharedConfigurationImpl
 	/**
 	 * This method is blocking for a very short period of time in some cases
 	 */
-	public void save(SharedServerList serversInfo) throws ServerCfgFactoryException {
+	public synchronized void save(SharedServerList serversInfo) throws ServerCfgFactoryException {
 		Document document;
 		FileLock lock = null;
 		File outputFile = null;
+
 		try {
 			outputFile = new File(getPrivateCfgDirectorySavePath(), GLOBAL_SERVERS_FILE_NAME);
-			final FileChannel channnel = new RandomAccessFile(outputFile, "rw").getChannel();
+			if (outputFile.exists()) {
+				outputFile.delete();
+				outputFile = new File(getPrivateCfgDirectorySavePath(), GLOBAL_SERVERS_FILE_NAME);
+
+			}
+			final FileChannel channel = new RandomAccessFile(outputFile, "rw").getChannel();
 			for (int i = 0; i < 3; i++) {
 				try {
-					lock = channnel.tryLock();
+					lock = channel.tryLock();
 					break;
 				} catch (IOException e) {
 					wait(2 ^ i * 100);
@@ -68,6 +74,7 @@ public class HomeDirSharedConfigurationImpl
 //				} else {
 					document = createJDom(serversInfo);
 //				}
+
 				writeXmlFile(document.getRootElement(), outputFile);
 			} else {
 				throw new ServerCfgFactoryException("Shared configuration hasn't been saved");

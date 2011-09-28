@@ -10,6 +10,7 @@
 	<description>Common classes used by various Atlassian IDE Connectors.</description>
 	<organization>
 		<name>Atlassian Pty Ltd</name>
+		<name>Atlassian Pty Ltd</name>
 		<url>http://atlassian.com/</url>
 	</organization>
 	<scm>
@@ -104,11 +105,11 @@
 			<version>8.1.4</version>
 			<classifier>9952</classifier>
 		</dependency>
-		<dependency>
-			<groupId>org.mortbay.jetty</groupId>
-			<artifactId>jetty</artifactId>
-			<version>7.0.0.pre5</version>
-		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>org.mortbay.jetty</groupId>-->
+			<!--<artifactId>jetty</artifactId>-->
+			<!--<version>7.0.0.pre5</version>-->
+		<!--</dependency>-->
 		<dependency>
 			<groupId>org.mortbay.jetty</groupId>
 			<artifactId>jetty</artifactId>

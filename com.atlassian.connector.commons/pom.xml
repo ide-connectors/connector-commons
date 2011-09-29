@@ -116,11 +116,11 @@
 		</dependency>-->
 
 	</dependencies>
-	<repositories>
+<!--	<repositories>
 		<repository>
 			<id>atlassian-m2-snapshot-repository</id>
 			<url>https://maven.atlassian.com/public-snapshot</url>
 		</repository>
-	</repositories>
+	</repositories>-->
 </project>
 

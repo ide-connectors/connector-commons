@@ -10,7 +10,6 @@
 	<description>Common classes used by various Atlassian IDE Connectors.</description>
 	<organization>
 		<name>Atlassian Pty Ltd</name>
-		<name>Atlassian Pty Ltd</name>
 		<url>http://atlassian.com/</url>
 	</organization>
 	<scm>

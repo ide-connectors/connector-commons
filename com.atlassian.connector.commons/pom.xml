@@ -101,8 +101,8 @@
 		<dependency>
 			<groupId>com.intellij.idea</groupId>
 			<artifactId>annotations</artifactId>
-			<version>8.1.4</version>
-			<classifier>9952</classifier>
+			<version>9.0.4</version>
+			<classifier>95.627</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.mortbay.jetty</groupId>

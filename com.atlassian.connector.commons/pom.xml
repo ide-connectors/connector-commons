@@ -102,7 +102,7 @@
 			<groupId>com.intellij.idea</groupId>
 			<artifactId>annotations</artifactId>
 			<version>9.0.4</version>
-			<!--<classifier>95.627</classifier>-->
+			<classifier>95.627</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.mortbay.jetty</groupId>

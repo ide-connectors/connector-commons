@@ -83,6 +83,7 @@ public class JIRAIssueBean implements JIRAIssue {
     public JIRAIssueBean() {
 	}
 
+
     public JIRAIssueBean(JIRAIssue issue) {
         this.id = issue.getId();
         this.serverUrl = issue.getServerUrl();
@@ -129,8 +130,10 @@ public class JIRAIssueBean implements JIRAIssue {
         this.basicCustomFields = issue.getCustomFields();                
     }
 
-
-	public JIRAIssueBean(String serverUrl, Element e) {
+    public JIRAIssueBean(String serverUrl, Element e) {
+          this(serverUrl, e, Locale.US);
+    }
+	public JIRAIssueBean(String serverUrl, Element e, Locale locale) {
 		this.summary = getTextSafely(e, "summary");
 		this.key = getTextSafely(e, "key");
 		this.id = new Long(getAttributeSafely(e, "key", "id"));
@@ -225,12 +228,12 @@ public class JIRAIssueBean implements JIRAIssue {
 				String creationDate = el.getAttributeValue("created", "Unknown");
 
 				Calendar cal = Calendar.getInstance();
-				DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z (z)", Locale.US);
+				DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z (z)", locale);
 				try {
 					cal.setTime(df.parse(creationDate));
 				} catch (java.text.ParseException ex) {
                     //try another one
-					df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
+					df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", locale);
                     try {
                         cal.setTime(df.parse(creationDate));
                     } catch (ParseException e1) {

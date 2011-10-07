@@ -52,11 +52,7 @@ import org.jdom.JDOMException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.atlassian.theplugin.commons.util.UrlUtil.encodeUrl;
 
@@ -90,7 +86,7 @@ public class JIRARssClient extends AbstractHttpSession {
             if (login && method != null && method.getStatusLine() != null) {
                 if (method.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
                     jira4x = false;
-                } else if (method.getResponseHeader("Content-Type") != null 
+                } else if (method.getResponseHeader("Content-Type") != null
                         && method.getResponseHeader("Content-Type").getValue().startsWith("application/json")) {
                     // we're talking to JIRA 4.x
                     String json = "";
@@ -108,7 +104,7 @@ public class JIRARssClient extends AbstractHttpSession {
                 }
             }
         } catch (IOException e) {
-              throw new RemoteApiException("Cannot parse method result.", e);
+            throw new RemoteApiException("Cannot parse method result.", e);
 
         }
     }
@@ -123,7 +119,15 @@ public class JIRARssClient extends AbstractHttpSession {
         return "";
     }
 
-
+    private Locale getLocale(Element channel) {
+          Locale locale = Locale.US;
+                Element language = channel.getChild("language");
+                if (language != null) {
+                    String[] parsedLocale = language.getText().split("-");
+                    locale = new Locale(parsedLocale[0], parsedLocale[1]);
+                }
+        return locale;
+    }
 
     public List<JIRAIssue> getIssues(String queryString, String sortBy, String sortOrder, int start, int max)
             throws JIRAException {
@@ -143,8 +147,9 @@ public class JIRARssClient extends AbstractHttpSession {
             Document doc = retrieveGetResponse(url.toString());
             Element root = doc.getRootElement();
             Element channel = root.getChild("channel");
+
             if (channel != null && !channel.getChildren("item").isEmpty()) {
-                return makeIssues(channel.getChildren("item"));
+                return makeIssues(channel.getChildren("item"), getLocale(channel));
             }
             return Collections.emptyList();
         } catch (AuthenticationException e) {
@@ -190,7 +195,7 @@ public class JIRARssClient extends AbstractHttpSession {
             Element root = doc.getRootElement();
             Element channel = root.getChild("channel");
             if (channel != null && !channel.getChildren("item").isEmpty()) {
-                return makeIssues(channel.getChildren("item"));
+                return makeIssues(channel.getChildren("item"),  getLocale(channel));
             }
 
 
@@ -231,7 +236,7 @@ public class JIRARssClient extends AbstractHttpSession {
             Element root = doc.getRootElement();
             Element channel = root.getChild("channel");
             if (channel != null && !channel.getChildren("item").isEmpty()) {
-                return makeIssues(channel.getChildren("item"));
+                return makeIssues(channel.getChildren("item"),  getLocale(channel));
             }
             return Collections.emptyList();
         } catch (IOException e) {
@@ -259,7 +264,8 @@ public class JIRARssClient extends AbstractHttpSession {
                 @SuppressWarnings("unchecked")
                 final List<Element> items = channel.getChildren("item");
                 if (!items.isEmpty()) {
-                    return makeIssues(items).get(0);
+
+                    return makeIssues(items, getLocale(channel)).get(0);
                 }
             }
             throw new JIRAException("Cannot parse response from JIRA: " + doc.toString());
@@ -272,10 +278,10 @@ public class JIRARssClient extends AbstractHttpSession {
         }
     }
 
-    private List<JIRAIssue> makeIssues(@NotNull List<Element> issueElements) {
+    private List<JIRAIssue> makeIssues(@NotNull List<Element> issueElements, Locale locale) {
         List<JIRAIssue> result = new ArrayList<JIRAIssue>(issueElements.size());
         for (final Element issueElement : issueElements) {
-            JIRAIssueBean jiraIssue = new JIRAIssueBean(httpConnectionCfg.getUrl(), issueElement);
+            JIRAIssueBean jiraIssue = new JIRAIssueBean(httpConnectionCfg.getUrl(), issueElement, locale);
             CachedIconLoader.loadIcon(jiraIssue.getTypeIconUrl());
             CachedIconLoader.loadIcon(jiraIssue.getPriorityIconUrl());
             CachedIconLoader.loadIcon(jiraIssue.getStatusTypeUrl());
@@ -316,7 +322,7 @@ public class JIRARssClient extends AbstractHttpSession {
 
     public boolean isLoggedIn(ConnectionCfg server) {
         Cookie[] cookies = callback.getCookiesHeaders(server);
-        return cookies != null && cookies.length > 0;       
+        return cookies != null && cookies.length > 0;
     }
 
 }

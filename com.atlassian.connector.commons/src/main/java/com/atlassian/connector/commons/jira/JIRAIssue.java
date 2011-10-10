@@ -22,6 +22,7 @@ import com.atlassian.connector.commons.jira.beans.JIRAPriorityBean;
 import com.atlassian.connector.commons.jira.beans.JIRASecurityLevelBean;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public interface JIRAIssue {
@@ -129,4 +130,5 @@ public interface JIRAIssue {
 
 	JIRASecurityLevelBean getSecurityLevel();
     List<JiraCustomField> getCustomFields();
+    Locale getLocale();
 }

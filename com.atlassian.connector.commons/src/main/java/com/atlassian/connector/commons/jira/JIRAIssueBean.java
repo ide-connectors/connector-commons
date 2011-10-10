@@ -79,12 +79,15 @@ public class JIRAIssueBean implements JIRAIssue {
 	private JIRASecurityLevelBean securityLevel;
     private String environment;
     private List<JiraCustomField> basicCustomFields = new ArrayList<JiraCustomField>();
+    private Locale locale;
 
     public JIRAIssueBean() {
+        locale = Locale.US;
 	}
 
 
     public JIRAIssueBean(JIRAIssue issue) {
+        this.locale = issue.getLocale();
         this.id = issue.getId();
         this.serverUrl = issue.getServerUrl();
         this.key = issue.getKey();
@@ -130,10 +133,8 @@ public class JIRAIssueBean implements JIRAIssue {
         this.basicCustomFields = issue.getCustomFields();                
     }
 
-    public JIRAIssueBean(String serverUrl, Element e) {
-          this(serverUrl, e, Locale.US);
-    }
 	public JIRAIssueBean(String serverUrl, Element e, Locale locale) {
+        this.locale = locale;
 		this.summary = getTextSafely(e, "summary");
 		this.key = getTextSafely(e, "key");
 		this.id = new Long(getAttributeSafely(e, "key", "id"));
@@ -642,4 +643,8 @@ public class JIRAIssueBean implements JIRAIssue {
     public void setSecurityLevel(final JIRASecurityLevelBean securityLevelBean) {
 		this.securityLevel = securityLevelBean;
 	}
+
+    public Locale getLocale() {
+        return locale;
+    }
 }

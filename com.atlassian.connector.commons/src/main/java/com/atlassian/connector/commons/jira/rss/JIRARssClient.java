@@ -120,12 +120,14 @@ public class JIRARssClient extends AbstractHttpSession {
     }
 
     private Locale getLocale(Element channel) {
-          Locale locale = Locale.US;
-                Element language = channel.getChild("language");
-                if (language != null) {
-                    String[] parsedLocale = language.getText().split("-");
-                    locale = new Locale(parsedLocale[0], parsedLocale[1]);
-                }
+        Locale locale = Locale.US;
+        Element language = channel.getChild("language");
+        if (language != null) {
+            String[] parsedLocale = language.getText().split("-");
+            if (parsedLocale != null && parsedLocale.length > 1) {
+                locale = new Locale(parsedLocale[0], parsedLocale[1]);
+            }
+        }
         return locale;
     }
 
@@ -195,7 +197,7 @@ public class JIRARssClient extends AbstractHttpSession {
             Element root = doc.getRootElement();
             Element channel = root.getChild("channel");
             if (channel != null && !channel.getChildren("item").isEmpty()) {
-                return makeIssues(channel.getChildren("item"),  getLocale(channel));
+                return makeIssues(channel.getChildren("item"), getLocale(channel));
             }
 
 
@@ -236,7 +238,7 @@ public class JIRARssClient extends AbstractHttpSession {
             Element root = doc.getRootElement();
             Element channel = root.getChild("channel");
             if (channel != null && !channel.getChildren("item").isEmpty()) {
-                return makeIssues(channel.getChildren("item"),  getLocale(channel));
+                return makeIssues(channel.getChildren("item"), getLocale(channel));
             }
             return Collections.emptyList();
         } catch (IOException e) {

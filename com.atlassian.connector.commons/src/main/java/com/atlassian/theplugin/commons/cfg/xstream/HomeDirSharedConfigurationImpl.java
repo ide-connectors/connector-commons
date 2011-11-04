@@ -48,8 +48,7 @@ public class HomeDirSharedConfigurationImpl
 
 		try {
 			outputFile = new File(getPrivateCfgDirectorySavePath(), GLOBAL_SERVERS_FILE_NAME);
-			if (outputFile.exists()) {
-				outputFile.delete();
+			if (!outputFile.exists()) {
 				outputFile = new File(getPrivateCfgDirectorySavePath(), GLOBAL_SERVERS_FILE_NAME);
 
 			}
@@ -66,14 +65,14 @@ public class HomeDirSharedConfigurationImpl
 			if (lock == null) {
 			   throw new ServerCfgFactoryException("Cannot lock shared file: " + outputFile.getAbsolutePath());
 			}
-			//SharedServerList storedList = load();
+			SharedServerList storedList = load();
 			if (outputFile.exists() && outputFile.canWrite()) {
-//				if (storedList != null) {
-//					//merge existing cfg
-//					document = createJDom(SharedServerList.merge(serversInfo, storedList));
-//				} else {
+				if (storedList != null) {
+					//merge existing cfg
+					document = createJDom(SharedServerList.merge(serversInfo, storedList));
+				} else {
 					document = createJDom(serversInfo);
-//				}
+				}
 
 				writeXmlFile(document.getRootElement(), outputFile);
 			} else {

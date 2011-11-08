@@ -66,14 +66,14 @@ public class HomeDirSharedConfigurationImpl
 			   throw new ServerCfgFactoryException("Cannot lock shared file: " + outputFile.getAbsolutePath());
 			}
 			SharedServerList storedList = load();
-			if (outputFile.exists() && outputFile.canWrite() && serversInfo.size() > 0) {
-				if (storedList != null) {
+			if (outputFile.exists() && outputFile.canWrite()) {
+//				if (storedList != null && serversInfo.size() > 0) {
 					//merge existing cfg
-					document = createJDom(SharedServerList.merge(serversInfo, storedList));
-                    //document = createJDom(serversInfo);
-				} else {
+					//document = createJDom(SharedServerList.merge(serversInfo, storedList));
+//                    document = createJDom(serversInfo);
+//				} else {
 					document = createJDom(serversInfo);
-				}
+//				}
 
 				writeXmlFile(document.getRootElement(), outputFile);
 			} else {

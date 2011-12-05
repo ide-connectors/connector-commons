@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 
 /**
  * @autrhor pmaruszak
@@ -45,6 +46,8 @@ public class HomeDirSharedConfigurationImpl
 		Document document;
 		FileLock lock = null;
 		File outputFile = null;
+        FileChannel channel = null;
+         RandomAccessFile randomAccessFile = null;
 
 		try {
 			outputFile = new File(getPrivateCfgDirectorySavePath(), GLOBAL_SERVERS_FILE_NAME);
@@ -52,20 +55,24 @@ public class HomeDirSharedConfigurationImpl
 				outputFile = new File(getPrivateCfgDirectorySavePath(), GLOBAL_SERVERS_FILE_NAME);
 
 			}
-			final FileChannel channel = new RandomAccessFile(outputFile, "rw").getChannel();
-			for (int i = 0; i < 3; i++) {
-				try {
-					lock = channel.tryLock();
-					break;
-				} catch (IOException e) {
-					wait(2 ^ i * 100);
-
-				}
-			}
-			if (lock == null) {
-			   throw new ServerCfgFactoryException("Cannot lock shared file: " + outputFile.getAbsolutePath());
-			}
-			SharedServerList storedList = load();
+//            randomAccessFile = new RandomAccessFile(outputFile, "rw");
+//            channel = randomAccessFile.getChannel();
+//			for (int i = 0; i < 3; i++) {
+//				try {
+                    //file locking on Windows is mandatory and Unix is optional
+                    //on Windows if process locks file this is not recognized
+                    //we do not need locking because when running few instances of IDEA only one configuration is Open at time
+//					lock = channel.tryLock(0L, Long.MAX_VALUE, true);
+//					break;
+//				} catch (OverlappingFileLockException e) {
+//					wait(2 ^ i * 100);
+//
+//				}
+//			}
+//			if (lock == null) {
+//			   throw new ServerCfgFactoryException("Cannot lock shared file: " + outputFile.getAbsolutePath());
+//			}
+			//SharedServerList storedList = load();
 			if (outputFile.exists() && outputFile.canWrite()) {
 //				if (storedList != null && serversInfo.size() > 0) {
 					//merge existing cfg
@@ -88,6 +95,8 @@ public class HomeDirSharedConfigurationImpl
 			if (lock != null) {
 				try {
 					lock.release();
+                    channel.close();
+                    randomAccessFile.close();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

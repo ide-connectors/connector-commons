@@ -22,6 +22,7 @@ public class JiraConfigurationBean {
 
 	private int pageSize = JIRA_DEFAULT_ISSUE_PAGE_SIZE;
     private boolean synchronizeWithIntelliJTasks = false;
+    private boolean showIssueTooltips = true;
 
 	private static final int HASHCODE_MAGIC = 31;
 
@@ -31,6 +32,7 @@ public class JiraConfigurationBean {
 	public JiraConfigurationBean(JiraConfigurationBean cfg) {
 		this.pageSize = cfg.getPageSize();
         this.synchronizeWithIntelliJTasks = cfg.synchronizeWithIntelliJTasks;
+        this.showIssueTooltips = cfg.showIssueTooltips;
 	}
 
 	public int getPageSize() {
@@ -41,6 +43,13 @@ public class JiraConfigurationBean {
 		this.pageSize = pageSize;
 	}
 
+    public boolean isShowIssueTooltips() {
+        return showIssueTooltips;
+    }
+
+    public void setShowIssueTooltips(boolean showIssueTooltips) {
+        this.showIssueTooltips = showIssueTooltips;
+    }
 
     public boolean isSynchronizeWithIntelliJTasks() {
         return synchronizeWithIntelliJTasks;
@@ -67,7 +76,9 @@ public class JiraConfigurationBean {
         if (synchronizeWithIntelliJTasks != that.synchronizeWithIntelliJTasks) {
             return false;
         }
-
+        if (showIssueTooltips != that.showIssueTooltips) {
+            return false;
+        }
         return true;
     }
 
@@ -75,6 +86,7 @@ public class JiraConfigurationBean {
     public int hashCode() {
         int result = pageSize;
         result = 31 * result + (synchronizeWithIntelliJTasks ? 1 : 0);
+        result = 31 * result + (showIssueTooltips ? 1 : 0);
         return result;
     }
 }

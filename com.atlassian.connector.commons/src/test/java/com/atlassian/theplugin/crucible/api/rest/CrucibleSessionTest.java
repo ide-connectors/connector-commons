@@ -702,6 +702,7 @@ public class CrucibleSessionTest extends TestCase {
 
 		mockServer.verify();
 	}
+
 	public void testCreateReviewFromPatch() throws Exception {
 
         //http://localhost:54080/rest-service/reviews-v1

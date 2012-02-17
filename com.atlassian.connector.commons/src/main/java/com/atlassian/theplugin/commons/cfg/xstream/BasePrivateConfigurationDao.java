@@ -10,9 +10,7 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 public abstract class BasePrivateConfigurationDao<T> {
     private static final String ATLASSIAN_DIR_NAME = ".atlassian";
@@ -22,12 +20,15 @@ public abstract class BasePrivateConfigurationDao<T> {
     }
 
     void writeXmlFile(final Element element, @NotNull final File outputFile) throws IOException {
-        final FileWriter writer = new FileWriter(outputFile);
-        try {
-            new XMLOutputter(Format.getPrettyFormat()).output(element, writer);
-        } finally {
-            writer.close();
-        }
+        StringWriter sw = new StringWriter();
+        new XMLOutputter(Format.getPrettyFormat()).output(element, sw);
+        sw.flush();
+        sw.close();
+        String str = sw.toString();
+        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(outputFile.getAbsolutePath())));
+        out.write(str);
+        out.flush();
+        out.close();
     }
 
     static void saveJDom(final Object object, final Element rootElement) {

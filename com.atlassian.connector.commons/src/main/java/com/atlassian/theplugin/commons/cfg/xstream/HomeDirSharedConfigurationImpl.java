@@ -44,43 +44,22 @@ public class HomeDirSharedConfigurationImpl
 	 */
 	public synchronized void save(SharedServerList serversInfo) throws ServerCfgFactoryException {
 		Document document;
-		FileLock lock = null;
 		File outputFile = null;
-        FileChannel channel = null;
-         RandomAccessFile randomAccessFile = null;
 
 		try {
 			outputFile = new File(getPrivateCfgDirectorySavePath(), GLOBAL_SERVERS_FILE_NAME);
 			if (!outputFile.exists()) {
-				outputFile = new File(getPrivateCfgDirectorySavePath(), GLOBAL_SERVERS_FILE_NAME);
-
+                outputFile.createNewFile();
 			}
-//            randomAccessFile = new RandomAccessFile(outputFile, "rw");
-//            channel = randomAccessFile.getChannel();
-//			for (int i = 0; i < 3; i++) {
-//				try {
-                    //file locking on Windows is mandatory and Unix is optional
-                    //on Windows if process locks file this is not recognized
-                    //we do not need locking because when running few instances of IDEA only one configuration is Open at time
-//					lock = channel.tryLock(0L, Long.MAX_VALUE, true);
-//					break;
-//				} catch (OverlappingFileLockException e) {
-//					wait(2 ^ i * 100);
-//
-//				}
-//			}
-//			if (lock == null) {
-//			   throw new ServerCfgFactoryException("Cannot lock shared file: " + outputFile.getAbsolutePath());
-//			}
-			//SharedServerList storedList = load();
+			SharedServerList storedList = load();
 			if (outputFile.exists() && outputFile.canWrite()) {
-//				if (storedList != null && serversInfo.size() > 0) {
+				if (storedList != null) {
 					//merge existing cfg
-					//document = createJDom(SharedServerList.merge(serversInfo, storedList));
+					document = createJDom(SharedServerList.merge(serversInfo, storedList));
 //                    document = createJDom(serversInfo);
-//				} else {
+				} else {
 					document = createJDom(serversInfo);
-//				}
+				}
 
 				writeXmlFile(document.getRootElement(), outputFile);
 			} else {
@@ -91,16 +70,6 @@ public class HomeDirSharedConfigurationImpl
 			final ServerCfgFactoryException ex = new ServerCfgFactoryException(e.getMessage());
 			ex.initCause(e);
 			throw ex;
-		} finally {
-			if (lock != null) {
-				try {
-					lock.release();
-                    channel.close();
-                    randomAccessFile.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 
@@ -114,7 +83,6 @@ public class HomeDirSharedConfigurationImpl
 
 				final SAXBuilder builder = new SAXBuilder(false);
 				try {
-
 					doc = builder.build(sharedConfigFile.getAbsolutePath());
 				} catch (JDOMException e) {
 					throw new ServerCfgFactoryException("Cannot parse shared cfg file " + e.getMessage());

@@ -42,6 +42,4 @@ public class SharedServerList extends ArrayList<ServerCfg> {
 		}
 		return newList;
 	}
-
-
 }

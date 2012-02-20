@@ -15,14 +15,17 @@
  */
 package com.atlassian.theplugin.commons.cfg.xstream;
 
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerCfgFactoryException;
 import com.atlassian.theplugin.commons.cfg.SharedServerList;
+
+import java.util.Collection;
 
 /**
  * @autrhor pmaruszak
  * @date Jun 10, 2010
  */
 public interface UserSharedConfigurationDao {
-    void save(SharedServerList serversInfo) throws ServerCfgFactoryException;
+    void save(SharedServerList serversInfo, Collection<ServerCfg> allServers) throws ServerCfgFactoryException;
     SharedServerList load() throws ServerCfgFactoryException;
 }

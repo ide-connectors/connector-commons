@@ -524,7 +524,7 @@ public class JDomProjectConfigurationDaoTest extends ProjectConfigurationDaoTest
 
     private static class MemorySharedConfigurationDao implements UserSharedConfigurationDao {
         private SharedServerList list = new SharedServerList();
-        public void save(SharedServerList serversInfo) throws ServerCfgFactoryException {
+        public void save(SharedServerList serversInfo, Collection<ServerCfg> allServers) throws ServerCfgFactoryException {
             list = serversInfo;
         }
 

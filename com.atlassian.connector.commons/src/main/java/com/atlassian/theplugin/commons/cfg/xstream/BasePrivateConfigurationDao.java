@@ -42,7 +42,7 @@ public abstract class BasePrivateConfigurationDao<T> {
 
     }
 
-    protected static String getPrivateCfgDirectoryPath() {
+    public static String getPrivateCfgDirectoryPath() {
         return System.getProperty("user.home") + File.separator + ATLASSIAN_DIR_NAME
                 + File.separator + ATLASSIAN_IDE_CONNECTOR_DIR_NAME;
     }

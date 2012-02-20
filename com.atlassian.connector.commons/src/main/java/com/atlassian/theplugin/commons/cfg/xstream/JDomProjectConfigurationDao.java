@@ -170,7 +170,7 @@ public class JDomProjectConfigurationDao implements ProjectConfigurationDao {
 		save(configurationToSave, publicElement);
 
 		try {
-			sharedCfg.save(gList);
+			sharedCfg.save(gList, projectConfiguration.getServers());
 		} catch (ServerCfgFactoryException e) {
 			LoggerImpl.getInstance().error("Cannot write private shared config file ");
 		}

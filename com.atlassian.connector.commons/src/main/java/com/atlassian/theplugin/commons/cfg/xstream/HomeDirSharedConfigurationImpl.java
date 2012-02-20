@@ -15,6 +15,7 @@
  */
 package com.atlassian.theplugin.commons.cfg.xstream;
 
+import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerCfgFactoryException;
 import com.atlassian.theplugin.commons.cfg.SharedServerList;
 import org.jdom.Document;
@@ -27,6 +28,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
+import java.util.Collection;
 
 /**
  * @autrhor pmaruszak
@@ -42,7 +44,7 @@ public class HomeDirSharedConfigurationImpl
 	/**
 	 * This method is blocking for a very short period of time in some cases
 	 */
-	public synchronized void save(SharedServerList serversInfo) throws ServerCfgFactoryException {
+	public synchronized void save(SharedServerList serversInfo, Collection<ServerCfg> allServers) throws ServerCfgFactoryException {
 		Document document;
 		File outputFile = null;
 
@@ -55,7 +57,7 @@ public class HomeDirSharedConfigurationImpl
 			if (outputFile.exists() && outputFile.canWrite()) {
 				if (storedList != null) {
 					//merge existing cfg
-					document = createJDom(SharedServerList.merge(serversInfo, storedList));
+					document = createJDom(SharedServerList.merge(serversInfo, storedList, allServers));
 //                    document = createJDom(serversInfo);
 				} else {
 					document = createJDom(serversInfo);

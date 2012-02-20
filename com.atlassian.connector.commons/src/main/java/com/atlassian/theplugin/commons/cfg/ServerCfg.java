@@ -34,6 +34,7 @@ public abstract class ServerCfg implements Server {
 	//    private boolean isShargetPassed;
 	private ServerIdImpl serverId;
 	private boolean isEnabled;
+    private boolean deleted;
 	private String name;
 	private String url = "";
 	private String username = "";
@@ -54,6 +55,7 @@ public abstract class ServerCfg implements Server {
 		isPasswordStored = other.isPasswordStored();
 		useDefaultCredentials = other.useDefaultCredentials;
         shared = other.shared;
+        deleted = other.deleted;
 	}
 
 	public boolean isUseDefaultCredentials() {
@@ -88,7 +90,7 @@ public abstract class ServerCfg implements Server {
 	}
 
 	public void setEnabled(final boolean enabled) {
-		isEnabled = enabled;
+		isEnabled = enabled && !deleted;
 	}
 
 	public void setName(final String name) {
@@ -116,10 +118,18 @@ public abstract class ServerCfg implements Server {
 	}
 
 	public boolean isEnabled() {
-		return isEnabled;
+		return isEnabled && !deleted;
 	}
 
-	public String getName() {
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public String getName() {
 		return name;
 	}
 
@@ -149,7 +159,12 @@ public abstract class ServerCfg implements Server {
 		if (isEnabled != serverCfg.isEnabled) {
 			return false;
 		}
-		if (isPasswordStored != serverCfg.isPasswordStored) {
+
+        if (deleted != serverCfg.deleted) {
+            return false;
+        }
+
+        if (isPasswordStored != serverCfg.isPasswordStored) {
 			return false;
 		}
 
@@ -192,6 +207,7 @@ public abstract class ServerCfg implements Server {
 		result = HASHCODE_MAGIC * result + (password != null ? password.hashCode() : 0);
 		result = HASHCODE_MAGIC * result + (isPasswordStored ? 1 : 0);
         result = HASHCODE_MAGIC * result + (shared ? 1 : 0);
+        result = HASHCODE_MAGIC * result + (deleted ? 1 : 0);
 		result = HASHCODE_MAGIC * result + (useDefaultCredentials ? 1 : 0);
 		return result;
 	}

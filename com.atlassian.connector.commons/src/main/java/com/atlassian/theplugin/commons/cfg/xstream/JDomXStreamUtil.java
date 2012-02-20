@@ -62,6 +62,9 @@ public final class JDomXStreamUtil {
         xStream.alias("fisheye", FishEyeServerCfg.class);
 
         xStream.alias(PLAN, SubscribedPlan.class);
+
+        xStream.omitField(ServerCfg.class, "deleted");
+
         if (!saveAll) {
             xStream.omitField(ServerCfg.class, "username");
             xStream.omitField(ServerCfg.class, "password");

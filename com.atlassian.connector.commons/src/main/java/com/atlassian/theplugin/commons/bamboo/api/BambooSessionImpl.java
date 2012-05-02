@@ -811,7 +811,11 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 			return serverBuildNumber.intValue();
 		}
 		// I am not afraid of races here, they are not harmful
-		serverBuildNumber = getBamboBuildNumberImplNew();
+		try {
+			serverBuildNumber = getBamboBuildNumberImpl();
+		} catch (RemoteApiException e) {
+			serverBuildNumber = getBamboBuildNumberImplNew();
+		}
 		return serverBuildNumber;
 	}
 

@@ -401,8 +401,9 @@ public class BambooServerFacadeTest extends TestCase {
 
 	public void testPlanList() throws Exception {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
+		// mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 
 		Collection<BambooPlan> plans = testedBambooServerFacade.getPlanList(getServerData(bambooServerCfg));
@@ -662,8 +663,8 @@ public class BambooServerFacadeTest extends TestCase {
 		final BambooServerCfg s = getServer(mockBaseUrl);
 
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalback());
+		mockServer.expect("/api/rest/listBuildNames.action", new PlanListCallback());
 		mockServer.expect("/api/rest/getLatestUserBuilds.action", new FavouritePlanListCallback());
 		mockServer.expect("/rest/api/latest/plan/TP-DEF", new LatestBuildResultCallbackNew());
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback());

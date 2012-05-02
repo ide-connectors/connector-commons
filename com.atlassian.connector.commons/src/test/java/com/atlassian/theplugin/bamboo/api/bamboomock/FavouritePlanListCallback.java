@@ -16,6 +16,7 @@
 
 package com.atlassian.theplugin.bamboo.api.bamboomock;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import javax.servlet.http.HttpServletRequest;
@@ -26,10 +27,15 @@ public class FavouritePlanListCallback implements JettyMockServer.Callback {
 								  HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 
-		assertTrue(request.getPathInfo().endsWith("/rest/api/latest/plan/"));
+		assertTrue(request.getPathInfo().endsWith("/api/rest/getLatestUserBuilds.action"));
 
-		Util.copyResourceWithFullPath(response.getOutputStream(), Util.RESOURCE_BASE_4_0 + "favouritePlansResponse.xml");
+		final String[] authTokens = request.getParameterValues("auth");
+		assertEquals(1, authTokens.length);
+
+		final String authToken = authTokens[0];
+		assertEquals(LoginCallback.AUTH_TOKEN, authToken);
+
+		Util.copyResource(response.getOutputStream(), "favouritePlansResponse.xml");
 		response.getOutputStream().flush();
-
 	}
 }

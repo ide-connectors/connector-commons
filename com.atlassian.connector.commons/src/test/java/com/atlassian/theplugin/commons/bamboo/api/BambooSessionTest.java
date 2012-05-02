@@ -31,6 +31,7 @@ import com.atlassian.theplugin.bamboo.api.bamboomock.BuildForPlanAndNumberCallba
 import com.atlassian.theplugin.bamboo.api.bamboomock.ErrorMessageCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.ExecuteBuildCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback40;
 import com.atlassian.theplugin.bamboo.api.bamboomock.GenericResourceCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.JobKeyForChainCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.JobsForPlanCallback;
@@ -186,7 +187,7 @@ public class BambooSessionTest extends AbstractSessionTest {
 		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalbackHttp500());
 		mockServer.expect("/rest/api/latest/info", new BamboBuildNumberCalback40());
 		mockServer.expect("/rest/api/latest/plan", new PlanListCallback40());
-		mockServer.expect("/rest/api/latest/plan/", new FavouritePlanListCallback());
+		mockServer.expect("/rest/api/latest/plan/", new FavouritePlanListCallback40());
 		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
 
 		BambooSession apiHandler = createBambooSession(mockBaseUrl);

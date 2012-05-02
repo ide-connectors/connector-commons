@@ -36,6 +36,7 @@ public abstract class Util {
 	public static final String RESOURCE_BASE_2_3 = "/mock/bamboo/2_3/api/rest/";
     public static final String RESOURCE_BASE_3_0 = "/mock/bamboo/3_0/api/rest/";
 	public static final String RESOURCE_BASE_2_7 = "/mock/bamboo/2_7/api/rest/";
+	public static final String RESOURCE_BASE_4_0 = "/mock/bamboo/4_0/api/rest/";
 
 
 	private Util() {

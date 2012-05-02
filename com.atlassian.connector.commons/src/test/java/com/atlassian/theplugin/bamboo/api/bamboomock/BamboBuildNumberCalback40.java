@@ -21,15 +21,28 @@ import org.ddsteps.mock.httpserver.JettyMockServer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class FavouritePlanListCallback implements JettyMockServer.Callback {
-	public void onExpectedRequest(String target,
-								  HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
+/**
+ * @author jjaroczynski@atlassian.com
+ */
+public class BamboBuildNumberCalback40 implements JettyMockServer.Callback {
+    private String fullPath;
 
-		assertTrue(request.getPathInfo().endsWith("/rest/api/latest/plan/"));
+    public BamboBuildNumberCalback40() {
+    }
 
-		Util.copyResourceWithFullPath(response.getOutputStream(), Util.RESOURCE_BASE_4_0 + "favouritePlansResponse.xml");
+    public BamboBuildNumberCalback40(String fullPath) {
+        this.fullPath = fullPath;
+    }
+
+    public void onExpectedRequest(String target, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		assertTrue(request.getPathInfo().endsWith("/rest/api/latest/info"));
+
+        if (fullPath == null) {
+			Util.copyResourceWithFullPath(response.getOutputStream(),
+					"/mock/bamboo/4_0/api/rest/bambooBuildNumberResponse.xml");
+        } else {
+            Util.copyResourceWithFullPath(response.getOutputStream(), fullPath);
+        }
 		response.getOutputStream().flush();
-
 	}
 }

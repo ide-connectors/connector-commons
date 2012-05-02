@@ -22,6 +22,8 @@ import com.atlassian.theplugin.api.AbstractSessionTest;
 import com.atlassian.theplugin.bamboo.api.bamboomock.AddCommentToBuildCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.AddLabelToBuildCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.BamboBuildNumberCalback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.BamboBuildNumberCalback40;
+import com.atlassian.theplugin.bamboo.api.bamboomock.BamboBuildNumberCalbackHttp500;
 import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetails30ResultCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetailsResultCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetailsResultCallback27;
@@ -38,6 +40,7 @@ import com.atlassian.theplugin.bamboo.api.bamboomock.LatestPlanCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.LogoutCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
+import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback40;
 import com.atlassian.theplugin.bamboo.api.bamboomock.ProjectListCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.RecentCompletedBuildResultsCallback;
 import com.atlassian.theplugin.bamboo.api.bamboomock.Util;
@@ -177,6 +180,23 @@ public class BambooSessionTest extends AbstractSessionTest {
         Util.verifyPlanListResult(plans);
         mockServer.verify();
     }
+
+	public void testGetPlanList_40() throws Exception {
+		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
+		mockServer.expect("/api/rest/getBambooBuildNumber.action", new BamboBuildNumberCalbackHttp500());
+		mockServer.expect("/rest/api/latest/info", new BamboBuildNumberCalback40());
+		mockServer.expect("/rest/api/latest/plan", new PlanListCallback40());
+		mockServer.expect("/rest/api/latest/plan/", new FavouritePlanListCallback());
+		mockServer.expect("/api/rest/logout.action", new LogoutCallback());
+
+		BambooSession apiHandler = createBambooSession(mockBaseUrl);
+		apiHandler.login(USER_NAME, PASSWORD.toCharArray());
+		Collection<BambooPlan> plans = apiHandler.getPlanList();
+		apiHandler.logout();
+
+		Util.verifyPlanListResult(plans);
+		mockServer.verify();
+	}
 
     public void testFavouritePlanList() throws Exception {
         mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));

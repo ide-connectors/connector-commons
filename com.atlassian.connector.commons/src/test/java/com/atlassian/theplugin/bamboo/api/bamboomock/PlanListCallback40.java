@@ -21,15 +21,12 @@ import org.ddsteps.mock.httpserver.JettyMockServer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class FavouritePlanListCallback implements JettyMockServer.Callback {
-	public void onExpectedRequest(String target,
-								  HttpServletRequest request, HttpServletResponse response)
+public class PlanListCallback40 implements JettyMockServer.Callback {
+	public void onExpectedRequest(String target, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
+		assertTrue(request.getPathInfo().endsWith("/rest/api/latest/plan"));
 
-		assertTrue(request.getPathInfo().endsWith("/rest/api/latest/plan/"));
-
-		Util.copyResourceWithFullPath(response.getOutputStream(), Util.RESOURCE_BASE_4_0 + "favouritePlansResponse.xml");
+		Util.copyResourceWithFullPath(response.getOutputStream(), Util.RESOURCE_BASE_4_0 + "planListResponse.xml");
 		response.getOutputStream().flush();
-
 	}
 }

@@ -491,7 +491,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 				BambooBuildInfo.Builder latestBuildBuilderForPlan;
 
-				if (getBamboBuildNumber() > BAMBOO_4_0_BUILD_NUMBER) {
+				if (getBamboBuildNumber() >= BAMBOO_4_0_BUILD_NUMBER) {
 					latestBuildBuilderForPlan = getLatestBuildBuilderForPlan_40(planKey, timezoneOffset);
 				} else {
 					latestBuildBuilderForPlan = getLatestBuildBuilderForPlan(planKey, timezoneOffset);
@@ -1614,7 +1614,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 		List<BambooPlan> plans;
 
-		if (getBamboBuildNumber() > BAMBOO_4_0_BUILD_NUMBER) {
+		if (getBamboBuildNumber() >= BAMBOO_4_0_BUILD_NUMBER) {
 			plans = listPlanNames_40();
 		} else {
 			plans = listPlanNames();

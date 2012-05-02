@@ -21,15 +21,30 @@ import org.ddsteps.mock.httpserver.JettyMockServer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class FavouritePlanListCallback implements JettyMockServer.Callback {
-	public void onExpectedRequest(String target,
-								  HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
+/**
+ * @author jjaroczynski@atlassian.com
+ */
+public class BamboBuildNumberCalbackHttp500 implements JettyMockServer.Callback {
+    private String fullPath;
 
-		assertTrue(request.getPathInfo().endsWith("/rest/api/latest/plan/"));
+    public BamboBuildNumberCalbackHttp500() {
+    }
 
-		Util.copyResourceWithFullPath(response.getOutputStream(), Util.RESOURCE_BASE_4_0 + "favouritePlansResponse.xml");
-		response.getOutputStream().flush();
+    public BamboBuildNumberCalbackHttp500(String fullPath) {
+        this.fullPath = fullPath;
+    }
 
+    public void onExpectedRequest(String target, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		assertTrue(request.getPathInfo().endsWith("/api/rest/getBambooBuildNumber.action"));
+
+		response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+		// if (fullPath == null) {
+		// Util.copyResource(response.getOutputStream(), "bambooBuildNumberResponse.xml");
+		// } else {
+		// Util.copyResourceWithFullPath(response.getOutputStream(), fullPath);
+		// }
+
+		// response.getOutputStream().flush();
 	}
 }

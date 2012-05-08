@@ -574,9 +574,13 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 	public Collection<BambooBuild> getRecentBuildsForPlan(@NotNull final String planKey, final int timezoneOffset)
 			throws RemoteApiException {
-		String buildResultUrl = getBaseUrl() + RECENT_BUILDS_FOR_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
-				+ "&buildKey=" + UrlUtil.encodeUrl(planKey);
-		return getBuildsCollection(buildResultUrl, planKey, timezoneOffset);
+        if (getBamboBuildNumber() >= BAMBOO_4_0_BUILD_NUMBER) {
+            return getBuildsCollection_40(planKey, timezoneOffset);
+        } else {
+            String buildResultUrl = getBaseUrl() + RECENT_BUILDS_FOR_PLAN_ACTION + "?auth=" + UrlUtil.encodeUrl(authToken)
+                    + "&buildKey=" + UrlUtil.encodeUrl(planKey);
+            return getBuildsCollection(buildResultUrl, planKey, timezoneOffset);
+        }
 	}
 
 	public Collection<BambooBuild> getRecentBuildsForUser(final int timezoneOffset) throws RemoteApiException {
@@ -618,6 +622,44 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		}
 		return builds;
 	}
+
+    private Collection<BambooBuild> getBuildsCollection_40(@NotNull final String planKey,
+                                                        final int timezoneOffset) throws RemoteApiException {
+
+        String url = getBaseUrl() + LATEST_BUILD_FOR_PLAN + UrlUtil.encodeUrl(planKey) + "?expand="
+                        + UrlUtil.encodeUrl("results[0:10].result");
+
+        final Date pollingTime = new Date();
+        final List<BambooBuild> builds = new ArrayList<BambooBuild>();
+
+        try {
+            Document doc = retrieveGetResponse(url);
+
+            String exception = getExceptionMessages(doc);
+            if (null != exception) {
+                builds.add(constructBuildErrorInfo(url, exception, new Date()).build());
+                return builds;
+            }
+
+            List<Element> elements = XPath.newInstance("/results/results/result").selectNodes(doc);
+            if (elements == null || elements.isEmpty()) {
+                builds.add(constructBuildErrorInfo(url, "Malformed server reply: no response element", new Date()).build());
+            } else {
+                for (Element element : elements) {
+                    final Set<String> commiters = constructBuildCommiters(element);
+                    builds.add(constructBuilderItem_40(element, pollingTime, planKey, commiters, timezoneOffset).enabled(true)
+                            .build());
+                }
+            }
+        } catch (IOException e) {
+            builds.add(constructBuildErrorInfo(planKey, e.getMessage(), e, pollingTime).build());
+        } catch (JDOMException e) {
+            builds.add(constructBuildErrorInfo(planKey, "Server returned malformed response", e, pollingTime).build());
+        } catch (RemoteApiException e) {
+            builds.add(constructBuildErrorInfo(planKey, e.getMessage(), e, pollingTime).build());
+        }
+        return builds;
+    }
 
 	private Set<String> constructBuildCommiters(final Element element) throws JDOMException {
 

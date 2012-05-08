@@ -404,10 +404,10 @@ public class BambooSessionTest extends AbstractSessionTest {
 
     public void test30BuildForPlanAndNumber() throws Exception {
         mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-        mockServer.expect("/api/rest/getRecentlyCompletedBuildResultsForBuild.action",
-                new RecentCompletedBuildResultsCallback());
         mockServer.expect("/api/rest/getBambooBuildNumber.action",
                 new BamboBuildNumberCalback("/mock/bamboo/3_0/api/rest/bambooBuildNumberResponse.xml"));
+        mockServer.expect("/api/rest/getRecentlyCompletedBuildResultsForBuild.action",
+                new RecentCompletedBuildResultsCallback());
         mockServer.expect("/rest/api/latest/result/TP-DEF-140", new BuildForPlanAndNumberCallback(Util.RESOURCE_BASE_3_0,
                 "/rest/api/latest/result"));
         mockServer.expect("/rest/api/latest/plan/TP-DEF", new LatestPlanCallback("TP-DEF", "bamboo-plan-tp-def.xml",
@@ -425,10 +425,10 @@ public class BambooSessionTest extends AbstractSessionTest {
 
     public void testBuildForPlanAndNumber() throws Exception {
         mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD));
-        mockServer.expect("/api/rest/getRecentlyCompletedBuildResultsForBuild.action",
-                new RecentCompletedBuildResultsCallback());
         mockServer.expect("/api/rest/getBambooBuildNumber.action",
                 new BamboBuildNumberCalback("/mock/bamboo/2_3/api/rest/bambooBuildNumberResponse.xml"));
+        mockServer.expect("/api/rest/getRecentlyCompletedBuildResultsForBuild.action",
+                new RecentCompletedBuildResultsCallback());
         mockServer.expect("/rest/api/latest/build/TP-DEF/140", new BuildForPlanAndNumberCallback(Util.RESOURCE_BASE_2_3,
                 "/rest/api/latest/build"));
         mockServer.expect("/rest/api/latest/plan/TP-DEF", new LatestPlanCallback("TP-DEF", "bamboo-plan-tp-def.xml",

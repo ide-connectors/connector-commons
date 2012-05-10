@@ -856,6 +856,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		try {
 			serverBuildNumber = getBamboBuildNumberImpl();
 		} catch (RemoteApiException e) {
+            loger.info("Old Bamboo API is not available. Server error or Bamboo 4.0+ detected.");
 			serverBuildNumber = getBamboBuildNumberImplNew();
 		}
 		return serverBuildNumber;

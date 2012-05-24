@@ -570,8 +570,13 @@ public class JIRASessionImpl implements JIRASession {
             RemoteFilter[] filters = service.getSavedFilters(token);
 
             List<JIRAQueryFragment> filtersList = new ArrayList<JIRAQueryFragment>(filters != null ? filters.length : 0);
-            for (RemoteFilter f : filters) {
-                filtersList.add(new JIRASavedFilterBean(f.getName(), Long.valueOf(f.getId())));
+            if (filters != null) {
+                for (RemoteFilter f : filters) {
+                    if (f == null) {
+                        continue;
+                    }
+                    filtersList.add(new JIRASavedFilterBean(f.getName(), Long.valueOf(f.getId())));
+                }
             }
             return filtersList;
         } catch (RemoteException e) {

@@ -435,8 +435,10 @@ public class JIRASessionImpl implements JIRASession {
 
     private List<JIRAConstant> issueTableToList(RemoteIssueType[] types) throws MalformedURLException {
         List<JIRAConstant> typesList = new ArrayList<JIRAConstant>();
-        for (RemoteIssueType type : types) {
-            typesList.add(new JIRAIssueTypeBean(Long.valueOf(type.getId()), type.getName(), new URL(type.getIcon())));
+        if (types != null) {
+            for (RemoteIssueType type : types) {
+                typesList.add(new JIRAIssueTypeBean(Long.valueOf(type.getId()), type.getName(), new URL(type.getIcon())));
+            }
         }
         return typesList;
     }
@@ -487,10 +489,12 @@ public class JIRASessionImpl implements JIRASession {
         try {
             RemoteStatus[] statuses = service.getStatuses(token);
 
-            List<JIRAConstant> statusesList = new ArrayList<JIRAConstant>(statuses.length);
-            for (RemoteStatus status : statuses) {
-                statusesList.add(new JIRAStatusBean(
-                        Long.valueOf(status.getId()), status.getName(), new URL(status.getIcon())));
+            List<JIRAConstant> statusesList = new ArrayList<JIRAConstant>();
+            if (statuses != null) {
+                for (RemoteStatus status : statuses) {
+                    statusesList.add(new JIRAStatusBean(
+                            Long.valueOf(status.getId()), status.getName(), new URL(status.getIcon())));
+                }
             }
             return statusesList;
         } catch (RemoteException e) {
@@ -504,9 +508,11 @@ public class JIRASessionImpl implements JIRASession {
         try {
             RemoteComponent[] components = service.getComponents(token, projectKey);
 
-            List<JIRAComponentBean> componentsList = new ArrayList<JIRAComponentBean>(components.length);
-            for (RemoteComponent c : components) {
-                componentsList.add(new JIRAComponentBean(Long.valueOf(c.getId()), c.getName()));
+            List<JIRAComponentBean> componentsList = new ArrayList<JIRAComponentBean>();
+            if (components != null) {
+                for (RemoteComponent c : components) {
+                    componentsList.add(new JIRAComponentBean(Long.valueOf(c.getId()), c.getName()));
+                }
             }
             return componentsList;
         } catch (RemoteException e) {
@@ -518,9 +524,11 @@ public class JIRASessionImpl implements JIRASession {
         try {
             RemoteVersion[] versions = service.getVersions(token, projectKey);
 
-            List<JIRAVersionBean> versionsList = new ArrayList<JIRAVersionBean>(versions.length);
-            for (RemoteVersion v : versions) {
-                versionsList.add(new JIRAVersionBean(Long.valueOf(v.getId()), v.getName(), v.isReleased()));
+            List<JIRAVersionBean> versionsList = new ArrayList<JIRAVersionBean>();
+            if (versions != null) {
+                for (RemoteVersion v : versions) {
+                    versionsList.add(new JIRAVersionBean(Long.valueOf(v.getId()), v.getName(), v.isReleased()));
+                }
             }
             return versionsList;
         } catch (RemoteException e) {
@@ -533,15 +541,17 @@ public class JIRASessionImpl implements JIRASession {
         try {
             RemotePriority[] priorities = service.getPriorities(token);
 
-            List<JIRAPriorityBean> prioritiesList = new ArrayList<JIRAPriorityBean>(priorities.length);
+            List<JIRAPriorityBean> prioritiesList = new ArrayList<JIRAPriorityBean>();
             int i = 0;
-            for (RemotePriority p : priorities) {
-                // PL-1164 - The "i" parameter defines the order in which priorities
-                // are shown in the issue tree. I am assuming that JIRA returns the
-                // list of priorities in the order that the user defined, and not
-                // in some random order. This does seem to be the case with my test httpConnectionCfg
-                prioritiesList.add(new JIRAPriorityBean(Long.valueOf(p.getId()), i, p.getName(), new URL(p.getIcon())));
-                ++i;
+            if (priorities != null) {
+                for (RemotePriority p : priorities) {
+                    // PL-1164 - The "i" parameter defines the order in which priorities
+                    // are shown in the issue tree. I am assuming that JIRA returns the
+                    // list of priorities in the order that the user defined, and not
+                    // in some random order. This does seem to be the case with my test httpConnectionCfg
+                    prioritiesList.add(new JIRAPriorityBean(Long.valueOf(p.getId()), i, p.getName(), new URL(p.getIcon())));
+                    ++i;
+                }
             }
             return prioritiesList;
         } catch (RemoteException e) {
@@ -555,9 +565,11 @@ public class JIRASessionImpl implements JIRASession {
         try {
             RemoteResolution[] resolutions = service.getResolutions(token);
 
-            List<JIRAResolutionBean> resolutionsList = new ArrayList<JIRAResolutionBean>(resolutions.length);
-            for (RemoteResolution p : resolutions) {
-                resolutionsList.add(new JIRAResolutionBean(Long.valueOf(p.getId()), p.getName()));
+            List<JIRAResolutionBean> resolutionsList = new ArrayList<JIRAResolutionBean>();
+            if (resolutions != null) {
+                for (RemoteResolution p : resolutions) {
+                    resolutionsList.add(new JIRAResolutionBean(Long.valueOf(p.getId()), p.getName()));
+                }
             }
             return resolutionsList;
         } catch (RemoteException e) {

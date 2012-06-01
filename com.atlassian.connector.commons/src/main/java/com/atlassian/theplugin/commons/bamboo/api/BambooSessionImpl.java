@@ -115,7 +115,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 	private static final String BUILD_NUMBER_INFO = "/rest/api/latest/info";
 
-	private static final String LIST_PLANS = "/rest/api/latest/plan?expand=plans&max-results=200";
+	private static final String LIST_PLANS = "/rest/api/latest/plan?expand=plans&max-results=5000";
 
 	private static final String BUILD_COMPLETED_DATE_ELEM = "buildCompletedDate";
 

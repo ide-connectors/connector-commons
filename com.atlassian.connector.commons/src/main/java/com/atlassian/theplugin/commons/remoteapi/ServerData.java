@@ -31,7 +31,7 @@ public class ServerData extends ConnectionCfg {
     private UserCfg proxyUser;
     private boolean useBasicUser = false;
 
-    private boolean serverResponding = false;
+//    private boolean serverResponding = false;
 
     public ServerData(Builder builder) {
         super(builder.server != null ? builder.server.getServerId().getId() : "",
@@ -170,13 +170,13 @@ public class ServerData extends ConnectionCfg {
         return useBasicUser;
     }
 
-    public boolean isServerResponding() {
-        return serverResponding;
-    }
+//    public boolean isServerResponding() {
+//        return serverResponding;
+//    }
 
-    public void setServerResponding(boolean serverResponding) {
-        this.serverResponding = serverResponding;
-    }
+//    public void setServerResponding(boolean serverResponding) {
+//        this.serverResponding = serverResponding;
+//    }
 
     @Override
     /**

@@ -19,53 +19,22 @@ package com.atlassian.theplugin.commons.bamboo.api;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.remoteapi.TestHttpSessionCallbackImpl;
 import com.atlassian.theplugin.api.AbstractSessionTest;
-import com.atlassian.theplugin.bamboo.api.bamboomock.AddCommentToBuildCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.AddLabelToBuildCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.BamboBuildNumberCalback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.BamboBuildNumberCalback40;
-import com.atlassian.theplugin.bamboo.api.bamboomock.BamboBuildNumberCalbackHttp500;
-import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetails30ResultCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetailsResultCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.BuildDetailsResultCallback27;
-import com.atlassian.theplugin.bamboo.api.bamboomock.BuildForPlanAndNumberCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.ErrorMessageCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.ExecuteBuildCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.FavouritePlanListCallback40;
-import com.atlassian.theplugin.bamboo.api.bamboomock.GenericResourceCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.JobKeyForChainCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.JobsForPlanCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.LatestBuildResultVelocityCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.LatestPlanCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.LoginCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.LogoutCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.PlanListCallback40;
-import com.atlassian.theplugin.bamboo.api.bamboomock.ProjectListCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.RecentCompletedBuildResultsCallback;
-import com.atlassian.theplugin.bamboo.api.bamboomock.Util;
+import com.atlassian.theplugin.bamboo.api.bamboomock.*;
 import com.atlassian.theplugin.commons.BambooFileInfo;
-import com.atlassian.theplugin.commons.bamboo.BambooBuild;
-import com.atlassian.theplugin.commons.bamboo.BambooChangeSet;
-import com.atlassian.theplugin.commons.bamboo.BambooJobImpl;
-import com.atlassian.theplugin.commons.bamboo.BambooPlan;
-import com.atlassian.theplugin.commons.bamboo.BambooProject;
-import com.atlassian.theplugin.commons.bamboo.BuildDetails;
-import com.atlassian.theplugin.commons.bamboo.BuildStatus;
-import com.atlassian.theplugin.commons.bamboo.TestDetails;
-import com.atlassian.theplugin.commons.bamboo.TestResult;
+import com.atlassian.theplugin.commons.bamboo.*;
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
 import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
+import junit.framework.Assert;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.ISODateTimeFormat;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -74,7 +43,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import junit.framework.Assert;
 
 
 /**
@@ -821,7 +789,7 @@ public class BambooSessionTest extends AbstractSessionTest {
             apiHandler.getBuildResultDetails("TP-DEF", 100);
             fail();
         } catch (RemoteApiException e) {
-            assertEquals("org.jdom.input.JDOMParseException", e.getCause().getClass().getName());
+            assertEquals("org.jdom.input.JDOMException", e.getCause().getClass().getName());
         }
         apiHandler.logout();
 
@@ -1233,7 +1201,7 @@ public class BambooSessionTest extends AbstractSessionTest {
                 "com.atlassian.connector.eclipse.jira.tests.core.JiraTaskAttachmentHandlerTest");
         assertNotNull(test2);
         assertEquals(0.947, test2.getTestDuration(), 0.001);
-        assertTrue(test2.getErrors().startsWith("org.eclipse.core.runtime.CoreException:\n"));
+        assertTrue(test2.getErrors().contains("org.eclipse.core.runtime.CoreException:\n"));
         assertTrue(test2.getErrors().contains(
                 "com.atlassian.connector.eclipse.internal."
                         + "jira.core.JiraTaskAttachmentHandler.postContent(JiraTaskAttachmentHandler.java:109)"));

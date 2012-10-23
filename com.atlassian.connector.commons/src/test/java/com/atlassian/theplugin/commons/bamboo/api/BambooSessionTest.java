@@ -789,7 +789,7 @@ public class BambooSessionTest extends AbstractSessionTest {
             apiHandler.getBuildResultDetails("TP-DEF", 100);
             fail();
         } catch (RemoteApiException e) {
-            assertEquals("org.jdom.input.JDOMException", e.getCause().getClass().getName());
+            assertEquals("org.jdom.JDOMException", e.getCause().getClass().getName());
         }
         apiHandler.logout();
 

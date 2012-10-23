@@ -46,9 +46,7 @@ import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -162,11 +160,27 @@ public abstract class AbstractHttpSession {
             RemoteApiSessionExpiredException {
 
         final SAXBuilder builder = new SAXBuilder();
-        final Document doc = builder.build(new ByteArrayInputStream(doConditionalGet(urlString)));
-        //@todo: Comment it's only for  PL-1719 debug purposes
-        //XmlUtil.printXml(doc);
-        preprocessResult(doc);
-        return doc;
+
+        ByteArrayInputStream in = new ByteArrayInputStream(doConditionalGet(urlString));
+        InputStreamReader reader = new InputStreamReader(in);
+        BufferedReader br = new BufferedReader(reader);
+        StringBuilder allInput = new StringBuilder();
+        String line;
+        while((line = br.readLine()) != null) {
+            allInput.append(line);
+        }
+        in.close();
+        br.close();
+        reader.close();
+
+        try {
+            ByteArrayInputStream bis = new ByteArrayInputStream(allInput.toString().getBytes());
+            final Document doc = builder.build(bis);
+            preprocessResult(doc);
+            return doc;
+        } catch (JDOMException e) {
+            throw new JDOMException(e.getMessage() + "\n\n" + allInput.toString() + "\n");
+        }
     }
 
     /**

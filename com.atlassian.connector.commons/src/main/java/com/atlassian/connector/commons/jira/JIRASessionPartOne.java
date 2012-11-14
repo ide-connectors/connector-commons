@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package com.atlassian.connector.commons.jira.soap;
+package com.atlassian.connector.commons.jira;
 
-import com.atlassian.connector.commons.jira.JIRAAction;
-import com.atlassian.connector.commons.jira.JIRAActionField;
-import com.atlassian.connector.commons.jira.JIRAIssue;
-import com.atlassian.connector.commons.jira.JiraUserNotFoundException;
 import com.atlassian.connector.commons.jira.beans.JIRAAttachment;
 import com.atlassian.connector.commons.jira.beans.JIRAComment;
 import com.atlassian.connector.commons.jira.beans.JIRAComponentBean;
@@ -37,7 +33,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 
-public interface JIRASession {
+public interface JIRASessionPartOne {
 	void login(String userName, String password) throws RemoteApiException;
 
 	void logout();

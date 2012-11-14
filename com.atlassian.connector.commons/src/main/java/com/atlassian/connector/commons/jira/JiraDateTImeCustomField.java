@@ -31,7 +31,7 @@ public class JiraDateTImeCustomField extends JiraCustomFieldImpl {
     public String getFormattedValue() {
         String formattedText = "";
         if (values.size() > 0) {
-            formattedText = JiraTImeFormatter.formatDateTimeFromJiraTimeString(values.get(0), Locale.US);
+            formattedText = JiraTimeFormatter.formatDateTimeFromJiraTimeString(values.get(0), Locale.US);
         }
 
         return formattedText;

@@ -10,9 +10,9 @@ import java.util.Locale;
  * Date: May 12, 2009
  * Time: 1:26:22 PM
  */
-public final class JiraTImeFormatter {
+public final class JiraTimeFormatter {
 
-    private JiraTImeFormatter() {
+    private JiraTimeFormatter() {
     }
 
     public static String formatShortTimeFromJiraTimeString(String dateString, Locale locale) {

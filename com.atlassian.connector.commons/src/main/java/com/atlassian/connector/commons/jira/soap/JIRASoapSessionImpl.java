@@ -17,13 +17,7 @@
 package com.atlassian.connector.commons.jira.soap;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
-import com.atlassian.connector.commons.jira.JIRAAction;
-import com.atlassian.connector.commons.jira.JIRAActionBean;
-import com.atlassian.connector.commons.jira.JIRAActionField;
-import com.atlassian.connector.commons.jira.JIRAActionFieldBean;
-import com.atlassian.connector.commons.jira.JIRAIssue;
-import com.atlassian.connector.commons.jira.JIRAIssueBean;
-import com.atlassian.connector.commons.jira.JiraUserNotFoundException;
+import com.atlassian.connector.commons.jira.*;
 import com.atlassian.connector.commons.jira.beans.JIRAAttachment;
 import com.atlassian.connector.commons.jira.beans.JIRAComment;
 import com.atlassian.connector.commons.jira.beans.JIRACommentBean;
@@ -78,7 +72,7 @@ import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class JIRASessionImpl implements JIRASession {
+public class JIRASoapSessionImpl implements JIRASessionPartOne {
 
     private String token;
     private final JiraSoapService service;
@@ -166,7 +160,7 @@ public class JIRASessionImpl implements JIRASession {
 
     }
 
-    public JIRASessionImpl(Logger logger, ConnectionCfg connectionCfg, AxisSessionCallback callback)
+    public JIRASoapSessionImpl(Logger logger, ConnectionCfg connectionCfg, AxisSessionCallback callback)
             throws ServiceException, MalformedURLException {
         this.logger = logger;
         URL portAddress = new URL(connectionCfg.getUrl() + "/rpc/soap/jirasoapservice-v2");

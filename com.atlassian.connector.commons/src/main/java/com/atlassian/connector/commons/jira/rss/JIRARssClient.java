@@ -25,16 +25,12 @@ package com.atlassian.connector.commons.jira.rss;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.jira.JIRAIssue;
 import com.atlassian.connector.commons.jira.JIRAIssueBean;
+import com.atlassian.connector.commons.jira.JIRASessionPartTwo;
 import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
 import com.atlassian.connector.commons.jira.cache.CacheConstants;
 import com.atlassian.connector.commons.jira.cache.CachedIconLoader;
 import com.atlassian.theplugin.commons.cfg.UserCfg;
-import com.atlassian.theplugin.commons.remoteapi.CaptchaRequiredException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
-import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
-import com.atlassian.theplugin.commons.remoteapi.ServerData;
-import com.atlassian.theplugin.commons.remoteapi.ServiceUnavailableException;
+import com.atlassian.theplugin.commons.remoteapi.*;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraServiceUnavailableException;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
@@ -56,7 +52,7 @@ import java.util.*;
 
 import static com.atlassian.theplugin.commons.util.UrlUtil.encodeUrl;
 
-public class JIRARssClient extends AbstractHttpSession {
+public class JIRARssClient extends AbstractHttpSession implements JIRASessionPartTwo {
 
     private final ConnectionCfg httpConnectionCfg;
     private boolean login = false;
@@ -326,5 +322,4 @@ public class JIRARssClient extends AbstractHttpSession {
         Cookie[] cookies = callback.getCookiesHeaders(server);
         return cookies != null && cookies.length > 0;
     }
-
 }

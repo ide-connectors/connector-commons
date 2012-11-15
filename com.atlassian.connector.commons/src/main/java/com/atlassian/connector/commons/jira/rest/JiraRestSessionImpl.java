@@ -6,6 +6,7 @@ import com.atlassian.connector.commons.jira.beans.*;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
 import com.atlassian.jira.rest.client.JiraRestClient;
 import com.atlassian.jira.rest.client.NullProgressMonitor;
+import com.atlassian.jira.rest.client.domain.BasicProject;
 import com.atlassian.jira.rest.client.internal.ServerVersionConstants;
 import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClientFactory;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
@@ -14,6 +15,7 @@ import com.atlassian.theplugin.commons.util.HttpConfigurableAdapter;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
@@ -45,8 +47,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         } catch (Exception e) {
             return false;
         }
-
-
     }
 
     public void login(String userName, String password) throws RemoteApiException {
@@ -79,7 +79,17 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
     }
 
     public List<JIRAProject> getProjects() throws RemoteApiException {
-        throw nyi();
+        return wrapWithRemoteApiException(new Callable<List<JIRAProject>>() {
+            @Override
+            public List<JIRAProject> call() throws Exception {
+                Iterable<BasicProject> projects = restClient.getProjectClient().getAllProjects(pm);
+                List<JIRAProject> result = new ArrayList<JIRAProject>();
+                for (BasicProject project : projects) {
+                    result.add(new JIRAProjectBean(project));
+                }
+                return result;
+            }
+        });
     }
 
     public List<JIRAConstant> getIssueTypes() throws RemoteApiException {

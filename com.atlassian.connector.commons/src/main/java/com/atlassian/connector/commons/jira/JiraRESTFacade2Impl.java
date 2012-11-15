@@ -10,6 +10,7 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.util.HttpConfigurableAdapter;
 import com.atlassian.theplugin.commons.util.Logger;
 
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.Callable;
 
@@ -169,75 +170,127 @@ public class JiraRESTFacade2Impl implements JIRAServerFacade2, JiraRESTSupportTe
         });
     }
 
-    public void addComment(ConnectionCfg server, String issueKey, String comment) throws JIRAException {
-        JiraRestSessionImpl session = get(server);
+    public void addComment(final ConnectionCfg server, final String issueKey, final String comment) throws JIRAException {
+        withJiraException(new Callable<Object>() {
+            public Object call() throws Exception {
+                get(server).addComment(issueKey, comment);
+                return null;
+            }
+        });
     }
 
-    public void addAttachment(ConnectionCfg server, String issueKey, String name, byte[] content) throws JIRAException {
-        JiraRestSessionImpl session = get(server);
+    public void addAttachment(final ConnectionCfg server, final String issueKey, final String name, final byte[] content) throws JIRAException {
+        withJiraException(new Callable<Object>() {
+            public Object call() throws Exception {
+                get(server).addAttachment(issueKey, name, content);
+                return null;
+            }
+        });
     }
 
-    public JIRAIssue createIssue(ConnectionCfg server, JIRAIssue issue) throws JIRAException {
-        JiraRestSessionImpl session = get(server);
+    public JIRAIssue createIssue(final ConnectionCfg server, final JIRAIssue issue) throws JIRAException {
+        return withJiraException(new Callable<JIRAIssue>() {
+            public JIRAIssue call() throws Exception {
+                return get(server).createIssue(issue);
+            }
+        });
     }
 
-    public JIRAIssue getIssue(ConnectionCfg server, String key) throws JIRAException {
-        JiraRestSessionImpl session = get(server);
+    public JIRAIssue getIssue(final ConnectionCfg server, final String key) throws JIRAException {
+        return get(server).getIssue(key);
     }
 
-    public JIRAIssue getIssueDetails(ConnectionCfg server, JIRAIssue issue) throws JIRAException {
-        JiraRestSessionImpl session = get(server);
+    public JIRAIssue getIssueDetails(final ConnectionCfg server, final JIRAIssue issue) throws JIRAException {
+        return withJiraException(new Callable<JIRAIssue>() {
+            public JIRAIssue call() throws Exception {
+                return get(server).getIssueDetails(issue);
+            }
+        });
     }
 
-    public void logWork(ConnectionCfg server, JIRAIssue issue, String timeSpent, Calendar startDate, String comment, boolean updateEstimate, String newEstimate) throws JIRAException {
-        JiraRestSessionImpl session = get(server);
+    public void logWork(
+            final ConnectionCfg server, final JIRAIssue issue, final String timeSpent, final Calendar startDate,
+            final String comment, final boolean updateEstimate, final String newEstimate) throws JIRAException {
+        withJiraException(new Callable<Object>() {
+            public Object call() throws Exception {
+                get(server).logWork(issue, timeSpent, startDate, comment, updateEstimate, newEstimate);
+                return null;
+            }
+        });
     }
 
-    public void setField(ConnectionCfg server, JIRAIssue issue, String fieldId, String value) throws JIRAException {
-        JiraRestSessionImpl session = get(server);
+    public void setField(final ConnectionCfg server, final JIRAIssue issue, final String fieldId, final String value) throws JIRAException {
+        withJiraException(new Callable<Object>() {
+            public Object call() throws Exception {
+                get(server).setField(issue, fieldId, value);
+                return null;
+            }
+        });
     }
 
-    public void setField(ConnectionCfg server, JIRAIssue issue, String fieldId, String[] values) throws JIRAException {
-        JiraRestSessionImpl session = get(server);
+    public void setField(final ConnectionCfg server, final JIRAIssue issue, final String fieldId, final String[] values) throws JIRAException {
+        withJiraException(new Callable<Object>() {
+            public Object call() throws Exception {
+                get(server).setField(issue, fieldId, values);
+                return null;
+            }
+        });
     }
 
-    public void setFields(ConnectionCfg server, JIRAIssue issue, List<JIRAActionField> fields) throws JIRAException {
-        JiraRestSessionImpl session = get(server);
+    public void setFields(final ConnectionCfg server, final JIRAIssue issue, final List<JIRAActionField> fields) throws JIRAException {
+        withJiraException(new Callable<Object>() {
+            public Object call() throws Exception {
+                get(server).setFields(issue, fields);
+                return null;
+            }
+        });
     }
 
-    public JIRAUserBean getUser(ConnectionCfg server, String loginName) throws JIRAException, JiraUserNotFoundException {
-        JiraRestSessionImpl session = get(server);
+    public JIRAUserBean getUser(final ConnectionCfg server, final String loginName) throws JIRAException, JiraUserNotFoundException {
+        return withJiraException(new Callable<JIRAUserBean>() {
+            public JIRAUserBean call() throws Exception {
+                return get(server).getUser(loginName);
+            }
+        });
     }
 
-    public List<JIRAComment> getComments(ConnectionCfg server, JIRAIssue issue) throws JIRAException {
-        JiraRestSessionImpl session = get(server);
+    public List<JIRAComment> getComments(final ConnectionCfg server, final JIRAIssue issue) throws JIRAException {
+        return withJiraException(new Callable<List<JIRAComment>>() {
+            public List<JIRAComment> call() throws Exception {
+                return get(server).getComments(issue);
+            }
+        });
     }
 
-    public Collection<JIRAAttachment> getIssueAttachements(ConnectionCfg server, JIRAIssue issue) throws JIRAException {
-        JiraRestSessionImpl session = get(server);
+    public Collection<JIRAAttachment> getIssueAttachements(final ConnectionCfg server, final JIRAIssue issue) throws JIRAException {
+        return withJiraException(new Callable<Collection<JIRAAttachment>>() {
+            public Collection<JIRAAttachment> call() throws Exception {
+                return get(server).getIssueAttachements(issue);
+            }
+        });
     }
 
-    public List<JIRASecurityLevelBean> getSecurityLevels(ConnectionCfg server, String projectKey) throws JIRAException {
-        JiraRestSessionImpl session = get(server);
+    public List<JIRASecurityLevelBean> getSecurityLevels(final ConnectionCfg server, final String projectKey) throws JIRAException {
+        return withJiraException(new Callable<List<JIRASecurityLevelBean>>() {
+            public List<JIRASecurityLevelBean> call() throws Exception {
+                return get(server).getSecurityLevels(projectKey);
+            }
+        });
     }
 
-    public void testServerConnection(ConnectionCfg httpConnectionCfg) throws RemoteApiException {
-        throw new RemoteApiException(NOT_IMPLEMENTED_YET_COME_BACK_SOON);
+    public void testServerConnection(final ConnectionCfg server) throws RemoteApiException {
+        try {
+            get(server).testConnection();
+        } catch (JIRAException e) {
+            throw new RemoteApiException(e);
+        }
     }
 
     public ServerType getServerType() {
         return ServerType.JIRA_SERVER;
     }
 
-    public static class NotYetImplemented extends JIRAException {
-        public NotYetImplemented() {
-            super(NOT_IMPLEMENTED_YET_COME_BACK_SOON);
-        }
-    }
-
-    public static final String NOT_IMPLEMENTED_YET_COME_BACK_SOON = "Not implemented yet. Come back soon";
-
-    private JiraRestSessionImpl get(ConnectionCfg connectionCfg) {
+    private JiraRestSessionImpl get(ConnectionCfg connectionCfg) throws JIRAException {
 
         JiraRestSessionImpl session = sessions.get(connectionCfg);
         if (session == null) {
@@ -245,7 +298,11 @@ public class JiraRESTFacade2Impl implements JIRAServerFacade2, JiraRESTSupportTe
                     ConfigurationFactory.getConfiguration().getGeneralConfigurationData().getUseIdeaProxySettings();
             HttpConfigurableAdapter proxyInfo = ConfigurationFactory.getConfiguration().transientGetHttpConfigurable();
 
-            session = new JiraRestSessionImpl(connectionCfg, useIdeaProxySettings ? proxyInfo : null);
+            try {
+                session = new JiraRestSessionImpl(connectionCfg, useIdeaProxySettings ? proxyInfo : null);
+            } catch (URISyntaxException e) {
+                throw new JIRAException(e.getMessage());
+            }
             sessions.put(connectionCfg, session);
         }
         return session;

@@ -33,6 +33,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 
+// this originates from SOAP session
 public interface JIRASessionPartOne {
 	void login(String userName, String password) throws RemoteApiException;
 

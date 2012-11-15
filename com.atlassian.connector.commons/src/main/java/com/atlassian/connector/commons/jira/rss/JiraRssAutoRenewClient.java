@@ -19,6 +19,7 @@ import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.jira.JIRAIssue;
 import com.atlassian.connector.commons.jira.JIRASessionPartTwo;
 import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 
 import java.util.Date;
@@ -40,6 +41,10 @@ public class JiraRssAutoRenewClient implements JIRASessionPartTwo {
 
     public void login() throws JIRAException, JiraCaptchaRequiredException {
         rssClient.login();
+    }
+
+    public void testConnection() throws RemoteApiException {
+        rssClient.testConnection();
     }
 
     public boolean isLoggedIn(ConnectionCfg server) {

@@ -25,9 +25,7 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.Logger;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.*;
 import java.util.*;
 
 public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
@@ -45,25 +43,41 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         soapAndXmlFacade = new JIRASoapAndXmlServerFacade2Impl(callback, axisCallback);
         restFacade = new JiraRESTFacade2Impl();
 
-        worker = (JIRAServerFacade2) Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] { JIRAServerFacade2.class }, new InvocationHandler() {
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                ConnectionCfg connection = (ConnectionCfg) args[0];
-                boolean useRest = restCapable.contains(connection);
-                boolean useSoapAndXml = notRestCapable.contains(connection);
-                if (!useRest && !useSoapAndXml) {
-                    if (restFacade.supportsRest(connection)) {
-                        restCapable.add(connection);
-                        useRest = true;
-                    } else {
-                        notRestCapable.add(connection);
+        worker = (JIRAServerFacade2) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] { JIRAServerFacade2.class },
+            new InvocationHandler() {
+                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                    ConnectionCfg connection = (ConnectionCfg) args[0];
+                    boolean useRest = restCapable.contains(connection);
+                    boolean useSoapAndXml = notRestCapable.contains(connection);
+                    try {
+                        if (!useRest && !useSoapAndXml) {
+                            try {
+                                if (restFacade.supportsRest(connection)) {
+                                    restCapable.add(connection);
+                                    useRest = true;
+                                } else {
+                                    notRestCapable.add(connection);
+                                }
+                            } catch (JIRAException e) {
+                                Class<?>[] exceptionTypes = method.getExceptionTypes();
+                                for (Class<?> exceptionType : exceptionTypes) {
+                                    if (exceptionType.isAssignableFrom(JIRAException.class)) {
+                                        throw e;
+                                    }
+                                }
+                                throw new RemoteApiException(e);
+                            }
+                        }
+                        if (useRest) {
+                            return method.invoke(restFacade, args);
+                        }
+                        return method.invoke(soapAndXmlFacade, args);
+                    } catch (InvocationTargetException e) {
+                        throw e.getCause();
                     }
                 }
-                if (useRest) {
-                    return method.invoke(restFacade, args);
-                }
-                return method.invoke(soapAndXmlFacade, args);
             }
-        });
+        );
     }
 
     public static void setLogger(Logger logger) {
@@ -199,7 +213,7 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         return worker.getSecurityLevels(connectionCfg, projectKey);
     }
 
-    public void testServerConnection(ConnectionCfg httpConnectionCfg) throws RemoteApiException {
+    public void testServerConnection(final ConnectionCfg httpConnectionCfg) throws RemoteApiException {
         worker.testServerConnection(httpConnectionCfg);
     }
 }

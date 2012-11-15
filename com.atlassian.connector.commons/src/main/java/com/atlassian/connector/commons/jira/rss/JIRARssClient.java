@@ -288,6 +288,14 @@ public class JIRARssClient extends AbstractHttpSession implements JIRASessionPar
         return result;
     }
 
+    public void testConnection() throws RemoteApiException {
+        try {
+            login();
+        } catch (JIRAException e) {
+            throw new RemoteApiException(e);
+        }
+    }
+
     public void login() throws JIRAException, JiraCaptchaRequiredException {
         final String restLogin = "/rest/gadget/1.0/login";
         // JIRA 4.x has additional endpoint for login that tells if CAPTCHA limit was hit

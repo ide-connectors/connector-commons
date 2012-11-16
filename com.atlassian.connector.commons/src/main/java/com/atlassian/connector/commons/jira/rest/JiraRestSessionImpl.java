@@ -6,16 +6,16 @@ import com.atlassian.connector.commons.jira.beans.*;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
 import com.atlassian.jira.rest.client.JiraRestClient;
 import com.atlassian.jira.rest.client.NullProgressMonitor;
-import com.atlassian.jira.rest.client.domain.BasicProject;
+import com.atlassian.jira.rest.client.domain.*;
 import com.atlassian.jira.rest.client.internal.ServerVersionConstants;
 import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClientFactory;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 import com.atlassian.theplugin.commons.util.HttpConfigurableAdapter;
+import com.google.common.collect.Lists;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
@@ -83,9 +83,10 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
             @Override
             public List<JIRAProject> call() throws Exception {
                 Iterable<BasicProject> projects = restClient.getProjectClient().getAllProjects(pm);
-                List<JIRAProject> result = new ArrayList<JIRAProject>();
+                List<JIRAProject> result = Lists.newArrayList();
                 for (BasicProject project : projects) {
-                    result.add(new JIRAProjectBean(project));
+                    Long id = project.getId();
+                    result.add(new JIRAProjectBean(id != null ? id : -1, project.getKey(), project.getName()));
                 }
                 return result;
             }
@@ -93,14 +94,30 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
     }
 
     public List<JIRAConstant> getIssueTypes() throws RemoteApiException {
-        throw nyi();
-    }
-
-    public List<JIRAConstant> getIssueTypesForProject(String project) throws RemoteApiException {
-        throw nyi();
+        return getIssueTypes(false);
     }
 
     public List<JIRAConstant> getSubtaskIssueTypes() throws RemoteApiException {
+        return getIssueTypes(true);
+    }
+
+    private List<JIRAConstant> getIssueTypes(final boolean subtasks) throws RemoteApiException {
+        return wrapWithRemoteApiException(new Callable<List<JIRAConstant>>() {
+            @Override
+            public List<JIRAConstant> call() throws Exception {
+                Iterable<IssueType> issueTypes = restClient.getMetadataClient().getIssueTypes(pm);
+                List<JIRAConstant> result = Lists.newArrayList();
+                for (IssueType type : issueTypes) {
+                    Long id = type.getId();
+                    if (type.isSubtask() != subtasks || id == null) continue;
+                    result.add(new JIRAIssueTypeBean(id, type.getName(), type.getIconUri().toURL()));
+                }
+                return result;
+            }
+        });
+    }
+
+    public List<JIRAConstant> getIssueTypesForProject(String project) throws RemoteApiException {
         throw nyi();
     }
 
@@ -109,7 +126,18 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
     }
 
     public List<JIRAConstant> getStatuses() throws RemoteApiException {
-        throw nyi();
+        return wrapWithRemoteApiException(new Callable<List<JIRAConstant>>() {
+            @Override
+            public List<JIRAConstant> call() throws Exception {
+                Iterable<Status> statuses = restClient.getMetadataClient().getStatuses(pm);
+                List<JIRAConstant> result = Lists.newArrayList();
+                for (Status status : statuses) {
+                    Long id = status.getId();
+                    result.add(new JIRAStatusBean(id != null ? id : -1, status.getName(), status.getIconUrl().toURL()));
+                }
+                return result;
+            }
+        });
     }
 
     public List<JIRAComponentBean> getComponents(String projectKey) throws RemoteApiException {
@@ -121,15 +149,49 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
     }
 
     public List<JIRAPriorityBean> getPriorities() throws RemoteApiException {
-        throw nyi();
+        return wrapWithRemoteApiException(new Callable<List<JIRAPriorityBean>>() {
+            @Override
+            public List<JIRAPriorityBean> call() throws Exception {
+                Iterable<Priority> priorities = restClient.getMetadataClient().getPriorities(pm);
+                List<JIRAPriorityBean> result = Lists.newArrayList();
+                int order = 0;
+                for (Priority priority : priorities) {
+                    Long id = priority.getId();
+                    result.add(new JIRAPriorityBean(id != null ? id : -1, order++, priority.getName(), priority.getIconUri().toURL()));
+                }
+                return result;
+            }
+        });
     }
 
     public List<JIRAResolutionBean> getResolutions() throws RemoteApiException {
-        throw nyi();
+        return wrapWithRemoteApiException(new Callable<List<JIRAResolutionBean>>() {
+            @Override
+            public List<JIRAResolutionBean> call() throws Exception {
+                Iterable<Resolution> resolutions = restClient.getMetadataClient().getResolutions(pm);
+                List<JIRAResolutionBean> result = Lists.newArrayList();
+                for (Resolution status : resolutions) {
+                    Long id = status.getId();
+                    result.add(new JIRAResolutionBean(id != null ? id : -1, status.getName()));
+                }
+                return result;
+            }
+        });
     }
 
     public List<JIRAQueryFragment> getSavedFilters() throws RemoteApiException {
-        throw nyi();
+        return wrapWithRemoteApiException(new Callable<List<JIRAQueryFragment>>() {
+            @Override
+            public List<JIRAQueryFragment> call() throws Exception {
+                Iterable<FavouriteFilter> filters = restClient.getSearchClient().getFavouriteFilters(pm);
+                List<JIRAQueryFragment> result = Lists.newArrayList();
+                for (FavouriteFilter filter : filters) {
+                    Long id = filter.getId();
+                    result.add(new JIRASavedFilterBean(filter.getName(), id != null ? id : -1, filter.getJql(), filter.getSearchUrl(), filter.getViewUrl()));
+                }
+                return result;
+            }
+        });
     }
 
     public List<JIRAAction> getAvailableActions(JIRAIssue issue) throws RemoteApiException {

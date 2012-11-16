@@ -16,6 +16,7 @@
 
 package com.atlassian.connector.commons.jira.beans;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +25,9 @@ public class JIRASavedFilterBean implements JIRASavedFilter {
     private String author;
     private String project;
     private long id;
+    private String jql;
+    private URI searchUrl;
+    private URI viewUrl;
 
     public JIRASavedFilterBean(Map projMap) {
         name = (String) projMap.get("name");
@@ -37,9 +41,23 @@ public class JIRASavedFilterBean implements JIRASavedFilter {
 		this.id = id;
 	}
 
-	public JIRASavedFilterBean(JIRASavedFilterBean other) {
-		this(other.getMap());
-	}
+    public JIRASavedFilterBean(String name, long id, String jql, URI searchUrl, URI viewUrl) {
+        this.name = name;
+        this.id = id;
+        this.jql = jql;
+        this.searchUrl = searchUrl;
+        this.viewUrl = viewUrl;
+    }
+
+    public JIRASavedFilterBean(JIRASavedFilterBean other) {
+        this.name = other.name;
+        this.author = other.author;
+        this.project = other.project;
+        this.id = other.id;
+        this.jql = other.jql;
+        this.searchUrl = other.searchUrl;
+        this.viewUrl = other.viewUrl;
+    }
 
 	public String getName() {
         return name;
@@ -73,5 +91,17 @@ public class JIRASavedFilterBean implements JIRASavedFilter {
 
 	public String getQueryStringFragment() {
         return Long.toString(id);
+    }
+
+    public String getJql() {
+        return jql;
+    }
+
+    public URI getSearchUrl() {
+        return searchUrl;
+    }
+
+    public URI getViewUrl() {
+        return viewUrl;
     }
 }

@@ -16,8 +16,16 @@
 
 package com.atlassian.connector.commons.jira.beans;
 
+import java.net.URI;
+
 public interface JIRASavedFilter extends JIRAQueryFragment {
     String getAuthor();
 
     String getProject();
+
+    String getJql();
+
+    URI getSearchUrl();
+
+    URI getViewUrl();
 }

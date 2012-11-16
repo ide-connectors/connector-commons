@@ -16,8 +16,6 @@
 
 package com.atlassian.connector.commons.jira.beans;
 
-import com.atlassian.jira.rest.client.domain.BasicProject;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,19 +39,17 @@ public class JIRAProjectBean implements JIRAProject {
 		id = Long.valueOf((String) projMap.get("id"));
 	}
 
-    public JIRAProjectBean(BasicProject p) {
-        name = p.getName();
-        key = p.getKey();
-        Long l = p.getId();
-        id = l != null ? l : -1;
-    }
-
 	public JIRAProjectBean(long id, String name) {
 		this.id = id;
 		this.name = name;
 	}
+    public JIRAProjectBean(long id, String key, String name) {
+        this.id = id;
+        this.key = key;
+        this.name = name;
+    }
 
-	public JIRAProjectBean(JIRAProjectBean other) {
+    public JIRAProjectBean(JIRAProjectBean other) {
 		this(other.getMap());
 	}
 

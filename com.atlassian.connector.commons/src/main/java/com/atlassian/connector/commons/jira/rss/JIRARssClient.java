@@ -26,8 +26,8 @@ import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.jira.JIRAIssue;
 import com.atlassian.connector.commons.jira.JIRAIssueBean;
 import com.atlassian.connector.commons.jira.JIRASessionPartTwo;
-import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
-import com.atlassian.connector.commons.jira.cache.CacheConstants;
+import com.atlassian.connector.commons.jira.beans.JIRASavedFilter;
+import com.atlassian.connector.commons.jira.beans.JiraFilter;
 import com.atlassian.connector.commons.jira.cache.CachedIconLoader;
 import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.remoteapi.*;
@@ -49,8 +49,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
-
-import static com.atlassian.theplugin.commons.util.UrlUtil.encodeUrl;
 
 public class JIRARssClient extends AbstractHttpSession implements JIRASessionPartTwo {
 
@@ -127,13 +125,16 @@ public class JIRARssClient extends AbstractHttpSession implements JIRASessionPar
         return locale;
     }
 
-    public List<JIRAIssue> getIssues(String queryString, String sortBy, String sortOrder, int start, int max)
-            throws JIRAException {
+    @Override
+    public List<JIRAIssue> getIssues(JiraFilter filter, String sortBy, String sortOrder, int start, int max) throws JIRAException {
+
+//    public List<JIRAIssue> getIssues(String queryString, String sortBy, String sortOrder, int start, int max)
+//            throws JIRAException {
 
         StringBuilder url =
                 new StringBuilder(getBaseUrl() + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?");
 
-        url.append(queryString);
+        url.append(filter.getOldStyleQueryString());
 
         url.append("&sorter/field=").append(sortBy);
         url.append("&sorter/order=").append(sortOrder);
@@ -161,64 +162,68 @@ public class JIRARssClient extends AbstractHttpSession implements JIRASessionPar
         }
     }
 
-    public List<JIRAIssue> getIssues(List<JIRAQueryFragment> fragments, String sortBy,
-                                     String sortOrder, int start, int max) throws JIRAException {
 
-        StringBuilder query = new StringBuilder();
+//    public List<JIRAIssue> getIssues(List<JIRAQueryFragment> fragments, String sortBy,
+//                                     String sortOrder, int start, int max) throws JIRAException {
+//
+//        StringBuilder query = new StringBuilder();
+//
+//        List<JIRAQueryFragment> fragmentsWithoutAnys = new ArrayList<JIRAQueryFragment>();
+//        for (JIRAQueryFragment jiraQueryFragment : fragments) {
+//            if (jiraQueryFragment.getId() != CacheConstants.ANY_ID) {
+//                fragmentsWithoutAnys.add(jiraQueryFragment);
+//            }
+//        }
+//
+//        for (JIRAQueryFragment fragment : fragmentsWithoutAnys) {
+//            if (fragment.getQueryStringFragment() != null) {
+//                query.append("&").append(fragment.getQueryStringFragment());
+//            }
+//        }
+//
+//        return getIssues(query.toString(), sortBy, sortOrder, start, max);
+//    }
 
-        List<JIRAQueryFragment> fragmentsWithoutAnys = new ArrayList<JIRAQueryFragment>();
-        for (JIRAQueryFragment jiraQueryFragment : fragments) {
-            if (jiraQueryFragment.getId() != CacheConstants.ANY_ID) {
-                fragmentsWithoutAnys.add(jiraQueryFragment);
-            }
-        }
+//    public List<JIRAIssue> getAssignedIssues(String assignee) throws JIRAException {
+//        String url = getBaseUrl() + "/sr/jira.issueviews:searchrequest-xml"
+//                + "/temp/SearchRequest.xml?resolution=-1&assignee=" + encodeUrl(assignee)
+//                + "&sorter/field=updated&sorter/order=DESC&tempMax=100";
+////                + appendAuthentication(false);
+//
+//        try {
+//            Document doc = retrieveGetResponse(url);
+//            Element root = doc.getRootElement();
+//            Element channel = root.getChild("channel");
+//            if (channel != null && !channel.getChildren("item").isEmpty()) {
+//                return makeIssues(channel.getChildren("item"), getLocale(channel));
+//            }
+//
+//
+//            return Collections.emptyList();
+//        } catch (IOException e) {
+//            throw new JIRAException(e.getMessage(), e);
+//        } catch (JDOMException e) {
+//            throw new JIRAException(e.getMessage(), e);
+//        } catch (RemoteApiSessionExpiredException e) {
+//            throw new JIRAException(e.getMessage(), e);
+//        }
+//    }
 
-        for (JIRAQueryFragment fragment : fragmentsWithoutAnys) {
-            if (fragment.getQueryStringFragment() != null) {
-                query.append("&").append(fragment.getQueryStringFragment());
-            }
-        }
+    @Override
+    public List<JIRAIssue> getSavedFilterIssues(JIRASavedFilter filter, String sortBy, String sortOrder, int start, int max) throws JIRAException {
 
-        return getIssues(query.toString(), sortBy, sortOrder, start, max);
-    }
-
-    public List<JIRAIssue> getAssignedIssues(String assignee) throws JIRAException {
-        String url = getBaseUrl() + "/sr/jira.issueviews:searchrequest-xml"
-                + "/temp/SearchRequest.xml?resolution=-1&assignee=" + encodeUrl(assignee)
-                + "&sorter/field=updated&sorter/order=DESC&tempMax=100";
-//                + appendAuthentication(false);
-
-        try {
-            Document doc = retrieveGetResponse(url);
-            Element root = doc.getRootElement();
-            Element channel = root.getChild("channel");
-            if (channel != null && !channel.getChildren("item").isEmpty()) {
-                return makeIssues(channel.getChildren("item"), getLocale(channel));
-            }
-
-
-            return Collections.emptyList();
-        } catch (IOException e) {
-            throw new JIRAException(e.getMessage(), e);
-        } catch (JDOMException e) {
-            throw new JIRAException(e.getMessage(), e);
-        } catch (RemoteApiSessionExpiredException e) {
-            throw new JIRAException(e.getMessage(), e);
-        }
-    }
-
-    public List<JIRAIssue> getSavedFilterIssues(JIRAQueryFragment fragment,
-                                                String sortBy,
-                                                String sortOrder,
-                                                int start,
-                                                int max) throws JIRAException {
-
+//    public List<JIRAIssue> getSavedFilterIssues(JIRAQueryFragment fragment,
+//                                                String sortBy,
+//                                                String sortOrder,
+//                                                int start,
+//                                                int max) throws JIRAException {
+//
         StringBuilder url = new StringBuilder(getBaseUrl() + "/sr/jira.issueviews:searchrequest-xml/");
 
-        if (fragment.getQueryStringFragment() != null) {
-            url.append(fragment.getQueryStringFragment())
+        if (filter.getOldStyleQueryString() != null) {
+            url.append(filter.getQueryStringFragment())
                     .append("/SearchRequest-")
-                    .append(fragment.getQueryStringFragment())
+                    .append(filter.getOldStyleQueryString())
                     .append(".xml");
         }
 

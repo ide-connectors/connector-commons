@@ -55,11 +55,11 @@ public interface JIRASessionPartOne {
 
 	List<JIRAConstant> getIssueTypes() throws RemoteApiException;
 
-	List<JIRAConstant> getIssueTypesForProject(String project) throws RemoteApiException;
+	List<JIRAConstant> getIssueTypesForProject(long projectId, String projectKey) throws RemoteApiException;
 
 	List<JIRAConstant> getSubtaskIssueTypes() throws RemoteApiException;
 
-	List<JIRAConstant> getSubtaskIssueTypesForProject(String project) throws RemoteApiException;
+	List<JIRAConstant> getSubtaskIssueTypesForProject(long projectId, String projectKey) throws RemoteApiException;
 
 	List<JIRAConstant> getStatuses() throws RemoteApiException;
 

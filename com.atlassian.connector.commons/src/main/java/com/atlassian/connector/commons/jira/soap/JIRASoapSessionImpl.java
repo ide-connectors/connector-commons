@@ -448,9 +448,9 @@ public class JIRASoapSessionImpl implements JIRASessionPartOne {
 
     }
 
-    public List<JIRAConstant> getIssueTypesForProject(String project) throws RemoteApiException {
+    public List<JIRAConstant> getIssueTypesForProject(long projectId, String projectKey) throws RemoteApiException {
         try {
-            return issueTableToList(service.getIssueTypesForProject(token, project));
+            return issueTableToList(service.getIssueTypesForProject(token, Long.valueOf(projectId).toString()));
         } catch (RemoteException e) {
             throw new RemoteApiException(e.toString(), e);
         } catch (MalformedURLException e) {
@@ -469,9 +469,9 @@ public class JIRASoapSessionImpl implements JIRASessionPartOne {
 
     }
 
-    public List<JIRAConstant> getSubtaskIssueTypesForProject(String project) throws RemoteApiException {
+    public List<JIRAConstant> getSubtaskIssueTypesForProject(long projectId, String projectKey) throws RemoteApiException {
         try {
-            return issueTableToList(service.getSubTaskIssueTypesForProject(token, project));
+            return issueTableToList(service.getSubTaskIssueTypesForProject(token, Long.valueOf(projectId).toString()));
         } catch (RemoteException e) {
             throw new RemoteApiException(e.toString(), e);
         } catch (MalformedURLException e) {

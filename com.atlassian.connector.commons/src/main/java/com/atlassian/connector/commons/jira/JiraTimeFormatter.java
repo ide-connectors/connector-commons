@@ -19,6 +19,9 @@ public final class JiraTimeFormatter {
         DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z (z)", locale);
         DateFormat ds = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
         String t;
+        if (dateString == null) {
+            return "";
+        }
         try {
             t = ds.format(df.parse(dateString));
         } catch (ParseException e) {

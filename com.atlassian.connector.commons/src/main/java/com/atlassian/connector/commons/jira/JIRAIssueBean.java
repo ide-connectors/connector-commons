@@ -16,23 +16,15 @@
 
 package com.atlassian.connector.commons.jira;
 
-import com.atlassian.connector.commons.jira.beans.JIRAComment;
-import com.atlassian.connector.commons.jira.beans.JIRACommentBean;
-import com.atlassian.connector.commons.jira.beans.JIRAConstant;
-import com.atlassian.connector.commons.jira.beans.JIRAPriorityBean;
-import com.atlassian.connector.commons.jira.beans.JIRASecurityLevelBean;
+import com.atlassian.connector.commons.jira.beans.*;
 import com.atlassian.connector.commons.jira.soap.axis.RemoteIssue;
+import com.atlassian.jira.rest.client.domain.*;
 import org.jdom.Element;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class JIRAIssueBean implements JIRAIssue {
 	private Long id;
@@ -84,7 +76,6 @@ public class JIRAIssueBean implements JIRAIssue {
     public JIRAIssueBean() {
         locale = Locale.US;
 	}
-
 
     public JIRAIssueBean(JIRAIssue issue) {
         this.locale = issue.getLocale();
@@ -293,7 +284,33 @@ public class JIRAIssueBean implements JIRAIssue {
 
     }
 
+    public JIRAIssueBean(String url, Issue issue) {
+        locale = Locale.US;
 
+        this.serverUrl = url;
+        this.id = issue.getId();
+        this.key = issue.getKey();
+        this.summary = issue.getSummary();
+        BasicStatus s = issue.getStatus();
+        this.statusId = s.getId();
+        this.status = s.getName();
+        if (s instanceof Status) {
+            this.statusUrl = ((Status) s).getIconUrl().toString();
+        }
+
+        BasicPriority prio = issue.getPriority();
+        if (prio != null) {
+            Long prioId = prio.getId();
+            this.priorityId = prioId != null ? prioId : -1;
+            this.priority = prio.getName();
+            if (prio instanceof Priority) {
+                this.priorityUrl = ((Priority) prio).getIconUri().toString();
+            }
+        }
+        DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
+        this.created = df.format(issue.getCreationDate().toDate());
+        this.updated = df.format(issue.getUpdateDate().toDate());
+    }
 
     public JIRAPriorityBean getPriorityConstant() {
 		return priorityConstant;

@@ -17,17 +17,7 @@
 package com.atlassian.connector.commons.jira;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
-import com.atlassian.connector.commons.jira.beans.JIRAAttachment;
-import com.atlassian.connector.commons.jira.beans.JIRAComment;
-import com.atlassian.connector.commons.jira.beans.JIRAComponentBean;
-import com.atlassian.connector.commons.jira.beans.JIRAConstant;
-import com.atlassian.connector.commons.jira.beans.JIRAPriorityBean;
-import com.atlassian.connector.commons.jira.beans.JIRAProject;
-import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
-import com.atlassian.connector.commons.jira.beans.JIRAResolutionBean;
-import com.atlassian.connector.commons.jira.beans.JIRASecurityLevelBean;
-import com.atlassian.connector.commons.jira.beans.JIRAUserBean;
-import com.atlassian.connector.commons.jira.beans.JIRAVersionBean;
+import com.atlassian.connector.commons.jira.beans.*;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
 import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 
@@ -35,35 +25,45 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 
-public interface JIRAServerFacade2 extends ProductServerFacade {    
+public interface JIRAServerFacade2 extends ProductServerFacade {
 
-    List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, String queryString, String sort,
-                              String sortOrder, int start, int size) throws JIRAException;
+//    List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, String queryString, String sort,
+//                              String sortOrder, int start, int size) throws JIRAException;
 
-	List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, List<JIRAQueryFragment> query,
+//    List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, String queryString, String sort,
+//                              String sortOrder, int start, int size) throws JIRAException;
+
+	List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, JiraFilter filter,
 			String sort,
 			String sortOrder,
 			int start,
 			int size) throws JIRAException;
 
-	List<JIRAIssue> getSavedFilterIssues(ConnectionCfg httpConnectionCfg,
-			List<JIRAQueryFragment> query,
-			String sort,
-			String sortOrder,
-			int start,
-			int size) throws JIRAException;
+//	List<JIRAIssue> getSavedFilterIssues(ConnectionCfg httpConnectionCfg,
+//			List<JIRAQueryFragment> query,
+//			String sort,
+//			String sortOrder,
+//			int start,
+//			int size) throws JIRAException;
 
-	List<JIRAProject> getProjects(ConnectionCfg httpConnectionCfg) throws JIRAException;
+    List<JIRAIssue> getSavedFilterIssues(ConnectionCfg httpConnectionCfg,
+                                         JIRASavedFilter filter,
+                                         String sort,
+                                         String sortOrder,
+                                         int start,
+                                         int size) throws JIRAException;
+
+    List<JIRAProject> getProjects(ConnectionCfg httpConnectionCfg) throws JIRAException;
 
 	List<JIRAConstant> getStatuses(ConnectionCfg httpConnectionCfg) throws JIRAException;
 
 	List<JIRAConstant> getIssueTypes(ConnectionCfg httpConnectionCfg) throws JIRAException;
 
-	List<JIRAConstant> getIssueTypesForProject(ConnectionCfg httpConnectionCfg, String project) throws JIRAException;
+	List<JIRAConstant> getIssueTypesForProject(ConnectionCfg httpConnectionCfg, long projectId, String projectKey) throws JIRAException;
 
 	List<JIRAConstant> getSubtaskIssueTypes(ConnectionCfg httpConnectionCfg) throws JIRAException;
 
-	List<JIRAConstant> getSubtaskIssueTypesForProject(ConnectionCfg httpConnectionCfg, String project) throws JIRAException;
+	List<JIRAConstant> getSubtaskIssueTypesForProject(ConnectionCfg httpConnectionCfg, long projectId, String projectKey) throws JIRAException;
 
 	List<JIRAQueryFragment> getSavedFilters(ConnectionCfg httpConnectionCfg) throws JIRAException;
 

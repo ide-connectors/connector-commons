@@ -18,7 +18,8 @@ package com.atlassian.connector.commons.jira.rss;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.jira.JIRAIssue;
 import com.atlassian.connector.commons.jira.JIRASessionPartTwo;
-import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
+import com.atlassian.connector.commons.jira.beans.JIRASavedFilter;
+import com.atlassian.connector.commons.jira.beans.JiraFilter;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 
@@ -51,23 +52,34 @@ public class JiraRssAutoRenewClient implements JIRASessionPartTwo {
         return rssClient != null && rssClient.isLoggedIn(server);
     }
 
-    public List<JIRAIssue> getIssues(String queryString, String sortBy, String sortOrder, int start, int max)
-            throws JIRAException {
-        return rssClient.getIssues(queryString, sortBy, sortOrder, start, max);
+    @Override
+    public List<JIRAIssue> getIssues(JiraFilter filter, String sortBy, String sortOrder, int start, int max) throws JIRAException {
+        return rssClient.getIssues(filter, sortBy, sortOrder, start, max);
     }
 
-    public List<JIRAIssue> getIssues(List<JIRAQueryFragment> fragments, String sortBy, String sortOrder,
-                                     int start, int max) throws JIRAException {
-        return rssClient.getIssues(fragments, sortBy, sortOrder, start, max);
-    }
+    //    public List<JIRAIssue> getIssues(String queryString, String sortBy, String sortOrder, int start, int max)
+//            throws JIRAException {
+//        return rssClient.getIssues(queryString, sortBy, sortOrder, start, max);
+//    }
 
-    public List<JIRAIssue> getAssignedIssues(String assignee) throws JIRAException {
-        return rssClient.getAssignedIssues(assignee);
-    }
+//    public List<JIRAIssue> getIssues(List<JIRAQueryFragment> fragments, String sortBy, String sortOrder,
+//                                     int start, int max) throws JIRAException {
+//        return rssClient.getIssues(fragments, sortBy, sortOrder, start, max);
+//    }
 
-    public List<JIRAIssue> getSavedFilterIssues(JIRAQueryFragment fragment, String sortBy, String sortOrder, int start,
-                                                int max) throws JIRAException {
-        return rssClient.getSavedFilterIssues(fragment, sortBy, sortOrder, start, max);
+//    public List<JIRAIssue> getAssignedIssues(String assignee) throws JIRAException {
+//        return rssClient.getAssignedIssues(assignee);
+//    }
+
+//    public List<JIRAIssue> getSavedFilterIssues(JIRAQueryFragment fragment, String sortBy, String sortOrder, int start,
+//                                                int max) throws JIRAException {
+//        return rssClient.getSavedFilterIssues(fragment, sortBy, sortOrder, start, max);
+//    }
+
+
+    @Override
+    public List<JIRAIssue> getSavedFilterIssues(JIRASavedFilter filter, String sortBy, String sortOrder, int start, int max) throws JIRAException {
+        return rssClient.getSavedFilterIssues(filter, sortBy, sortOrder, start, max);
     }
 
     public JIRAIssue getIssue(String issueKey) throws JIRAException {

@@ -89,17 +89,28 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         return ServerType.JIRA_SERVER;
     }
 
-    public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, String queryString, String sort, String sortOrder, int start, int size) throws JIRAException {
-        return worker.getIssues(httpConnectionCfg, queryString, sort, sortOrder, start, size);
+//    public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, String queryString, String sort, String sortOrder, int start, int size) throws JIRAException {
+//        return worker.getIssues(httpConnectionCfg, queryString, sort, sortOrder, start, size);
+//    }
+//
+//    public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, List<JIRAQueryFragment> query, String sort, String sortOrder, int start, int size) throws JIRAException {
+//        return worker.getIssues(httpConnectionCfg, query, sort, sortOrder, start, size);
+//    }
+
+
+    @Override
+    public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, JiraFilter filter, String sort, String sortOrder, int start, int size) throws JIRAException {
+        return worker.getIssues(httpConnectionCfg, filter, sort, sortOrder, start, size);
     }
 
-    public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, List<JIRAQueryFragment> query, String sort, String sortOrder, int start, int size) throws JIRAException {
-        return worker.getIssues(httpConnectionCfg, query, sort, sortOrder, start, size);
+    @Override
+    public List<JIRAIssue> getSavedFilterIssues(ConnectionCfg httpConnectionCfg, JIRASavedFilter filter, String sort, String sortOrder, int start, int size) throws JIRAException {
+        return worker.getSavedFilterIssues(httpConnectionCfg, filter, sort, sortOrder, start, size);
     }
 
-    public List<JIRAIssue> getSavedFilterIssues(ConnectionCfg httpConnectionCfg, List<JIRAQueryFragment> query, String sort, String sortOrder, int start, int size) throws JIRAException {
-        return worker.getSavedFilterIssues(httpConnectionCfg, query, sort, sortOrder, start, size);
-    }
+//    public List<JIRAIssue> getSavedFilterIssues(ConnectionCfg httpConnectionCfg, List<JIRAQueryFragment> query, String sort, String sortOrder, int start, int size) throws JIRAException {
+//        return worker.getSavedFilterIssues(httpConnectionCfg, query, sort, sortOrder, start, size);
+//    }
 
     public List<JIRAProject> getProjects(ConnectionCfg httpConnectionCfg) throws JIRAException {
         return worker.getProjects(httpConnectionCfg);
@@ -113,16 +124,16 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         return worker.getIssueTypes(httpConnectionCfg);
     }
 
-    public List<JIRAConstant> getIssueTypesForProject(ConnectionCfg httpConnectionCfg, String project) throws JIRAException {
-        return worker.getIssueTypesForProject(httpConnectionCfg, project);
+    public List<JIRAConstant> getIssueTypesForProject(ConnectionCfg httpConnectionCfg, long projectId, String project) throws JIRAException {
+        return worker.getIssueTypesForProject(httpConnectionCfg, projectId, project);
     }
 
     public List<JIRAConstant> getSubtaskIssueTypes(ConnectionCfg httpConnectionCfg) throws JIRAException {
         return worker.getSubtaskIssueTypes(httpConnectionCfg);
     }
 
-    public List<JIRAConstant> getSubtaskIssueTypesForProject(ConnectionCfg httpConnectionCfg, String project) throws JIRAException {
-        return worker.getSubtaskIssueTypesForProject(httpConnectionCfg, project);
+    public List<JIRAConstant> getSubtaskIssueTypesForProject(ConnectionCfg httpConnectionCfg, long projectId, String project) throws JIRAException {
+        return worker.getSubtaskIssueTypesForProject(httpConnectionCfg, projectId, project);
     }
 
     public List<JIRAQueryFragment> getSavedFilters(ConnectionCfg httpConnectionCfg) throws JIRAException {

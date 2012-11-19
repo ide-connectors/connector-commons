@@ -131,11 +131,11 @@ public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 
         return ServerType.JIRA_SERVER;
     }
 
-    public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, String queryString, String sort,
-                                     String sortOrder, int start, int size) throws JIRAException {
+    @Override
+    public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, JiraFilter filter, String sort, String sortOrder, int start, int size) throws JIRAException {
         try {
             JiraRssAutoRenewClient rss = getRssSession(httpConnectionCfg);
-            return rss.getIssues(queryString, sort, sortOrder, start, size);
+            return rss.getIssues(filter, sort, sortOrder, start, size);
         } catch (CaptchaRequiredException e) {
             removeRssSession(httpConnectionCfg);
             throw new JiraCaptchaRequiredException(e.getMessage());
@@ -145,37 +145,60 @@ public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 
         }
     }
 
-    public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg,
-                                     List<JIRAQueryFragment> query,
-                                     String sort,
-                                     String sortOrder,
-                                     int start,
-                                     int size) throws JIRAException {
-        try {
-            JiraRssAutoRenewClient rss = getRssSession(httpConnectionCfg);
-            return rss.getIssues(query, sort, sortOrder, start, size);
-        } catch (CaptchaRequiredException e) {
-            removeRssSession(httpConnectionCfg);
-            throw new JiraCaptchaRequiredException(e.getMessage());
-        } catch (RemoteApiException e) {
-            removeRssSession(httpConnectionCfg);
-            throw new JIRAException(e.getMessage(), e);
-        }
-    }
+//    public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, String queryString, String sort,
+//                                     String sortOrder, int start, int size) throws JIRAException {
+//        try {
+//            JiraRssAutoRenewClient rss = getRssSession(httpConnectionCfg);
+//            return rss.getIssues(queryString, sort, sortOrder, start, size);
+//        } catch (CaptchaRequiredException e) {
+//            removeRssSession(httpConnectionCfg);
+//            throw new JiraCaptchaRequiredException(e.getMessage());
+//        } catch (RemoteApiException e) {
+//            removeRssSession(httpConnectionCfg);
+//            throw new JIRAException(e.getMessage(), e);
+//        }
+//    }
 
-    public List<JIRAIssue> getSavedFilterIssues(ConnectionCfg httpConnectionCfg,
-                                                List<JIRAQueryFragment> query,
-                                                String sort,
-                                                String sortOrder,
-                                                int start,
-                                                int size) throws JIRAException {
+//    public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg,
+//                                     List<JIRAQueryFragment> query,
+//                                     String sort,
+//                                     String sortOrder,
+//                                     int start,
+//                                     int size) throws JIRAException {
+//        try {
+//            JiraRssAutoRenewClient rss = getRssSession(httpConnectionCfg);
+//            return rss.getIssues(query, sort, sortOrder, start, size);
+//        } catch (CaptchaRequiredException e) {
+//            removeRssSession(httpConnectionCfg);
+//            throw new JiraCaptchaRequiredException(e.getMessage());
+//        } catch (RemoteApiException e) {
+//            removeRssSession(httpConnectionCfg);
+//            throw new JIRAException(e.getMessage(), e);
+//        }
+//    }
+
+    @Override
+    public List<JIRAIssue> getSavedFilterIssues(
+            ConnectionCfg httpConnectionCfg, JIRASavedFilter filter, String sort, String sortOrder, int start, int size) throws JIRAException {
+
+//    public List<JIRAIssue> getSavedFilterIssues(ConnectionCfg httpConnectionCfg,
+//                                                List<JIRAQueryFragment> query,
+//                                                String sort,
+//                                                String sortOrder,
+//                                                int start,
+//                                                int size) throws JIRAException {
         try {
             JiraRssAutoRenewClient rss = getRssSession(httpConnectionCfg);
-            if (query.size() != 1) {
-                throw new JIRAException("Only one saved filter could be used for query");
-            } else {
-                return rss.getSavedFilterIssues(query.get(0), sort, sortOrder, start, size);
-            }
+//            if (query.size() != 1) {
+//                throw new JIRAException("Only one saved filter could be used for query");
+//            } else {
+//                return rss.getSavedFilterIssues(query.get(0), sort, sortOrder, start, size);
+//            }
+//            if (query.size() != 1) {
+//                throw new JIRAException("Only one saved filter could be used for query");
+//            } else {
+                return rss.getSavedFilterIssues(filter, sort, sortOrder, start, size);
+//            }
         } catch (CaptchaRequiredException e) {
             removeRssSession(httpConnectionCfg);
             throw new JiraCaptchaRequiredException(e.getMessage());
@@ -241,11 +264,11 @@ public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 
         }
     }
 
-    public List<JIRAConstant> getIssueTypesForProject(ConnectionCfg httpConnectionCfg, String project)
+    public List<JIRAConstant> getIssueTypesForProject(ConnectionCfg httpConnectionCfg, long projectId, String projectKey)
             throws JIRAException {
         try {
             JIRASessionPartOne soap = getSoapSession(httpConnectionCfg);
-            return soap.getIssueTypesForProject(project);
+            return soap.getIssueTypesForProject(projectId, projectKey);
         } catch (CaptchaRequiredException e) {
             removeRssSession(httpConnectionCfg);
             throw new JiraCaptchaRequiredException(e.getMessage());
@@ -254,7 +277,7 @@ public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 
             try {
                 if (e.getMessage().contains("User not authenticated yet, or session timed out.")) {
                     JIRASessionPartOne soap = getSoapSession(httpConnectionCfg);
-                    return soap.getIssueTypesForProject(project);
+                    return soap.getIssueTypesForProject(projectId, projectKey);
                 }
             } catch (RemoteApiException e1) {
                 throw new JIRAException(e.getMessage(), e);
@@ -284,11 +307,11 @@ public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 
         }
     }
 
-    public List<JIRAConstant> getSubtaskIssueTypesForProject(ConnectionCfg connectionCfg, String project)
+    public List<JIRAConstant> getSubtaskIssueTypesForProject(ConnectionCfg connectionCfg, long projectId, String projectKey)
             throws JIRAException {
         try {
             JIRASessionPartOne soap = getSoapSession(connectionCfg);
-            return soap.getSubtaskIssueTypesForProject(project);
+            return soap.getSubtaskIssueTypesForProject(projectId, projectKey);
         } catch (CaptchaRequiredException e) {
             removeRssSession(connectionCfg);
             throw new JiraCaptchaRequiredException(e.getMessage());
@@ -297,7 +320,7 @@ public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 
             try {
                 if (e.getMessage().contains("User not authenticated yet, or session timed out.")) {
                     JIRASessionPartOne soap = getSoapSession(connectionCfg);
-                    return soap.getSubtaskIssueTypesForProject(project);
+                    return soap.getSubtaskIssueTypesForProject(projectId, projectKey);
                 }
             } catch (RemoteApiException e1) {
                 throw new JIRAException(e.getMessage(), e);

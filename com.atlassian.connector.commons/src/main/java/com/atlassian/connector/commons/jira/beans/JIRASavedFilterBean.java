@@ -16,8 +16,11 @@
 
 package com.atlassian.connector.commons.jira.beans;
 
+import com.google.common.collect.ImmutableList;
+
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class JIRASavedFilterBean implements JIRASavedFilter {
@@ -92,6 +95,17 @@ public class JIRASavedFilterBean implements JIRASavedFilter {
 	public String getQueryStringFragment() {
         return Long.toString(id);
     }
+
+    @Override
+    public List<JIRAQueryFragment> getQueryFragments() {
+        return ImmutableList.of((JIRAQueryFragment) this);
+    }
+
+    @Override
+    public String getOldStyleQueryString() {
+        return getQueryStringFragment();
+    }
+
 
     public String getJql() {
         return jql;

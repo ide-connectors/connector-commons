@@ -33,19 +33,24 @@ public class JiraRESTFacade2Impl implements JIRAServerFacade2, JiraRESTSupportTe
         return session.supportsRest();
     }
 
-    public List<JIRAIssue> getIssues(ConnectionCfg server, String queryString, String sort, String sortOrder, int start, int size) throws JIRAException {
+//    public List<JIRAIssue> getIssues(ConnectionCfg server, String queryString, String sort, String sortOrder, int start, int size) throws JIRAException {
+//        JiraRestSessionImpl session = get(server);
+//        return session.getIssues(queryString, sort, sortOrder, start, size);
+//    }
+
+    public List<JIRAIssue> getIssues(ConnectionCfg server, JiraFilter filter, String sort, String sortOrder, int start, int size) throws JIRAException {
         JiraRestSessionImpl session = get(server);
-        return session.getIssues(queryString, sort, sortOrder, start, size);
+        return session.getIssues(filter, sort, sortOrder, start, size);
     }
 
-    public List<JIRAIssue> getIssues(ConnectionCfg server, List<JIRAQueryFragment> query, String sort, String sortOrder, int start, int size) throws JIRAException {
-        JiraRestSessionImpl session = get(server);
-        return session.getIssues(query, sort, sortOrder, start, size);
-    }
+//    public List<JIRAIssue> getIssues(ConnectionCfg server, List<JIRAQueryFragment> query, String sort, String sortOrder, int start, int size) throws JIRAException {
+//        JiraRestSessionImpl session = get(server);
+//        return session.getIssues(query, sort, sortOrder, start, size);
+//    }
 
-    public List<JIRAIssue> getSavedFilterIssues(ConnectionCfg server, List<JIRAQueryFragment> query, String sort, String sortOrder, int start, int size) throws JIRAException {
+    public List<JIRAIssue> getSavedFilterIssues(ConnectionCfg server, JIRASavedFilter filter, String sort, String sortOrder, int start, int size) throws JIRAException {
         JiraRestSessionImpl session = get(server);
-        return session.getSavedFilterIssues(query.get(0), sort, sortOrder, start, size);
+        return session.getSavedFilterIssues(filter, sort, sortOrder, start, size);
     }
 
     public List<JIRAProject> getProjects(final ConnectionCfg server) throws JIRAException {
@@ -72,10 +77,11 @@ public class JiraRESTFacade2Impl implements JIRAServerFacade2, JiraRESTSupportTe
         });
     }
 
-    public List<JIRAConstant> getIssueTypesForProject(final ConnectionCfg server, final String project) throws JIRAException {
+    public List<JIRAConstant> getIssueTypesForProject(
+            final ConnectionCfg server, final long projectId, final String projectKey) throws JIRAException {
         return withJiraException(new Callable<List<JIRAConstant>>() {
             public List<JIRAConstant> call() throws Exception {
-                return get(server).getIssueTypesForProject(project);
+                return get(server).getIssueTypesForProject(projectId, projectKey);
             }
         });
     }
@@ -88,10 +94,11 @@ public class JiraRESTFacade2Impl implements JIRAServerFacade2, JiraRESTSupportTe
         });
     }
 
-    public List<JIRAConstant> getSubtaskIssueTypesForProject(final ConnectionCfg server, final String project) throws JIRAException {
+    public List<JIRAConstant> getSubtaskIssueTypesForProject(
+            final ConnectionCfg server, final long projectId, final String projectKey) throws JIRAException {
         return withJiraException(new Callable<List<JIRAConstant>>() {
             public List<JIRAConstant> call() throws Exception {
-                return get(server).getSubtaskIssueTypesForProject(project);
+                return get(server).getSubtaskIssueTypesForProject(projectId, projectKey);
             }
         });
     }

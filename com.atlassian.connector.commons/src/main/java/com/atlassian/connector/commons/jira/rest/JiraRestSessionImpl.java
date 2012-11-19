@@ -6,6 +6,7 @@ import com.atlassian.connector.commons.jira.beans.*;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
 import com.atlassian.jira.rest.client.JiraRestClient;
 import com.atlassian.jira.rest.client.NullProgressMonitor;
+import com.atlassian.jira.rest.client.OptionalIterable;
 import com.atlassian.jira.rest.client.domain.*;
 import com.atlassian.jira.rest.client.internal.ServerVersionConstants;
 import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClientFactory;
@@ -13,6 +14,7 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 import com.atlassian.theplugin.commons.util.HttpConfigurableAdapter;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -62,22 +64,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
     public void logout() {
     }
 
-    public void logWork(JIRAIssue issue, String timeSpent, Calendar startDate, String comment, boolean updateEstimate, String newEstimate) throws RemoteApiException {
-        throw nyi();
-    }
-
-    public void addComment(String issueKey, String comment) throws RemoteApiException {
-        throw nyi();
-    }
-
-    public void addAttachment(String issueKey, String name, byte[] content) throws RemoteApiException {
-        throw nyi();
-    }
-
-    public JIRAIssue createIssue(JIRAIssue issue) throws RemoteApiException {
-        throw nyi();
-    }
-
     public List<JIRAProject> getProjects() throws RemoteApiException {
         return wrapWithRemoteApiException(new Callable<List<JIRAProject>>() {
             @Override
@@ -117,12 +103,28 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         });
     }
 
-    public List<JIRAConstant> getIssueTypesForProject(String project) throws RemoteApiException {
-        throw nyi();
+    public List<JIRAConstant> getIssueTypesForProject(long projectId, String projectKey) throws RemoteApiException {
+        return getIssueTypesForProject(projectKey, false);
     }
 
-    public List<JIRAConstant> getSubtaskIssueTypesForProject(String project) throws RemoteApiException {
-        throw nyi();
+    public List<JIRAConstant> getSubtaskIssueTypesForProject(long projectId, String projectKey) throws RemoteApiException {
+        return getIssueTypesForProject(projectKey, true);
+    }
+
+    private List<JIRAConstant> getIssueTypesForProject(final String projectKey, final boolean subtasks) throws RemoteApiException {
+        return wrapWithRemoteApiException(new Callable<List<JIRAConstant>>() {
+            @Override
+            public List<JIRAConstant> call() throws Exception {
+                OptionalIterable<IssueType> issueTypes = restClient.getProjectClient().getProject(projectKey, pm).getIssueTypes();
+                List<JIRAConstant> result = Lists.newArrayList();
+                for (IssueType issueType : issueTypes) {
+                    if (subtasks != issueType.isSubtask()) continue;
+                    Long id = issueType.getId();
+                    result.add(new JIRAIssueTypeBean(id != null ? id : -1, issueType.getName(), issueType.getIconUri().toURL()));
+                }
+                return result;
+            }
+        });
     }
 
     public List<JIRAConstant> getStatuses() throws RemoteApiException {
@@ -140,12 +142,34 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         });
     }
 
-    public List<JIRAComponentBean> getComponents(String projectKey) throws RemoteApiException {
-        throw nyi();
+    public List<JIRAComponentBean> getComponents(final String projectKey) throws RemoteApiException {
+        return wrapWithRemoteApiException(new Callable<List<JIRAComponentBean>>() {
+            @Override
+            public List<JIRAComponentBean> call() throws Exception {
+                Iterable<BasicComponent> components = restClient.getProjectClient().getProject(projectKey, pm).getComponents();
+                List<JIRAComponentBean> result = Lists.newArrayList();
+                for (BasicComponent component : components) {
+                    Long id = component.getId();
+                    result.add(new JIRAComponentBean(id != null ? id : -1, component.getName()));
+                }
+                return result;
+            }
+        });
     }
 
-    public List<JIRAVersionBean> getVersions(String projectKey) throws RemoteApiException {
-        throw nyi();
+    public List<JIRAVersionBean> getVersions(final String projectKey) throws RemoteApiException {
+        return wrapWithRemoteApiException(new Callable<List<JIRAVersionBean>>() {
+            @Override
+            public List<JIRAVersionBean> call() throws Exception {
+                Iterable<Version> versions = restClient.getProjectClient().getProject(projectKey, pm).getVersions();
+                List<JIRAVersionBean> result = Lists.newArrayList();
+                for (Version version : versions) {
+                    Long id = version.getId();
+                    result.add(new JIRAVersionBean(id != null ? id : -1, version.getName(), version.isReleased()));
+                }
+                return result;
+            }
+        });
     }
 
     public List<JIRAPriorityBean> getPriorities() throws RemoteApiException {
@@ -234,20 +258,32 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         throw nyi();
     }
 
-    public List<JIRAIssue> getIssues(String queryString, String sortBy, String sortOrder, int start, int max) throws JIRAException {
-        throw nyij();
+    public List<JIRAIssue> getIssues(
+            JiraFilter filter, String sortBy, String sortOrder, int start, int max) throws JIRAException {
+        return getIssues(filter.getJql(), sortBy, sortOrder, start, max);
     }
 
-    public List<JIRAIssue> getIssues(List<JIRAQueryFragment> fragments, String sortBy, String sortOrder, int start, int max) throws JIRAException {
-        throw nyij();
+    public List<JIRAIssue> getSavedFilterIssues(
+            JIRASavedFilter filter, String sortBy, String sortOrder, int start, int max) throws JIRAException {
+        return getIssues(filter.getJql(), sortBy, sortOrder, start, max);
     }
 
-    public List<JIRAIssue> getAssignedIssues(String assignee) throws JIRAException {
-        throw nyij();
-    }
-
-    public List<JIRAIssue> getSavedFilterIssues(JIRAQueryFragment fragment, String sortBy, String sortOrder, int start, int max) throws JIRAException {
-        throw nyij();
+    private List<JIRAIssue> getIssues(
+            final String jql, final String sortBy, final String sortOrder, final int start, final int max)
+            throws JIRAException {
+        return wrapWithJiraException(new Callable<List<JIRAIssue>>() {
+            @Override
+            public List<JIRAIssue> call() throws Exception {
+                String sort = StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder) ? " order by " + sortBy + " " + sortOrder : "";
+                SearchResult result = restClient.getSearchClient().searchJqlWithFullIssues(jql + sort, max, start, pm);
+                List<JIRAIssue> list = Lists.newArrayList();
+                for (BasicIssue issue : result.getIssues()) {
+                    JIRAIssueBean bean = new JIRAIssueBean(server.getUrl(), (Issue) issue);
+                    list.add(bean);
+                }
+                return list;
+            }
+        });
     }
 
     public JIRAIssue getIssue(String issueKey) throws JIRAException {
@@ -260,6 +296,22 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         } catch (JIRAException e) {
             throw new RemoteApiException(e);
         }
+    }
+
+    public void logWork(JIRAIssue issue, String timeSpent, Calendar startDate, String comment, boolean updateEstimate, String newEstimate) throws RemoteApiException {
+        throw nyi();
+    }
+
+    public void addComment(String issueKey, String comment) throws RemoteApiException {
+        throw nyi();
+    }
+
+    public void addAttachment(String issueKey, String name, byte[] content) throws RemoteApiException {
+        throw nyi();
+    }
+
+    public JIRAIssue createIssue(JIRAIssue issue) throws RemoteApiException {
+        throw nyi();
     }
 
     public void login() throws JIRAException, JiraCaptchaRequiredException {

@@ -18,7 +18,16 @@ package com.atlassian.connector.commons.jira;
 
 import com.atlassian.connector.commons.jira.beans.*;
 import com.atlassian.connector.commons.jira.soap.axis.RemoteIssue;
+import com.atlassian.jira.rest.client.IssueRestClient;
 import com.atlassian.jira.rest.client.domain.*;
+import com.atlassian.jira.rest.client.internal.json.JsonParseUtil;
+import com.google.common.base.Objects;
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.jdom.Element;
 
 import java.text.DateFormat;
@@ -38,6 +47,7 @@ public class JIRAIssueBean implements JIRAIssue {
 	private String priority;
 	private String priorityUrl;
 	private String description;
+    private String wikiDescription;
 	private String projectKey;
 	private JIRAConstant statusConstant;
 	private JIRAConstant typeConstant;
@@ -64,7 +74,7 @@ public class JIRAIssueBean implements JIRAIssue {
 	private String remainingEstimate;
 	private String timeSpent;
 	private List<JIRAComment> commentsList;
-	private Object rawSoapIssue;
+	private Object apiIssueObejct;
 	private String originalEstimateInSeconds;
 	private String remainingEstimateInSeconds;
 	private String timeSpentInSeconds;
@@ -90,6 +100,7 @@ public class JIRAIssueBean implements JIRAIssue {
         this.priority = issue.getPriority();
         this.priorityUrl = issue.getPriorityIconUrl();
         this.description = issue.getDescription();
+        this.wikiDescription = issue.getWikiDescription();
         this.projectKey = issue.getProjectKey();
         this.statusConstant = issue.getStatusConstant();
         this.typeConstant = issue.getTypeConstant();
@@ -115,7 +126,7 @@ public class JIRAIssueBean implements JIRAIssue {
         this.remainingEstimate = issue.getRemainingEstimate();
         this.timeSpent = issue.getTimeSpent();
         this.commentsList = issue.getComments();
-        this.rawSoapIssue = issue.getRawSoapIssue();
+        this.apiIssueObejct = issue.getApiIssueObject();
         this.originalEstimateInSeconds = issue.getOriginalEstimateInSeconds();
         this.remainingEstimateInSeconds = issue.getRemainingEstimateInSeconds();
         this.timeSpentInSeconds = issue.getTimeSpentInSeconds();
@@ -257,7 +268,7 @@ public class JIRAIssueBean implements JIRAIssue {
 		//typeUrl = remoteIssue.getTypeIconUrl();
 		priority = remoteIssue.getPriority();
 		//priorityUrl = remoteIssue.getPriorityIconUrl();
-		description = remoteIssue.getDescription();
+		wikiDescription = remoteIssue.getDescription();
 		projectKey = remoteIssue.getProject();
 		//statusConstant
 		//typeConstant
@@ -287,15 +298,46 @@ public class JIRAIssueBean implements JIRAIssue {
     public JIRAIssueBean(String url, Issue issue) {
         locale = Locale.US;
 
+        this.apiIssueObejct = issue;
         this.serverUrl = url;
         this.id = issue.getId();
         this.key = issue.getKey();
+        this.thisIsASubTask = issue.getIssueType().isSubtask();
+        if (thisIsASubTask) {
+            Object parent = issue.getField("parent").getValue();
+            if (parent instanceof JSONObject) {
+                this.parentIssueKey = JsonParseUtil.getOptionalString((JSONObject) parent, "key");
+            }
+        }
         this.summary = issue.getSummary();
+        this.description = getHtmlDescription(issue);
+        this.wikiDescription = issue.getDescription();
+        BasicIssueType issueType = issue.getIssueType();
+        this.type = issueType.getName();
+        Long issueTypeId = issueType.getId();
+        if (issueType instanceof IssueType) {
+            this.typeUrl = ((IssueType) issueType).getIconUri().toString();
+        }
+        this.typeId = issueTypeId != null ? issueTypeId : -1;
         BasicStatus s = issue.getStatus();
         this.statusId = s.getId();
         this.status = s.getName();
         if (s instanceof Status) {
             this.statusUrl = ((Status) s).getIconUrl().toString();
+        }
+
+        BasicResolution res = issue.getResolution();
+        this.resolution = res != null ? res.getName() : "Unresolved";
+
+        BasicUser ass = issue.getAssignee();
+        if (ass != null) {
+            this.assigneeId = ass.getName();
+            this.assignee = ass.getDisplayName();
+        }
+        BasicUser rep = issue.getReporter();
+        if (rep != null) {
+            this.reporterId = rep.getName();
+            this.reporter = rep.getDisplayName();
         }
 
         BasicPriority prio = issue.getPriority();
@@ -310,6 +352,122 @@ public class JIRAIssueBean implements JIRAIssue {
         DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
         this.created = df.format(issue.getCreationDate().toDate());
         this.updated = df.format(issue.getUpdateDate().toDate());
+        this.subTaskList = Lists.newArrayList();
+        Iterable<Subtask> subtasks = issue.getSubtasks();
+        if (subtasks != null) {
+            for (Subtask subtask : subtasks) {
+                this.subTaskList.add(subtask.getIssueKey());
+            }
+        }
+        this.components = Lists.newArrayList();
+        Iterable<BasicComponent> components = issue.getComponents();
+        if (components != null) {
+            for (BasicComponent component : components) {
+                this.components.add(new JIRAComponentBean(component.getId(), component.getName()));
+            }
+        }
+        this.affectsVersions = Lists.newArrayList();
+        Iterable<Version> aVersions = issue.getAffectedVersions();
+        if (aVersions != null) {
+            for (Version v : aVersions) {
+                this.affectsVersions.add(new JIRAVersionBean(v.getId(), v.getName(), v.isReleased()));
+            }
+        }
+        this.fixVersions = Lists.newArrayList();
+        Iterable<Version> fVersions = issue.getFixVersions();
+        if (fVersions != null) {
+            for (Version v : fVersions) {
+                this.fixVersions.add(new JIRAVersionBean(v.getId(), v.getName(), v.isReleased()));
+            }
+        }
+        this.issueLinks = Maps.newHashMap();
+        Iterable<IssueLink> links = issue.getIssueLinks();
+
+        for (IssueLink link : links) {
+            String linkName = link.getIssueLinkType().getName();
+            Map<String, List<String>> map = issueLinks.get(linkName);
+            if (map == null) {
+                map = Maps.newHashMap();
+            }
+            String description = link.getIssueLinkType().getDescription();
+            List<String> issueKeys = map.get(description);
+            if (issueKeys == null) {
+                issueKeys = Lists.newArrayList();
+            }
+            issueKeys.add(link.getTargetIssueKey());
+            map.put(description, issueKeys);
+
+            issueLinks.put(linkName, map);
+        }
+
+        Iterable<Comment> comments = issue.getComments();
+        if (comments != null) {
+            this.commentsList = Lists.newArrayList();
+            for (Comment comment : comments) {
+                Long cmtId = comment.getId();
+                BasicUser commentAuthor = comment.getAuthor();
+                Calendar created = comment.getCreationDate().toGregorianCalendar();
+                created.setTimeZone(comment.getCreationDate().getZone().toTimeZone());
+                this.commentsList.add(new JIRACommentBean(
+                        cmtId != null ? cmtId.toString() : "",
+                        commentAuthor != null ? commentAuthor.getName() : "unknown",
+                        getHtmlBodyForComment(issue, comment), created));
+            }
+        }
+
+        JSONObject rfs = getRenderedFields(issue.getRawObject());
+        if (rfs != null) {
+            JSONObject timetracking = JsonParseUtil.getOptionalJsonObject(rfs, "timetracking");
+            if (timetracking != null) {
+                this.originalEstimate = JsonParseUtil.getOptionalString(timetracking, "originalEstimate");
+                this.remainingEstimate = JsonParseUtil.getOptionalString(timetracking, "remainingEstimate");
+                this.timeSpent = JsonParseUtil.getOptionalString(timetracking, "timeSpent");
+                try {
+                    this.originalEstimateInSeconds = Optional.fromNullable(JsonParseUtil.getOptionalLong(timetracking, "originalEstimateSeconds")).or(0L).toString();
+                    this.remainingEstimateInSeconds = Optional.fromNullable(JsonParseUtil.getOptionalLong(timetracking, "remainingEstimateSeconds")).or(0L).toString();
+                    this.timeSpentInSeconds = Optional.fromNullable(JsonParseUtil.getOptionalLong(timetracking, "timeSpentSeconds")).or(0L).toString();
+                } catch (JSONException e) {
+                    // buu
+                }
+            }
+        }
+    }
+
+    private String getHtmlDescription(Issue issue) {
+        JSONObject rf = getRenderedFields(issue.getRawObject());
+        if (rf == null) {
+            return issue.getDescription();
+        }
+        String result = JsonParseUtil.getOptionalString(rf, "description");
+        return result != null ? result : issue.getDescription();
+    }
+
+    private String getHtmlBodyForComment(Issue issue, Comment comment) {
+        JSONObject rf = getRenderedFields(issue.getRawObject());
+
+        if (rf == null) {
+            return comment.getBody();
+        }
+
+        try {
+            JSONArray array = rf.getJSONObject("comment").getJSONArray("comments");
+            for (int i = 0; i < array.length(); ++i) {
+                JSONObject element = (JSONObject) array.get(i);
+                if (Objects.equal(element.getLong("id"), comment.getId())) {
+                    return element.getString("body");
+                }
+            }
+        } catch (Exception e) {
+            // well?
+        }
+        return comment.getBody();
+    }
+
+    private static JSONObject getRenderedFields(JSONObject issue) {
+        if (issue == null) {
+            return null;
+        }
+        return JsonParseUtil.getOptionalJsonObject(issue, IssueRestClient.Expandos.RENDERED_FIELDS.getFieldName());
     }
 
     public JIRAPriorityBean getPriorityConstant() {
@@ -453,7 +611,11 @@ public class JIRAIssueBean implements JIRAIssue {
 		return description;
 	}
 
-	public void setSummary(String summary) {
+    public String getWikiDescription() {
+        return wikiDescription;
+    }
+
+    public void setSummary(String summary) {
 		this.summary = summary;
 	}
 
@@ -641,12 +803,12 @@ public class JIRAIssueBean implements JIRAIssue {
 		return commentsList;
 	}
 
-    public Object getRawSoapIssue() {
-		return rawSoapIssue;
+    public Object getApiIssueObject() {
+		return apiIssueObejct;
 	}
 
-	public void setRawSoapIssue(Object soapIssue) {
-		rawSoapIssue = soapIssue;
+	public void setApiIssueObejct(Object soapIssue) {
+		apiIssueObejct = soapIssue;
 	}
 
 	public JIRASecurityLevelBean getSecurityLevel() {

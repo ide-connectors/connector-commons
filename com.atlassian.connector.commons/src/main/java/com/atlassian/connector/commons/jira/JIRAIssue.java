@@ -56,6 +56,8 @@ public interface JIRAIssue {
 
 	String getDescription();
 
+    String getWikiDescription();
+
 	JIRAConstant getTypeConstant();
 
 	JIRAConstant getStatusConstant();
@@ -124,9 +126,9 @@ public interface JIRAIssue {
 
 	List<JIRAComment> getComments();
 
-	Object getRawSoapIssue();
+	Object getApiIssueObject();
 
-	void setRawSoapIssue(Object soapIssue);
+	void setApiIssueObejct(Object soapIssue);
 
 	JIRASecurityLevelBean getSecurityLevel();
     List<JiraCustomField> getCustomFields();

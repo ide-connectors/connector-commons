@@ -358,7 +358,7 @@ public class JIRASoapSessionImpl implements JIRASessionPartOne {
             issueBean.setProjectKey(rIssue.getProject());
             issueBean.setSummary(rIssue.getSummary());
 
-            issueBean.setRawSoapIssue(rIssue);
+            issueBean.setApiIssueObejct(rIssue);
 
             return issueBean;
 

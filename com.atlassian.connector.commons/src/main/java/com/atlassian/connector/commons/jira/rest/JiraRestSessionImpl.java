@@ -4,17 +4,23 @@ import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.jira.*;
 import com.atlassian.connector.commons.jira.beans.*;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
+import com.atlassian.jira.rest.client.IssueRestClient;
 import com.atlassian.jira.rest.client.JiraRestClient;
 import com.atlassian.jira.rest.client.NullProgressMonitor;
 import com.atlassian.jira.rest.client.OptionalIterable;
 import com.atlassian.jira.rest.client.domain.*;
 import com.atlassian.jira.rest.client.internal.ServerVersionConstants;
 import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClientFactory;
+import com.atlassian.jira.rest.client.internal.json.JsonParseUtil;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 import com.atlassian.theplugin.commons.util.HttpConfigurableAdapter;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONObject;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -218,8 +224,23 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         });
     }
 
-    public List<JIRAAction> getAvailableActions(JIRAIssue issue) throws RemoteApiException {
-        throw nyi();
+    public List<JIRAAction> getAvailableActions(final JIRAIssue issue) throws RemoteApiException {
+        return wrapWithRemoteApiException(new Callable<List<JIRAAction>>() {
+            @Override
+            public List<JIRAAction> call() throws Exception {
+                Issue iszju = (Issue) issue.getApiIssueObject();
+                Optional<JSONArray> transitions = JsonParseUtil.getOptionalArray(iszju.getRawObject(), "transitions");
+                List<JIRAAction> result = Lists.newArrayList();
+                if (transitions.isPresent()) {
+                    JSONArray array = transitions.get();
+                    for (int i = 0; i < array.length(); ++i) {
+                        JSONObject transition = (JSONObject) array.get(i);
+                        result.add(new JIRAActionBean(transition.getLong("id"), transition.getString("name")));
+                    }
+                }
+                return result;
+            }
+        });
     }
 
     public List<JIRAActionField> getFieldsForAction(JIRAIssue issue, JIRAAction action) throws RemoteApiException {
@@ -239,19 +260,52 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
     }
 
     public void setFields(JIRAIssue issue, List<JIRAActionField> fields) throws RemoteApiException {
-        throw nyi();
     }
 
-    public JIRAUserBean getUser(String loginName) throws RemoteApiException, JiraUserNotFoundException {
-        throw nyi();
+    public JIRAUserBean getUser(final String loginName) throws RemoteApiException, JiraUserNotFoundException {
+        return wrapWithRemoteApiException(new Callable<JIRAUserBean>() {
+            @Override
+            public JIRAUserBean call() throws Exception {
+                User user = restClient.getUserClient().getUser(loginName, pm);
+                JIRAUserBean u = new JIRAUserBean(-1, user.getDisplayName(), user.getName()) {
+                    @Override
+                    public String getQueryStringFragment() {
+                        return null;
+                    }
+
+                    @Override
+                    public JIRAQueryFragment getClone() {
+                        return null;
+                    }
+                };
+                return u;
+            }
+        });
     }
 
-    public List<JIRAComment> getComments(JIRAIssue issue) throws RemoteApiException {
-        throw nyi();
+    public List<JIRAComment> getComments(final JIRAIssue issue) throws RemoteApiException {
+        if (issue.getComments() == null) {
+            return Lists.newArrayList();
+        }
+        return issue.getComments();
     }
 
-    public Collection<JIRAAttachment> getIssueAttachements(JIRAIssue issue) throws RemoteApiException {
-        throw nyi();
+    public Collection<JIRAAttachment> getIssueAttachements(final JIRAIssue issue) throws RemoteApiException {
+        return wrapWithRemoteApiException(new Callable<Collection<JIRAAttachment>>() {
+            @Override
+            public Collection<JIRAAttachment> call() throws Exception {
+                Issue iszju = (Issue) issue.getApiIssueObject();
+                List<JIRAAttachment> result = Lists.newArrayList();
+                for (Attachment attachment : iszju.getAttachments()) {
+                    Long id = attachment.getId();
+                    JIRAAttachment a = new JIRAAttachment(
+                        id != null ? id.toString() : "-1", attachment.getAuthor().getName(), attachment.getFilename(),
+                        attachment.getSize(), attachment.getMimeType(), attachment.getCreationDate().toGregorianCalendar());
+                    result.add(a);
+                }
+                return result;
+            }
+        });
     }
 
     public List<JIRASecurityLevelBean> getSecurityLevels(String projectKey) throws RemoteApiException {
@@ -291,8 +345,14 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         });
     }
 
-    public JIRAIssue getIssue(String issueKey) throws JIRAException {
-        throw nyij();
+    public JIRAIssue getIssue(final String issueKey) throws JIRAException {
+        return wrapWithJiraException(new Callable<JIRAIssue>() {
+            @Override
+            public JIRAIssue call() throws Exception {
+                Issue issue = restClient.getIssueClient().getIssue(issueKey, ImmutableList.of(IssueRestClient.Expandos.RENDERED_FIELDS), pm);
+                return new JIRAIssueBean(server.getUrl(), issue);
+            }
+        });
     }
 
     public JIRAIssue getIssueDetails(JIRAIssue issue) throws RemoteApiException {

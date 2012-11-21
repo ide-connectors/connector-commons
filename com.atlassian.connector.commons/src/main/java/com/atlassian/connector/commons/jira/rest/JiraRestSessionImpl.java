@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Calendar;
@@ -294,7 +295,8 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         return wrapWithRemoteApiException(new Callable<Collection<JIRAAttachment>>() {
             @Override
             public Collection<JIRAAttachment> call() throws Exception {
-                Issue iszju = (Issue) issue.getApiIssueObject();
+//                Issue iszju = (Issue) issue.getApiIssueObject();
+                Issue iszju = restClient.getIssueClient().getIssue(issue.getKey(), pm);
                 List<JIRAAttachment> result = Lists.newArrayList();
                 for (Attachment attachment : iszju.getAttachments()) {
                     Long id = attachment.getId();
@@ -367,12 +369,26 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         throw nyi();
     }
 
-    public void addComment(String issueKey, String comment) throws RemoteApiException {
-        throw nyi();
+    public void addComment(final String issueKey, final String comment) throws RemoteApiException {
+        wrapWithRemoteApiException(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                Issue issue = restClient.getIssueClient().getIssue(issueKey, pm);
+                restClient.getIssueClient().addComment(pm, issue.getCommentsUri(), Comment.valueOf(comment));
+                return null;
+            }
+        });
     }
 
-    public void addAttachment(String issueKey, String name, byte[] content) throws RemoteApiException {
-        throw nyi();
+    public void addAttachment(final String issueKey, final String name, final byte[] content) throws RemoteApiException {
+        wrapWithRemoteApiException(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                Issue issue = restClient.getIssueClient().getIssue(issueKey, pm);
+                restClient.getIssueClient().addAttachment(pm, issue.getAttachmentsUri(), new ByteArrayInputStream(content), name);
+                return null;
+            }
+        });
     }
 
     public JIRAIssue createIssue(JIRAIssue issue) throws RemoteApiException {

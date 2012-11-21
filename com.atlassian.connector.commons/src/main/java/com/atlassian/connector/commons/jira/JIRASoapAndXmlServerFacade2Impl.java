@@ -54,6 +54,11 @@ public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 
         this.callback = callback;
         this.axisCallback = axisCallback;
     }
+
+    @Override
+    public void reset() {
+    }
+
     public static void setLogger(Logger logger) {
         JIRASoapAndXmlServerFacade2Impl.logger = logger;
     }

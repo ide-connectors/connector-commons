@@ -24,6 +24,10 @@ public class JiraRESTFacade2Impl implements JIRAServerFacade2, JiraRESTSupportTe
 
     private Map<ConnectionCfg, JiraRestSessionImpl> sessions = new HashMap<ConnectionCfg, JiraRestSessionImpl>();
 
+    @Override
+    public void reset() {
+    }
+
     public static void setLogger(Logger logger) {
         JiraRESTFacade2Impl.logger = logger;
     }

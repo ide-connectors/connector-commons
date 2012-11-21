@@ -211,7 +211,7 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                 List<JIRAQueryFragment> result = Lists.newArrayList();
                 for (FavouriteFilter filter : filters) {
                     Long id = filter.getId();
-                    result.add(new JIRASavedFilterBean(filter.getName(), id != null ? id : -1, filter.getJql(), filter.getSearchUrl(), filter.getViewUrl()));
+                    result.add(new JIRASavedFilterBean(filter.getName(), id != null ? id : -1, filter.getJql().replace("\\\"", "\""), filter.getSearchUrl(), filter.getViewUrl()));
                 }
                 return result;
             }
@@ -274,7 +274,12 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         return wrapWithJiraException(new Callable<List<JIRAIssue>>() {
             @Override
             public List<JIRAIssue> call() throws Exception {
-                String sort = StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder) ? " order by " + sortBy + " " + sortOrder : "";
+                String sort =
+                        jql.toLowerCase().contains("order by")
+                            ? ""
+                            : (StringUtils.isNotEmpty(sortBy) && StringUtils.isNotEmpty(sortOrder)
+                                ? " order by " + sortBy + " " + sortOrder
+                                : "");
                 SearchResult result = restClient.getSearchClient().searchJqlWithFullIssues(jql + sort, max, start, pm);
                 List<JIRAIssue> list = Lists.newArrayList();
                 for (BasicIssue issue : result.getIssues()) {

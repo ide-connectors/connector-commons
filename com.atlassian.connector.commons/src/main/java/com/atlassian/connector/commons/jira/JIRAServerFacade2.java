@@ -115,4 +115,6 @@ public interface JIRAServerFacade2 extends ProductServerFacade {
             throws JIRAException;
 
     List<JIRASecurityLevelBean> getSecurityLevels(ConnectionCfg connectionCfg, String projectKey) throws JIRAException;
+
+    void reset();
 }

@@ -80,6 +80,12 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         );
     }
 
+    @Override
+    public void reset() {
+        restCapable.clear();
+        notRestCapable.clear();
+    }
+
     public static void setLogger(Logger logger) {
         JIRASoapAndXmlServerFacade2Impl.setLogger(logger);
         JiraRESTFacade2Impl.setLogger(logger);

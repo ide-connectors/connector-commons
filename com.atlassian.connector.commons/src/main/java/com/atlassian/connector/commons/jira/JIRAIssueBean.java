@@ -148,7 +148,7 @@ public class JIRAIssueBean implements JIRAIssue {
 		} catch (NumberFormatException ex) {
 			this.statusId = 0;
 		}
-		this.priority = getTextSafety(e, "priority", "Unknown");
+		this.priority = getTextSafely(e, "priority", "Unknown");
 		this.priorityUrl = getAttributeSafely(e, "priority", "iconUrl");
 		try {
 			this.priorityId = Long.parseLong(getAttributeSafely(e, "priority", "id"));
@@ -302,6 +302,7 @@ public class JIRAIssueBean implements JIRAIssue {
         this.serverUrl = url;
         this.id = issue.getId();
         this.key = issue.getKey();
+        this.projectKey = issue.getProject().getKey();
         this.thisIsASubTask = issue.getIssueType().isSubtask();
         if (thisIsASubTask) {
             Object parent = issue.getField("parent").getValue();
@@ -500,7 +501,7 @@ public class JIRAIssueBean implements JIRAIssue {
 		}
 	}
 
-    private String getTextSafety(Element e, String name, String defaultName) {
+    private String getTextSafely(Element e, String name, String defaultName) {
         String text = getTextSafely(e, name);
 
         return text != null ? text : defaultName;

@@ -74,7 +74,7 @@ public class JIRAIssueBean implements JIRAIssue {
 	private String remainingEstimate;
 	private String timeSpent;
 	private List<JIRAComment> commentsList;
-	private Object apiIssueObejct;
+	private Object apiIssueObject;
 	private String originalEstimateInSeconds;
 	private String remainingEstimateInSeconds;
 	private String timeSpentInSeconds;
@@ -126,7 +126,7 @@ public class JIRAIssueBean implements JIRAIssue {
         this.remainingEstimate = issue.getRemainingEstimate();
         this.timeSpent = issue.getTimeSpent();
         this.commentsList = issue.getComments();
-        this.apiIssueObejct = issue.getApiIssueObject();
+        this.apiIssueObject = issue.getApiIssueObject();
         this.originalEstimateInSeconds = issue.getOriginalEstimateInSeconds();
         this.remainingEstimateInSeconds = issue.getRemainingEstimateInSeconds();
         this.timeSpentInSeconds = issue.getTimeSpentInSeconds();
@@ -298,7 +298,7 @@ public class JIRAIssueBean implements JIRAIssue {
     public JIRAIssueBean(String url, Issue issue) {
         locale = Locale.US;
 
-        this.apiIssueObejct = issue;
+        this.apiIssueObject = issue;
         this.serverUrl = url;
         this.id = issue.getId();
         this.key = issue.getKey();
@@ -805,11 +805,11 @@ public class JIRAIssueBean implements JIRAIssue {
 	}
 
     public Object getApiIssueObject() {
-		return apiIssueObejct;
+		return apiIssueObject;
 	}
 
-	public void setApiIssueObejct(Object soapIssue) {
-		apiIssueObejct = soapIssue;
+	public void setApiIssueObject(Object o) {
+		apiIssueObject = o;
 	}
 
 	public JIRASecurityLevelBean getSecurityLevel() {
@@ -826,5 +826,10 @@ public class JIRAIssueBean implements JIRAIssue {
 
     public Locale getLocale() {
         return locale;
+    }
+
+    @Override
+    public boolean usesRest() {
+        return apiIssueObject instanceof Issue;
     }
 }

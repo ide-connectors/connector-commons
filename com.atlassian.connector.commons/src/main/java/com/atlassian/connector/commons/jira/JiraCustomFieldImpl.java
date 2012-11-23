@@ -36,7 +36,7 @@ public class JiraCustomFieldImpl implements JiraCustomField {
         this(builder.id, builder.name, builder.values, builder.typeKey);
     }
 
-    protected JiraCustomFieldImpl(String id, String name,  List<String> values, BasicKeyType typeKey) {
+    protected JiraCustomFieldImpl(String id, String name, List<String> values, BasicKeyType typeKey) {
         this.id = id;
         if (values != null) {
             this.values.addAll(values);
@@ -49,6 +49,7 @@ public class JiraCustomFieldImpl implements JiraCustomField {
     public boolean isSupported() {
         return !BasicKeyType.UNSUPPORTED.equals(typeKey) && !BasicKeyType.DATE_TIME.equals(typeKey);
     }
+
     public String getId() {
         return id;
     }
@@ -56,8 +57,8 @@ public class JiraCustomFieldImpl implements JiraCustomField {
     public BasicKeyType getTypeKey() {
         return typeKey;
     }
-    
-//    @Nullable
+
+    //    @Nullable
     public List<String> getValues() {
         return values;
     }
@@ -76,7 +77,7 @@ public class JiraCustomFieldImpl implements JiraCustomField {
         TEXT_AREA("com.atlassian.jira.plugin.system.customfieldtypes:textarea"),
         URL("com.atlassian.jira.plugin.system.customfieldtypes:url"),
         DATE_TIME("com.atlassian.jira.plugin.system.customfieldtypes:datetime"),
-        DATE_PICKER("com.atlassian.jira.plugin.system.customfieldtypes:datepicker"),        
+        DATE_PICKER("com.atlassian.jira.plugin.system.customfieldtypes:datepicker"),
         UNSUPPORTED("");
 
         private final String keyValue;
@@ -98,50 +99,52 @@ public class JiraCustomFieldImpl implements JiraCustomField {
             return BasicKeyType.UNSUPPORTED;
         }
     }
+
     public static class Builder {
         private BasicKeyType typeKey;
         private String id;
         private String name;
         private List<String> values = new ArrayList<String>();
 
-       public Builder(Element e) {
-        if (e != null) {
-            Attribute keyAttribute = e.getAttribute("key");
-            if (keyAttribute != null && keyAttribute.getValue() != null) {
-                typeKey = BasicKeyType.getValueOf(keyAttribute.getValue());
-            }
-            Attribute idAttribute = e.getAttribute("id");
-            if (idAttribute != null && idAttribute.getValue() != null) {
-                this.id = idAttribute.getValue();
-            }
-            Element nameElement = (Element) e.getChild("customfieldname");
-            if (nameElement != null && nameElement.getText() != null) {
-                name = nameElement.getText();
-            }
+        public Builder(Element e) {
+            if (e != null) {
+                Attribute keyAttribute = e.getAttribute("key");
+                if (keyAttribute != null && keyAttribute.getValue() != null) {
+                    typeKey = BasicKeyType.getValueOf(keyAttribute.getValue());
+                }
+                Attribute idAttribute = e.getAttribute("id");
+                if (idAttribute != null && idAttribute.getValue() != null) {
+                    this.id = idAttribute.getValue();
+                }
+                Element nameElement = (Element) e.getChild("customfieldname");
+                if (nameElement != null && nameElement.getText() != null) {
+                    name = nameElement.getText();
+                }
 
-            Element valuesElement = (Element) e.getChild("customfieldvalues");
-            if (valuesElement != null) {
-                for (int i = 0; i < valuesElement.getChildren().size(); i++) {
-                    Element singleValueElement = (Element) valuesElement.getChildren().get(i);
-                    if (singleValueElement != null && singleValueElement.getValue() != null) {
-                        values.add(singleValueElement.getValue());
+                Element valuesElement = (Element) e.getChild("customfieldvalues");
+                if (valuesElement != null) {
+                    for (int i = 0; i < valuesElement.getChildren().size(); i++) {
+                        Element singleValueElement = (Element) valuesElement.getChildren().get(i);
+                        if (singleValueElement != null && singleValueElement.getValue() != null) {
+                            values.add(singleValueElement.getValue());
+                        }
                     }
                 }
             }
+
         }
 
-    }
-          public JiraCustomField build() {
-              switch(typeKey) {
-                  case DATE_PICKER:
-                      return new JiraDatePickerCustomField(this);
-                  case DATE_TIME:
-                      return new JiraDateTImeCustomField(this);
-                  case URL:
-                      return new JiraUrlCustomField(this);
-                  default:
-                      return new JiraCustomFieldImpl(this);
-              }
-          }
+        public JiraCustomField build() {
+            switch (typeKey) {
+                case DATE_PICKER:
+                    return new JiraDatePickerCustomField(this);
+                case DATE_TIME:
+                    return new JiraDateTimeCustomField(this);
+                case URL:
+                    return new JiraUrlCustomField(this);
+                default:
+                    return new JiraCustomFieldImpl(this);
+            }
+        }
     }
 }

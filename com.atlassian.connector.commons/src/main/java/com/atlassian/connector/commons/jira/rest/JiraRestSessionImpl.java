@@ -11,18 +11,17 @@ import com.atlassian.jira.rest.client.OptionalIterable;
 import com.atlassian.jira.rest.client.domain.*;
 import com.atlassian.jira.rest.client.domain.input.ComplexIssueInputFieldValue;
 import com.atlassian.jira.rest.client.domain.input.FieldInput;
+import com.atlassian.jira.rest.client.domain.input.TransitionInput;
 import com.atlassian.jira.rest.client.internal.ServerVersionConstants;
 import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClientFactory;
 import com.atlassian.jira.rest.client.internal.json.JsonParseUtil;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 import com.atlassian.theplugin.commons.util.HttpConfigurableAdapter;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
@@ -233,27 +232,51 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         return wrapWithRemoteApiException(new Callable<List<JIRAAction>>() {
             @Override
             public List<JIRAAction> call() throws Exception {
-                Issue iszju = (Issue) issue.getApiIssueObject();
-                Optional<JSONArray> transitions = JsonParseUtil.getOptionalArray(iszju.getRawObject(), "transitions");
                 List<JIRAAction> result = Lists.newArrayList();
-                if (transitions.isPresent()) {
-                    JSONArray array = transitions.get();
-                    for (int i = 0; i < array.length(); ++i) {
-                        JSONObject transition = (JSONObject) array.get(i);
-                        result.add(new JIRAActionBean(transition.getLong("id"), transition.getString("name")));
-                    }
+                Iterable<Transition> transitions = restClient.getIssueClient().getTransitions((Issue) issue.getApiIssueObject(), pm);
+                for (Transition transition : transitions) {
+                    result.add(new JIRAActionBean(transition.getId(), transition.getName()));
                 }
                 return result;
             }
         });
     }
 
-    public List<JIRAActionField> getFieldsForAction(JIRAIssue issue, JIRAAction action) throws RemoteApiException {
-        throw nyi();
+    public List<JIRAActionField> getFieldsForAction(final JIRAIssue issue, final JIRAAction action) throws RemoteApiException {
+        return wrapWithRemoteApiException(new Callable<List<JIRAActionField>>() {
+            @Override
+            public List<JIRAActionField> call() throws Exception {
+                Iterable<Transition> transitions = restClient.getIssueClient().getTransitions((Issue) issue.getApiIssueObject(), pm);
+                List<JIRAActionField> result = Lists.newArrayList();
+                for (Transition transition : transitions) {
+                    if (transition.getId() != action.getId()) {
+                        continue;
+                    }
+                    for (Transition.Field field : transition.getFields()) {
+                        JIRAActionFieldBean f = new JIRAActionFieldBean(field.getId(), field.getName());
+                        result.add(f);
+                    }
+                    break;
+                }
+                return result;
+            }
+        });
     }
 
-    public void progressWorkflowAction(JIRAIssue issue, JIRAAction action, List<JIRAActionField> fields) throws RemoteApiException {
-        throw nyi();
+    public void progressWorkflowAction(final JIRAIssue issue, final JIRAAction action, List<JIRAActionField> fields) throws RemoteApiException {
+        final List<FieldInput> fieldValues = Lists.newArrayList();
+        if (fields == null || fields.size() == 0) {
+            wrapWithRemoteApiException(new Callable<Object>() {
+                @Override
+                public Object call() throws Exception {
+                    TransitionInput t = new TransitionInput((int) action.getId(), fieldValues);
+                    restClient.getIssueClient().transition((Issue) issue.getApiIssueObject(), t, pm);
+                    return null;
+                }
+            });
+        } else {
+            throw nyi();
+        }
     }
 
     public void setField(JIRAIssue issue, String fieldId, String value) throws RemoteApiException {

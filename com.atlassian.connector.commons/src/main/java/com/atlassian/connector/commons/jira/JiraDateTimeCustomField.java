@@ -21,9 +21,9 @@ import java.util.Locale;
  * @autrhor pmaruszak
  * @date Jul 9, 2010
  */
-public class JiraDateTImeCustomField extends JiraCustomFieldImpl {
+public class JiraDateTimeCustomField extends JiraCustomFieldImpl {
 
-    protected JiraDateTImeCustomField(Builder builder) {
+    protected JiraDateTimeCustomField(Builder builder) {
         super(builder);
     }
 

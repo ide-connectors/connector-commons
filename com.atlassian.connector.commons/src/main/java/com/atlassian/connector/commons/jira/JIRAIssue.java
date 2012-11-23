@@ -128,9 +128,11 @@ public interface JIRAIssue {
 
 	Object getApiIssueObject();
 
-	void setApiIssueObejct(Object soapIssue);
+	void setApiIssueObject(Object soapIssue);
 
 	JIRASecurityLevelBean getSecurityLevel();
     List<JiraCustomField> getCustomFields();
     Locale getLocale();
+
+    boolean usesRest();
 }

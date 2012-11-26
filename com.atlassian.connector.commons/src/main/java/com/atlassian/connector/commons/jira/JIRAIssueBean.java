@@ -16,10 +16,29 @@
 
 package com.atlassian.connector.commons.jira;
 
-import com.atlassian.connector.commons.jira.beans.*;
+import com.atlassian.connector.commons.jira.beans.JIRAComment;
+import com.atlassian.connector.commons.jira.beans.JIRACommentBean;
+import com.atlassian.connector.commons.jira.beans.JIRAComponentBean;
+import com.atlassian.connector.commons.jira.beans.JIRAConstant;
+import com.atlassian.connector.commons.jira.beans.JIRAPriorityBean;
+import com.atlassian.connector.commons.jira.beans.JIRASecurityLevelBean;
+import com.atlassian.connector.commons.jira.beans.JIRAVersionBean;
 import com.atlassian.connector.commons.jira.soap.axis.RemoteIssue;
 import com.atlassian.jira.rest.client.IssueRestClient;
-import com.atlassian.jira.rest.client.domain.*;
+import com.atlassian.jira.rest.client.domain.BasicComponent;
+import com.atlassian.jira.rest.client.domain.BasicIssueType;
+import com.atlassian.jira.rest.client.domain.BasicPriority;
+import com.atlassian.jira.rest.client.domain.BasicResolution;
+import com.atlassian.jira.rest.client.domain.BasicStatus;
+import com.atlassian.jira.rest.client.domain.BasicUser;
+import com.atlassian.jira.rest.client.domain.Comment;
+import com.atlassian.jira.rest.client.domain.Issue;
+import com.atlassian.jira.rest.client.domain.IssueLink;
+import com.atlassian.jira.rest.client.domain.IssueType;
+import com.atlassian.jira.rest.client.domain.Priority;
+import com.atlassian.jira.rest.client.domain.Status;
+import com.atlassian.jira.rest.client.domain.Subtask;
+import com.atlassian.jira.rest.client.domain.Version;
 import com.atlassian.jira.rest.client.internal.json.JsonParseUtil;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
@@ -29,11 +48,15 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.jdom.Element;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class JIRAIssueBean implements JIRAIssue {
 	private Long id;
@@ -698,6 +721,7 @@ public class JIRAIssueBean implements JIRAIssue {
 		this.updated = updated;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -717,6 +741,7 @@ public class JIRAIssueBean implements JIRAIssue {
 
 	private static final int ONE_EFF = 31;
 
+	@Override
 	public int hashCode() {
 		int result = 0;
 
@@ -828,7 +853,6 @@ public class JIRAIssueBean implements JIRAIssue {
         return locale;
     }
 
-    @Override
     public boolean usesRest() {
         return apiIssueObject instanceof Issue;
     }

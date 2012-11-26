@@ -17,16 +17,34 @@
 package com.atlassian.connector.commons.jira;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
-import com.atlassian.connector.commons.jira.beans.*;
+import com.atlassian.connector.commons.jira.beans.JIRAAttachment;
+import com.atlassian.connector.commons.jira.beans.JIRAComment;
+import com.atlassian.connector.commons.jira.beans.JIRAComponentBean;
+import com.atlassian.connector.commons.jira.beans.JIRAConstant;
+import com.atlassian.connector.commons.jira.beans.JIRAPriorityBean;
+import com.atlassian.connector.commons.jira.beans.JIRAProject;
+import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
+import com.atlassian.connector.commons.jira.beans.JIRAResolutionBean;
+import com.atlassian.connector.commons.jira.beans.JIRASavedFilter;
+import com.atlassian.connector.commons.jira.beans.JIRASecurityLevelBean;
+import com.atlassian.connector.commons.jira.beans.JIRAUserBean;
+import com.atlassian.connector.commons.jira.beans.JIRAVersionBean;
+import com.atlassian.connector.commons.jira.beans.JiraFilter;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
 import com.atlassian.connector.commons.jira.soap.AxisSessionCallback;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.Logger;
-
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
     private static Logger logger;
@@ -34,8 +52,8 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
     private JIRASoapAndXmlServerFacade2Impl soapAndXmlFacade;
     private JiraRESTFacade2Impl restFacade;
 
-    private Set<ConnectionCfg> restCapable = new HashSet<ConnectionCfg>();
-    private Set<ConnectionCfg> notRestCapable = new HashSet<ConnectionCfg>();
+    private final Set<ConnectionCfg> restCapable = new HashSet<ConnectionCfg>();
+    private final Set<ConnectionCfg> notRestCapable = new HashSet<ConnectionCfg>();
 
     JIRAServerFacade2 worker;
 
@@ -80,7 +98,6 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         );
     }
 
-    @Override
     public void reset() {
         restCapable.clear();
         notRestCapable.clear();
@@ -104,12 +121,10 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
 //    }
 
 
-    @Override
     public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, JiraFilter filter, String sort, String sortOrder, int start, int size) throws JIRAException {
         return worker.getIssues(httpConnectionCfg, filter, sort, sortOrder, start, size);
     }
 
-    @Override
     public List<JIRAIssue> getSavedFilterIssues(ConnectionCfg httpConnectionCfg, JIRASavedFilter filter, String sort, String sortOrder, int start, int size) throws JIRAException {
         return worker.getSavedFilterIssues(httpConnectionCfg, filter, sort, sortOrder, start, size);
     }

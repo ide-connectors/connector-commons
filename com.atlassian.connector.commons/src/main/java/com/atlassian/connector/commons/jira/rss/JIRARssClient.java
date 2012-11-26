@@ -30,7 +30,12 @@ import com.atlassian.connector.commons.jira.beans.JIRASavedFilter;
 import com.atlassian.connector.commons.jira.beans.JiraFilter;
 import com.atlassian.connector.commons.jira.cache.CachedIconLoader;
 import com.atlassian.theplugin.commons.cfg.UserCfg;
-import com.atlassian.theplugin.commons.remoteapi.*;
+import com.atlassian.theplugin.commons.remoteapi.CaptchaRequiredException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiMalformedUrlException;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
+import com.atlassian.theplugin.commons.remoteapi.ServiceUnavailableException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraServiceUnavailableException;
 import com.atlassian.theplugin.commons.remoteapi.rest.AbstractHttpSession;
@@ -46,9 +51,13 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class JIRARssClient extends AbstractHttpSession implements JIRASessionPartTwo {
 
@@ -125,7 +134,6 @@ public class JIRARssClient extends AbstractHttpSession implements JIRASessionPar
         return locale;
     }
 
-    @Override
     public List<JIRAIssue> getIssues(JiraFilter filter, String sortBy, String sortOrder, int start, int max) throws JIRAException {
 
 //    public List<JIRAIssue> getIssues(String queryString, String sortBy, String sortOrder, int start, int max)
@@ -209,7 +217,6 @@ public class JIRARssClient extends AbstractHttpSession implements JIRASessionPar
 //        }
 //    }
 
-    @Override
     public List<JIRAIssue> getSavedFilterIssues(JIRASavedFilter filter, String sortBy, String sortOrder, int start, int max) throws JIRAException {
 
 //    public List<JIRAIssue> getSavedFilterIssues(JIRAQueryFragment fragment,

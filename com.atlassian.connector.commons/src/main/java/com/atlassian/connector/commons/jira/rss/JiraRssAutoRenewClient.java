@@ -22,7 +22,6 @@ import com.atlassian.connector.commons.jira.beans.JIRASavedFilter;
 import com.atlassian.connector.commons.jira.beans.JiraFilter;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
-
 import java.util.Date;
 import java.util.List;
 
@@ -52,7 +51,6 @@ public class JiraRssAutoRenewClient implements JIRASessionPartTwo {
         return rssClient != null && rssClient.isLoggedIn(server);
     }
 
-    @Override
     public List<JIRAIssue> getIssues(JiraFilter filter, String sortBy, String sortOrder, int start, int max) throws JIRAException {
         return rssClient.getIssues(filter, sortBy, sortOrder, start, max);
     }
@@ -77,7 +75,6 @@ public class JiraRssAutoRenewClient implements JIRASessionPartTwo {
 //    }
 
 
-    @Override
     public List<JIRAIssue> getSavedFilterIssues(JIRASavedFilter filter, String sortBy, String sortOrder, int start, int max) throws JIRAException {
         return rssClient.getSavedFilterIssues(filter, sortBy, sortOrder, start, max);
     }

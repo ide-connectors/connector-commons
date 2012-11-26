@@ -15,11 +15,20 @@
  */
 package com.atlassian.connector.commons.jira;
 
+import com.atlassian.jira.rest.client.domain.Field;
+import com.atlassian.jira.rest.client.domain.input.FieldInput;
+import com.atlassian.jira.rest.client.internal.json.JsonParseUtil;
+import com.google.common.collect.Lists;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.jdom.Attribute;
 import org.jdom.Element;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @autrhor pmaruszak
@@ -47,7 +56,9 @@ public class JiraCustomFieldImpl implements JiraCustomField {
 
 
     public boolean isSupported() {
-        return !BasicKeyType.UNSUPPORTED.equals(typeKey) && !BasicKeyType.DATE_TIME.equals(typeKey);
+        return !BasicKeyType.UNSUPPORTED.equals(typeKey)
+//                && !BasicKeyType.DATE_TIME.equals(typeKey)
+          ;
     }
 
     public String getId() {
@@ -76,7 +87,7 @@ public class JiraCustomFieldImpl implements JiraCustomField {
         TEXT("com.atlassian.jira.plugin.system.customfieldtypes:textfield"),
         TEXT_AREA("com.atlassian.jira.plugin.system.customfieldtypes:textarea"),
         URL("com.atlassian.jira.plugin.system.customfieldtypes:url"),
-        DATE_TIME("com.atlassian.jira.plugin.system.customfieldtypes:datetime"),
+//        DATE_TIME("com.atlassian.jira.plugin.system.customfieldtypes:datetime"),
         DATE_PICKER("com.atlassian.jira.plugin.system.customfieldtypes:datepicker"),
         UNSUPPORTED("");
 
@@ -98,6 +109,26 @@ public class JiraCustomFieldImpl implements JiraCustomField {
             }
             return BasicKeyType.UNSUPPORTED;
         }
+
+        public FieldInput generateJrJcFieldValue(JIRAActionField field) {
+            if (UNSUPPORTED == this
+//                    || DATE_TIME == this
+                    ) {
+                return null;
+            }
+            List<String> values = field.getValues();
+            if (values != null && values.size() > 0) {
+                if (NUMERIC == this) {
+                    return new FieldInput(field.getFieldId(), Float.valueOf(values.get(0)));
+                } else if (DATE_PICKER == this) {
+                    DateTime dt = DateTimeFormat.forPattern("dd/MM/yy").withLocale(Locale.US).parseDateTime(values.get(0));
+                    return new FieldInput(field.getFieldId(), JsonParseUtil.formatDate(dt));
+                }
+                // text and URL fields
+                return new FieldInput(field.getFieldId(), values.get(0));
+            }
+            return new FieldInput(field.getFieldId(), null);
+        }
     }
 
     public static class Builder {
@@ -105,6 +136,14 @@ public class JiraCustomFieldImpl implements JiraCustomField {
         private String id;
         private String name;
         private List<String> values = new ArrayList<String>();
+
+        public Builder(JSONObject meta, Field field) throws JSONException {
+            JSONObject schema = meta.getJSONObject("schema");
+            this.typeKey = BasicKeyType.getValueOf(schema.getString("custom"));
+            this.name = meta.getString("name");
+            this.id = field.getId();
+            values = Lists.newArrayList((String) field.getValue());
+        }
 
         public Builder(Element e) {
             if (e != null) {
@@ -138,8 +177,8 @@ public class JiraCustomFieldImpl implements JiraCustomField {
             switch (typeKey) {
                 case DATE_PICKER:
                     return new JiraDatePickerCustomField(this);
-                case DATE_TIME:
-                    return new JiraDateTimeCustomField(this);
+//                case DATE_TIME:
+//                    return new JiraDateTimeCustomField(this);
                 case URL:
                     return new JiraUrlCustomField(this);
                 default:

@@ -432,6 +432,21 @@ public class JIRAIssueBean implements JIRAIssue {
                 }
             }
         }
+        JSONObject editmeta = JsonParseUtil.getOptionalJsonObject(issue.getRawObject(), "editmeta");
+        JSONObject fields = editmeta != null ? JsonParseUtil.getOptionalJsonObject(editmeta, "fields") : null;
+        basicCustomFields = Lists.newArrayList();
+        if (fields != null) {
+            for (Field field : issue.getFields()) {
+                if (!field.getId().startsWith("customfield_")) {
+                    continue;
+                }
+                try {
+                    basicCustomFields.add(new JiraCustomFieldImpl.Builder((JSONObject) fields.get(field.getId()), field).build());
+                } catch (JSONException e) {
+                    // just skip. Treat as missing meta
+                }
+            }
+        }
     }
 
     private String getHtmlDescription(Issue issue) {

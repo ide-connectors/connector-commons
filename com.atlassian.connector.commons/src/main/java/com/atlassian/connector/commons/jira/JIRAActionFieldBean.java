@@ -16,7 +16,12 @@
 
 package com.atlassian.connector.commons.jira;
 
+import com.atlassian.connector.commons.FieldValueGeneratorFactory;
 import com.atlassian.connector.commons.jira.beans.AbstractJIRAConstantBean;
+import com.atlassian.jira.rest.client.domain.input.FieldInput;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +30,8 @@ public class JIRAActionFieldBean extends AbstractJIRAConstantBean implements JIR
 	private String fieldId;
 
 	private List<String> fieldValues = new ArrayList<String>();
+
+    private static FieldValueGeneratorFactory generatorFactory;
 
 	public JIRAActionFieldBean(String fieldId, String name) {
 		super(fieldId.hashCode(), name, null);
@@ -35,7 +42,11 @@ public class JIRAActionFieldBean extends AbstractJIRAConstantBean implements JIR
 		this(other.getFieldId(), other.getName());
 	}
 
-	public String getFieldId() {
+    public static void setGeneratorFactory(FieldValueGeneratorFactory generatorFactory) {
+        JIRAActionFieldBean.generatorFactory = generatorFactory;
+    }
+
+    public String getFieldId() {
 		return fieldId;
 	}
 
@@ -60,4 +71,12 @@ public class JIRAActionFieldBean extends AbstractJIRAConstantBean implements JIR
 		return new JIRAActionFieldBean(this);
 	}
 
+    public FieldInput generateFieldValue(JIRAIssue issue, JSONObject fieldDef) throws JSONException, RemoteApiException {
+        if (generatorFactory == null) {
+            throw new RemoteApiException("Field Value Generator Factory not set");
+        }
+
+        FieldValueGenerator generator = generatorFactory.get(this, fieldDef);
+        return generator.generateJrJcFieldValue(issue, this, fieldDef);
+    }
 }

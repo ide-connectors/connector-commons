@@ -17,6 +17,10 @@
 package com.atlassian.connector.commons.jira;
 
 import com.atlassian.connector.commons.jira.beans.JIRAConstant;
+import com.atlassian.jira.rest.client.domain.input.FieldInput;
+import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 
 import java.util.List;
 
@@ -30,4 +34,6 @@ public interface JIRAActionField extends JIRAConstant {
 	void addValue(String val);
 
 	String getName();
+
+    FieldInput generateFieldValue(JIRAIssue issue, JSONObject fieldMetadata) throws JSONException, RemoteApiException;
 }

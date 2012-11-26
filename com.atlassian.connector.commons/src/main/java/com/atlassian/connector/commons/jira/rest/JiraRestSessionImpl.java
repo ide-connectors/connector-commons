@@ -9,7 +9,6 @@ import com.atlassian.jira.rest.client.JiraRestClient;
 import com.atlassian.jira.rest.client.NullProgressMonitor;
 import com.atlassian.jira.rest.client.OptionalIterable;
 import com.atlassian.jira.rest.client.domain.*;
-import com.atlassian.jira.rest.client.domain.input.ComplexIssueInputFieldValue;
 import com.atlassian.jira.rest.client.domain.input.FieldInput;
 import com.atlassian.jira.rest.client.domain.input.TransitionInput;
 import com.atlassian.jira.rest.client.internal.ServerVersionConstants;
@@ -19,7 +18,6 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 import com.atlassian.theplugin.commons.util.HttpConfigurableAdapter;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONException;
@@ -263,7 +261,7 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         });
     }
 
-    public void progressWorkflowAction(final JIRAIssue issue, final JIRAAction action, List<JIRAActionField> fields) throws RemoteApiException {
+    public void progressWorkflowAction(final JIRAIssue issue, final JIRAAction action, final List<JIRAActionField> fields) throws RemoteApiException {
         final List<FieldInput> fieldValues = Lists.newArrayList();
         if (fields == null || fields.size() == 0) {
             wrapWithRemoteApiException(new Callable<Object>() {
@@ -275,7 +273,16 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                 }
             });
         } else {
-            throw nyi();
+            wrapWithRemoteApiException(new Callable<Object>() {
+                @Override
+                public Object call() throws Exception {
+                    Issue iszju = restClient.getIssueClient().getIssue(issue.getKey(), ImmutableList.of(IssueRestClient.Expandos.EDITMETA), pm);
+                    fieldValues.addAll(generateFieldValues(issue, iszju, fields));
+                    TransitionInput t = new TransitionInput((int) action.getId(), fieldValues);
+                    restClient.getIssueClient().transition((Issue) issue.getApiIssueObject(), t, pm);
+                    return null;
+                }
+            });
         }
     }
 
@@ -298,14 +305,14 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
             @Override
             public Object call() throws Exception {
                 Issue iszju = restClient.getIssueClient().getIssue(issue.getKey(), ImmutableList.of(IssueRestClient.Expandos.EDITMETA), pm);
-                restClient.getIssueClient().update(iszju, generateFieldValues(iszju, fields), pm);
+                restClient.getIssueClient().update(iszju, generateFieldValues(issue, iszju, fields), pm);
                 return null;
             }
         });
     }
 
-    private Iterable<FieldInput> generateFieldValues(Issue issue, List<JIRAActionField> fieldValues) throws RemoteApiException {
-        JSONObject editmeta = JsonParseUtil.getOptionalJsonObject(issue.getRawObject(), "editmeta");
+    private Collection<FieldInput> generateFieldValues(final JIRAIssue issue, final Issue iszju, List<JIRAActionField> fieldValues) throws RemoteApiException {
+        JSONObject editmeta = JsonParseUtil.getOptionalJsonObject(iszju.getRawObject(), "editmeta");
         if (editmeta == null) {
             throw new RemoteApiException("Unable to retrieve issue's editmeta information");
         }
@@ -316,7 +323,10 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                 for (JIRAActionField field : fieldValues) {
                     JSONObject fieldDef = JsonParseUtil.getOptionalJsonObject(fields, field.getFieldId());
                     if (fieldDef != null) {
-                        result.add(generateFieldValue(field, fieldDef));
+                        FieldInput fieldInput = field.generateFieldValue(issue, fieldDef);
+                        if (fieldInput != null) {
+                            result.add(fieldInput);
+                        }
                     }
                 }
                 return result;
@@ -325,28 +335,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
             throw new RemoteApiException("Unable to generate field values", e);
         }
         return null;
-    }
-
-    private FieldInput generateFieldValue(JIRAActionField field, JSONObject fieldDef) throws JSONException, RemoteApiException {
-        JSONObject schema = (JSONObject) fieldDef.get("schema");
-        String type = schema.getString("type");
-        if ("string".equals(type)) {
-            List<String> values = field.getValues();
-            return new FieldInput(field.getFieldId(), values != null && values.size() > 0 ? values.get(0) : null);
-        } else if ("array".equals(type)) {
-            String items = schema.getString("items");
-            if ("version".equals(items)) {
-                List<ComplexIssueInputFieldValue> versions = Lists.newArrayList();
-                if (field.getValues() != null) {
-                    for (String ver : field.getValues()) {
-                        ComplexIssueInputFieldValue v = new ComplexIssueInputFieldValue(ImmutableMap.of("id", (Object) ver));
-                        versions.add(v);
-                    }
-                }
-                return new FieldInput(field.getFieldId(), versions);
-            }
-        }
-        throw new RemoteApiException("Generation for field type of \"" + type + "\" for field: \"" + field.getFieldId() + "\" not implemented");
     }
 
     public JIRAUserBean getUser(final String loginName) throws RemoteApiException, JiraUserNotFoundException {
@@ -437,7 +425,8 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         return wrapWithJiraException(new Callable<JIRAIssue>() {
             @Override
             public JIRAIssue call() throws Exception {
-                Issue issue = restClient.getIssueClient().getIssue(issueKey, ImmutableList.of(IssueRestClient.Expandos.RENDERED_FIELDS), pm);
+                Issue issue = restClient.getIssueClient().getIssue(issueKey,
+                        ImmutableList.of(IssueRestClient.Expandos.RENDERED_FIELDS, IssueRestClient.Expandos.EDITMETA), pm);
                 return new JIRAIssueBean(server.getUrl(), issue);
             }
         });

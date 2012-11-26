@@ -4,13 +4,9 @@ import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.jira.*;
 import com.atlassian.connector.commons.jira.beans.*;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
-import com.atlassian.jira.rest.client.IssueRestClient;
-import com.atlassian.jira.rest.client.JiraRestClient;
-import com.atlassian.jira.rest.client.NullProgressMonitor;
-import com.atlassian.jira.rest.client.OptionalIterable;
+import com.atlassian.jira.rest.client.*;
 import com.atlassian.jira.rest.client.domain.*;
-import com.atlassian.jira.rest.client.domain.input.FieldInput;
-import com.atlassian.jira.rest.client.domain.input.TransitionInput;
+import com.atlassian.jira.rest.client.domain.input.*;
 import com.atlassian.jira.rest.client.internal.ServerVersionConstants;
 import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClientFactory;
 import com.atlassian.jira.rest.client.internal.json.JsonParseUtil;
@@ -18,7 +14,9 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 import com.atlassian.theplugin.commons.util.HttpConfigurableAdapter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -26,9 +24,7 @@ import org.codehaus.jettison.json.JSONObject;
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 /**
@@ -384,8 +380,40 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         });
     }
 
-    public List<JIRASecurityLevelBean> getSecurityLevels(String projectKey) throws RemoteApiException {
-        throw nyi();
+    public List<JIRASecurityLevelBean> getSecurityLevels(final String projectKey) throws RemoteApiException {
+        return wrapWithRemoteApiException(new Callable<List<JIRASecurityLevelBean>>() {
+            @Override
+            public List<JIRASecurityLevelBean> call() throws Exception {
+                GetCreateIssueMetadataOptionsBuilder builder = new GetCreateIssueMetadataOptionsBuilder();
+                builder.withExpandedIssueTypesFields().withProjectKeys(projectKey);
+                Iterable<CimProject> metadata = restClient.getIssueClient().getCreateIssueMetadata(builder.build(), pm);
+                if (metadata == null || !metadata.iterator().hasNext()) {
+                    throw new RemoteApiException("Createmeta for project " + projectKey + " not found");
+                }
+                CimProject project = metadata.iterator().next();
+                Map<Long, JIRASecurityLevelBean> levels = Maps.newHashMap();
+                Iterator<CimIssueType> issueTypes = project.getIssueTypes().iterator();
+                while (issueTypes.hasNext()) {
+                    CimIssueType type = issueTypes.next();
+                    Map<String,CimFieldInfo> fields = type.getFields();
+                    CimFieldInfo security = fields.get("security");
+                    if (security != null) {
+                        Iterable<Object> allowedValues = security.getAllowedValues();
+                        if (allowedValues == null) {
+                            continue;
+                        }
+                        for (Object lvl : allowedValues) {
+                            SecurityLevel secLevel = (SecurityLevel) lvl;
+                            Long id = secLevel.getId();
+                            if (!levels.containsKey(id)) {
+                                levels.put(id, new JIRASecurityLevelBean(id, secLevel.getName()));
+                            }
+                        }
+                    }
+                }
+                return Lists.newArrayList(levels.values());
+            }
+        });
     }
 
     public List<JIRAIssue> getIssues(
@@ -466,8 +494,65 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         });
     }
 
-    public JIRAIssue createIssue(JIRAIssue issue) throws RemoteApiException {
-        throw nyi();
+    public JIRAIssue createIssue(final JIRAIssue issue) throws RemoteApiException {
+        final BasicIssue newIssue = wrapWithRemoteApiException(new Callable<BasicIssue>() {
+            @Override
+            public BasicIssue call() throws Exception {
+                final IssueInputBuilder builder = new IssueInputBuilder(issue.getProjectKey(), issue.getTypeConstant().getId(), issue.getSummary());
+                List<JIRAConstant> components = issue.getComponents();
+                List<JIRAConstant> affectsVersions = issue.getAffectsVersions();
+                List<JIRAConstant> fixVersions = issue.getFixVersions();
+                if (components != null && components.size() > 0) {
+                    List<String> comps = Lists.newArrayList();
+                    for (JIRAConstant component : components) {
+                        comps.add(component.getName());
+                    }
+                    builder.setComponentsNames(comps);
+                }
+                if (affectsVersions != null && affectsVersions.size() > 0) {
+                    List<String> versions = Lists.newArrayList();
+                    for (JIRAConstant version : affectsVersions) {
+                        versions.add(version.getName());
+                    }
+                    builder.setAffectedVersionsNames(versions);
+                }
+                if (fixVersions != null && fixVersions.size() > 0) {
+                    List<String> versions = Lists.newArrayList();
+                    for (JIRAConstant version : fixVersions) {
+                        versions.add(version.getName());
+                    }
+                    builder.setFixVersionsNames(versions);
+                }
+                builder.setPriorityId(issue.getPriorityConstant().getId());
+                builder.setDescription(issue.getDescription());
+                if (issue.getAssigneeId() != null) {
+                    builder.setAssigneeName(issue.getAssigneeId());
+                }
+                String originalEstimate = issue.getOriginalEstimate();
+                if (originalEstimate != null) {
+                    builder.setFieldValue(IssueFieldId.TIMETRACKING_FIELD.id,
+                        new ComplexIssueInputFieldValue(
+                            ImmutableMap.of("originalEstimate", (Object) originalEstimate)));
+                }
+                JIRASecurityLevelBean securityLevel = issue.getSecurityLevel();
+                if (securityLevel != null && securityLevel.getId() > 0) {
+                    builder.setFieldValue("security",
+                        new ComplexIssueInputFieldValue(
+                            ImmutableMap.of("id", (Object) Long.valueOf(securityLevel.getId()).toString())
+                    ));
+                }
+                return restClient.getIssueClient().createIssue(builder.build(), pm);
+            }
+        });
+        return wrapWithRemoteApiException(new Callable<JIRAIssue>() {
+            @Override
+            public JIRAIssue call() throws Exception {
+                Issue issue = restClient.getIssueClient().getIssue(newIssue.getKey(),
+                        ImmutableList.of(IssueRestClient.Expandos.RENDERED_FIELDS, IssueRestClient.Expandos.EDITMETA), pm);
+                JIRAIssueBean issueBean = new JIRAIssueBean(server.getUrl(), issue);
+                return issueBean;
+            }
+        });
     }
 
     public void login() throws JIRAException, JiraCaptchaRequiredException {

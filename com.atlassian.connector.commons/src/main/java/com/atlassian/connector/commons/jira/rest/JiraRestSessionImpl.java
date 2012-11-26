@@ -20,6 +20,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
@@ -468,8 +469,49 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         }
     }
 
-    public void logWork(JIRAIssue issue, String timeSpent, Calendar startDate, String comment, boolean updateEstimate, String newEstimate) throws RemoteApiException {
-        throw nyi();
+    public void logWork(
+            final JIRAIssue issue, final String timeSpent, final Calendar startDate, final String comment,
+            final boolean updateEstimate, final String newEstimate) throws RemoteApiException {
+        wrapWithRemoteApiException(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                Issue iszju = restClient.getIssueClient().getIssue(issue.getKey(), pm);
+                WorklogInputBuilder builder = new WorklogInputBuilder(iszju.getSelf());
+                builder.setStartDate(new DateTime(startDate));
+                builder.setTimeSpent(timeSpent);
+                if (updateEstimate) {
+                    if (newEstimate != null) {
+                        builder.setAdjustEstimateNew(newEstimate);
+                    } else {
+                        builder.setAdjustEstimateAuto();
+                    }
+                } else {
+                    builder.setAdjustEstimateLeave();
+                }
+                builder.setComment(comment);
+                restClient.getIssueClient().addWorklog(iszju.getWorklogUri(), builder.build(), pm);
+                return null;
+            }
+        });
+//        RemoteWorklog workLog = new RemoteWorklog();
+//        workLog.setStartDate(startDate);
+//        workLog.setTimeSpent(timeSpent);
+//        if (comment != null) {
+//            workLog.setComment(comment);
+//        }
+//        try {
+//            if (updateEstimate) {
+//                if (newEstimate != null) {
+//                    service.addWorklogWithNewRemainingEstimate(token, issue.getKey(), workLog, newEstimate);
+//                } else {
+//                    service.addWorklogAndAutoAdjustRemainingEstimate(token, issue.getKey(), workLog);
+//                }
+//            } else {
+//                service.addWorklogAndRetainRemainingEstimate(token, issue.getKey(), workLog);
+//            }
+//        } catch (RemoteException e) {
+//            throw new RemoteApiException(e.toString(), e);
+//        }    }
     }
 
     public void addComment(final String issueKey, final String comment) throws RemoteApiException {
@@ -590,10 +632,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         } catch (Exception e) {
             throw new RemoteApiException(e.getMessage(), e);
         }
-    }
-
-    private RemoteApiException nyi() {
-        return new RemoteApiException(NOT_IMPLEMENTED_YET_COME_BACK_SOON);
     }
 
     private JIRAException nyij() {

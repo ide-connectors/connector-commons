@@ -493,25 +493,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                 return null;
             }
         });
-//        RemoteWorklog workLog = new RemoteWorklog();
-//        workLog.setStartDate(startDate);
-//        workLog.setTimeSpent(timeSpent);
-//        if (comment != null) {
-//            workLog.setComment(comment);
-//        }
-//        try {
-//            if (updateEstimate) {
-//                if (newEstimate != null) {
-//                    service.addWorklogWithNewRemainingEstimate(token, issue.getKey(), workLog, newEstimate);
-//                } else {
-//                    service.addWorklogAndAutoAdjustRemainingEstimate(token, issue.getKey(), workLog);
-//                }
-//            } else {
-//                service.addWorklogAndRetainRemainingEstimate(token, issue.getKey(), workLog);
-//            }
-//        } catch (RemoteException e) {
-//            throw new RemoteApiException(e.toString(), e);
-//        }    }
     }
 
     public void addComment(final String issueKey, final String comment) throws RemoteApiException {

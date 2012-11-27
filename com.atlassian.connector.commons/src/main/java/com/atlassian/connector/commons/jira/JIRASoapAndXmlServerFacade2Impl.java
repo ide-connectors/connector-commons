@@ -72,6 +72,8 @@ public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 
     }
 
     public void reset() {
+        rssSessions.clear();
+        soapSessions.clear();
     }
 
     public static void setLogger(Logger logger) {

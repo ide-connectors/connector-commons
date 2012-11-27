@@ -40,6 +40,7 @@ public class JiraRESTFacade2Impl implements JIRAServerFacade2, JiraRESTSupportTe
     private final Map<ConnectionCfg, JiraRestSessionImpl> sessions = new HashMap<ConnectionCfg, JiraRestSessionImpl>();
 
     public void reset() {
+        sessions.clear();
     }
 
     public static void setLogger(Logger logger) {
@@ -51,20 +52,10 @@ public class JiraRESTFacade2Impl implements JIRAServerFacade2, JiraRESTSupportTe
         return session.supportsRest();
     }
 
-//    public List<JIRAIssue> getIssues(ConnectionCfg server, String queryString, String sort, String sortOrder, int start, int size) throws JIRAException {
-//        JiraRestSessionImpl session = get(server);
-//        return session.getIssues(queryString, sort, sortOrder, start, size);
-//    }
-
     public List<JIRAIssue> getIssues(ConnectionCfg server, JiraFilter filter, String sort, String sortOrder, int start, int size) throws JIRAException {
         JiraRestSessionImpl session = get(server);
         return session.getIssues(filter, sort, sortOrder, start, size);
     }
-
-//    public List<JIRAIssue> getIssues(ConnectionCfg server, List<JIRAQueryFragment> query, String sort, String sortOrder, int start, int size) throws JIRAException {
-//        JiraRestSessionImpl session = get(server);
-//        return session.getIssues(query, sort, sortOrder, start, size);
-//    }
 
     public List<JIRAIssue> getSavedFilterIssues(ConnectionCfg server, JIRASavedFilter filter, String sort, String sortOrder, int start, int size) throws JIRAException {
         JiraRestSessionImpl session = get(server);

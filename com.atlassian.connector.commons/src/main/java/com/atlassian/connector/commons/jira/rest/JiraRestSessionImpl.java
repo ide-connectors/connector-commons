@@ -33,6 +33,7 @@ import com.atlassian.jira.rest.client.IssueRestClient;
 import com.atlassian.jira.rest.client.JiraRestClient;
 import com.atlassian.jira.rest.client.NullProgressMonitor;
 import com.atlassian.jira.rest.client.OptionalIterable;
+import com.atlassian.jira.rest.client.auth.BasicHttpAuthenticationHandler;
 import com.atlassian.jira.rest.client.domain.Attachment;
 import com.atlassian.jira.rest.client.domain.BasicComponent;
 import com.atlassian.jira.rest.client.domain.BasicIssue;
@@ -68,6 +69,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.sun.jersey.client.apache.config.ApacheHttpClientConfig;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -89,17 +92,27 @@ import java.util.concurrent.Callable;
  */
 public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartTwo {
     private final ConnectionCfg server;
-    private final HttpConfigurableAdapter proxyInfo;
     private final JiraRestClient restClient;
     final NullProgressMonitor pm = new NullProgressMonitor();
 
-    public JiraRestSessionImpl(ConnectionCfg server, HttpConfigurableAdapter proxyInfo) throws URISyntaxException {
+    public JiraRestSessionImpl(ConnectionCfg server, final HttpConfigurableAdapter proxyInfo) throws URISyntaxException {
         this.server = server;
-        this.proxyInfo = proxyInfo;
 
-        JerseyJiraRestClientFactory factory = new JerseyJiraRestClientFactory();
-        // TODO: support proxies - see https://studio.atlassian.com/browse/JRJC-107
-        restClient = factory.createWithBasicHttpAuthentication(new URI(server.getUrl()), server.getUsername(), server.getPassword());
+        restClient = new JerseyJiraRestClientFactory()
+                .create(new URI(server.getUrl()), new BasicHttpAuthenticationHandler(server.getUsername(), server.getPassword()) {
+            @Override
+            public void configure(ApacheHttpClientConfig config) {
+                super.configure(config);
+                if (proxyInfo != null && proxyInfo.isUseHttpProxy() && proxyInfo.isProxyAuthentication()) {
+                    config.getState().setProxyCredentials(AuthScope.ANY_REALM, proxyInfo.getProxyHost(),
+                        proxyInfo.getProxyPort(), proxyInfo.getProxyLogin(), proxyInfo.getPlainProxyPassword());
+                }
+            }
+        });
+        if (proxyInfo != null && proxyInfo.isUseHttpProxy()) {
+            restClient.getTransportClient().getProperties().put(
+                ApacheHttpClientConfig.PROPERTY_PROXY_URI, "http://" + proxyInfo.getProxyHost() + ":" + proxyInfo.getProxyPort());
+        }
     }
 
     public boolean supportsRest() throws JIRAException {

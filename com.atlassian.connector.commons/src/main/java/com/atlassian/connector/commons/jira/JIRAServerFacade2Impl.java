@@ -99,6 +99,8 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
     }
 
     public void reset() {
+        restFacade.reset();
+        soapAndXmlFacade.reset();
         restCapable.clear();
         notRestCapable.clear();
     }

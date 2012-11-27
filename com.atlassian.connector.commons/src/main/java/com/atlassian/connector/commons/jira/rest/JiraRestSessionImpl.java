@@ -28,22 +28,36 @@ import com.atlassian.connector.commons.jira.beans.JIRAUserBean;
 import com.atlassian.connector.commons.jira.beans.JIRAVersionBean;
 import com.atlassian.connector.commons.jira.beans.JiraFilter;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
-import com.atlassian.jira.rest.client.*;
+import com.atlassian.jira.rest.client.GetCreateIssueMetadataOptionsBuilder;
+import com.atlassian.jira.rest.client.IssueRestClient;
+import com.atlassian.jira.rest.client.JiraRestClient;
+import com.atlassian.jira.rest.client.NullProgressMonitor;
+import com.atlassian.jira.rest.client.OptionalIterable;
 import com.atlassian.jira.rest.client.domain.Attachment;
 import com.atlassian.jira.rest.client.domain.BasicComponent;
 import com.atlassian.jira.rest.client.domain.BasicIssue;
 import com.atlassian.jira.rest.client.domain.BasicProject;
+import com.atlassian.jira.rest.client.domain.CimFieldInfo;
+import com.atlassian.jira.rest.client.domain.CimIssueType;
+import com.atlassian.jira.rest.client.domain.CimProject;
 import com.atlassian.jira.rest.client.domain.Comment;
 import com.atlassian.jira.rest.client.domain.FavouriteFilter;
 import com.atlassian.jira.rest.client.domain.Issue;
+import com.atlassian.jira.rest.client.domain.IssueFieldId;
 import com.atlassian.jira.rest.client.domain.IssueType;
 import com.atlassian.jira.rest.client.domain.Priority;
 import com.atlassian.jira.rest.client.domain.Resolution;
 import com.atlassian.jira.rest.client.domain.SearchResult;
+import com.atlassian.jira.rest.client.domain.SecurityLevel;
 import com.atlassian.jira.rest.client.domain.Status;
 import com.atlassian.jira.rest.client.domain.Transition;
 import com.atlassian.jira.rest.client.domain.User;
 import com.atlassian.jira.rest.client.domain.Version;
+import com.atlassian.jira.rest.client.domain.input.ComplexIssueInputFieldValue;
+import com.atlassian.jira.rest.client.domain.input.FieldInput;
+import com.atlassian.jira.rest.client.domain.input.IssueInputBuilder;
+import com.atlassian.jira.rest.client.domain.input.TransitionInput;
+import com.atlassian.jira.rest.client.domain.input.WorklogInputBuilder;
 import com.atlassian.jira.rest.client.internal.ServerVersionConstants;
 import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClientFactory;
 import com.atlassian.jira.rest.client.internal.json.JsonParseUtil;
@@ -58,10 +72,14 @@ import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.DateTime;
+
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -298,7 +316,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
             });
         } else {
             wrapWithRemoteApiException(new Callable<Object>() {
-                @Override
                 public Object call() throws Exception {
                     Issue iszju = restClient.getIssueClient().getIssue(issue.getKey(), ImmutableList.of(IssueRestClient.Expandos.EDITMETA), pm);
                     fieldValues.addAll(generateFieldValues(issue, iszju, fields));
@@ -364,8 +381,7 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         return wrapWithRemoteApiException(new Callable<JIRAUserBean>() {
             public JIRAUserBean call() throws Exception {
                 User user = restClient.getUserClient().getUser(loginName, pm);
-                JIRAUserBean u = new JIRAUserBean(-1, user.getDisplayName(), user.getName()) {
-                    @Override
+                return new JIRAUserBean(-1, user.getDisplayName(), user.getName()) {
                     public String getQueryStringFragment() {
                         return null;
                     }
@@ -374,7 +390,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                         return null;
                     }
                 };
-                return u;
             }
         });
     }
@@ -406,7 +421,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public List<JIRASecurityLevelBean> getSecurityLevels(final String projectKey) throws RemoteApiException {
         return wrapWithRemoteApiException(new Callable<List<JIRASecurityLevelBean>>() {
-            @Override
             public List<JIRASecurityLevelBean> call() throws Exception {
                 GetCreateIssueMetadataOptionsBuilder builder = new GetCreateIssueMetadataOptionsBuilder();
                 builder.withExpandedIssueTypesFields().withProjectKeys(projectKey);
@@ -416,10 +430,8 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                 }
                 CimProject project = metadata.iterator().next();
                 Map<Long, JIRASecurityLevelBean> levels = Maps.newHashMap();
-                Iterator<CimIssueType> issueTypes = project.getIssueTypes().iterator();
-                while (issueTypes.hasNext()) {
-                    CimIssueType type = issueTypes.next();
-                    Map<String,CimFieldInfo> fields = type.getFields();
+                for (CimIssueType type : project.getIssueTypes()) {
+                    Map<String, CimFieldInfo> fields = type.getFields();
                     CimFieldInfo security = fields.get("security");
                     if (security != null) {
                         Iterable<Object> allowedValues = security.getAllowedValues();
@@ -494,7 +506,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
             final JIRAIssue issue, final String timeSpent, final Calendar startDate, final String comment,
             final boolean updateEstimate, final String newEstimate) throws RemoteApiException {
         wrapWithRemoteApiException(new Callable<Object>() {
-            @Override
             public Object call() throws Exception {
                 Issue iszju = restClient.getIssueClient().getIssue(issue.getKey(), pm);
                 WorklogInputBuilder builder = new WorklogInputBuilder(iszju.getSelf());
@@ -538,7 +549,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public JIRAIssue createIssue(final JIRAIssue issue) throws RemoteApiException {
         final BasicIssue newIssue = wrapWithRemoteApiException(new Callable<BasicIssue>() {
-            @Override
             public BasicIssue call() throws Exception {
                 final IssueInputBuilder builder = new IssueInputBuilder(issue.getProjectKey(), issue.getTypeConstant().getId(), issue.getSummary());
                 List<JIRAConstant> components = issue.getComponents();
@@ -587,12 +597,10 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
             }
         });
         return wrapWithRemoteApiException(new Callable<JIRAIssue>() {
-            @Override
             public JIRAIssue call() throws Exception {
                 Issue issue = restClient.getIssueClient().getIssue(newIssue.getKey(),
                         ImmutableList.of(IssueRestClient.Expandos.RENDERED_FIELDS, IssueRestClient.Expandos.EDITMETA), pm);
-                JIRAIssueBean issueBean = new JIRAIssueBean(server.getUrl(), issue);
-                return issueBean;
+                return new JIRAIssueBean(server.getUrl(), issue);
             }
         });
     }

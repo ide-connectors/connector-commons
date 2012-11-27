@@ -32,6 +32,7 @@ import com.atlassian.jira.rest.client.domain.BasicResolution;
 import com.atlassian.jira.rest.client.domain.BasicStatus;
 import com.atlassian.jira.rest.client.domain.BasicUser;
 import com.atlassian.jira.rest.client.domain.Comment;
+import com.atlassian.jira.rest.client.domain.Field;
 import com.atlassian.jira.rest.client.domain.Issue;
 import com.atlassian.jira.rest.client.domain.IssueLink;
 import com.atlassian.jira.rest.client.domain.IssueType;
@@ -48,6 +49,7 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.jdom.Element;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -531,7 +533,7 @@ public class JIRAIssueBean implements JIRAIssue {
 
 	private void updateProjectKey() {
 		if (key != null) {
-			if (key.indexOf("-") >= 0) {
+			if (key.contains("-")) {
 				projectKey = key.substring(0, key.indexOf("-"));
 			} else {
 				projectKey = key;
@@ -747,12 +749,8 @@ public class JIRAIssueBean implements JIRAIssue {
 
 		JIRAIssueBean that = (JIRAIssueBean) o;
 
-		if (key != null ? !key.equals(that.key) : that.key != null) {
-			return false;
-		}
-
-		return true;
-	}
+        return !(key != null ? !key.equals(that.key) : that.key != null);
+    }
 
 	private static final int ONE_EFF = 31;
 

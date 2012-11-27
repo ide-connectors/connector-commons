@@ -1,12 +1,49 @@
 package com.atlassian.connector.commons.jira.rest;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
-import com.atlassian.connector.commons.jira.*;
-import com.atlassian.connector.commons.jira.beans.*;
+import com.atlassian.connector.commons.jira.JIRAAction;
+import com.atlassian.connector.commons.jira.JIRAActionBean;
+import com.atlassian.connector.commons.jira.JIRAActionField;
+import com.atlassian.connector.commons.jira.JIRAActionFieldBean;
+import com.atlassian.connector.commons.jira.JIRAIssue;
+import com.atlassian.connector.commons.jira.JIRAIssueBean;
+import com.atlassian.connector.commons.jira.JIRASessionPartOne;
+import com.atlassian.connector.commons.jira.JIRASessionPartTwo;
+import com.atlassian.connector.commons.jira.JiraUserNotFoundException;
+import com.atlassian.connector.commons.jira.beans.JIRAAttachment;
+import com.atlassian.connector.commons.jira.beans.JIRAComment;
+import com.atlassian.connector.commons.jira.beans.JIRAComponentBean;
+import com.atlassian.connector.commons.jira.beans.JIRAConstant;
+import com.atlassian.connector.commons.jira.beans.JIRAIssueTypeBean;
+import com.atlassian.connector.commons.jira.beans.JIRAPriorityBean;
+import com.atlassian.connector.commons.jira.beans.JIRAProject;
+import com.atlassian.connector.commons.jira.beans.JIRAProjectBean;
+import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
+import com.atlassian.connector.commons.jira.beans.JIRAResolutionBean;
+import com.atlassian.connector.commons.jira.beans.JIRASavedFilter;
+import com.atlassian.connector.commons.jira.beans.JIRASavedFilterBean;
+import com.atlassian.connector.commons.jira.beans.JIRASecurityLevelBean;
+import com.atlassian.connector.commons.jira.beans.JIRAStatusBean;
+import com.atlassian.connector.commons.jira.beans.JIRAUserBean;
+import com.atlassian.connector.commons.jira.beans.JIRAVersionBean;
+import com.atlassian.connector.commons.jira.beans.JiraFilter;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
 import com.atlassian.jira.rest.client.*;
-import com.atlassian.jira.rest.client.domain.*;
-import com.atlassian.jira.rest.client.domain.input.*;
+import com.atlassian.jira.rest.client.domain.Attachment;
+import com.atlassian.jira.rest.client.domain.BasicComponent;
+import com.atlassian.jira.rest.client.domain.BasicIssue;
+import com.atlassian.jira.rest.client.domain.BasicProject;
+import com.atlassian.jira.rest.client.domain.Comment;
+import com.atlassian.jira.rest.client.domain.FavouriteFilter;
+import com.atlassian.jira.rest.client.domain.Issue;
+import com.atlassian.jira.rest.client.domain.IssueType;
+import com.atlassian.jira.rest.client.domain.Priority;
+import com.atlassian.jira.rest.client.domain.Resolution;
+import com.atlassian.jira.rest.client.domain.SearchResult;
+import com.atlassian.jira.rest.client.domain.Status;
+import com.atlassian.jira.rest.client.domain.Transition;
+import com.atlassian.jira.rest.client.domain.User;
+import com.atlassian.jira.rest.client.domain.Version;
 import com.atlassian.jira.rest.client.internal.ServerVersionConstants;
 import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClientFactory;
 import com.atlassian.jira.rest.client.internal.json.JsonParseUtil;
@@ -21,7 +58,6 @@ import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.DateTime;
-
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -58,7 +94,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public void login(String userName, String password) throws RemoteApiException {
         wrapWithRemoteApiException(new Callable<Void>() {
-            @Override
             public Void call() throws Exception {
                 restClient.getMetadataClient().getServerInfo(pm);
                 return null;
@@ -71,7 +106,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public List<JIRAProject> getProjects() throws RemoteApiException {
         return wrapWithRemoteApiException(new Callable<List<JIRAProject>>() {
-            @Override
             public List<JIRAProject> call() throws Exception {
                 Iterable<BasicProject> projects = restClient.getProjectClient().getAllProjects(pm);
                 List<JIRAProject> result = Lists.newArrayList();
@@ -94,13 +128,14 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     private List<JIRAConstant> getIssueTypes(final boolean subtasks) throws RemoteApiException {
         return wrapWithRemoteApiException(new Callable<List<JIRAConstant>>() {
-            @Override
             public List<JIRAConstant> call() throws Exception {
                 Iterable<IssueType> issueTypes = restClient.getMetadataClient().getIssueTypes(pm);
                 List<JIRAConstant> result = Lists.newArrayList();
                 for (IssueType type : issueTypes) {
                     Long id = type.getId();
-                    if (type.isSubtask() != subtasks || id == null) continue;
+                    if (type.isSubtask() != subtasks || id == null) {
+						continue;
+					}
                     result.add(new JIRAIssueTypeBean(id, type.getName(), type.getIconUri().toURL()));
                 }
                 return result;
@@ -118,12 +153,13 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     private List<JIRAConstant> getIssueTypesForProject(final String projectKey, final boolean subtasks) throws RemoteApiException {
         return wrapWithRemoteApiException(new Callable<List<JIRAConstant>>() {
-            @Override
             public List<JIRAConstant> call() throws Exception {
                 OptionalIterable<IssueType> issueTypes = restClient.getProjectClient().getProject(projectKey, pm).getIssueTypes();
                 List<JIRAConstant> result = Lists.newArrayList();
                 for (IssueType issueType : issueTypes) {
-                    if (subtasks != issueType.isSubtask()) continue;
+                    if (subtasks != issueType.isSubtask()) {
+						continue;
+					}
                     Long id = issueType.getId();
                     result.add(new JIRAIssueTypeBean(id != null ? id : -1, issueType.getName(), issueType.getIconUri().toURL()));
                 }
@@ -134,7 +170,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public List<JIRAConstant> getStatuses() throws RemoteApiException {
         return wrapWithRemoteApiException(new Callable<List<JIRAConstant>>() {
-            @Override
             public List<JIRAConstant> call() throws Exception {
                 Iterable<Status> statuses = restClient.getMetadataClient().getStatuses(pm);
                 List<JIRAConstant> result = Lists.newArrayList();
@@ -149,7 +184,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public List<JIRAComponentBean> getComponents(final String projectKey) throws RemoteApiException {
         return wrapWithRemoteApiException(new Callable<List<JIRAComponentBean>>() {
-            @Override
             public List<JIRAComponentBean> call() throws Exception {
                 Iterable<BasicComponent> components = restClient.getProjectClient().getProject(projectKey, pm).getComponents();
                 List<JIRAComponentBean> result = Lists.newArrayList();
@@ -164,7 +198,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public List<JIRAVersionBean> getVersions(final String projectKey) throws RemoteApiException {
         return wrapWithRemoteApiException(new Callable<List<JIRAVersionBean>>() {
-            @Override
             public List<JIRAVersionBean> call() throws Exception {
                 Iterable<Version> versions = restClient.getProjectClient().getProject(projectKey, pm).getVersions();
                 List<JIRAVersionBean> result = Lists.newArrayList();
@@ -179,7 +212,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public List<JIRAPriorityBean> getPriorities() throws RemoteApiException {
         return wrapWithRemoteApiException(new Callable<List<JIRAPriorityBean>>() {
-            @Override
             public List<JIRAPriorityBean> call() throws Exception {
                 Iterable<Priority> priorities = restClient.getMetadataClient().getPriorities(pm);
                 List<JIRAPriorityBean> result = Lists.newArrayList();
@@ -195,7 +227,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public List<JIRAResolutionBean> getResolutions() throws RemoteApiException {
         return wrapWithRemoteApiException(new Callable<List<JIRAResolutionBean>>() {
-            @Override
             public List<JIRAResolutionBean> call() throws Exception {
                 Iterable<Resolution> resolutions = restClient.getMetadataClient().getResolutions(pm);
                 List<JIRAResolutionBean> result = Lists.newArrayList();
@@ -210,7 +241,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public List<JIRAQueryFragment> getSavedFilters() throws RemoteApiException {
         return wrapWithRemoteApiException(new Callable<List<JIRAQueryFragment>>() {
-            @Override
             public List<JIRAQueryFragment> call() throws Exception {
                 Iterable<FavouriteFilter> filters = restClient.getSearchClient().getFavouriteFilters(pm);
                 List<JIRAQueryFragment> result = Lists.newArrayList();
@@ -225,7 +255,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public List<JIRAAction> getAvailableActions(final JIRAIssue issue) throws RemoteApiException {
         return wrapWithRemoteApiException(new Callable<List<JIRAAction>>() {
-            @Override
             public List<JIRAAction> call() throws Exception {
                 List<JIRAAction> result = Lists.newArrayList();
                 Iterable<Transition> transitions = restClient.getIssueClient().getTransitions((Issue) issue.getApiIssueObject(), pm);
@@ -239,7 +268,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public List<JIRAActionField> getFieldsForAction(final JIRAIssue issue, final JIRAAction action) throws RemoteApiException {
         return wrapWithRemoteApiException(new Callable<List<JIRAActionField>>() {
-            @Override
             public List<JIRAActionField> call() throws Exception {
                 Iterable<Transition> transitions = restClient.getIssueClient().getTransitions((Issue) issue.getApiIssueObject(), pm);
                 List<JIRAActionField> result = Lists.newArrayList();
@@ -262,7 +290,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         final List<FieldInput> fieldValues = Lists.newArrayList();
         if (fields == null || fields.size() == 0) {
             wrapWithRemoteApiException(new Callable<Object>() {
-                @Override
                 public Object call() throws Exception {
                     TransitionInput t = new TransitionInput((int) action.getId(), fieldValues);
                     restClient.getIssueClient().transition((Issue) issue.getApiIssueObject(), t, pm);
@@ -299,7 +326,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public void setFields(final JIRAIssue issue, final List<JIRAActionField> fields) throws RemoteApiException {
         wrapWithRemoteApiException(new Callable<Object>() {
-            @Override
             public Object call() throws Exception {
                 Issue iszju = restClient.getIssueClient().getIssue(issue.getKey(), ImmutableList.of(IssueRestClient.Expandos.EDITMETA), pm);
                 restClient.getIssueClient().update(iszju, generateFieldValues(issue, iszju, fields), pm);
@@ -336,7 +362,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public JIRAUserBean getUser(final String loginName) throws RemoteApiException, JiraUserNotFoundException {
         return wrapWithRemoteApiException(new Callable<JIRAUserBean>() {
-            @Override
             public JIRAUserBean call() throws Exception {
                 User user = restClient.getUserClient().getUser(loginName, pm);
                 JIRAUserBean u = new JIRAUserBean(-1, user.getDisplayName(), user.getName()) {
@@ -345,7 +370,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                         return null;
                     }
 
-                    @Override
                     public JIRAQueryFragment getClone() {
                         return null;
                     }
@@ -364,7 +388,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public Collection<JIRAAttachment> getIssueAttachements(final JIRAIssue issue) throws RemoteApiException {
         return wrapWithRemoteApiException(new Callable<Collection<JIRAAttachment>>() {
-            @Override
             public Collection<JIRAAttachment> call() throws Exception {
 //                Issue iszju = (Issue) issue.getApiIssueObject();
                 Issue iszju = restClient.getIssueClient().getIssue(issue.getKey(), pm);
@@ -431,7 +454,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
             final String jql, final String sortBy, final String sortOrder, final int start, final int max)
             throws JIRAException {
         return wrapWithJiraException(new Callable<List<JIRAIssue>>() {
-            @Override
             public List<JIRAIssue> call() throws Exception {
                 String sort =
                         jql.toLowerCase().contains("order by")
@@ -452,7 +474,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public JIRAIssue getIssue(final String issueKey) throws JIRAException {
         return wrapWithJiraException(new Callable<JIRAIssue>() {
-            @Override
             public JIRAIssue call() throws Exception {
                 Issue issue = restClient.getIssueClient().getIssue(issueKey,
                         ImmutableList.of(IssueRestClient.Expandos.RENDERED_FIELDS, IssueRestClient.Expandos.EDITMETA), pm);
@@ -497,7 +518,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public void addComment(final String issueKey, final String comment) throws RemoteApiException {
         wrapWithRemoteApiException(new Callable<Object>() {
-            @Override
             public Object call() throws Exception {
                 Issue issue = restClient.getIssueClient().getIssue(issueKey, pm);
                 restClient.getIssueClient().addComment(pm, issue.getCommentsUri(), Comment.valueOf(comment));
@@ -508,7 +528,6 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     public void addAttachment(final String issueKey, final String name, final byte[] content) throws RemoteApiException {
         wrapWithRemoteApiException(new Callable<Object>() {
-            @Override
             public Object call() throws Exception {
                 Issue issue = restClient.getIssueClient().getIssue(issueKey, pm);
                 restClient.getIssueClient().addAttachment(pm, issue.getAttachmentsUri(), new ByteArrayInputStream(content), name);

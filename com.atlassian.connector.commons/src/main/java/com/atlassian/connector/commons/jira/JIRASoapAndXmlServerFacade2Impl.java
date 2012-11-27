@@ -17,7 +17,19 @@
 package com.atlassian.connector.commons.jira;
 
 import com.atlassian.connector.commons.api.ConnectionCfg;
-import com.atlassian.connector.commons.jira.beans.*;
+import com.atlassian.connector.commons.jira.beans.JIRAAttachment;
+import com.atlassian.connector.commons.jira.beans.JIRAComment;
+import com.atlassian.connector.commons.jira.beans.JIRAComponentBean;
+import com.atlassian.connector.commons.jira.beans.JIRAConstant;
+import com.atlassian.connector.commons.jira.beans.JIRAPriorityBean;
+import com.atlassian.connector.commons.jira.beans.JIRAProject;
+import com.atlassian.connector.commons.jira.beans.JIRAQueryFragment;
+import com.atlassian.connector.commons.jira.beans.JIRAResolutionBean;
+import com.atlassian.connector.commons.jira.beans.JIRASavedFilter;
+import com.atlassian.connector.commons.jira.beans.JIRASecurityLevelBean;
+import com.atlassian.connector.commons.jira.beans.JIRAUserBean;
+import com.atlassian.connector.commons.jira.beans.JIRAVersionBean;
+import com.atlassian.connector.commons.jira.beans.JiraFilter;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
 import com.atlassian.connector.commons.jira.rss.JIRARssClient;
 import com.atlassian.connector.commons.jira.rss.JiraRssAutoRenewClient;
@@ -30,10 +42,14 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.Logger;
-
 import javax.xml.rpc.ServiceException;
 import java.net.MalformedURLException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 {
 
@@ -55,7 +71,6 @@ public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 
         this.axisCallback = axisCallback;
     }
 
-    @Override
     public void reset() {
     }
 
@@ -136,7 +151,6 @@ public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 
         return ServerType.JIRA_SERVER;
     }
 
-    @Override
     public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, JiraFilter filter, String sort, String sortOrder, int start, int size) throws JIRAException {
         try {
             JiraRssAutoRenewClient rss = getRssSession(httpConnectionCfg);
@@ -182,7 +196,6 @@ public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 
 //        }
 //    }
 
-    @Override
     public List<JIRAIssue> getSavedFilterIssues(
             ConnectionCfg httpConnectionCfg, JIRASavedFilter filter, String sort, String sortOrder, int start, int size) throws JIRAException {
 

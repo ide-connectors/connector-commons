@@ -36,6 +36,7 @@ import com.atlassian.connector.commons.jira.rss.JiraRssAutoRenewClient;
 import com.atlassian.connector.commons.jira.soap.AxisSessionCallback;
 import com.atlassian.connector.commons.jira.soap.JIRASoapSessionImpl;
 import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.jira.JiraServerData;
 import com.atlassian.theplugin.commons.remoteapi.CaptchaRequiredException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
@@ -434,6 +435,10 @@ public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 
             }
             throw new JIRAException(e.getMessage(), e);
         }
+    }
+
+    public JIRAIssue createSubtask(JiraServerData jiraServerData, JIRAIssue parent, JIRAIssue issue) throws JIRAException {
+        throw new JIRAException("SOAP JIRA API does not support issue subtask creation");
     }
 
     public void logWork(ConnectionCfg connectionCfg, JIRAIssue issue, String timeSpent, Calendar startDate,

@@ -19,6 +19,7 @@ package com.atlassian.connector.commons.jira;
 import com.atlassian.connector.commons.api.ConnectionCfg;
 import com.atlassian.connector.commons.jira.beans.*;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
+import com.atlassian.theplugin.commons.jira.JiraServerData;
 import com.atlassian.theplugin.commons.remoteapi.ProductServerFacade;
 
 import java.util.Calendar;
@@ -92,7 +93,9 @@ public interface JIRAServerFacade2 extends ProductServerFacade {
 
 	JIRAIssue createIssue(ConnectionCfg httpConnectionCfg, JIRAIssue issue) throws JIRAException;
 
-	JIRAIssue getIssue(ConnectionCfg httpConnectionCfg, String key) throws JIRAException;
+    JIRAIssue createSubtask(JiraServerData jiraServerData, JIRAIssue parent, JIRAIssue issue) throws JIRAException;
+
+    JIRAIssue getIssue(ConnectionCfg httpConnectionCfg, String key) throws JIRAException;
 
 	JIRAIssue getIssueDetails(ConnectionCfg httpConnectionCfg, JIRAIssue issue) throws JIRAException;
 

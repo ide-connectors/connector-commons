@@ -33,6 +33,7 @@ import com.atlassian.connector.commons.jira.beans.JiraFilter;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
 import com.atlassian.connector.commons.jira.soap.AxisSessionCallback;
 import com.atlassian.theplugin.commons.ServerType;
+import com.atlassian.theplugin.commons.jira.JiraServerData;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.Logger;
@@ -205,6 +206,10 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
 
     public JIRAIssue createIssue(ConnectionCfg httpConnectionCfg, JIRAIssue issue) throws JIRAException {
         return worker.createIssue(httpConnectionCfg, issue);
+    }
+
+    public JIRAIssue createSubtask(JiraServerData jiraServerData, JIRAIssue parent, JIRAIssue issue) throws JIRAException {
+        return worker.createSubtask(jiraServerData, parent, issue);
     }
 
     public JIRAIssue getIssue(ConnectionCfg httpConnectionCfg, String key) throws JIRAException {

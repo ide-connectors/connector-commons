@@ -561,6 +561,14 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
     }
 
     public JIRAIssue createIssue(final JIRAIssue issue) throws RemoteApiException {
+        return createIssueOrSubtask(null, issue);
+    }
+
+    public JIRAIssue createSubtask(JIRAIssue parent, JIRAIssue issue) throws RemoteApiException {
+        return createIssueOrSubtask(parent, issue);
+    }
+
+    private JIRAIssue createIssueOrSubtask(final JIRAIssue parent, final JIRAIssue issue) throws RemoteApiException {
         final BasicIssue newIssue = wrapWithRemoteApiException(new Callable<BasicIssue>() {
             public BasicIssue call() throws Exception {
                 final IssueInputBuilder builder = new IssueInputBuilder(issue.getProjectKey(), issue.getTypeConstant().getId(), issue.getSummary());
@@ -603,8 +611,11 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                 if (securityLevel != null && securityLevel.getId() > 0) {
                     builder.setFieldValue("security",
                         new ComplexIssueInputFieldValue(
-                            ImmutableMap.of("id", (Object) Long.valueOf(securityLevel.getId()).toString())
-                    ));
+                            ImmutableMap.of("id", (Object) Long.valueOf(securityLevel.getId()).toString())));
+                }
+                if (parent != null) {
+                    builder.setFieldValue("parent",
+                        new ComplexIssueInputFieldValue(ImmutableMap.of("key", (Object) parent.getKey())));
                 }
                 return restClient.getIssueClient().createIssue(builder.build(), pm);
             }
@@ -619,7 +630,7 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
     }
 
     public void login() throws JIRAException, JiraCaptchaRequiredException {
-        throw nyij();
+        throw new JIRAException("Not implemented");
     }
 
     public boolean isLoggedIn(ConnectionCfg server) {
@@ -654,10 +665,4 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
             throw new RemoteApiException(e.getMessage(), e);
         }
     }
-
-    private JIRAException nyij() {
-        return new JIRAException(NOT_IMPLEMENTED_YET_COME_BACK_SOON);
-    }
-
-    private static final String NOT_IMPLEMENTED_YET_COME_BACK_SOON = "Not implemented yet. Come back soon";
 }

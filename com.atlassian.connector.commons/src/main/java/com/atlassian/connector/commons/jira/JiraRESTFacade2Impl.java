@@ -18,6 +18,7 @@ import com.atlassian.connector.commons.jira.rest.JiraRestSessionImpl;
 import com.atlassian.connector.commons.jira.rss.JIRAException;
 import com.atlassian.theplugin.commons.ServerType;
 import com.atlassian.theplugin.commons.configuration.ConfigurationFactory;
+import com.atlassian.theplugin.commons.jira.JiraServerData;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.util.HttpConfigurableAdapter;
 import com.atlassian.theplugin.commons.util.Logger;
@@ -208,6 +209,15 @@ public class JiraRESTFacade2Impl implements JIRAServerFacade2, JiraRESTSupportTe
         return withJiraException(new Callable<JIRAIssue>() {
             public JIRAIssue call() throws Exception {
                 return get(server).createIssue(issue);
+            }
+        });
+    }
+
+    public JIRAIssue createSubtask(final JiraServerData server, final JIRAIssue parent, final JIRAIssue issue) throws JIRAException {
+        return withJiraException(new Callable<JIRAIssue>() {
+            @Override
+            public JIRAIssue call() throws Exception {
+                return get(server).createSubtask(parent, issue);
             }
         });
     }

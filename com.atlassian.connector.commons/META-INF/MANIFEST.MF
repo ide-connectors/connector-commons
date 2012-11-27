@@ -15,7 +15,8 @@ Require-Bundle: org.apache.commons.httpclient,
  javax.xml.rpc,
  com.atlassian.jira.rest.client;bundle-version="1.1.0",
  com.google.guava;bundle-version="13.0.0",
- org.codehaus.jettison;bundle-version="1.0.0"
+ org.codehaus.jettison;bundle-version="1.0.0",
+ com.sun.jersey_1_5;bundle-version="1.5.0"
 Export-Package: com.atlassian.connector.cfg,
  com.atlassian.connector.commons.api,
  com.atlassian.connector.commons.crucible,

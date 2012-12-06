@@ -869,4 +869,8 @@ public class JIRAIssueBean implements JIRAIssue {
     public boolean usesRest() {
         return apiIssueObject instanceof Issue;
     }
+
+    public void setWikiDescription(String wikiDescription) {
+        this.wikiDescription = wikiDescription;
+    }
 }

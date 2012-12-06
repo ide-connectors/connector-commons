@@ -334,6 +334,8 @@ public class JIRASoapSessionImpl implements JIRASessionPartOne {
                         new JIRASecurityLevelBean(Long.valueOf(securityLevel.getId()), securityLevel.getName()));
             }
 
+            issueBean.setWikiDescription(rIssue.getDescription());
+
             RemoteVersion[] aVers = rIssue.getAffectsVersions();
             List<JIRAConstant> av = new ArrayList<JIRAConstant>();
             for (RemoteVersion v : aVers) {

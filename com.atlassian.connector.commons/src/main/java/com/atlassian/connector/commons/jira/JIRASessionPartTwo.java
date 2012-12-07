@@ -23,6 +23,9 @@ public interface JIRASessionPartTwo {
 //    List<JIRAIssue> getAssignedIssues(String assignee) throws JIRAException;
 //    List<JIRAIssue> getSavedFilterIssues(JIRAQueryFragment fragment, String sortBy, String sortOrder, int start, int max) throws JIRAException;
     List<JIRAIssue> getSavedFilterIssues(JIRASavedFilter filter, String sortBy, String sortOrder, int start, int max) throws JIRAException;
+
+    List<JIRAIssue> getIssues(String jql, String sort, String sortOrder, int start, int size) throws JIRAException;
+
     JIRAIssue getIssue(String issueKey) throws JIRAException;
     void login() throws JIRAException, JiraCaptchaRequiredException;
     boolean isLoggedIn(ConnectionCfg server);

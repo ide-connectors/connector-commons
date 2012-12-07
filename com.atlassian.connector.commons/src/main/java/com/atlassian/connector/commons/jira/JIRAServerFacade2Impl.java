@@ -106,6 +106,11 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         notRestCapable.clear();
     }
 
+    @Override
+    public boolean usesRest(JiraServerData jiraServerData) {
+        return worker.usesRest(jiraServerData);
+    }
+
     public static void setLogger(Logger logger) {
         JIRASoapAndXmlServerFacade2Impl.setLogger(logger);
         JiraRESTFacade2Impl.setLogger(logger);
@@ -126,6 +131,10 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
 
     public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, JiraFilter filter, String sort, String sortOrder, int start, int size) throws JIRAException {
         return worker.getIssues(httpConnectionCfg, filter, sort, sortOrder, start, size);
+    }
+
+    public List<JIRAIssue> getIssues(JiraServerData server, String query, String sort, String sortOrder, int start, int size) throws JIRAException {
+        return worker.getIssues(server, query, sort, sortOrder, start, size);
     }
 
     public List<JIRAIssue> getSavedFilterIssues(ConnectionCfg httpConnectionCfg, JIRASavedFilter filter, String sort, String sortOrder, int start, int size) throws JIRAException {

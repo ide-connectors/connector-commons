@@ -77,6 +77,10 @@ public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 
         soapSessions.clear();
     }
 
+    public boolean usesRest(JiraServerData jiraServerData) {
+        return false;
+    }
+
     public static void setLogger(Logger logger) {
         JIRASoapAndXmlServerFacade2Impl.logger = logger;
     }
@@ -167,7 +171,11 @@ public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 
         }
     }
 
-//    public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, String queryString, String sort,
+    public List<JIRAIssue> getIssues(JiraServerData server, String query, String sort, String sortOrder, int start, int size) throws JIRAException {
+        throw new JIRAException("Not implemented");
+    }
+
+    //    public List<JIRAIssue> getIssues(ConnectionCfg httpConnectionCfg, String queryString, String sort,
 //                                     String sortOrder, int start, int size) throws JIRAException {
 //        try {
 //            JiraRssAutoRenewClient rss = getRssSession(httpConnectionCfg);

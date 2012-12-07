@@ -170,8 +170,12 @@ public class JIRARssClient extends AbstractHttpSession implements JIRASessionPar
         }
     }
 
+    @Override
+    public List<JIRAIssue> getIssues(String jql, String sort, String sortOrder, int start, int size) throws JIRAException {
+        throw new JIRAException("Not implemented");
+    }
 
-//    public List<JIRAIssue> getIssues(List<JIRAQueryFragment> fragments, String sortBy,
+    //    public List<JIRAIssue> getIssues(List<JIRAQueryFragment> fragments, String sortBy,
 //                                     String sortOrder, int start, int max) throws JIRAException {
 //
 //        StringBuilder query = new StringBuilder();

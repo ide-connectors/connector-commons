@@ -120,4 +120,8 @@ public interface JIRAServerFacade2 extends ProductServerFacade {
     List<JIRASecurityLevelBean> getSecurityLevels(ConnectionCfg connectionCfg, String projectKey) throws JIRAException;
 
     void reset();
+
+    boolean usesRest(JiraServerData jiraServerData);
+
+    List<JIRAIssue> getIssues(JiraServerData server, String query, String sort, String sortOrder, int start, int size) throws JIRAException;
 }

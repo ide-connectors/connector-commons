@@ -55,6 +55,11 @@ public class JiraRssAutoRenewClient implements JIRASessionPartTwo {
         return rssClient.getIssues(filter, sortBy, sortOrder, start, max);
     }
 
+    @Override
+    public List<JIRAIssue> getIssues(String jql, String sort, String sortOrder, int start, int size) throws JIRAException {
+        return rssClient.getIssues(jql, sort, sortOrder, start, size);
+    }
+
     //    public List<JIRAIssue> getIssues(String queryString, String sortBy, String sortOrder, int start, int max)
 //            throws JIRAException {
 //        return rssClient.getIssues(queryString, sortBy, sortOrder, start, max);

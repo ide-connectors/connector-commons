@@ -475,7 +475,7 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         return getIssues(filter.getJql(), sortBy, sortOrder, start, max);
     }
 
-    private List<JIRAIssue> getIssues(
+    public List<JIRAIssue> getIssues(
             final String jql, final String sortBy, final String sortOrder, final int start, final int max)
             throws JIRAException {
         return wrapWithJiraException(new Callable<List<JIRAIssue>>() {

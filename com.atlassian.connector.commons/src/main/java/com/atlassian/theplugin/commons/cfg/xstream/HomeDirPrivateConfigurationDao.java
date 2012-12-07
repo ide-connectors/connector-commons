@@ -49,7 +49,7 @@ public class HomeDirPrivateConfigurationDao
                 final SAXBuilder builder = new SAXBuilder(false);
                 try {
 
-                    doc = builder.build(serverCfgFile.getAbsolutePath());
+                    doc = builder.build(serverCfgFile.toURI().toString());
                 } catch (JDOMException e) {
                     throw new ServerCfgFactoryException("Cannot parse server cfg file " + e.getMessage());
                 } catch (IOException e) {

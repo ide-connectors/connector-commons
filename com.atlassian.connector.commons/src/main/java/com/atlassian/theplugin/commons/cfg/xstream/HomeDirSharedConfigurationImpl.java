@@ -24,10 +24,6 @@ import org.jdom.input.SAXBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.channels.OverlappingFileLockException;
 import java.util.Collection;
 
 /**
@@ -85,11 +81,11 @@ public class HomeDirSharedConfigurationImpl
 
 				final SAXBuilder builder = new SAXBuilder(false);
 				try {
-					doc = builder.build(sharedConfigFile.getAbsolutePath());
+					doc = builder.build(sharedConfigFile.toURI().toString());
 				} catch (JDOMException e) {
 					throw new ServerCfgFactoryException("Cannot parse shared cfg file " + e.getMessage());
 				} catch (IOException e) {
-					throw new ServerCfgFactoryException("Cannot read shared cfg file " + e.getMessage());
+					throw new ServerCfgFactoryException("Cannot read shared cfg file " + sharedConfigFile.getAbsolutePath() + " : " + e.getMessage());
 				}
 
 				SharedServerList globalServerInfos = null;

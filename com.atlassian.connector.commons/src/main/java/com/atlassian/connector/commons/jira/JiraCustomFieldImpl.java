@@ -142,7 +142,7 @@ public class JiraCustomFieldImpl implements JiraCustomField {
             this.typeKey = BasicKeyType.getValueOf(schema.getString("custom"));
             this.name = meta.getString("name");
             this.id = field.getId();
-            values = Lists.newArrayList((String) field.getValue());
+            values = Lists.newArrayList(field.getValue().toString());
         }
 
         public Builder(Element e) {

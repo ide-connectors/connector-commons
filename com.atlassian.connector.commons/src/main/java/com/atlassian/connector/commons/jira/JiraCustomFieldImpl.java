@@ -118,14 +118,15 @@ public class JiraCustomFieldImpl implements JiraCustomField {
             }
             List<String> values = field.getValues();
             if (values != null && values.size() > 0) {
+                String str = values.get(0);
                 if (NUMERIC == this) {
-                    return new FieldInput(field.getFieldId(), Float.valueOf(values.get(0)));
+                    return new FieldInput(field.getFieldId(), str != null && str.length() > 0 ? Float.valueOf(str) : 0);
                 } else if (DATE_PICKER == this) {
-                    DateTime dt = DateTimeFormat.forPattern("dd/MM/yy").withLocale(Locale.US).parseDateTime(values.get(0));
+                    DateTime dt = DateTimeFormat.forPattern("dd/MM/yy").withLocale(Locale.US).parseDateTime(str);
                     return new FieldInput(field.getFieldId(), JsonParseUtil.formatDate(dt));
                 }
                 // text and URL fields
-                return new FieldInput(field.getFieldId(), values.get(0));
+                return new FieldInput(field.getFieldId(), str);
             }
             return new FieldInput(field.getFieldId(), null);
         }

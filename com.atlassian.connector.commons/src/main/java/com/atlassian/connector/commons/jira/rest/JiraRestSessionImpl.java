@@ -602,7 +602,7 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                     builder.setAssigneeName(issue.getAssigneeId());
                 }
                 String originalEstimate = issue.getOriginalEstimate();
-                if (originalEstimate != null) {
+                if (originalEstimate != null && originalEstimate.length() > 0) {
                     builder.setFieldValue(IssueFieldId.TIMETRACKING_FIELD.id,
                         new ComplexIssueInputFieldValue(
                             ImmutableMap.of("originalEstimate", (Object) originalEstimate)));

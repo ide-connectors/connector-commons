@@ -408,22 +408,23 @@ public class JIRAIssueBean implements JIRAIssue {
         }
         this.issueLinks = Maps.newHashMap();
         Iterable<IssueLink> links = issue.getIssueLinks();
+        if (links != null) {
+            for (IssueLink link : links) {
+                String linkName = link.getIssueLinkType().getName();
+                Map<String, List<String>> map = issueLinks.get(linkName);
+                if (map == null) {
+                    map = Maps.newHashMap();
+                }
+                String description = link.getIssueLinkType().getDescription();
+                List<String> issueKeys = map.get(description);
+                if (issueKeys == null) {
+                    issueKeys = Lists.newArrayList();
+                }
+                issueKeys.add(link.getTargetIssueKey());
+                map.put(description, issueKeys);
 
-        for (IssueLink link : links) {
-            String linkName = link.getIssueLinkType().getName();
-            Map<String, List<String>> map = issueLinks.get(linkName);
-            if (map == null) {
-                map = Maps.newHashMap();
+                issueLinks.put(linkName, map);
             }
-            String description = link.getIssueLinkType().getDescription();
-            List<String> issueKeys = map.get(description);
-            if (issueKeys == null) {
-                issueKeys = Lists.newArrayList();
-            }
-            issueKeys.add(link.getTargetIssueKey());
-            map.put(description, issueKeys);
-
-            issueLinks.put(linkName, map);
         }
 
         Iterable<Comment> comments = issue.getComments();

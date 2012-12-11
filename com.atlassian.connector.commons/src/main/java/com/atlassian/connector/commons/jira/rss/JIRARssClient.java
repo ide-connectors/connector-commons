@@ -170,7 +170,6 @@ public class JIRARssClient extends AbstractHttpSession implements JIRASessionPar
         }
     }
 
-    @Override
     public List<JIRAIssue> getIssues(String jql, String sort, String sortOrder, int start, int size) throws JIRAException {
         throw new JIRAException("Not implemented");
     }

@@ -228,7 +228,6 @@ public class JiraRESTFacade2Impl implements JIRAServerFacade2, JiraRESTSupportTe
 
     public JIRAIssue createSubtask(final JiraServerData server, final JIRAIssue parent, final JIRAIssue issue) throws JIRAException {
         return withJiraException(new Callable<JIRAIssue>() {
-            @Override
             public JIRAIssue call() throws Exception {
                 return get(server).createSubtask(parent, issue);
             }

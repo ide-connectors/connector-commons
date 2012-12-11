@@ -106,7 +106,6 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         notRestCapable.clear();
     }
 
-    @Override
     public boolean usesRest(JiraServerData jiraServerData) {
         return worker.usesRest(jiraServerData);
     }

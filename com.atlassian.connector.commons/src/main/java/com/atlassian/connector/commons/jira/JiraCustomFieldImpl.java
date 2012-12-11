@@ -141,8 +141,25 @@ public class JiraCustomFieldImpl implements JiraCustomField {
             JSONObject schema = meta.getJSONObject("schema");
             this.typeKey = BasicKeyType.getValueOf(schema.getString("custom"));
             this.name = meta.getString("name");
+            String type = schema.getString("type");
             this.id = field.getId();
-            values = Lists.newArrayList(field.getValue().toString());
+            values = Lists.newArrayList();
+            if ("array".equals(type)) {
+//                try {
+//                    JSONArray vals = (JSONArray) field.getValue();
+                    values.add("[Custom field not supported]");
+//                } catch (Exception e) {
+//                }
+            } else {
+                if (this.typeKey == BasicKeyType.UNSUPPORTED) {
+                    values.add("[Custom field not supported]");
+                } else {
+                    Object value = field.getValue();
+                    if (value != null) {
+                        values.add(value.toString());
+                    }
+                }
+            }
         }
 
         public Builder(Element e) {

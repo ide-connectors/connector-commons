@@ -40,6 +40,7 @@ public class BambooServerCfg extends ServerCfg {
 
 	public BambooServerCfg(final boolean enabled, final String name, final ServerIdImpl serverId) {
 		super(enabled, name, serverId);
+        showBranches = true;
 	}
 
 	public BambooServerCfg(final BambooServerCfg other) {

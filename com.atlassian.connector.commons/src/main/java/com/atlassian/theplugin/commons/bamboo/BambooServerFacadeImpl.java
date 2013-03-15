@@ -291,11 +291,20 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 			for (SubscribedPlan plan : plans) {
 				if (api != null && api.isLoggedIn()) {
 					try {
-						final Boolean isEnabled = plansForServer != null ? BambooSessionImpl.isPlanEnabled(
-								plansForServer, plan.getKey()) : null;
-						BambooBuild buildInfo = api.getLatestBuildForPlanNew(plan.getKey(), isEnabled != null ? isEnabled
-								: true, timezoneOffset);
-						builds.add(buildInfo);
+                        Boolean planEnabled = plansForServer != null
+                            ? BambooSessionImpl.isPlanEnabled(plansForServer, plan.getKey())
+                            : null;
+                        if (isShowBranches) {
+                            Collection<String> branches = api.getBranchKeys(plan.getKey(), isUseFavourities, myBranchesOnly);
+                            branches.add(plan.getKey());
+                            for (String branch : branches) {
+                                BambooBuild buildInfo = api.getLatestBuildForPlanNew(branch, planEnabled != null && planEnabled, timezoneOffset);
+                                builds.add(buildInfo);
+                            }
+                        } else {
+                            BambooBuild buildInfo = api.getLatestBuildForPlanNew(plan.getKey(), planEnabled != null && planEnabled, timezoneOffset);
+						    builds.add(buildInfo);
+                        }
 					} catch (RemoteApiException e) {
 						// go ahead, there are other builds
 						// go ahead, there are other builds

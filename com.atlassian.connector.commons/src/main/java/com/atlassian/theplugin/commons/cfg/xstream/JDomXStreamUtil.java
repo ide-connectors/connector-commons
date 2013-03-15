@@ -85,6 +85,8 @@ public final class JDomXStreamUtil {
         }
         xStream.aliasField("use-favourites", ServerCfg.class, "isUseFavourites");
         xStream.aliasField("bamboo2", ServerCfg.class, "isBamboo2");
+        xStream.aliasField("show-branches", ServerCfg.class, "showBranches");
+        xStream.aliasField("my-branches-only", ServerCfg.class, "myBranchesOnly");
 
         xStream.alias("project-configuration", ProjectConfiguration.class);
         xStream.aliasField("default-crucible-server", ProjectConfiguration.class, "defaultCrucibleServerId");
@@ -113,6 +115,8 @@ public final class JDomXStreamUtil {
         xStream.aliasField("private-server-cfgs", PrivateProjectConfiguration.class, "privateServerCfgInfos");
         xStream.aliasField("plans", PrivateProjectConfiguration.class, "plans");
         xStream.aliasField("useFavourites", PrivateProjectConfiguration.class, "use-favourites");
+        xStream.aliasField("showBranches", PrivateProjectConfiguration.class, "show-branches");
+        xStream.aliasField("myBranchesOnly", PrivateProjectConfiguration.class, "my-branches-only");
 
 
         xStream.aliasField("plans", BambooServerCfg.class, "plans");

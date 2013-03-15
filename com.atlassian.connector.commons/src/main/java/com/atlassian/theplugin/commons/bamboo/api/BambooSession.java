@@ -110,4 +110,7 @@ public interface BambooSession extends ProductSession {
 	BambooPlan getPlanDetails(@NotNull String planKey) throws RemoteApiException;
 
 	List<BambooJobImpl> getJobsForPlan(String planKey) throws RemoteApiException;
+
+    @NotNull
+    Collection<String> getBranchKeys(String planKey, boolean useFavourites, boolean myBranchesOnly) throws RemoteApiException;
 }

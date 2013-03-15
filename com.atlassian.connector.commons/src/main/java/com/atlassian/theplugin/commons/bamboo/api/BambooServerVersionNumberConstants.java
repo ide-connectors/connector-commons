@@ -16,5 +16,6 @@ public final class BambooServerVersionNumberConstants {
 
 	}
 	public static final int BAMBOO_1401_BUILD_NUMBER = 1401;
+    public static final int BAMBOO_3600_BUILD_NUMBER = 3600;
 
 }

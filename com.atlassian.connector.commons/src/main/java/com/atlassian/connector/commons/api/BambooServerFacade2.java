@@ -41,8 +41,10 @@ public interface BambooServerFacade2 extends ProductServerFacade {
 	Collection<BambooPlan> getPlanList(ConnectionCfg bambooServer) throws ServerPasswordNotProvidedException,
 		RemoteApiException;
 
-	Collection<BambooBuild> getSubscribedPlansResults(ConnectionCfg bambooServer, final Collection<SubscribedPlan> plans,
-			boolean isUseFavourities, int timezoneOffset) throws ServerPasswordNotProvidedException, RemoteApiException;
+	Collection<BambooBuild> getSubscribedPlansResults(
+            ConnectionCfg bambooServer, final Collection<SubscribedPlan> plans,
+			boolean isUseFavourities, boolean isShowBranches, boolean myBranchesOly, int timezoneOffset)
+            throws ServerPasswordNotProvidedException, RemoteApiException;
 
 	BuildDetails getBuildDetails(ConnectionCfg bambooServer, @NotNull String planKey, int buildNumber)
 		throws ServerPasswordNotProvidedException, RemoteApiException;

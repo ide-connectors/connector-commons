@@ -31,9 +31,15 @@ public final class BambooBuildInfo implements BambooBuild {
 	private final ConnectionCfg server;
 	@Nullable
 	private final String projectName;
+    @Nullable
+    private final String projectKey;
+
 	private final String planName;
 	@NotNull
 	private final String planKey;
+    @Nullable
+    private final String masterPlanKey;
+
 	private final boolean enabled;
 	@NotNull
 	private final BuildStatus status;
@@ -58,14 +64,17 @@ public final class BambooBuildInfo implements BambooBuild {
 	@Nullable
 	private final PlanState planState;
 
-	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @NotNull ConnectionCfg serverData,
+	public BambooBuildInfo(@NotNull String planKey, @Nullable String planName, @Nullable String masterPlanKey, @NotNull ConnectionCfg serverData,
 			@NotNull Date pollingTime, @Nullable String projectName, boolean isEnabled, @Nullable Integer number,
 			@NotNull BuildStatus status, @Nullable PlanState planState, @Nullable String reason, @Nullable Date startDate,
 			@Nullable String testSummary, @Nullable String commitComment, final int testsPassedCount,
 			final int testsFailedCount, @Nullable Date completionDate, @Nullable String errorMessage,
 			final Throwable exception, @Nullable String relativeBuildDate, @Nullable String durationDescription,
 			@Nullable Collection<String> commiters) {
-		this.exception = exception;
+        this.masterPlanKey = masterPlanKey;
+        String[] split = planKey.split("-");
+        this.projectKey = split.length > 0 ? split[0] : null;
+        this.exception = exception;
 		this.pollingTime = new Date(pollingTime.getTime());
 		this.planKey = planKey;
 		this.planName = planName;
@@ -101,7 +110,17 @@ public final class BambooBuildInfo implements BambooBuild {
 		return completionDate == null ? null : new Date(completionDate.getTime());
 	}
 
-	public String getServerUrl() {
+    @Nullable
+    public String getProjectKey() {
+        return projectKey;
+    }
+
+    @Nullable
+    public String getMasterPlanKey() {
+        return masterPlanKey;
+    }
+
+    public String getServerUrl() {
 		return server.getUrl();
 	}
 
@@ -300,6 +319,8 @@ public final class BambooBuildInfo implements BambooBuild {
 	public static class Builder {
 		private final String planKey;
 		private final String planName;
+        @Nullable
+        private String masterPlanKey;
 		private final ConnectionCfg serverData;
 		private final String projectName;
 		private final Integer buildNumber;
@@ -339,12 +360,17 @@ public final class BambooBuildInfo implements BambooBuild {
 		public Builder(@NotNull String planKey, @Nullable String planName, @NotNull ConnectionCfg serverData,
 				@Nullable String projectName, @Nullable Integer buildNumber, @NotNull BuildStatus state) {
 			this.planKey = planKey;
-			this.planName = planName;
+            this.planName = planName;
 			this.serverData = serverData;
 			this.projectName = projectName;
 			this.buildNumber = buildNumber;
 			this.buildState = state;
 		}
+
+        public Builder masterPlanKey(String aMasterPlanKey) {
+            this.masterPlanKey = aMasterPlanKey;
+            return this;
+        }
 
 		public Builder enabled(boolean aIsEnabled) {
 			isEnabled = aIsEnabled;
@@ -376,7 +402,6 @@ public final class BambooBuildInfo implements BambooBuild {
 			this.completionTime = aCompletionTime;
 			return this;
 		}
-
 
 		public Builder commiters(final Collection<String> aCommiters) {
 			this.commiters = aCommiters;
@@ -424,9 +449,10 @@ public final class BambooBuildInfo implements BambooBuild {
 		}
 
 		public BambooBuildInfo build() {
-			return new BambooBuildInfo(planKey, planName, serverData, pollingTime, projectName, isEnabled, buildNumber,
-					buildState, planState, buildReason, startTime, testSummary, commitComment, testsPassedCount,
-					testsFailedCount, completionTime, message, exception, relativeBuildDate, durationDescription, commiters);
+			return new BambooBuildInfo(
+                planKey, planName, masterPlanKey, serverData, pollingTime, projectName, isEnabled, buildNumber,
+                buildState, planState, buildReason, startTime, testSummary, commitComment, testsPassedCount,
+                testsFailedCount, completionTime, message, exception, relativeBuildDate, durationDescription, commiters);
 		}
 	}
 

@@ -242,4 +242,13 @@ public class AutoRenewBambooSession implements BambooSession {
 		}
 	}
 
+    @NotNull
+    public Collection<String> getBranchKeys(String planKey, boolean useFavourites, boolean myBranchesOnly) throws RemoteApiException {
+        try {
+            return delegate.getBranchKeys(planKey, useFavourites, myBranchesOnly);
+        } catch (RemoteApiSessionExpiredException e) {
+            delegate.login(userName, password);
+            return delegate.getBranchKeys(planKey, useFavourites, myBranchesOnly);
+        }
+    }
 }

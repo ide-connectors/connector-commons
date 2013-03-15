@@ -38,6 +38,12 @@ public interface BambooBuild {
 
 	String getPlanName();
 
+    @Nullable
+    String getProjectKey();
+
+    @Nullable
+    String getMasterPlanKey();
+
 	@NotNull
 	String getPlanKey();
 

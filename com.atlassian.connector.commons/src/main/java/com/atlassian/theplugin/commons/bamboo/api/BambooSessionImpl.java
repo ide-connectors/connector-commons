@@ -44,7 +44,9 @@ import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.UrlUtil;
 import com.atlassian.theplugin.commons.util.XmlUtil;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -86,7 +88,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 
 	private static final String GET_BUILD_ACTION = "/rest/api/latest/build/";
 
-	private static final String GET_BUILD_DETAILS = "/rest/api/latest/result/";
+    private static final String GET_BUILD_DETAILS = "/rest/api/latest/result/";
 
 	private static final String GET_ISSUES_SUFFIX = "?expand=jiraIssues";
 
@@ -130,6 +132,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	private static final int BAMBOO_2_6_3_BUILD_NUMBER = 1904;
 	private static final int BAMBOO_2_7_2_BUILD_NUMBER = 2101;
 	private static final int BAMBOO_4_0_BUILD_NUMBER = 2906;
+    private static final int BAMBOO_5_0_BUILD_NUMBER = 3600;
 
 	private static final String CANNOT_PARSE_BUILD_TIME = "Cannot parse buildTime.";
 	private static final String INVALID_SERVER_RESPONSE = "Invalid server response";
@@ -1559,7 +1562,41 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		return null;
 	}
 
-	public List<BambooJobImpl> getJobsForPlan(String planKey) throws RemoteApiException {
+    @NotNull
+    public Collection<String> getBranchKeys(String planKey, boolean useFavourites, boolean myBranchesOnly) throws RemoteApiException {
+        List<String> branches = Lists.newArrayList();
+        String my = myBranchesOnly ? "&my" : "";
+        String url = getBaseUrl() + PLAN_STATE + UrlUtil.encodeUrl(planKey) + "?expand=branches.branch" + my;
+        try {
+            Document doc = retrieveGetResponse(url);
+            String exception = getExceptionMessages(doc);
+            if (null != exception) {
+                throw new RemoteApiException(exception);
+            }
+            final XPath xpath = XPath.newInstance("/plan/branches/branch");
+            @SuppressWarnings("unchecked")
+            final List<Element> elements = xpath.selectNodes(doc);
+            if (elements != null) {
+                for (Element element : elements) {
+                    if (useFavourites) {
+                        String favourite = getChildText(element, "isFavourite");
+                        if (StringUtils.equals(favourite, "false")) {
+                            continue;
+                        }
+                    }
+                    String branchKey = element.getAttributeValue("key");
+                    branches.add(branchKey);
+                }
+            }
+        } catch (IOException e) {
+            throw new RemoteApiException(e.getMessage(), e);
+        } catch (JDOMException e) {
+            throw new RemoteApiException(e.getMessage(), e);
+        }
+        return branches;
+    }
+
+    public List<BambooJobImpl> getJobsForPlan(String planKey) throws RemoteApiException {
 
 		List<BambooJobImpl> jobs = new ArrayList<BambooJobImpl>();
 

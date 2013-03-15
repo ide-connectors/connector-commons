@@ -189,11 +189,15 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 	}
 
 	public Collection<BambooBuild> getSubscribedPlansResults(ConnectionCfg connectionCfg,
-			final Collection<SubscribedPlan> plans, boolean isUseFavourities, int timezoneOffset)
+			final Collection<SubscribedPlan> plans, boolean isUseFavourities, boolean isShowBranches, boolean myBranchesOnly, int timezoneOffset)
 			throws ServerPasswordNotProvidedException, RemoteApiException {
 		final BambooSession session = getSession(connectionCfg);
 		if (session.getBamboBuildNumber() >= BambooServerVersionNumberConstants.BAMBOO_1401_BUILD_NUMBER) {
-			return getSubscribedPlansResultsNew(connectionCfg, plans, isUseFavourities, timezoneOffset);
+			return getSubscribedPlansResultsNew(
+                    connectionCfg, plans, isUseFavourities,
+                    isShowBranches && session.getBamboBuildNumber() >= BambooServerVersionNumberConstants.BAMBOO_3600_BUILD_NUMBER,
+                    myBranchesOnly,
+                    timezoneOffset);
 		} else {
 			return getSubscribedPlansResultsOld(connectionCfg, plans, isUseFavourities, timezoneOffset);
 		}
@@ -218,8 +222,9 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 	 *             when we cannot log in
 	 * @see com.atlassian.theplugin.commons.bamboo.api.BambooSessionImpl#login(String, char[])
 	 */
-	Collection<BambooBuild> getSubscribedPlansResultsNew(ConnectionCfg bambooServer,
-			final Collection<SubscribedPlan> plans, boolean isUseFavourities, int timezoneOffset)
+	Collection<BambooBuild> getSubscribedPlansResultsNew(
+            ConnectionCfg bambooServer, final Collection<SubscribedPlan> plans,
+            boolean isUseFavourities, boolean isShowBranches, boolean myBranchesOnly, int timezoneOffset)
 			throws ServerPasswordNotProvidedException, RemoteApiLoginException {
 		Collection<BambooBuild> builds = new ArrayList<BambooBuild>();
 
@@ -257,9 +262,18 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 					if (bambooPlan.isFavourite()) {
 						if (api != null && api.isLoggedIn()) {
 							try {
-								BambooBuild buildInfo = api.getLatestBuildForPlanNew(bambooPlan.getKey(),
-										bambooPlan.isEnabled(), timezoneOffset);
-								builds.add(buildInfo);
+                                if (isShowBranches) {
+                                    Collection<String> branches = api.getBranchKeys(bambooPlan.getKey(), isUseFavourities, myBranchesOnly);
+                                    branches.add(bambooPlan.getKey());
+                                    for (String branch : branches) {
+                                        BambooBuild buildInfo = api.getLatestBuildForPlanNew(branch, bambooPlan.isEnabled(), timezoneOffset);
+                                        builds.add(buildInfo);
+                                    }
+                                } else {
+                                    BambooBuild buildInfo = api.getLatestBuildForPlanNew(bambooPlan.getKey(),
+                                            bambooPlan.isEnabled(), timezoneOffset);
+                                    builds.add(buildInfo);
+                                }
 							} catch (RemoteApiException e) {
 								// go ahead, there are other builds
 								logger.warn("Cannot fetch latest build for plan [" + bambooPlan.getKey()

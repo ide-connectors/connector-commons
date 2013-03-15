@@ -50,16 +50,17 @@ import com.atlassian.theplugin.commons.util.LoggerImpl;
 import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.spartez.util.junit3.IAction;
 import com.spartez.util.junit3.TestUtil;
+import junit.framework.TestCase;
 import org.ddsteps.mock.httpserver.JettyMockServer;
 import org.easymock.EasyMock;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-import junit.framework.TestCase;
 
 /**
  * {@link com.atlassian.theplugin.commons.bamboo.BambooServerFacadeImpl} test.
@@ -167,7 +168,8 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("WRONG"));
 
 		Collection<BambooBuild> plans = testedBambooServerFacade.getSubscribedPlansResults(
-				getServerData(bambooServerCfg), bambooServerCfg.getPlans(), bambooServerCfg.isUseFavourites(),
+				getServerData(bambooServerCfg), bambooServerCfg.getPlans(),
+                bambooServerCfg.isUseFavourites(), bambooServerCfg.isShowBranches(), bambooServerCfg.isMyBranchesOnly(),
 				bambooServerCfg.getTimezoneOffset());
 
 		assertNotNull(plans);
@@ -194,8 +196,9 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/getLatestBuildResults.action", new LatestBuildResultCallback("bt"));
 
 		final Collection<BambooBuild> plans = testedBambooServerFacade.getSubscribedPlansResults(
-				getServerData(bambooServerCfg), bambooServerCfg.getPlans(), bambooServerCfg.isUseFavourites(),
-				bambooServerCfg.getTimezoneOffset());
+				getServerData(bambooServerCfg), bambooServerCfg.getPlans(),
+                bambooServerCfg.isUseFavourites(), bambooServerCfg.isShowBranches(), bambooServerCfg.isMyBranchesOnly(),
+                bambooServerCfg.getTimezoneOffset());
 		assertNotNull(plans);
 		assertEquals(3, plans.size());
 		Date completedDate = parseBuildDate("2008-12-12 03:08:10");
@@ -307,7 +310,9 @@ public class BambooServerFacadeTest extends TestCase {
 			bambooServerCfg.setTimezoneOffset(hourOffset);
 		}
 		final Collection<BambooBuild> res = facade.getSubscribedPlansResults(getServerData(bambooServerCfg),
-				bambooServerCfg.getPlans(), bambooServerCfg.isUseFavourites(), bambooServerCfg.getTimezoneOffset());
+				bambooServerCfg.getPlans(),
+                bambooServerCfg.isUseFavourites(), bambooServerCfg.isShowBranches(), bambooServerCfg.isMyBranchesOnly(),
+                bambooServerCfg.getTimezoneOffset());
 		assertNotNull(res);
 		assertEquals(2, res.size());
 
@@ -325,7 +330,8 @@ public class BambooServerFacadeTest extends TestCase {
 			public void run() throws Throwable {
 				// Collection<BambooBuild> plans =
 				testedBambooServerFacade.getSubscribedPlansResults(getServerData(bambooServerCfg), bambooServerCfg.getPlans(),
-						bambooServerCfg.isUseFavourites(), bambooServerCfg.getTimezoneOffset());
+                        bambooServerCfg.isUseFavourites(), bambooServerCfg.isShowBranches(), bambooServerCfg.isMyBranchesOnly(),
+                        bambooServerCfg.getTimezoneOffset());
 			}
 		});
 		// assertNotNull(plans);
@@ -428,7 +434,7 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.expect("/api/rest/login.action", new LoginCallback(USER_NAME, PASSWORD, LoginCallback.ALWAYS_FAIL));
 		TestUtil.assertThrows(RemoteApiLoginException.class, new IAction() {
 			public void run() throws Throwable {
-				testedBambooServerFacade.getSubscribedPlansResults(getServerData(bambooServerCfg), null, true, 0);
+				testedBambooServerFacade.getSubscribedPlansResults(getServerData(bambooServerCfg), null, true, true, true, 0);
 			}
 		});
 		mockServer.verify();
@@ -496,7 +502,9 @@ public class BambooServerFacadeTest extends TestCase {
 		bambooServerCfg.getSubscribedPlans().clear();
 		BambooServerFacade2 facade = new BambooServerFacadeImpl(LoggerImpl.getInstance(), new TestHttpSessionCallbackImpl());
 		Collection<BambooBuild> plans = facade.getSubscribedPlansResults(getServerData(bambooServerCfg),
-				bambooServerCfg.getPlans(), bambooServerCfg.isUseFavourites(), bambooServerCfg.getTimezoneOffset());
+				bambooServerCfg.getPlans(),
+                bambooServerCfg.isUseFavourites(), bambooServerCfg.isShowBranches(), bambooServerCfg.isMyBranchesOnly(),
+                bambooServerCfg.getTimezoneOffset());
 		assertEquals(0, plans.size());
 
 		mockServer.verify();
@@ -673,7 +681,7 @@ public class BambooServerFacadeTest extends TestCase {
 
 		long start = System.currentTimeMillis();
 		final Collection<BambooBuild> builds = testedBambooServerFacade.getSubscribedPlansResultsNew(connectionCfg,
-				s.getPlans(), s.isUseFavourites(), s.getTimezoneOffset());
+				s.getPlans(), s.isUseFavourites(), s.isShowBranches(), s.isMyBranchesOnly(), s.getTimezoneOffset());
 		assertEquals(1, builds.size());
 		final BambooBuild build = builds.iterator().next();
 		assertEquals("TP-DEF", build.getPlanKey());

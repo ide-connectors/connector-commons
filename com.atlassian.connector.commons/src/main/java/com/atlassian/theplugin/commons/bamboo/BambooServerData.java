@@ -77,6 +77,14 @@ public class BambooServerData extends ServerData {
 		return getServer().isBamboo2();
 	}
 
+    public boolean isShowBranches() {
+        return getServer().isShowBranches();
+    }
+
+    public boolean isMyBranchesOnly() {
+        return getServer().isMyBranchesOnly();
+    }
+
 	@Override
 	protected BambooServerCfg getServer() {
 		return (BambooServerCfg) super.getServer();

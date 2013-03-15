@@ -22,9 +22,9 @@ import java.util.Collection;
 
 public class BambooServerCfg extends ServerCfg {
 
-	private static final int HASHCODE_MAGIC = 31;
-
 	private boolean isUseFavourites;
+    private boolean showBranches;
+    private boolean myBranchesOnly;
 	private boolean isBamboo2;
 
 	private Collection<SubscribedPlan> plans = MiscUtil.buildArrayList();
@@ -45,6 +45,8 @@ public class BambooServerCfg extends ServerCfg {
 	public BambooServerCfg(final BambooServerCfg other) {
 		super(other);
 		isUseFavourites = other.isUseFavourites();
+        showBranches = other.isShowBranches();
+        myBranchesOnly = other.isMyBranchesOnly();
 		isBamboo2 = other.isBamboo2();
 		// shallow copy of SubscribedPlan objects is enough as they are immutable
 		plans = MiscUtil.buildArrayList(other.getPlans());
@@ -80,7 +82,15 @@ public class BambooServerCfg extends ServerCfg {
 		isUseFavourites = useFavourites;
 	}
 
-	public int getTimezoneOffset() {
+    public void setShowBranches(boolean showBranches) {
+        this.showBranches = showBranches;
+    }
+
+    public void setMyBranchesOnly(boolean myBranchesOnly) {
+        this.myBranchesOnly = myBranchesOnly;
+    }
+
+    public int getTimezoneOffset() {
 		return timezoneOffset;
 	}
 
@@ -107,7 +117,15 @@ public class BambooServerCfg extends ServerCfg {
 			return false;
 		}
 
-		if (plans.equals(that.plans) == false) {
+        if (showBranches != that.showBranches) {
+            return false;
+        }
+
+        if (myBranchesOnly != that.myBranchesOnly) {
+            return false;
+        }
+
+        if (plans.equals(that.plans) == false) {
 			return false;
 		}
 
@@ -120,7 +138,11 @@ public class BambooServerCfg extends ServerCfg {
 
 	@Override
 	public int hashCode() {
-		return (isUseFavourites ? 1 : 0) + HASHCODE_MAGIC * super.hashCode();
+        int result = super.hashCode();
+        result = 31 * result + (isUseFavourites ? 1 : 0);
+        result = 31 * result + (showBranches ? 1 : 0);
+        result = 31 * result + (myBranchesOnly ? 1 : 0);
+		return result;
 	}
 
 	@Override
@@ -139,7 +161,15 @@ public class BambooServerCfg extends ServerCfg {
 		return isBamboo2;
 	}
 
-	public Collection<SubscribedPlan> getPlans() {
+    public boolean isShowBranches() {
+        return showBranches;
+    }
+
+    public boolean isMyBranchesOnly() {
+        return myBranchesOnly;
+    }
+
+    public Collection<SubscribedPlan> getPlans() {
 		return plans;
 	}
 

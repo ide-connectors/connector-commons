@@ -29,11 +29,12 @@ import com.atlassian.theplugin.commons.bamboo.TestDetails;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiLoginException;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredException;
 import com.spartez.util.junit3.TestUtil;
+import junit.framework.TestCase;
 import org.easymock.EasyMock;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import junit.framework.TestCase;
 
 @SuppressWarnings({"ThrowableInstanceNeverThrown"})
 public class AutoRenewBambooSessionTest extends TestCase {
@@ -135,8 +136,8 @@ public class AutoRenewBambooSessionTest extends TestCase {
 		mockDelegate.login(EasyMock.eq("login"), EasyMock.isA(char[].class));
 		EasyMock.expectLastCall();
 		mockDelegate.getPlanList();
-		final BambooPlan bp1 = new BambooPlan("planName1", "planKey", false, false);
-		final BambooPlan bp2 = new BambooPlan("planName2", "planKey2", false, false);
+		final BambooPlan bp1 = new BambooPlan("planName1", "planKey", null, false, false);
+		final BambooPlan bp2 = new BambooPlan("planName2", "planKey2", null, false, false);
 		EasyMock.expectLastCall().andReturn(Arrays.asList(bp1, bp2));
 
 		EasyMock.replay(mockDelegate);

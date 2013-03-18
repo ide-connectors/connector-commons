@@ -245,10 +245,10 @@ public class BambooServerFacadeTest extends TestCase {
 		final int hourOffset = -7;
 		final String key1 = "pl";
 		final DateTime buildDate1 = new DateTime(2009, 1, 10, 21, 29, 4, 0);
-		final BambooPlan plan1 = new BambooPlan("planname1", key1);
+		final BambooPlan plan1 = new BambooPlan("planname1", key1, null);
 		final String key3 = "keyb";
 		final DateTime buildDate3 = new DateTime(2009, 3, 27, 1, 9, 0, 0);
-		final BambooPlan plan3 = new BambooPlan("planname3", key3, false);
+		final BambooPlan plan3 = new BambooPlan("planname3", key3, null, false);
 
 		final BambooBuild b1 = createBambooBuildInfo(bambooServerCfg, key1, plan1.getName(), buildDate1.plusHours(hourOffset));
 		final BambooBuild b2 = createBambooBuildInfo(bambooServerCfg, key3, plan3.getName(), buildDate3.plusHours(hourOffset));
@@ -283,10 +283,10 @@ public class BambooServerFacadeTest extends TestCase {
 
 		final String key1 = "pl";
 		final DateTime buildDate1 = new DateTime(2009, 1, 10, 21, 29, 4, 0);
-		final BambooPlan plan1 = new BambooPlan("planname1", key1);
+		final BambooPlan plan1 = new BambooPlan("planname1", key1, null);
 		final String key3 = "keyb";
 		final DateTime buildDate3 = new DateTime(2009, 3, 27, 1, 9, 0, 0);
-		final BambooPlan plan3 = new BambooPlan("planname3", key3, false);
+		final BambooPlan plan3 = new BambooPlan("planname3", key3, null, false);
 
 		final int hourOffset = 2;
 		final BambooBuild b1 = createBambooBuildInfo(bambooServerCfg, key1, plan1.getName(), buildDate1.plusHours(hourOffset));

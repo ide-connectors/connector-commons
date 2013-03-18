@@ -27,6 +27,8 @@ import com.atlassian.theplugin.commons.exception.ServerPasswordNotProvidedExcept
 import com.atlassian.theplugin.commons.remoteapi.ProductSession;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -100,7 +102,7 @@ public interface BambooSession extends ProductSession {
 	Collection<BambooBuild> getRecentBuildsForUser(final int timezoneOffset) throws RemoteApiException;
 
 	@NotNull
-	BambooBuild getLatestBuildForPlanNew(@NotNull String planKey, boolean isPlanEnabled,
+	BambooBuild getLatestBuildForPlanNew(@NotNull String planKey, @Nullable String masterPlanKey, boolean isPlanEnabled,
 			int timezoneOffset) throws RemoteApiException;
 
     @NotNull

@@ -260,27 +260,27 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 			if (plansForServer != null) {
 				for (BambooPlan bambooPlan : plansForServer) {
 					if (bambooPlan.isFavourite()) {
-						if (api != null && api.isLoggedIn()) {
+                        String key = bambooPlan.getKey();
+                        if (api != null && api.isLoggedIn()) {
 							try {
                                 if (isShowBranches) {
-                                    Collection<String> branches = api.getBranchKeys(bambooPlan.getKey(), isUseFavourities, myBranchesOnly);
-                                    branches.add(bambooPlan.getKey());
+                                    Collection<String> branches = api.getBranchKeys(key, isUseFavourities, myBranchesOnly);
+                                    branches.add(key);
                                     for (String branch : branches) {
-                                        BambooBuild buildInfo = api.getLatestBuildForPlanNew(branch, bambooPlan.isEnabled(), timezoneOffset);
+                                        BambooBuild buildInfo = api.getLatestBuildForPlanNew(branch, key.equals(branch) ? null : key, bambooPlan.isEnabled(), timezoneOffset);
                                         builds.add(buildInfo);
                                     }
                                 } else {
-                                    BambooBuild buildInfo = api.getLatestBuildForPlanNew(bambooPlan.getKey(),
-                                            bambooPlan.isEnabled(), timezoneOffset);
+                                    BambooBuild buildInfo = api.getLatestBuildForPlanNew(key, null, bambooPlan.isEnabled(), timezoneOffset);
                                     builds.add(buildInfo);
                                 }
 							} catch (RemoteApiException e) {
 								// go ahead, there are other builds
-								logger.warn("Cannot fetch latest build for plan [" + bambooPlan.getKey()
+								logger.warn("Cannot fetch latest build for plan [" + key
 										+ "] from Bamboo server [" + bambooServer.getUrl() + "]");
 							}
 						} else {
-							builds.add(constructBuildErrorInfo(bambooServer, bambooPlan.getKey(),
+							builds.add(constructBuildErrorInfo(bambooServer, key,
 									bambooPlan.getName(), connectionError == null ? ""
 									: connectionError.getMessage(), connectionError));
 						}
@@ -289,30 +289,31 @@ public final class BambooServerFacadeImpl implements BambooServerFacade2 {
 			}
 		} else {
 			for (SubscribedPlan plan : plans) {
-				if (api != null && api.isLoggedIn()) {
+                String key = plan.getKey();
+                if (api != null && api.isLoggedIn()) {
 					try {
                         Boolean planEnabled = plansForServer != null
-                            ? BambooSessionImpl.isPlanEnabled(plansForServer, plan.getKey())
+                            ? BambooSessionImpl.isPlanEnabled(plansForServer, key)
                             : null;
                         if (isShowBranches) {
-                            Collection<String> branches = api.getBranchKeys(plan.getKey(), isUseFavourities, myBranchesOnly);
-                            branches.add(plan.getKey());
+                            Collection<String> branches = api.getBranchKeys(key, isUseFavourities, myBranchesOnly);
+                            branches.add(key);
                             for (String branch : branches) {
-                                BambooBuild buildInfo = api.getLatestBuildForPlanNew(branch, planEnabled != null && planEnabled, timezoneOffset);
+                                BambooBuild buildInfo = api.getLatestBuildForPlanNew(branch, key.equals(branch) ? null : key, planEnabled != null && planEnabled, timezoneOffset);
                                 builds.add(buildInfo);
                             }
                         } else {
-                            BambooBuild buildInfo = api.getLatestBuildForPlanNew(plan.getKey(), planEnabled != null && planEnabled, timezoneOffset);
+                            BambooBuild buildInfo = api.getLatestBuildForPlanNew(key, null, planEnabled != null && planEnabled, timezoneOffset);
 						    builds.add(buildInfo);
                         }
 					} catch (RemoteApiException e) {
 						// go ahead, there are other builds
 						// go ahead, there are other builds
-						logger.warn("Cannot fetch latest build for plan [" + plan.getKey() + "] from Bamboo server ["
+						logger.warn("Cannot fetch latest build for plan [" + key + "] from Bamboo server ["
 								+ bambooServer.getUrl() + "]");
 					}
 				} else {
-					builds.add(constructBuildErrorInfo(bambooServer, plan.getKey(), null, connectionError == null ? ""
+					builds.add(constructBuildErrorInfo(bambooServer, key, null, connectionError == null ? ""
 							: connectionError.getMessage(), connectionError));
 				}
 			}

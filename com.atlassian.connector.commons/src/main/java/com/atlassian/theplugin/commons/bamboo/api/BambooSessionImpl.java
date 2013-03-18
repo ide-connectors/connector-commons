@@ -252,7 +252,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 					}
 					String name = element.getChild("name").getText();
 					String key = element.getChild("key").getText();
-					BambooPlan plan = new BambooPlan(name, key, enabled);
+					BambooPlan plan = new BambooPlan(name, key, null, enabled);
 					plans.add(plan);
 				}
 			}
@@ -288,7 +288,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 					// String name = element.getChild("name").getText();
 					// String key = element.getChild("key").getText();
 					String key = element.getAttributeValue("key");
-					BambooPlan plan = new BambooPlan(name, key, enabled);
+					BambooPlan plan = new BambooPlan(name, key, null, enabled);
 					plans.add(plan);
 				}
 			}
@@ -478,7 +478,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 	 * @throws RemoteApiException
 	 */
 	@NotNull
-	public BambooBuild getLatestBuildForPlanNew(@NotNull final String planKey, final boolean isPlanEnabled,
+	public BambooBuild getLatestBuildForPlanNew(@NotNull final String planKey, @Nullable final String masterPlanKey, final boolean isPlanEnabled,
 			final int timezoneOffset) throws RemoteApiException {
 
 		String planUrl = getBaseUrl() + PLAN_STATE + UrlUtil.encodeUrl(planKey);
@@ -501,6 +501,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 				}
 				latestBuildBuilderForPlan.planState(plan.getState());
 				latestBuildBuilderForPlan.enabled(isPlanEnabled);
+                latestBuildBuilderForPlan.masterPlanKey(masterPlanKey);
 				return latestBuildBuilderForPlan.build();
 
 				// TODO we can retrieve comments and labels together with build details
@@ -1312,7 +1313,7 @@ public class BambooSessionImpl extends LoginBambooSession implements BambooSessi
 		}
 		boolean isEnabled = Boolean.parseBoolean(isEnabledString);
 
-		return new BambooPlan(name, key, isEnabled, isFavourite, projectName, projectKey, averageBuildTime, isInQueue,
+		return new BambooPlan(name, key, null, isEnabled, isFavourite, projectName, projectKey, averageBuildTime, isInQueue,
 				isBuilding);
 	}
 

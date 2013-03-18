@@ -24,6 +24,7 @@ import java.io.Serializable;
 public class BambooPlan implements Serializable {
 	private final String name;
 	private final String key;
+    private final String materPlanKey;
 	private final boolean favourite;
 	private final boolean enabled;
 	private final String projectName;
@@ -31,23 +32,24 @@ public class BambooPlan implements Serializable {
 	private final Integer averageBuildTime;
 	private final PlanState state;
 
-	public BambooPlan(String name, String key) {
-		this(name, key, true);
+	public BambooPlan(String name, String key, String masterPlanKey) {
+		this(name, key, masterPlanKey, true);
 	}
 
-	public BambooPlan(String name, String key, boolean isEnabled) {
-		this(name, key, isEnabled, false);
+	public BambooPlan(String name, String key, String masterPlanKey, boolean isEnabled) {
+		this(name, key, masterPlanKey, isEnabled, false);
 	}
 
-	public BambooPlan(String name, String key, boolean isEnabled, boolean isFavourite) {
-		this(name, key, isEnabled, isFavourite, "", "", null, false, false);
+	public BambooPlan(String name, String key, String masterPlanKey, boolean isEnabled, boolean isFavourite) {
+		this(name, key, masterPlanKey, isEnabled, isFavourite, "", "", null, false, false);
 	}
 
-	public BambooPlan(final String name, final String key, final boolean isEnabled, final Boolean isFavourite,
+	public BambooPlan(final String name, final String key, final String masterPlanKey, final boolean isEnabled, final Boolean isFavourite,
 			final String projectName, final String projectKey, final Integer averageBuildTime, final boolean inQueue,
 			final boolean building) {
 		this.name = name;
 		this.key = key;
+        this.materPlanKey = masterPlanKey;
 		this.enabled = isEnabled;
 		this.favourite = isFavourite;
 		this.projectName = projectName;
@@ -72,7 +74,11 @@ public class BambooPlan implements Serializable {
 		return this.key;
 	}
 
-	public boolean isFavourite() {
+    public String getMaterPlanKey() {
+        return materPlanKey;
+    }
+
+    public boolean isFavourite() {
 		return favourite;
 	}
 
@@ -84,7 +90,7 @@ public class BambooPlan implements Serializable {
 	 * @return copy of this object
 	 */
 	public BambooPlan withFavourite(boolean isFavourite) {
-		return new BambooPlan(name, key, enabled, isFavourite);
+		return new BambooPlan(name, key, materPlanKey, enabled, isFavourite);
 	}
 
 	public boolean isEnabled() {

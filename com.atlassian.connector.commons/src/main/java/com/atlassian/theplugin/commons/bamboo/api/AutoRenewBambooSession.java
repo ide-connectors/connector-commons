@@ -31,6 +31,8 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiSessionExpiredExceptio
 import com.atlassian.theplugin.commons.remoteapi.rest.HttpSessionCallback;
 import com.atlassian.theplugin.commons.util.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -171,13 +173,13 @@ public class AutoRenewBambooSession implements BambooSession {
 	}
 
 	@NotNull
-	public BambooBuild getLatestBuildForPlanNew(@NotNull final String planKey, final boolean isPlanEnabled,
+	public BambooBuild getLatestBuildForPlanNew(@NotNull final String planKey, @Nullable String masterPlanKey, final boolean isPlanEnabled,
 			final int timezoneOffset) throws RemoteApiException {
 		try {
-			return delegate.getLatestBuildForPlanNew(planKey, isPlanEnabled, timezoneOffset);
+			return delegate.getLatestBuildForPlanNew(planKey, masterPlanKey, isPlanEnabled, timezoneOffset);
 		} catch (RemoteApiSessionExpiredException e) {
 			delegate.login(userName, password);
-			return delegate.getLatestBuildForPlanNew(planKey, isPlanEnabled, timezoneOffset);
+			return delegate.getLatestBuildForPlanNew(planKey, masterPlanKey, isPlanEnabled, timezoneOffset);
 		}
 
 	}

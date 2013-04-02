@@ -17,9 +17,9 @@
 				<useDefaultCredentials>false</useDefaultCredentials>
 				<shared>true</shared>
 				<use-favourites>false</use-favourites>
-                <show-branches>false</show-branches>
-                <my-branches-only>false</my-branches-only>
-                <bamboo2>false</bamboo2>
+				<show-branches>false</show-branches>
+				<my-branches-only>false</my-branches-only>
+				<bamboo2>false</bamboo2>
 				<plans>
 					<plan key="MYID" grouped="1" />
 					<plan key="PLANID2" grouped="0" />

@@ -19,6 +19,7 @@ import com.atlassian.jira.rest.client.domain.Field;
 import com.atlassian.jira.rest.client.domain.input.FieldInput;
 import com.atlassian.jira.rest.client.internal.json.JsonParseUtil;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.jdom.Attribute;
@@ -122,7 +123,10 @@ public class JiraCustomFieldImpl implements JiraCustomField {
                 if (NUMERIC == this) {
                     return new FieldInput(field.getFieldId(), str != null && str.length() > 0 ? Float.valueOf(str) : 0);
                 } else if (DATE_PICKER == this) {
-                    DateTime dt = DateTimeFormat.forPattern("dd/MM/yy").withLocale(Locale.US).parseDateTime(str);
+                    if (StringUtils.isEmpty(str)) {
+                        return new FieldInput(field.getFieldId(), null);
+                    }
+                    DateTime dt = DateTimeFormat.forPattern("dd/MMM/yy").withLocale(Locale.US).parseDateTime(str);
                     return new FieldInput(field.getFieldId(), JsonParseUtil.formatDate(dt));
                 }
                 // text and URL fields

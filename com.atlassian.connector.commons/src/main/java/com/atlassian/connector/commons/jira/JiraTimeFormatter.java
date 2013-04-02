@@ -58,7 +58,7 @@ public final class JiraTimeFormatter {
 
     public static String formatDateFromJiraTimeString(String dateString, Locale locale) {
         DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z (z)", locale);
-        DateFormat ds = new SimpleDateFormat("dd/MMM/yy");
+        DateFormat ds = new SimpleDateFormat("dd/MMM/yy", locale);
         String t;
         try {
             t = ds.format(df.parse(dateString));
@@ -68,7 +68,12 @@ public final class JiraTimeFormatter {
             try {
                 t = ds.format(df.parse(dateString));
             } catch (ParseException e2) {
-                t = "Invalid";
+                df = new SimpleDateFormat("yyyy-MM-dd", locale);
+                try {
+                    t = ds.format(df.parse(dateString));
+                } catch (ParseException e3) {
+                    t = "Invalid";
+                }
             }
         }
 

@@ -654,7 +654,7 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         try {
             return c.call();
         } catch (Exception e) {
-            throw new JIRAException(e.getMessage(), e);
+            throw new JIRAException(getConnectionCfgString() + "\n\n" + e.getMessage(), e);
         }
     }
 
@@ -662,7 +662,23 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         try {
             return c.call();
         } catch (Exception e) {
-            throw new RemoteApiException(e.getMessage(), e);
+            throw new RemoteApiException(getConnectionCfgString() + "\n\n" + e.getMessage(), e);
         }
+    }
+
+    private String getConnectionCfgString() {
+        return notNullString(server.getUsername()) +
+                (server.getPassword() != null
+                    ? ":[password " + server.getPassword().length() + " chars]"
+                    : "<null>"
+                )
+                + "@" + server.getUrl();
+    }
+
+    private static String notNullString(String str) {
+        if (str == null) {
+            return "<null>";
+        }
+        return str;
     }
 }

@@ -182,9 +182,9 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.verify();
 	}
 
-	public void testBuildCompletedDate() throws Exception {
-		implTestBuildCompletedDate(0);
-	}
+//	public void testBuildCompletedDate() throws Exception {
+//		implTestBuildCompletedDate(0);
+//	}
 
 	private void implTestBuildCompletedDate(int timezoneOffset) throws Exception {
 		bambooServerCfg.setTimezoneOffset(timezoneOffset);
@@ -211,13 +211,13 @@ public class BambooServerFacadeTest extends TestCase {
 		mockServer.verify();
 	}
 
-	public void testBuildCompletedDateWithTimezoneOffset() throws Exception {
-		implTestBuildCompletedDate(3);
-	}
+//	public void testBuildCompletedDateWithTimezoneOffset() throws Exception {
+//		implTestBuildCompletedDate(3);
+//	}
 
-	public void testBuildCompletedDateWithTimezoneOffset2() throws Exception {
-		implTestBuildCompletedDate(-5);
-	}
+//	public void testBuildCompletedDateWithTimezoneOffset2() throws Exception {
+//		implTestBuildCompletedDate(-5);
+//	}
 
 	private BambooBuild createBambooBuildInfo(BambooServerCfg serverCfg, String planKey, String planName,
 			DateTime buildCompletionDate) {

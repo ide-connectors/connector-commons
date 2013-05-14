@@ -79,6 +79,7 @@ import com.sun.jersey.api.client.filter.Filterable;
 import com.sun.jersey.client.apache.config.ApacheHttpClientConfig;
 import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -155,6 +156,7 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                 ApacheHttpClientConfig.PROPERTY_PROXY_URI, "http://" + proxyInfo.getProxyHost() + ":" + proxyInfo.getProxyPort());
         }
         restClient.getTransportClient().getProperties().put(ApacheHttpClientConfig.PROPERTY_HANDLE_COOKIES, true);
+        restClient.getTransportClient().getClientHandler().getHttpClient().getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
     }
 
     public boolean supportsRest() throws JIRAException {

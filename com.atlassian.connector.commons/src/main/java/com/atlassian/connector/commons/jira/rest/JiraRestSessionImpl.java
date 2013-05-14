@@ -33,8 +33,10 @@ import com.atlassian.jira.rest.client.IssueRestClient;
 import com.atlassian.jira.rest.client.JiraRestClient;
 import com.atlassian.jira.rest.client.NullProgressMonitor;
 import com.atlassian.jira.rest.client.OptionalIterable;
+import com.atlassian.jira.rest.client.auth.AnonymousAuthenticationHandler;
 import com.atlassian.jira.rest.client.auth.BasicHttpAuthenticationHandler;
 import com.atlassian.jira.rest.client.domain.Attachment;
+import com.atlassian.jira.rest.client.domain.Authentication;
 import com.atlassian.jira.rest.client.domain.BasicComponent;
 import com.atlassian.jira.rest.client.domain.BasicIssue;
 import com.atlassian.jira.rest.client.domain.BasicProject;
@@ -50,6 +52,7 @@ import com.atlassian.jira.rest.client.domain.Priority;
 import com.atlassian.jira.rest.client.domain.Resolution;
 import com.atlassian.jira.rest.client.domain.SearchResult;
 import com.atlassian.jira.rest.client.domain.SecurityLevel;
+import com.atlassian.jira.rest.client.domain.SessionCookie;
 import com.atlassian.jira.rest.client.domain.Status;
 import com.atlassian.jira.rest.client.domain.Transition;
 import com.atlassian.jira.rest.client.domain.User;
@@ -62,14 +65,19 @@ import com.atlassian.jira.rest.client.domain.input.WorklogInputBuilder;
 import com.atlassian.jira.rest.client.internal.ServerVersionConstants;
 import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClientFactory;
 import com.atlassian.jira.rest.client.internal.json.JsonParseUtil;
+import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
+import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 import com.atlassian.theplugin.commons.util.HttpConfigurableAdapter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.filter.Filterable;
 import com.sun.jersey.client.apache.config.ApacheHttpClientConfig;
+import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONException;
@@ -92,27 +100,61 @@ import java.util.concurrent.Callable;
  */
 public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartTwo {
     private final ConnectionCfg server;
+    private final HttpConfigurableAdapter proxyInfo;
     private final JiraRestClient restClient;
     final NullProgressMonitor pm = new NullProgressMonitor();
+    private Authentication authentication = null;
+    private ApacheHttpClientConfig apacheClientConfig = null;
 
     public JiraRestSessionImpl(ConnectionCfg server, final HttpConfigurableAdapter proxyInfo) throws URISyntaxException {
         this.server = server;
+        this.proxyInfo = proxyInfo;
 
-        restClient = new JerseyJiraRestClientFactory()
-                .create(new URI(server.getUrl()), new BasicHttpAuthenticationHandler(server.getUsername(), server.getPassword()) {
-            @Override
-            public void configure(ApacheHttpClientConfig config) {
-                super.configure(config);
-                if (proxyInfo != null && proxyInfo.isUseHttpProxy() && proxyInfo.isProxyAuthentication()) {
-                    config.getState().setProxyCredentials(AuthScope.ANY_REALM, proxyInfo.getProxyHost(),
-                        proxyInfo.getProxyPort(), proxyInfo.getProxyLogin(), proxyInfo.getPlainProxyPassword());
-                }
-            }
-        });
+        boolean useBasicAuth = server instanceof ServerData && ((ServerData) server).isUseBasicUser();
+//        UserCfg basicUser = server instanceof ServerData ? ((ServerData) server).getBasicUser() : null;
+//        String userName = basicUser != null ? basicUser.getUsername() : server.getUsername();
+//        String password = basicUser != null ? basicUser.getPassword() : server.getPassword();
+        if (useBasicAuth) {
+            UserCfg basicUser = ((ServerData) server).getBasicUser();
+            String userName = basicUser.getUsername();
+            String password = basicUser.getPassword();
+            restClient = new JerseyJiraRestClientFactory()
+                .create(new URI(server.getUrl()), new BasicHttpAuthenticationHandler(userName, password) {
+                    @Override
+                    public void configure(ApacheHttpClientConfig config) {
+                        super.configure(config);
+                        setupApacheClient(config);
+                    }
+
+                    @Override
+                    public void configure(Filterable filterable, Client client) {
+                        super.configure(filterable, client);
+                        setupApacheClient(apacheClientConfig);
+                    }
+                });
+
+        } else {
+            restClient = new JerseyJiraRestClientFactory()
+                .create(new URI(server.getUrl()), new AnonymousAuthenticationHandler() {
+                    @Override
+                    public void configure(ApacheHttpClientConfig config) {
+                        super.configure(config);
+                        setupApacheClient(config);
+                    }
+
+                    @Override
+                    public void configure(Filterable filterable, Client client) {
+                        super.configure(filterable, client);
+                        setupApacheClient(apacheClientConfig);
+                    }
+                });
+        }
+
         if (proxyInfo != null && proxyInfo.isUseHttpProxy()) {
             restClient.getTransportClient().getProperties().put(
                 ApacheHttpClientConfig.PROPERTY_PROXY_URI, "http://" + proxyInfo.getProxyHost() + ":" + proxyInfo.getProxyPort());
         }
+        restClient.getTransportClient().getProperties().put(ApacheHttpClientConfig.PROPERTY_HANDLE_COOKIES, true);
     }
 
     public boolean supportsRest() throws JIRAException {
@@ -123,16 +165,17 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         }
     }
 
-    public void login(String userName, String password) throws RemoteApiException {
+    public void login(final String userName, final String password) throws RemoteApiException {
         wrapWithRemoteApiException(new Callable<Void>() {
             public Void call() throws Exception {
-                restClient.getMetadataClient().getServerInfo(pm);
+                authentication = restClient.getSessionClient().login(userName, password, pm);
                 return null;
             }
         });
     }
 
     public void logout() {
+        authentication = null;
     }
 
     public List<JIRAProject> getProjects() throws RemoteApiException {
@@ -639,11 +682,7 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
     }
 
     public void testConnection() throws RemoteApiException {
-        try {
-            supportsRest();
-        } catch (JIRAException e) {
-            throw new RemoteApiException(e);
-        }
+        login(server.getUsername(), server.getPassword());
     }
 
     public boolean isLoggedIn() {
@@ -652,7 +691,10 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     private <T> T wrapWithJiraException(Callable<T> c) throws JIRAException {
         try {
-            return c.call();
+            setSessionCookies();
+            T res = c.call();
+            getSessionCookies();
+            return res;
         } catch (Exception e) {
             throw new JIRAException(getConnectionCfgString() + "\n\n" + e.getMessage(), e);
         }
@@ -660,9 +702,55 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     private <T> T wrapWithRemoteApiException(Callable<T> c) throws RemoteApiException {
         try {
-            return c.call();
+            setSessionCookies();
+            T res = c.call();
+            getSessionCookies();
+            return res;
         } catch (Exception e) {
             throw new RemoteApiException(getConnectionCfgString() + "\n\n" + e.getMessage(), e);
+        }
+    }
+
+    private void setSessionCookies() {
+        if (apacheClientConfig != null) {
+            if (authentication == null) {
+                authentication = restClient.getSessionClient().login(server.getUsername(), server.getPassword(), pm);
+            }
+            synchronized (this) {
+                if (authentication != null) {
+                    Cookie cookie = new Cookie();
+                    cookie.setName(authentication.getSession().getName());
+                    cookie.setValue(authentication.getSession().getValue());
+                    cookie.setPath("/");
+                    int idx = server.getUrl().indexOf("//");
+                    String domain = idx > 0 ? server.getUrl().substring(idx + 2) : server.getUrl();
+                    cookie.setDomain(domain);
+                    apacheClientConfig.getState().getHttpState().addCookie(cookie);
+                } else {
+                    apacheClientConfig.getState().getHttpState().clearCookies();
+                }
+            }
+        }
+    }
+
+    private synchronized void getSessionCookies() {
+        if (apacheClientConfig == null) {
+            return;
+        }
+
+        Cookie[] cookies = apacheClientConfig.getState().getHttpState().getCookies();
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().toLowerCase().equals("jsessionid")) {
+                authentication = new Authentication(null, new SessionCookie(cookie.getName(), cookie.getValue()));
+            }
+        }
+    }
+
+    private void setupApacheClient(ApacheHttpClientConfig config) {
+        apacheClientConfig = config;
+        if (proxyInfo != null && proxyInfo.isUseHttpProxy() && proxyInfo.isProxyAuthentication()) {
+            config.getState().setProxyCredentials(AuthScope.ANY_REALM, proxyInfo.getProxyHost(),
+                    proxyInfo.getProxyPort(), proxyInfo.getProxyLogin(), proxyInfo.getPlainProxyPassword());
         }
     }
 

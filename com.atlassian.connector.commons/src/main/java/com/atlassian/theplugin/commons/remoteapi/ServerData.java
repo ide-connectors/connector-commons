@@ -34,7 +34,7 @@ public class ServerData extends ConnectionCfg {
 //    private boolean serverResponding = false;
 
     public ServerData(Builder builder) {
-        super(builder.server != null ? builder.server.getServerId().getId() : "",
+        super(builder.server != null && builder.server.getServerId() != null ? builder.server.getServerId().getId() : "",
                 builder.server != null ? builder.server.getUrl() : "",
                 builder.useDefaultUser ? builder.defaultUser.getUsername()
                         : (builder.server != null ? builder.server.getUsername() : ""),
@@ -114,7 +114,7 @@ public class ServerData extends ConnectionCfg {
     }
 
     public ServerData(final Server server, UserCfg defaultUser) {
-        super(server != null ? server.getServerId().getId() : "",
+        super(server != null && server.getServerId() != null ? server.getServerId().getId() : "",
                 server != null ? server.getUrl() : "",
                 defaultUser != null ? defaultUser.getUsername() : (server != null ? server.getUsername() : ""),
                 defaultUser != null ? defaultUser.getPassword() : (server != null ? server.getPassword() : ""));

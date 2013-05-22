@@ -210,8 +210,8 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                 for (IssueType type : issueTypes) {
                     Long id = type.getId();
                     if (type.isSubtask() != subtasks || id == null) {
-						continue;
-					}
+                        continue;
+                    }
                     result.add(new JIRAIssueTypeBean(id, type.getName(), type.getIconUri().toURL()));
                 }
                 return result;
@@ -420,11 +420,14 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                 List<FieldInput> result = Lists.newArrayList();
                 for (JIRAActionField field : fieldValues) {
                     JSONObject fieldDef = JsonParseUtil.getOptionalJsonObject(fields, field.getFieldId());
+                    FieldInput fieldInput = null;
                     if (fieldDef != null) {
-                        FieldInput fieldInput = field.generateFieldValue(issue, fieldDef);
-                        if (fieldInput != null) {
-                            result.add(fieldInput);
-                        }
+                        fieldInput = field.generateFieldValue(issue, fieldDef);
+                    } else if (field.getFieldId().equals("resolution")) {
+                        fieldInput = new FieldInput("resolution", new ComplexIssueInputFieldValue(ImmutableMap.of("id", (Object) field.getValues().get(0))));
+                    }
+                    if (fieldInput != null) {
+                        result.add(fieldInput);
                     }
                 }
                 return result;

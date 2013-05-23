@@ -70,8 +70,11 @@ import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
 import com.atlassian.theplugin.commons.util.HttpConfigurableAdapter;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.sun.jersey.api.client.Client;
@@ -619,38 +622,70 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
     private JIRAIssue createIssueOrSubtask(final JIRAIssue parent, final JIRAIssue issue) throws RemoteApiException {
         final BasicIssue newIssue = wrapWithRemoteApiException(new Callable<BasicIssue>() {
             public BasicIssue call() throws Exception {
+                GetCreateIssueMetadataOptionsBuilder metaBuilder =
+                    new GetCreateIssueMetadataOptionsBuilder()
+                        .withProjectKeys(issue.getProjectKey())
+                        .withIssueTypeIds(issue.getTypeConstant().getId())
+                        .withExpandedIssueTypesFields();
+
+                Iterable<CimProject> metadata = restClient.getIssueClient().getCreateIssueMetadata(metaBuilder.build(), pm);
+                String message = "Invalid issue creation metadata";
+                if (metadata == null) {
+                    throw new RemoteApiException(message);
+                }
+                Optional<CimProject> cimProjectOptional = Iterables.tryFind(metadata, new Predicate<CimProject>() {
+                    public boolean apply(CimProject input) {
+                        return input != null && input.getKey().equals(issue.getProjectKey());
+                    }
+                });
+                if (!cimProjectOptional.isPresent()) {
+                    throw new RemoteApiException(message);
+                }
+                Optional<CimIssueType> issueTypeOptional = Iterables.tryFind(cimProjectOptional.get().getIssueTypes(), new Predicate<CimIssueType>() {
+                    public boolean apply(CimIssueType input) {
+                        return input != null && input.getId() == issue.getTypeConstant().getId();
+                    }
+                });
+                if (!issueTypeOptional.isPresent()) {
+                    throw new RemoteApiException(message);
+                }
+                CimIssueType typeMeta = issueTypeOptional.get();
                 final IssueInputBuilder builder = new IssueInputBuilder(issue.getProjectKey(), issue.getTypeConstant().getId(), issue.getSummary());
                 List<JIRAConstant> components = issue.getComponents();
                 List<JIRAConstant> affectsVersions = issue.getAffectsVersions();
                 List<JIRAConstant> fixVersions = issue.getFixVersions();
-                if (components != null && components.size() > 0) {
+                if (has(typeMeta, IssueFieldId.COMPONENTS_FIELD) && components != null && components.size() > 0) {
                     List<String> comps = Lists.newArrayList();
                     for (JIRAConstant component : components) {
                         comps.add(component.getName());
                     }
                     builder.setComponentsNames(comps);
                 }
-                if (affectsVersions != null && affectsVersions.size() > 0) {
+                if (has(typeMeta, IssueFieldId.AFFECTS_VERSIONS_FIELD) && affectsVersions != null && affectsVersions.size() > 0) {
                     List<String> versions = Lists.newArrayList();
                     for (JIRAConstant version : affectsVersions) {
                         versions.add(version.getName());
                     }
                     builder.setAffectedVersionsNames(versions);
                 }
-                if (fixVersions != null && fixVersions.size() > 0) {
+                if (has (typeMeta, IssueFieldId.FIX_VERSIONS_FIELD) && fixVersions != null && fixVersions.size() > 0) {
                     List<String> versions = Lists.newArrayList();
                     for (JIRAConstant version : fixVersions) {
                         versions.add(version.getName());
                     }
                     builder.setFixVersionsNames(versions);
                 }
-                builder.setPriorityId(issue.getPriorityConstant().getId());
-                builder.setDescription(issue.getDescription());
-                if (issue.getAssigneeId() != null) {
+                if (has(typeMeta, IssueFieldId.PRIORITY_FIELD)) {
+                    builder.setPriorityId(issue.getPriorityConstant().getId());
+                }
+                if (has(typeMeta, IssueFieldId.DESCRIPTION_FIELD)) {
+                    builder.setDescription(issue.getDescription());
+                }
+                if (has(typeMeta, IssueFieldId.ASSIGNEE_FIELD) && issue.getAssigneeId() != null) {
                     builder.setAssigneeName(issue.getAssigneeId());
                 }
                 String originalEstimate = issue.getOriginalEstimate();
-                if (originalEstimate != null && originalEstimate.length() > 0) {
+                if (has(typeMeta, IssueFieldId.TIMETRACKING_FIELD) && originalEstimate != null && originalEstimate.length() > 0) {
                     builder.setFieldValue(IssueFieldId.TIMETRACKING_FIELD.id,
                         new ComplexIssueInputFieldValue(
                             ImmutableMap.of("originalEstimate", (Object) originalEstimate)));
@@ -675,6 +710,10 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                 return new JIRAIssueBean(server.getUrl(), issue);
             }
         });
+    }
+
+    private boolean has(CimIssueType meta, IssueFieldId id) {
+        return meta.getField(id) != null;
     }
 
     public void login() throws JIRAException, JiraCaptchaRequiredException {

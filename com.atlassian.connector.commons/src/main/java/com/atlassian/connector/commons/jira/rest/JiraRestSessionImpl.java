@@ -33,7 +33,6 @@ import com.atlassian.jira.rest.client.IssueRestClient;
 import com.atlassian.jira.rest.client.JiraRestClient;
 import com.atlassian.jira.rest.client.NullProgressMonitor;
 import com.atlassian.jira.rest.client.OptionalIterable;
-import com.atlassian.jira.rest.client.auth.AnonymousAuthenticationHandler;
 import com.atlassian.jira.rest.client.auth.BasicHttpAuthenticationHandler;
 import com.atlassian.jira.rest.client.domain.Attachment;
 import com.atlassian.jira.rest.client.domain.Authentication;
@@ -115,15 +114,32 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         this.proxyInfo = proxyInfo;
 
         boolean useBasicAuth = server instanceof ServerData && ((ServerData) server).isUseBasicUser();
-//        UserCfg basicUser = server instanceof ServerData ? ((ServerData) server).getBasicUser() : null;
-//        String userName = basicUser != null ? basicUser.getUsername() : server.getUsername();
-//        String password = basicUser != null ? basicUser.getPassword() : server.getPassword();
-        if (useBasicAuth) {
-            UserCfg basicUser = ((ServerData) server).getBasicUser();
-            String userName = basicUser.getUsername();
-            String password = basicUser.getPassword();
+        UserCfg basicUser = server instanceof ServerData ? ((ServerData) server).getBasicUser() : null;
+        String userName = basicUser != null ? basicUser.getUsername() : server.getUsername();
+        String password = basicUser != null ? basicUser.getPassword() : server.getPassword();
+//        if (useBasicAuth) {
+//            UserCfg basicUser = ((ServerData) server).getBasicUser();
+//            String userName = basicUser.getUsername();
+//            String password = basicUser.getPassword();
+//            restClient = new JerseyJiraRestClientFactory()
+//                .create(new URI(server.getUrl()), new BasicHttpAuthenticationHandler(userName, password) {
+//                    @Override
+//                    public void configure(ApacheHttpClientConfig config) {
+//                        super.configure(config);
+//                        setupApacheClient(config);
+//                    }
+//
+//                    @Override
+//                    public void configure(Filterable filterable, Client client) {
+//                        super.configure(filterable, client);
+//                        setupApacheClient(apacheClientConfig);
+//                    }
+//                });
+//
+//        } else {
             restClient = new JerseyJiraRestClientFactory()
                 .create(new URI(server.getUrl()), new BasicHttpAuthenticationHandler(userName, password) {
+//                .create(new URI(server.getUrl()), new AnonymousAuthenticationHandler() {
                     @Override
                     public void configure(ApacheHttpClientConfig config) {
                         super.configure(config);
@@ -136,23 +152,7 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                         setupApacheClient(apacheClientConfig);
                     }
                 });
-
-        } else {
-            restClient = new JerseyJiraRestClientFactory()
-                .create(new URI(server.getUrl()), new AnonymousAuthenticationHandler() {
-                    @Override
-                    public void configure(ApacheHttpClientConfig config) {
-                        super.configure(config);
-                        setupApacheClient(config);
-                    }
-
-                    @Override
-                    public void configure(Filterable filterable, Client client) {
-                        super.configure(filterable, client);
-                        setupApacheClient(apacheClientConfig);
-                    }
-                });
-        }
+//        }
 
         if (proxyInfo != null && proxyInfo.isUseHttpProxy()) {
             restClient.getTransportClient().getProperties().put(

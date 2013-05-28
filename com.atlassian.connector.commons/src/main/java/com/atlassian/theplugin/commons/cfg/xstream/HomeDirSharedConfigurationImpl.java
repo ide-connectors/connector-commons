@@ -18,6 +18,7 @@ package com.atlassian.theplugin.commons.cfg.xstream;
 import com.atlassian.theplugin.commons.cfg.ServerCfg;
 import com.atlassian.theplugin.commons.cfg.ServerCfgFactoryException;
 import com.atlassian.theplugin.commons.cfg.SharedServerList;
+import com.atlassian.theplugin.commons.util.LoggerImpl;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
@@ -61,11 +62,13 @@ public class HomeDirSharedConfigurationImpl
 
 				writeXmlFile(document.getRootElement(), outputFile);
 			} else {
+                LoggerImpl.getInstance().error("Shared configuration hasn't been saved - cannot write file " + outputFile.getAbsolutePath());
 				throw new ServerCfgFactoryException("Shared configuration hasn't been saved");
 			}
 
 		} catch (Exception e) {
-			final ServerCfgFactoryException ex = new ServerCfgFactoryException(e.getMessage());
+            LoggerImpl.getInstance().error("Shared configuration hasn't been saved", e);
+            final ServerCfgFactoryException ex = new ServerCfgFactoryException(e.getMessage());
 			ex.initCause(e);
 			throw ex;
 		}

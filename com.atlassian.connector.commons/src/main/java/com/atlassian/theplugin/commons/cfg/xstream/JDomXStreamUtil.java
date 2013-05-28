@@ -55,7 +55,7 @@ public final class JDomXStreamUtil {
 
 
         XStream xStream = new XStream(new Sun14ReflectionProvider(), new JDomDriver());
-        xStream.setMode(XStream.NO_REFERENCES);
+        xStream.setMode(XStream.ID_REFERENCES);
         xStream.alias("bamboo", BambooServerCfg.class);
         xStream.alias("crucible", CrucibleServerCfg.class);
         xStream.alias("jira", JiraServerCfg.class);

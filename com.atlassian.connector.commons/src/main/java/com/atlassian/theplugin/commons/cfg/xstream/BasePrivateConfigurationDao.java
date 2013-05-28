@@ -38,8 +38,6 @@ public abstract class BasePrivateConfigurationDao<T> {
         final JDomWriter writer = new JDomWriter(rootElement);
         final XStream xStream = JDomXStreamUtil.getProjectJDomXStream(true);
         xStream.marshal(object, writer);
-
-
     }
 
     public static String getPrivateCfgDirectoryPath() {

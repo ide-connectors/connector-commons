@@ -56,6 +56,8 @@ public interface JIRAServerFacade2 extends ProductServerFacade {
 
     List<JIRAProject> getProjects(ConnectionCfg httpConnectionCfg) throws JIRAException;
 
+    List<JIRAProject> getProjectsForIssueCreation(ConnectionCfg httpConnectionCfg) throws JIRAException;
+
 	List<JIRAConstant> getStatuses(ConnectionCfg httpConnectionCfg) throws JIRAException;
 
 	List<JIRAConstant> getIssueTypes(ConnectionCfg httpConnectionCfg) throws JIRAException;

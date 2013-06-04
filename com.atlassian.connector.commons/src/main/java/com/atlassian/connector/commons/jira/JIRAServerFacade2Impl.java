@@ -148,6 +148,10 @@ public final class JIRAServerFacade2Impl implements JIRAServerFacade2 {
         return worker.getProjects(httpConnectionCfg);
     }
 
+    public List<JIRAProject> getProjectsForIssueCreation(ConnectionCfg httpConnectionCfg, List<JIRAProject> forProjects) throws JIRAException {
+        return worker.getProjectsForIssueCreation(httpConnectionCfg, forProjects);
+    }
+
     public List<JIRAConstant> getStatuses(ConnectionCfg httpConnectionCfg) throws JIRAException {
         return worker.getStatuses(httpConnectionCfg);
     }

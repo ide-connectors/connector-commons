@@ -518,6 +518,28 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         });
     }
 
+    public List<JIRAProject> getProjectsForIssueCreation() throws RemoteApiException {
+        return wrapWithRemoteApiException(new Callable<List<JIRAProject>>() {
+            public List<JIRAProject> call() throws Exception {
+                GetCreateIssueMetadataOptionsBuilder builder = new GetCreateIssueMetadataOptionsBuilder();
+                Iterable<CimProject> metadata = restClient.getIssueClient().getCreateIssueMetadata(builder.build(), pm);
+                if (metadata == null || !metadata.iterator().hasNext()) {
+                    return Lists.newArrayList();
+                }
+                List<JIRAProject> result = Lists.newArrayList();
+                for (CimProject cimProject : metadata) {
+                    Long id = cimProject.getId();
+                    if (id == null) {
+                        continue;
+                    }
+                    JIRAProject p = new JIRAProjectBean(id, cimProject.getKey(), cimProject.getName());
+                    result.add(p);
+                }
+                return result;
+            }
+        });
+    }
+
     public List<JIRAIssue> getIssues(
             JiraFilter filter, String sortBy, String sortOrder, int start, int max) throws JIRAException {
         return getIssues(filter.getJql(), sortBy, sortOrder, start, max);

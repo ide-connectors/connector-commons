@@ -84,6 +84,14 @@ public class JiraRESTFacade2Impl implements JIRAServerFacade2, JiraRESTSupportTe
         });
     }
 
+    public List<JIRAProject> getProjectsForIssueCreation(final ConnectionCfg server) throws JIRAException {
+        return withJiraException(new Callable<List<JIRAProject>>() {
+            public List<JIRAProject> call() throws Exception {
+                return get(server).getProjectsForIssueCreation();
+            }
+        });
+    }
+
     public List<JIRAConstant> getStatuses(final ConnectionCfg server) throws JIRAException {
         return withJiraException(new Callable<List<JIRAConstant>>() {
             public List<JIRAConstant> call() throws Exception {

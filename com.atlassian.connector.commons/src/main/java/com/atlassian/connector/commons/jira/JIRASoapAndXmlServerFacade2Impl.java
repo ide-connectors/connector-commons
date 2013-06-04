@@ -272,6 +272,11 @@ public final class JIRASoapAndXmlServerFacade2Impl implements JIRAServerFacade2 
         }
     }
 
+    public List<JIRAProject> getProjectsForIssueCreation(ConnectionCfg httpConnectionCfg) throws JIRAException {
+        // that's faking it. SOAP does not really support this
+        return getProjects(httpConnectionCfg);
+    }
+
     public List<JIRAConstant> getIssueTypes(ConnectionCfg httpConnectionCfg) throws JIRAException {
         try {
             JIRASessionPartOne soap = getSoapSession(httpConnectionCfg);

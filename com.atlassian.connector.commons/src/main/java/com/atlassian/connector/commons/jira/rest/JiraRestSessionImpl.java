@@ -492,7 +492,7 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                 builder.withExpandedIssueTypesFields().withProjectKeys(projectKey);
                 Iterable<CimProject> metadata = restClient.getIssueClient().getCreateIssueMetadata(builder.build(), pm);
                 if (metadata == null || !metadata.iterator().hasNext()) {
-                    throw new RemoteApiException("Createmeta for project " + projectKey + " not found");
+                    return Lists.newArrayList();
                 }
                 CimProject project = metadata.iterator().next();
                 Map<Long, JIRASecurityLevelBean> levels = Maps.newHashMap();

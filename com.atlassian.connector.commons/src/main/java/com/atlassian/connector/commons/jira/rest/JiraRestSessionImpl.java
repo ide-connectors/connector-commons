@@ -474,12 +474,15 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 //                Issue iszju = (Issue) issue.getApiIssueObject();
                 Issue iszju = restClient.getIssueClient().getIssue(issue.getKey(), pm);
                 List<JIRAAttachment> result = Lists.newArrayList();
-                for (Attachment attachment : iszju.getAttachments()) {
-                    Long id = attachment.getId();
-                    JIRAAttachment a = new JIRAAttachment(
-                        id != null ? id.toString() : "-1", attachment.getAuthor().getName(), attachment.getFilename(),
-                        attachment.getSize(), attachment.getMimeType(), attachment.getCreationDate().toGregorianCalendar());
-                    result.add(a);
+                Iterable<Attachment> attachments = iszju.getAttachments();
+                if (attachments != null) {
+                    for (Attachment attachment : attachments) {
+                        Long id = attachment.getId();
+                        JIRAAttachment a = new JIRAAttachment(
+                            id != null ? id.toString() : "-1", attachment.getAuthor().getName(), attachment.getFilename(),
+                            attachment.getSize(), attachment.getMimeType(), attachment.getCreationDate().toGregorianCalendar());
+                        result.add(a);
+                    }
                 }
                 return result;
             }

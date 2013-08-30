@@ -37,6 +37,7 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.io.IOUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -46,7 +47,12 @@ import org.jdom.output.XMLOutputter;
 import org.jdom.xpath.XPath;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -347,21 +353,35 @@ public abstract class AbstractHttpSession {
         return ioException;
     }
 
-    protected Document retrievePostResponse(String urlString, Document request) throws IOException, JDOMException,
+    protected Document retrievePostResponse(String urlString, Document request) throws IOException, JDOMException, RemoteApiException {
+        return retrievePostResponse(urlString, request, null);
+    }
+
+    protected Document retrievePostResponse(String urlString, Document request, StringBuilder txtHolder) throws IOException, JDOMException,
             RemoteApiException {
-        return retrievePostResponse(urlString, request, true);
+        return retrievePostResponse(urlString, request, true, txtHolder);
     }
 
     protected Document retrievePostResponse(String urlString, Document request, boolean expectResponse)
             throws JDOMException, RemoteApiException {
+        return retrievePostResponse(urlString, request, expectResponse, null);
+    }
+
+    protected Document retrievePostResponse(String urlString, Document request, boolean expectResponse, StringBuilder txtHolder)
+            throws JDOMException, RemoteApiException {
         XMLOutputter serializer = new XMLOutputter(Format.getPrettyFormat());
         String requestString = serializer.outputString(request);
-        return retrievePostResponse(urlString, requestString, expectResponse);
+        return retrievePostResponse(urlString, requestString, expectResponse, txtHolder);
     }
 
     protected Document retrievePostResponse(String urlString, String request, boolean expectResponse)
             throws JDOMException, RemoteApiException {
-        return retrievePostResponseInternal(urlString, request, expectResponse, 0);
+        return retrievePostResponse(urlString, request, expectResponse, null);
+    }
+
+    protected Document retrievePostResponse(String urlString, String request, boolean expectResponse, StringBuilder txtHolder)
+            throws JDOMException, RemoteApiException {
+        return retrievePostResponseInternal(urlString, request, expectResponse, 0, txtHolder);
     }
 
     protected interface PostMethodPreparer {
@@ -369,7 +389,7 @@ public abstract class AbstractHttpSession {
     }
 
     private Document retrievePostResponseInternal(String urlString, final String request, boolean expectResponse,
-                                                  int redirectCounter) throws JDOMException, RemoteApiException {
+                                                  int redirectCounter, StringBuilder txtHolder) throws JDOMException, RemoteApiException {
         return retrievePostResponseInternalImpl(urlString, new PostMethodPreparer() {
 
             public void prepare(PostMethod postMethod) throws UnsupportedEncodingException {
@@ -377,11 +397,11 @@ public abstract class AbstractHttpSession {
                     postMethod.setRequestEntity(new StringRequestEntity(request, "application/xml", "UTF-8"));
                 }
             }
-        }, expectResponse, redirectCounter);
+        }, expectResponse, redirectCounter, txtHolder);
     }
 
     protected Document retrievePostResponseInternalImpl(String urlString, PostMethodPreparer postMethodPreparer,
-                                                        boolean expectResponse, int redirectCounter)
+                                                        boolean expectResponse, int redirectCounter, StringBuilder txtHolder)
             throws JDOMException, RemoteApiException {
         Document doc = null;
         String baseUrl = urlString;
@@ -454,7 +474,13 @@ public abstract class AbstractHttpSession {
 
                         Document document;
                         SAXBuilder builder = new SAXBuilder();
-                        document = builder.build(method.getResponseBodyAsStream());
+                        StringWriter writer = new StringWriter();
+                        IOUtils.copy(method.getResponseBodyAsStream(), writer, "UTF-8");
+                        String response = writer.toString();
+                        if (txtHolder != null) {
+                            txtHolder.append(response);
+                        }
+                        document = builder.build(new ByteArrayInputStream(response.getBytes()));
                         throw buildExceptionText(method.getStatusCode(), document);
                         
                     } else if (httpStatus == HttpStatus.SC_NOT_ACCEPTABLE) {
@@ -507,7 +533,7 @@ public abstract class AbstractHttpSession {
                     }
                 }
             }
-        }, expectResponse, 0);
+        }, expectResponse, 0, null);
     }
 
     /**

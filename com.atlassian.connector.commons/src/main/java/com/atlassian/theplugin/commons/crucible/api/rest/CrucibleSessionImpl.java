@@ -1266,8 +1266,9 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
         Document request = CrucibleRestXmlHelper.prepareCreateReviewNode(review, patch);
 
+        StringBuilder txtHolder = new StringBuilder();
         try {
-            Document doc = retrievePostResponse(getBaseUrl() + REVIEW_SERVICE, request);
+            Document doc = retrievePostResponse(getBaseUrl() + REVIEW_SERVICE, request, txtHolder);
 
             XPath xpath = XPath.newInstance("/reviewData");
             @SuppressWarnings("unchecked")
@@ -1280,7 +1281,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         } catch (IOException e) {
             throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
         } catch (JDOMException e) {
-            throwMalformedResponseReturned(e);
+            throwMalformedResponseReturned(e, txtHolder.toString());
         }
 
         return null;
@@ -1298,8 +1299,9 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 			CrucibleRestXmlHelper.addAnchorData(request, anchorData);
 		}
 
+        StringBuilder txtHolder = new StringBuilder();
         try {
-            Document doc = retrievePostResponse(getBaseUrl() + REVIEW_SERVICE, request);
+            Document doc = retrievePostResponse(getBaseUrl() + REVIEW_SERVICE, request, txtHolder);
 
             XPath xpath = XPath.newInstance("/reviewData");
             @SuppressWarnings("unchecked")
@@ -1312,7 +1314,7 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
         } catch (IOException e) {
             throw new RemoteApiException(getBaseUrl() + ": " + e.getMessage(), e);
         } catch (JDOMException e) {
-            throwMalformedResponseReturned(e);
+            throwMalformedResponseReturned(e, txtHolder.toString());
         }
 
         return null;
@@ -1649,6 +1651,10 @@ public class CrucibleSessionImpl extends AbstractHttpSession implements Crucible
 
     private void throwMalformedResponseReturned(JDOMException e) throws RemoteApiException {
         throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response", e);
+    }
+
+    private void throwMalformedResponseReturned(JDOMException e, String responseText) throws RemoteApiException {
+        throw new RemoteApiException(getBaseUrl() + ": Server returned malformed response: \n\n" + responseText + "\n\n", e);
     }
 
     private static void throwNotLoggedIn() {

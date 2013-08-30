@@ -99,7 +99,7 @@ public class LoginBambooSession extends AbstractHttpSession implements ProductSe
 					login.addParameter("username", name); //$NON-NLS-1$
 					login.addParameter("password", pass); //$NON-NLS-1$
 				}
-			}, true, 0);
+			}, true, 0, null);
 
 			String exception = getExceptionMessages(doc);
 			if (null != exception) {

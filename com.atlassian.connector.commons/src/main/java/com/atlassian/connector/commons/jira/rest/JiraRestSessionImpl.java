@@ -33,6 +33,7 @@ import com.atlassian.jira.rest.client.IssueRestClient;
 import com.atlassian.jira.rest.client.JiraRestClient;
 import com.atlassian.jira.rest.client.NullProgressMonitor;
 import com.atlassian.jira.rest.client.OptionalIterable;
+import com.atlassian.jira.rest.client.RestClientException;
 import com.atlassian.jira.rest.client.auth.AnonymousAuthenticationHandler;
 import com.atlassian.jira.rest.client.auth.BasicHttpAuthenticationHandler;
 import com.atlassian.jira.rest.client.domain.Attachment;
@@ -78,6 +79,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.filter.Filterable;
 import com.sun.jersey.client.apache.config.ApacheHttpClientConfig;
 import org.apache.commons.httpclient.Cookie;
@@ -763,10 +766,19 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     private <T> T wrapWithJiraException(Callable<T> c) throws JIRAException {
         try {
-            setSessionCookies();
-            T res = c.call();
-            getSessionCookies();
-            return res;
+            return doCall(c);
+        } catch (RestClientException e) {
+            if (e.getCause() instanceof UniformInterfaceException &&
+                ((UniformInterfaceException) e.getCause()).getResponse().getStatus() == ClientResponse.Status.UNAUTHORIZED.getStatusCode()) {
+                // renew session and retry
+                try {
+                    authentication = restClient.getSessionClient().login(server.getUsername(), server.getPassword(), pm);
+                    return doCall(c);
+                } catch (Exception e1) {
+                    throw new JIRAException(getConnectionCfgString() + "\n\n" + e1.getMessage(), e1);
+                }
+            }
+            throw new JIRAException(getConnectionCfgString() + "\n\n" + e.getMessage(), e);
         } catch (Exception e) {
             throw new JIRAException(getConnectionCfgString() + "\n\n" + e.getMessage(), e);
         }
@@ -774,13 +786,29 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
 
     private <T> T wrapWithRemoteApiException(Callable<T> c) throws RemoteApiException {
         try {
-            setSessionCookies();
-            T res = c.call();
-            getSessionCookies();
-            return res;
+            return doCall(c);
+        } catch (RestClientException e) {
+            if (e.getCause() instanceof UniformInterfaceException &&
+                ((UniformInterfaceException) e.getCause()).getResponse().getStatus() == ClientResponse.Status.UNAUTHORIZED.getStatusCode()) {
+                // renew session and retry
+                try {
+                    authentication = restClient.getSessionClient().login(server.getUsername(), server.getPassword(), pm);
+                    return doCall(c);
+                } catch (Exception e1) {
+                    throw new RemoteApiException(getConnectionCfgString() + "\n\n" + e1.getMessage(), e1);
+                }
+            }
+            throw new RemoteApiException(getConnectionCfgString() + "\n\n" + e.getMessage(), e);
         } catch (Exception e) {
             throw new RemoteApiException(getConnectionCfgString() + "\n\n" + e.getMessage(), e);
         }
+    }
+
+    private <T> T doCall(Callable<T> c) throws Exception {
+        setSessionCookies();
+        T res = c.call();
+        getSessionCookies();
+        return res;
     }
 
     private void setSessionCookies() {

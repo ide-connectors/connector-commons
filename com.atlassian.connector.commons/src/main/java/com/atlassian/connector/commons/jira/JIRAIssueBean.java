@@ -437,7 +437,7 @@ public class JIRAIssueBean implements JIRAIssue {
                 created.setTimeZone(comment.getCreationDate().getZone().toTimeZone());
                 this.commentsList.add(new JIRACommentBean(
                         cmtId != null ? cmtId.toString() : "",
-                        commentAuthor != null ? commentAuthor.getName() : "unknown",
+                        commentAuthor != null ? commentAuthor.getName() : null,
                         getHtmlBodyForComment(issue, comment), created));
             }
         }

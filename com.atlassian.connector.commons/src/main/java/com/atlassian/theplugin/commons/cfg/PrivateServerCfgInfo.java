@@ -21,6 +21,7 @@ public class PrivateServerCfgInfo {
 	protected final String username;
 	protected final String password;
     protected boolean useHttpBasic = false;
+    protected boolean useSessionCookies = false;
     protected final String basicUsername;
     protected final String basicPassword;
     protected final boolean useDefaultCredentials;
@@ -28,7 +29,7 @@ public class PrivateServerCfgInfo {
     protected boolean shared;
 
     public PrivateServerCfgInfo(final ServerIdImpl serverId, final boolean enabled, final boolean useDefaultCredentials,
-			final String username, final String password, final boolean useHttpBasic, final String basicUsername,
+			final String username, final String password, final boolean useSessionCookies, final boolean useHttpBasic, final String basicUsername,
             final String basicPassword, final boolean shared) {
 		this.serverId = serverId;
 		isEnabled = enabled;
@@ -36,6 +37,7 @@ public class PrivateServerCfgInfo {
 		this.username = username;
 		this.password = password;
 
+        this.useSessionCookies = useSessionCookies;
         this.useHttpBasic = useHttpBasic;
         this.basicUsername = basicUsername;
         this.basicPassword = basicPassword;
@@ -54,6 +56,9 @@ public class PrivateServerCfgInfo {
 		return password;
 	}
 
+    public boolean isUseSessionCookies() {
+        return useSessionCookies;
+    }
 
     public boolean isUseHttpBasic() {
         return useHttpBasic;
@@ -91,6 +96,7 @@ public class PrivateServerCfgInfo {
         result = 31 * result + (isEnabled ? 1 : 0);
         result = 31 * result + (username != null ? username.hashCode() : 0);
         result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (useSessionCookies ? 1 : 0);
         result = 31 * result + (useHttpBasic ? 1 : 0);
         result = 31 * result + (basicUsername != null ? basicUsername.hashCode() : 0);
         result = 31 * result + (basicPassword != null ? basicPassword.hashCode() : 0);

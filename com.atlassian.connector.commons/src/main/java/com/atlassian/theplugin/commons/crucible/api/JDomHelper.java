@@ -16,6 +16,10 @@
 
 package com.atlassian.theplugin.commons.crucible.api;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import org.jdom.Content;
 import org.jdom.Element;
 
 import java.util.List;
@@ -23,7 +27,11 @@ import java.util.List;
 public final class JDomHelper {
     @SuppressWarnings("unchecked")
     public static List<Element> getContent(final Element e) {
-        return e.getContent();
+        return Lists.newArrayList(Iterables.transform(e.getContent(), new Function<Content, Element>() {
+            public Element apply(Content content) {
+                return (Element) content;
+            }
+        }));
     }
 
     private JDomHelper() {

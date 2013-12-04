@@ -45,4 +45,6 @@ public interface Server {
     boolean isShared();
 
     void setShared(boolean global);
+
+    boolean isUseSessionCookies();
 }

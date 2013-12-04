@@ -21,6 +21,7 @@ public class JiraServerCfg extends ServerCfg {
     private static final int HASHCODE_MAGIC = 31;
     private boolean dontUseBasicAuth = true;
     private UserCfg basicHttpUser;
+    private boolean useSessionCookies = false;
 
     public JiraServerCfg(final String name, final ServerIdImpl serverId, boolean dontUseBasicAuth) {
 		super(true, name, serverId);
@@ -31,16 +32,19 @@ public class JiraServerCfg extends ServerCfg {
 		super(other);
         this.dontUseBasicAuth = other.dontUseBasicAuth;
         this.basicHttpUser = other.basicHttpUser;
+        this.useSessionCookies = other.useSessionCookies;
 	}
 
-	public JiraServerCfg(boolean enabled, String name, ServerIdImpl serverId, boolean dontUseBasicAuth) {
+	public JiraServerCfg(boolean enabled, String name, ServerIdImpl serverId, boolean dontUseBasicAuth, boolean useSessionCookies) {
 		super(enabled, name, serverId);
         this.dontUseBasicAuth = dontUseBasicAuth;
+        this.useSessionCookies = useSessionCookies;
     }
 
-    public JiraServerCfg(boolean enabled, String name, String url, ServerIdImpl serverId, boolean dontUseBasicAuth) {
+    public JiraServerCfg(boolean enabled, String name, String url, ServerIdImpl serverId, boolean dontUseBasicAuth, boolean useSessionCookies) {
         super(enabled, name, url, serverId);
         this.dontUseBasicAuth = dontUseBasicAuth;
+        this.useSessionCookies = useSessionCookies;
     }
 
     @Override
@@ -70,11 +74,18 @@ public class JiraServerCfg extends ServerCfg {
         return basicHttpUser;
     }
 
+    public boolean isUseSessionCookies() {
+        return useSessionCookies;
+    }
+
+    public void setUseSessionCookies(boolean useSessionCookies) {
+        this.useSessionCookies = useSessionCookies;
+    }
 
     @Override
     public PrivateServerCfgInfo createPrivateProjectConfiguration() {
 		return new PrivateServerCfgInfo(getServerId(), isEnabled(), isUseDefaultCredentials(),
-				getUsername(), isPasswordStored() ? getPassword() : null,
+				getUsername(), isPasswordStored() ? getPassword() : null,  useSessionCookies,
                 !dontUseBasicAuth,
                 basicHttpUser != null ? basicHttpUser.getUsername() : "",
                 basicHttpUser != null ? basicHttpUser.getPassword() : "",
@@ -86,12 +97,13 @@ public class JiraServerCfg extends ServerCfg {
     public void mergePrivateConfiguration(PrivateServerCfgInfo psci) {
         super.mergePrivateConfiguration(psci);    
         if (psci != null) {
+            setUseSessionCookies(psci.isUseSessionCookies());
             setDontUseBasicAuth(!psci.isUseHttpBasic());
             setBasicHttpUser(new UserCfg(psci.getBasicUsername(), psci.getBasicPassword()));
         } else {
+            setUseSessionCookies(false);
             setDontUseBasicAuth(true);
         }
-
     }
 
     @Override
@@ -108,6 +120,9 @@ public class JiraServerCfg extends ServerCfg {
 
         JiraServerCfg that = (JiraServerCfg) o;
 
+        if (useSessionCookies != that.useSessionCookies) {
+            return false;
+        }
         if (dontUseBasicAuth != that.dontUseBasicAuth) {
             return false;
         }
@@ -121,6 +136,7 @@ public class JiraServerCfg extends ServerCfg {
     @Override
     public int hashCode() {
         int result = super.hashCode();
+        result = 31 * result + (useSessionCookies ? 1 : 0);
         result = 31 * result + (dontUseBasicAuth ? 1 : 0);
         result = 31 * result + (basicHttpUser != null ? basicHttpUser.hashCode() : 0);
         return result;

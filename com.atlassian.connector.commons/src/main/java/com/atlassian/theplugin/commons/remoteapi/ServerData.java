@@ -30,6 +30,7 @@ public class ServerData extends ConnectionCfg {
     private UserCfg basicUser;
     private UserCfg proxyUser;
     private boolean useBasicUser = false;
+    private boolean useSessionCookies = false;
 
 //    private boolean serverResponding = false;
 
@@ -45,6 +46,7 @@ public class ServerData extends ConnectionCfg {
         this.useProxy = builder.useProxyUser;
         this.proxyUser = builder.proxyUser;
         this.useBasicUser = builder.useBasicUser;
+        this.useSessionCookies = builder.useSessionCookies;
     }
 
     public static class Builder {
@@ -57,12 +59,14 @@ public class ServerData extends ConnectionCfg {
         protected boolean useDefaultUser = false;
         protected boolean useProxyUser = false;
         private boolean useBasicUser;
+        private boolean useSessionCookies = false;
 
         public Builder(Server server) {
             this.server = server;
             this.basicUser = server.getBasicHttpUser();
             this.useBasicUser = !server.isDontUseBasicAuth();
             this.useDefaultUser = server.isUseDefaultCredentials();
+            this.useSessionCookies = server.isUseSessionCookies();
         }
 	    public Builder(Server server, UserCfg defaultUser) {
             this(server);
@@ -98,6 +102,10 @@ public class ServerData extends ConnectionCfg {
         }
         public ServerData build() {
             return new ServerData(this);
+        }
+
+        public void setUseSessionCookies(boolean useSessionCookies) {
+            this.useSessionCookies = useSessionCookies;
         }
     }
 
@@ -170,7 +178,11 @@ public class ServerData extends ConnectionCfg {
         return useBasicUser;
     }
 
-//    public boolean isServerResponding() {
+    public boolean isUseSessionCookies() {
+        return useSessionCookies;
+    }
+
+    //    public boolean isServerResponding() {
 //        return serverResponding;
 //    }
 

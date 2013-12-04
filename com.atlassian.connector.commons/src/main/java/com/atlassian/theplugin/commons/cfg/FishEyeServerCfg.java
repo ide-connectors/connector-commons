@@ -40,6 +40,10 @@ public class FishEyeServerCfg extends ServerCfg implements FishEyeServer {
         return false;
     }
 
+    public boolean isUseSessionCookies() {
+        return false;
+    }
+
     public UserCfg getBasicHttpUser() {
         return null;  
     }

@@ -237,7 +237,7 @@ public abstract class ServerCfg implements Server {
 	public PrivateServerCfgInfo createPrivateProjectConfiguration() {
 		return new PrivateServerCfgInfo(getServerId(), isEnabled(), isUseDefaultCredentials(),
 				getUsername(), isPasswordStored() ? getPassword() : null,
-                false, null, null, shared);
+                isUseSessionCookies(), false, null, null, shared);
 	}
 
 

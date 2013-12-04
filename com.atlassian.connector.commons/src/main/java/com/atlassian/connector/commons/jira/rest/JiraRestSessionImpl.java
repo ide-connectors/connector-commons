@@ -66,7 +66,6 @@ import com.atlassian.jira.rest.client.domain.input.WorklogInputBuilder;
 import com.atlassian.jira.rest.client.internal.ServerVersionConstants;
 import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClientFactory;
 import com.atlassian.jira.rest.client.internal.json.JsonParseUtil;
-import com.atlassian.theplugin.commons.cfg.UserCfg;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
 import com.atlassian.theplugin.commons.remoteapi.ServerData;
 import com.atlassian.theplugin.commons.remoteapi.jira.JiraCaptchaRequiredException;
@@ -117,16 +116,9 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         this.server = server;
         this.proxyInfo = proxyInfo;
 
-        boolean useBasicAuth = server instanceof ServerData && ((ServerData) server).isUseBasicUser();
-        UserCfg basicUser = server instanceof ServerData ? ((ServerData) server).getBasicUser() : null;
-        String userName = basicUser != null ? basicUser.getUsername() : server.getUsername();
-        String password = basicUser != null ? basicUser.getPassword() : server.getPassword();
-        if (useBasicAuth) {
-//            UserCfg basicUser = ((ServerData) server).getBasicUser();
-//            String userName = basicUser.getUsername();
-//            String password = basicUser.getPassword();
+        if (((ServerData) server).isUseSessionCookies()) {
             restClient = new JerseyJiraRestClientFactory()
-                .create(new URI(server.getUrl()), new BasicHttpAuthenticationHandler(userName, password) {
+                .create(new URI(server.getUrl()), new AnonymousAuthenticationHandler() {
                     @Override
                     public void configure(ApacheHttpClientConfig config) {
                         super.configure(config);
@@ -139,11 +131,9 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                         setupApacheClient(apacheClientConfig);
                     }
                 });
-
         } else {
             restClient = new JerseyJiraRestClientFactory()
-//                .create(new URI(server.getUrl()), new BasicHttpAuthenticationHandler(userName, password) {
-                .create(new URI(server.getUrl()), new AnonymousAuthenticationHandler() {
+                .create(new URI(server.getUrl()), new BasicHttpAuthenticationHandler(server.getUsername(), server.getPassword()) {
                     @Override
                     public void configure(ApacheHttpClientConfig config) {
                         super.configure(config);
@@ -162,8 +152,10 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
             restClient.getTransportClient().getProperties().put(
                 ApacheHttpClientConfig.PROPERTY_PROXY_URI, "http://" + proxyInfo.getProxyHost() + ":" + proxyInfo.getProxyPort());
         }
-        restClient.getTransportClient().getProperties().put(ApacheHttpClientConfig.PROPERTY_HANDLE_COOKIES, true);
-        restClient.getTransportClient().getClientHandler().getHttpClient().getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+        if (((ServerData) server).isUseSessionCookies()) {
+            restClient.getTransportClient().getProperties().put(ApacheHttpClientConfig.PROPERTY_HANDLE_COOKIES, true);
+            restClient.getTransportClient().getClientHandler().getHttpClient().getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+        }
     }
 
     public boolean supportsRest() throws JIRAException {

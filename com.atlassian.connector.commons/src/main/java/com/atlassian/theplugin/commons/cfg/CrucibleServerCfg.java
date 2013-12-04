@@ -60,6 +60,9 @@ public class CrucibleServerCfg extends ServerCfg {
                 public boolean isDontUseBasicAuth() {
                     return false;
                 }
+                public boolean isUseSessionCookies() {
+                    return false;
+                }
                 public UserCfg getBasicHttpUser() {
                     return null;  
                 }
@@ -88,6 +91,10 @@ public class CrucibleServerCfg extends ServerCfg {
 	}
 
     public boolean isDontUseBasicAuth() {
+        return false;
+    }
+
+    public boolean isUseSessionCookies() {
         return false;
     }
 

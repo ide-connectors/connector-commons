@@ -63,6 +63,10 @@ public class BambooServerCfg extends ServerCfg {
         return true;
     }
 
+    public boolean isUseSessionCookies() {
+        return false;
+    }
+
     public UserCfg getBasicHttpUser() {
         return null;
     }
@@ -196,7 +200,7 @@ public class BambooServerCfg extends ServerCfg {
 	@Override
 	public PrivateServerCfgInfo createPrivateProjectConfiguration() {
 		return new PrivateBambooServerCfgInfo(getServerId(), isEnabled(), isUseDefaultCredentials(),
-				getUsername(), isPasswordStored() ? getPassword() : null, getTimezoneOffset(), false, "", "", isShared(),
+				getUsername(), isPasswordStored() ? getPassword() : null, getTimezoneOffset(), false, false, "", "", isShared(),
                 getPlans(), isUseFavourites);
 	}
 

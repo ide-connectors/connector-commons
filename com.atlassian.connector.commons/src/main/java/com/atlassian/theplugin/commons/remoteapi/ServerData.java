@@ -49,6 +49,16 @@ public class ServerData extends ConnectionCfg {
         this.useSessionCookies = builder.useSessionCookies;
     }
 
+    private ServerData(ServerData that) {
+        super(that.getId(), that.getUrl(), that.getUsername(), that.getPassword());
+        this.server = that.server;
+        this.useProxy = that.useProxy;
+        this.basicUser = that.basicUser;
+        this.proxyUser = that.proxyUser;
+        this.useBasicUser = that.useBasicUser;
+        this.useSessionCookies = that.useSessionCookies;
+    }
+
     public static class Builder {
         //required params
         protected final Server server;
@@ -244,7 +254,7 @@ public class ServerData extends ConnectionCfg {
     }
 
     public ConnectionCfg toConnectionCfg() {
-        return new ConnectionCfg(getServerId().getId(), getUrl(), getUsername(), getPassword());
+        return new ServerData(this);
     }
 
 }

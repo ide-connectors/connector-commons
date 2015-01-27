@@ -1,13 +1,13 @@
 <shared-servers>
-	<shared-server-list serialization="custom">
+	<shared-server-list id="1" serialization="custom">
 		<unserializable-parents />
 		<java.util.Collection>
 			<default>
 				<size>1</size>
 			</default>
 			<int>10</int>
-			<bamboo>
-				<server-id>141d662c-e744-4690-a5f8-6e127c0bc84f</server-id>
+			<bamboo id="2">
+				<server-id id="3">141d662c-e744-4690-a5f8-6e127c0bc84f</server-id>
 				<isEnabled>true</isEnabled>
 				<name>mybamboo1</name>
 				<url>http://mygreaturl</url>
@@ -20,9 +20,9 @@
 				<show-branches>false</show-branches>
 				<my-branches-only>false</my-branches-only>
 				<bamboo2>false</bamboo2>
-				<plans>
-					<plan key="MYID" grouped="1" />
-					<plan key="PLANID2" grouped="0" />
+				<plans id="4">
+					<plan id="5" key="MYID" grouped="1" />
+					<plan id="6" key="PLANID2" grouped="0" />
 				</plans>
 				<timezoneOffset>0</timezoneOffset>
 			</bamboo>

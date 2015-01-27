@@ -50,14 +50,14 @@ public class GetRepositoriesCallback implements JettyMockServer.Callback {
 		Element root = new Element("repositories");
 		Document doc = new Document(root);
 		for (int i = 0; i < size; i++) {
-            getContent(root).add(getRepositories(i));
+            root.addContent(getRepositories(i));
 		}
 		return doc;
 	}
 
 	private Element getRepositories(int i) {
 		Element projectData = new Element("repoData");
-		addTag(projectData, "name", "RepoName" + Integer.toString(i));
+		projectData.addContent(new Element("name").setText("RepoName" + Integer.toString(i)));
 		return projectData;
 	}
 

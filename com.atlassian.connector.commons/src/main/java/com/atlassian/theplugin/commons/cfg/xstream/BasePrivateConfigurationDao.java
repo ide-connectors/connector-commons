@@ -11,6 +11,7 @@ import org.jdom.output.XMLOutputter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.nio.charset.Charset;
 
 public abstract class BasePrivateConfigurationDao<T> {
     private static final String ATLASSIAN_DIR_NAME = ".atlassian";
@@ -25,7 +26,11 @@ public abstract class BasePrivateConfigurationDao<T> {
         sw.flush();
         sw.close();
         String str = sw.toString();
-        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(outputFile.getAbsolutePath())));
+
+        // PL-2987 - FileWriter uses incorrect encoding
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(outputFile),
+                Charset.forName("UTF-8").newEncoder());
+        PrintWriter out = new PrintWriter(new BufferedWriter(outputStreamWriter));
         out.write(str);
         out.flush();
         out.close();

@@ -60,6 +60,7 @@ import com.atlassian.theplugin.commons.util.MiscUtil;
 import com.atlassian.theplugin.commons.util.XmlUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.CDATA;
+import org.jdom.Content;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -78,7 +79,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
+//import static com.atlassian.theplugin.commons.crucible.api.JDomHelper.getContent;
 import static com.atlassian.theplugin.commons.util.XmlUtil.getChildElements;
 
 public final class CrucibleRestXmlHelper {
@@ -951,6 +952,10 @@ public final class CrucibleRestXmlHelper {
 		prepareComment(comment, commentNode);
 		return doc;
 	}
+
+    private static List<Content> getContent(final Element e) {
+        return e.getContent();
+    }
 
 	public static Document prepareVersionedComment(PermId riId, VersionedComment comment) {
 		if (comment.getToStartLine() > comment.getToEndLine()) {

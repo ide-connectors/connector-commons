@@ -330,9 +330,11 @@ public class JIRAIssueBean implements JIRAIssue {
         this.projectKey = issue.getProject().getKey();
         this.thisIsASubTask = issue.getIssueType().isSubtask();
         if (thisIsASubTask) {
-            Object parent = issue.getField("parent").getValue();
-            if (parent instanceof JSONObject) {
-                this.parentIssueKey = JsonParseUtil.getOptionalString((JSONObject) parent, "key");
+            if (issue.getField("parent") != null) {
+                Object parent = issue.getField("parent").getValue();
+                if (parent instanceof JSONObject) {
+                    this.parentIssueKey = JsonParseUtil.getOptionalString((JSONObject) parent, "key");
+                }
             }
         }
         this.summary = issue.getSummary();

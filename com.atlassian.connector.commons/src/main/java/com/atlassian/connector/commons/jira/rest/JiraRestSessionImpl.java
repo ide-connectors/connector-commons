@@ -136,8 +136,13 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                 .create(new URI(server.getUrl()), new BasicHttpAuthenticationHandler(server.getUsername(), server.getPassword()) {
                     @Override
                     public void configure(ApacheHttpClientConfig config) {
+                        config.getProperties().put(ApacheHttpClientConfig.PROPERTY_HANDLE_COOKIES, true);
+                        config.getState().getHttpState().setCookiePolicy(CookiePolicy.COMPATIBILITY);
                         super.configure(config);
+                        config.getProperties().put(ApacheHttpClientConfig.PROPERTY_PREEMPTIVE_AUTHENTICATION, false);
+
                         setupApacheClient(config);
+
                     }
 
                     @Override

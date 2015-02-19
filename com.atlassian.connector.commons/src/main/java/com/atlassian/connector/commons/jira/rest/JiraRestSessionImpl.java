@@ -64,6 +64,7 @@ import com.atlassian.jira.rest.client.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.domain.input.TransitionInput;
 import com.atlassian.jira.rest.client.domain.input.WorklogInputBuilder;
 import com.atlassian.jira.rest.client.internal.ServerVersionConstants;
+import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClientBuilder;
 import com.atlassian.jira.rest.client.internal.jersey.JerseyJiraRestClientFactory;
 import com.atlassian.jira.rest.client.internal.json.JsonParseUtil;
 import com.atlassian.theplugin.commons.remoteapi.RemoteApiException;
@@ -117,7 +118,9 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
         this.proxyInfo = proxyInfo;
 
         if (((ServerData) server).isUseSessionCookies()) {
-            restClient = new JerseyJiraRestClientFactory()
+            restClient = new JerseyJiraRestClientBuilder()
+                .header("User-Agent", "Atlassian IntelliJ IDEA Connector")
+                .queryParam("requestSource", "intellij-ide-connector")
                 .create(new URI(server.getUrl()), new AnonymousAuthenticationHandler() {
                     @Override
                     public void configure(ApacheHttpClientConfig config) {
@@ -132,7 +135,9 @@ public class JiraRestSessionImpl implements JIRASessionPartOne, JIRASessionPartT
                     }
                 });
         } else {
-            restClient = new JerseyJiraRestClientFactory()
+            restClient = new JerseyJiraRestClientBuilder()
+                .header("User-Agent", "Atlassian IntelliJ IDEA Connector")
+                .queryParam("requestSource", "intellij-ide-connector")
                 .create(new URI(server.getUrl()), new BasicHttpAuthenticationHandler(server.getUsername(), server.getPassword()) {
                     @Override
                     public void configure(ApacheHttpClientConfig config) {

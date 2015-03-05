@@ -25,7 +25,8 @@ public enum ServerType {
 	JIRA_SERVER("JIRA Servers", "JIRA", "http://www.atlassian.com/software/jira/"),
 	FISHEYE_SERVER("FishEye Servers", "FishEye", "http://www.atlassian.com/software/fisheye/"),
     JIRA_STUDIO_SERVER("JIRA Studio Servers", "JIRA Studio", "http://www.atlassian.com/studio/", true);
-
+//    STASH_SERVER("Stash Servers", "STASH", "http://www.atlassian.com/software/stash/");
+//
 	private final String name;
 	private String shortName;
 	private final String infoUrl;

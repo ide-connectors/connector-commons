@@ -16,7 +16,6 @@ in plugins' projects.
 
 ## Documentation
 
-Documentation can be [found here](https://bitbucket.org/atlassian-docs/atlassian-docs.bitbucket.org).
 
 ## Tests
 
@@ -30,5 +29,3 @@ Contributions to Connector Commons are welcome! Please see [CONTRIBUTING.md](CON
 
 Copyright (c) 2008-2023 Atlassian US., Inc.
 Apache 2.0 licensed, see [LICENSE](LICENSE) file.
-
-[![With â¤ï¸ from Atlassian](https://raw.githubusercontent.com/atlassian-internal/oss-assets/master/banner-cheers.png)](https://www.atlassian.com)
